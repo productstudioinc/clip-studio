@@ -2,7 +2,16 @@
 import React, { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Package2, Menu, CircleUser, LucideIcon } from "lucide-react";
+import { Player } from "@remotion/player";
+import {
+  Bell,
+  Package2,
+  Menu,
+  CircleUser,
+  LucideIcon,
+  Search,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,6 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   LayoutTemplateIcon,
@@ -19,6 +29,7 @@ import {
   MicVocalIcon,
   FileUpIcon,
 } from "lucide-react";
+import { MyComposition } from "@/remotion/Test/Composition";
 
 interface NavItem {
   href: string;
@@ -82,13 +93,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold">
-              <Package2 className="h-6 w-6" />
-              <span className="">Acme Inc</span>
+              <Logo />
+              <span className="">Clip Studio</span>
             </Link>
-            <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
-              <Bell className="h-4 w-4" />
-              <span className="sr-only">Toggle notifications</span>
-            </Button>
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
@@ -103,7 +110,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col h-screen">
         <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
           <Sheet>
             <SheetTrigger asChild>
@@ -122,8 +129,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                   href="/"
                   className="flex items-center gap-2 text-lg font-semibold"
                 >
-                  <Package2 className="h-6 w-6" />
-                  <span className="">Acme Inc</span>
+                  <Logo />
+                  <span className="">Clip Studio</span>
                 </Link>
                 {navItems.map((item) => (
                   <NavLink
@@ -153,14 +160,37 @@ export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+        <main className="flex flex-col gap-4 p-4 lg:gap-6 lg:p-6 flex-grow overflow-hidden">
           <div className="flex items-center">
             <h1 className="text-lg font-semibold md:text-2xl">
               {getTitle(currentRoute)}
             </h1>
           </div>
-          <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm">
-            {children}
+          <div className="flex flex-col lg:flex-row flex-grow gap-4 overflow-hidden">
+            <div className="flex-1 min-w-0 overflow-auto rounded-lg border shadow-sm p-4">
+              <div className="h-full">{children}</div>
+            </div>
+            <div className="flex-1 min-w-0 overflow-hidden rounded-lg border shadow-sm bg-muted/5">
+              <div className="h-full p-4 flex items-center justify-center">
+                <Player
+                  component={MyComposition}
+                  fps={30}
+                  compositionHeight={1280}
+                  compositionWidth={720}
+                  durationInFrames={30 * 60}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    maxWidth: "720px",
+                    maxHeight: "80vh",
+                    aspectRatio: "9 / 16",
+                  }}
+                  controls
+                  autoPlay
+                  loop
+                />
+              </div>
+            </div>
           </div>
         </main>
       </div>
@@ -168,4 +198,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
   );
 };
 
-export default Dashboard;
+const Logo = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className="size-6"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122"
+      />
+    </svg>
+  );
+};

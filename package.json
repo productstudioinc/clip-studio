@@ -16,6 +16,8 @@
     "@remotion/eslint-plugin": "^4.0.180",
     "@remotion/lambda": "^4.0.180",
     "@remotion/player": "^4.0.180",
+    "@supabase/ssr": "^0.4.0",
+    "@supabase/supabase-js": "^2.44.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.32.0",
