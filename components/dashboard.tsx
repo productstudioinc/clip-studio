@@ -1,17 +1,7 @@
 "use client";
-import React, { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Player } from "@remotion/player";
-import {
-  Bell,
-  Package2,
-  Menu,
-  CircleUser,
-  LucideIcon,
-  Search,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Menu, CircleUser, LucideIcon, CogIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   LayoutTemplateIcon,
@@ -29,7 +18,8 @@ import {
   MicVocalIcon,
   FileUpIcon,
 } from "lucide-react";
-import { MyComposition } from "@/remotion/Test/Composition";
+import { VideoPreview } from "./video-preview";
+import { ReactNode } from "react";
 
 interface NavItem {
   href: string;
@@ -69,6 +59,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
     switch (route) {
       case "/studio/templates":
         return "Templates";
+      case "/studio/configure":
+        return "Configure";
       case "/studio/transcribe":
         return "Transcribe";
       case "/studio/voiceover":
@@ -82,6 +74,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
 
   const navItems: NavItem[] = [
     { href: "/studio/templates", icon: LayoutTemplateIcon, label: "Templates" },
+    { href: "/studio/configure", icon: CogIcon, label: "Configure" },
     { href: "/studio/transcribe", icon: CaptionsIcon, label: "Transcribe" },
     { href: "/studio/voiceover", icon: MicVocalIcon, label: "Voiceover" },
     { href: "/studio/export", icon: FileUpIcon, label: "Export" },
@@ -160,35 +153,23 @@ export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-        <main className="flex flex-col gap-4 p-4 lg:gap-6 lg:p-6 flex-grow overflow-hidden">
-          <div className="flex items-center">
+        <main className="flex flex-col p-4 lg:p-6 flex-grow overflow-hidden">
+          <div className="flex items-center mb-4">
             <h1 className="text-lg font-semibold md:text-2xl">
               {getTitle(currentRoute)}
             </h1>
           </div>
           <div className="flex flex-col lg:flex-row flex-grow gap-4 overflow-hidden">
-            <div className="flex-1 min-w-0 overflow-auto rounded-lg border shadow-sm p-4">
-              <div className="h-full">{children}</div>
+            <div className="w-full lg:w-1/2 overflow-auto">
+              <div className="h-full rounded-lg border shadow-sm p-4">
+                {children}
+              </div>
             </div>
-            <div className="flex-1 min-w-0 overflow-hidden rounded-lg border shadow-sm bg-muted/5">
-              <div className="h-full p-4 flex items-center justify-center">
-                <Player
-                  component={MyComposition}
-                  fps={30}
-                  compositionHeight={1280}
-                  compositionWidth={720}
-                  durationInFrames={30 * 60}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    maxWidth: "720px",
-                    maxHeight: "80vh",
-                    aspectRatio: "9 / 16",
-                  }}
-                  controls
-                  autoPlay
-                  loop
-                />
+            <div className="w-full lg:w-1/2 flex items-center justify-center bg-muted rounded-lg">
+              <div className="w-full max-w-sm aspect-[9/16] relative">
+                <div className="absolute inset-0 rounded-lg border shadow-sm overflow-hidden">
+                  <VideoPreview />
+                </div>
               </div>
             </div>
           </div>

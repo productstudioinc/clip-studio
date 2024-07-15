@@ -91,7 +91,11 @@ export const VIDEO_WIDTH = 720;
 export const VIDEO_HEIGHT = 1280;
 export const VIDEO_FPS = 30;
 
-const TemplateSchema = z.enum(["SplitScreen", "Reddit", "TwitterThread"]);
+export const TemplateSchema = z.enum([
+  "SplitScreen",
+  "Reddit",
+  "TwitterThread",
+]);
 
 type State = {
   selectedTemplate: z.infer<typeof TemplateSchema>;
