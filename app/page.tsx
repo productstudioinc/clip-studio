@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 type Link = {
   text: string;
   url: string;
@@ -24,10 +26,12 @@ export default function Home() {
       <footer>
         <div className="flex items-center justify-between gap-x-5">
           <div className="flex items-center gap-x-2">
-            <img
+            <Image
               className="h-8 w-8 rounded-full"
-              src="/icon.png"
+              src="/logo.svg"
               alt="Company Logo"
+              width={8}
+              height={8}
             />
             <h2 className="text-base font-bold text-neutral-900 dark:text-white">
               Clip Studio

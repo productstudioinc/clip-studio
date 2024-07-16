@@ -1,0 +1,11 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+	<title>image</title>
+	<defs>
+		<image width="360" height="360" id="img1" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAyNCAyNCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZT0id2hpdGUiPgogIDxwYXRoIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgZD0iTTYgNi44NzhWNmEyLjI1IDIuMjUgMCAwIDEgMi4yNS0yLjI1aDcuNUEyLjI1IDIuMjUgMCAwIDEgMTggNnYuODc4bS0xMiAwYy4yMzUtLjA4My40ODctLjEyOC43NS0uMTI4aDEwLjVjLjI2MyAwIC41MTUuMDQ1Ljc1LjEyOG0tMTIgMEEyLjI1IDIuMjUgMCAwIDAgNC41IDl2Ljg3OG0xMy41LTNBMi4yNSAyLjI1IDAgMCAxIDE5LjUgOXYuODc4bTAgMGEyLjI0NiAyLjI0NiAwIDAgMC0uNzUtLjEyOEg1LjI1Yy0uMjYzIDAtLjUxNS4wNDUtLjc1LjEyOG0xNSAwQTIuMjUgMi4yNSAwIDAgMSAyMSAxMnY2YTIuMjUgMi4yNSAwIDAgMS0yLjI1IDIuMjVINS4yNUEyLjI1IDIuMjUgMCAwIDEgMyAxOHYtNmMwLS45OC42MjYtMS44MTMgMS41LTIuMTIyIiAvPgo8L3N2Zz4K"/>
+	</defs>
+	<style>
+		.s0 { fill: #000000 } 
+	</style>
+	<path id="Shape 1" class="s0" d="m256 512c-141.6 0-256-114.4-256-256 0-141.6 114.4-256 256-256 141.6 0 256 114.4 256 256 0 141.6-114.4 256-256 256z"/>
+	<use id="kzxf8psnit8lyo1apjb" href="#img1" transform="matrix(.993,0,0,.993,77,77)"/>
+</svg>
