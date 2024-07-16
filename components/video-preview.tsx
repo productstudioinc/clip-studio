@@ -13,13 +13,13 @@ export const VideoPreview = () => {
 
   return (
     <Player
-      component={CompositionComponent}
+      component={CompositionComponent as any}
       inputProps={inputProps}
       durationInFrames={durationInFrames}
       fps={30}
       compositionHeight={1280}
       compositionWidth={720}
-      style={{ width: "100%", backgroundColor: "bg-muted" }}
+      style={{ width: "100%" }}
       controls
       autoPlay
       loop

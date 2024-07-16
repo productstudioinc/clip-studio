@@ -48,6 +48,7 @@ export const TemplateSelect: FC<TemplateSelectProps> = ({ templates }) => {
                   layout="fill"
                   objectFit="cover"
                   className="rounded-lg"
+                  unoptimized
                 />
               </div>
             </CardContent>
