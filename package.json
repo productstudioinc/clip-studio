@@ -42,7 +42,12 @@
     "zustand": "^4.5.4"
   },
   "devDependencies": {
+    "@content-collections/core": "^0.6.2",
+    "@content-collections/markdown": "^0.1.0",
+    "@content-collections/mdx": "^0.1.3",
+    "@content-collections/next": "^0.2.0",
     "@remotion/tailwind": "^4.0.180",
+    "@tailwindcss/typography": "^0.5.13",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
