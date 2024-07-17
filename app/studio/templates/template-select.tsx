@@ -45,13 +45,12 @@ export const TemplateSelect: FC<TemplateSelectProps> = ({ templates }) => {
               <CardTitle className="text-2xl">{template.name}</CardTitle>
             </CardHeader>
             <CardContent className="flex items-center justify-center">
-              <div className="relative w-full pt-[56.25%]">
+              <div className="relative w-full pt-[60%]">
                 <Image
                   src={template.previewUrl}
                   alt={template.name}
                   layout="fill"
-                  className="rounded-lg"
-                  unoptimized
+                  className="rounded-lg object-cover"
                 />
               </div>
             </CardContent>
