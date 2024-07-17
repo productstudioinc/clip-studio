@@ -49,7 +49,6 @@ export const BackgroundSelect: FC<BackgroundSelectProps> = ({
                     src={background.previewUrl}
                     alt={background.name}
                     layout="fill"
-                    objectFit="cover"
                     className="rounded-lg"
                     unoptimized
                   />

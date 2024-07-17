@@ -50,7 +50,6 @@ export const TemplateSelect: FC<TemplateSelectProps> = ({ templates }) => {
                   src={template.previewUrl}
                   alt={template.name}
                   layout="fill"
-                  objectFit="cover"
                   className="rounded-lg"
                   unoptimized
                 />
