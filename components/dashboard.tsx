@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { VideoPreview } from "./video-preview";
 import { ReactNode } from "react";
+import useTemplateConfig from "@/stores/templateConfig";
+import { useTemplateStore } from "@/stores/templatestore";
 
 interface NavItem {
   href: string;
@@ -55,16 +57,20 @@ const NavLink: React.FC<NavLinkProps> = ({
 export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
   const currentRoute = usePathname();
 
+  const { selectedTemplate } = useTemplateStore((state) => ({
+    selectedTemplate: state.selectedTemplate,
+  }));
+
   const getTitle = (route: string): string => {
     switch (route) {
       case "/studio/templates":
         return "Templates";
       case "/studio/configure":
         return "Configure";
-      case "/studio/transcribe":
-        return "Transcribe";
       case "/studio/voiceover":
-        return "Voiceover";
+        return selectedTemplate === "SplitScreen" ? "Caption" : "Voiceover";
+      case "/studio/caption":
+        return selectedTemplate === "SplitScreen" ? "Caption" : "Voiceover";
       case "/studio/export":
         return "Export";
       default:
@@ -75,8 +81,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
   const navItems: NavItem[] = [
     { href: "/studio/templates", icon: LayoutTemplateIcon, label: "Templates" },
     { href: "/studio/configure", icon: CogIcon, label: "Configure" },
-    { href: "/studio/transcribe", icon: CaptionsIcon, label: "Transcribe" },
-    { href: "/studio/voiceover", icon: MicVocalIcon, label: "Voiceover" },
+    {
+      href:
+        selectedTemplate === "SplitScreen"
+          ? "/studio/caption"
+          : "/studio/voiceover",
+      icon: selectedTemplate === "SplitScreen" ? CaptionsIcon : MicVocalIcon,
+      label: selectedTemplate === "SplitScreen" ? "Caption" : "Voiceover",
+    },
     { href: "/studio/export", icon: FileUpIcon, label: "Export" },
   ];
 
