@@ -11,6 +11,7 @@ export const templates = pgTable("templates", {
 export const backgrounds = pgTable("backgrounds", {
   id: integer("id").primaryKey(),
   name: text("name").notNull(),
+  previewUrl: text("preview_url").notNull(),
 });
 
 export const backgroundsRelations = relations(backgrounds, ({ many }) => ({
@@ -36,3 +37,9 @@ export const backgroundPartsRelations = relations(
 );
 
 export type SelectTemplates = typeof templates.$inferSelect;
+export type SelectBackgrounds = typeof backgrounds.$inferSelect;
+export type SelectBackgroundParts = typeof backgroundParts.$inferSelect;
+
+export type SelectBackgroundWithParts = SelectBackgrounds & {
+  backgroundParts: SelectBackgroundParts[];
+};

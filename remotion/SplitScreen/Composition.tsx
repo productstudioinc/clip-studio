@@ -6,6 +6,8 @@ import {
   continueRender,
   cancelRender,
   OffthreadVideo,
+  Series,
+  useVideoConfig,
 } from "remotion";
 import { z } from "zod";
 import { SplitScreenProps } from "../../stores/templatestore";
@@ -18,14 +20,15 @@ export type SubtitleProp = {
 };
 
 const FPS = 30;
-const OFFSET_FRAMES = -5; // Adjust this value to synchronize subtitles better
+const OFFSET_FRAMES = -5;
 
 export const SplitScreenComposition = ({
   videoUrl,
   type,
-  backgroundUrl,
+  backgroundUrls,
   transcription,
 }: z.infer<typeof SplitScreenProps>) => {
+  const videoConfig = useVideoConfig();
   const [subtitles, setSubtitles] = useState<SubtitleProp[]>([]);
   const [handle] = useState(() => delayRender());
 
@@ -33,19 +36,16 @@ export const SplitScreenComposition = ({
     try {
       const { chunks } = transcription;
       const subtitlesData: SubtitleProp[] = [];
-
       for (let i = 0; i < chunks.length; i++) {
         const { timestamp, text } = chunks[i];
         const startFrame = Math.floor(timestamp[0] * FPS) + OFFSET_FRAMES;
         const endFrame = Math.floor(timestamp[1] * FPS) + OFFSET_FRAMES;
-
         subtitlesData.push({
           startFrame,
           endFrame,
           text,
         });
       }
-
       setSubtitles(subtitlesData);
       continueRender(handle);
     } catch (e) {
@@ -95,7 +95,24 @@ export const SplitScreenComposition = ({
           height: "50%",
         }}
       >
-        <OffthreadVideo src={backgroundUrl} style={videoStyle} muted />
+        <Series>
+          {backgroundUrls.map((part, index) => (
+            <Series.Sequence
+              durationInFrames={
+                videoConfig.durationInFrames / backgroundUrls.length
+              }
+              key={index}
+            >
+              <OffthreadVideo
+                src={part}
+                startFrom={0}
+                endAt={videoConfig.durationInFrames / backgroundUrls.length}
+                style={videoStyle}
+                muted
+              />
+            </Series.Sequence>
+          ))}
+        </Series>
       </div>
       {subtitles.map((subtitle, index) =>
         subtitle.startFrame < subtitle.endFrame ? (

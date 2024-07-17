@@ -1,11 +1,12 @@
 import { z } from "zod";
 import { create } from "zustand";
-import { alignmentDefault } from "./alignmenttext";
-import { splitScreenTranscriptionDefault } from "./splitscreentranscription";
+import { alignmentDefault } from "@/stores/alignmenttext";
+import { splitScreenTranscriptionDefault } from "@/stores/splitscreentranscription";
 
 const SharedProps = z.object({
   durationInFrames: z.number(),
-  backgroundUrl: z.string(),
+  backgroundTheme: z.enum(["Minecraft", "GTA", "Satisfying"]),
+  backgroundUrls: z.array(z.string()),
 });
 
 const VoiceoverFrames = z.object({
@@ -58,12 +59,26 @@ export const CompositionProps = z.union([
   TwitterThreadProps,
 ]);
 
+const defaultMinecraftBackgrounds = [
+  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_0.mp4",
+  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_1.mp4",
+  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_2.mp4",
+  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_3.mp4",
+  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_4.mp4",
+  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_5.mp4",
+  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_6.mp4",
+  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_7.mp4",
+  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_8.mp4",
+  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_9.mp4",
+];
+
 export const defaultMyCompProps: z.infer<typeof SplitScreenProps> = {
   videoUrl:
     "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/transcribe_test.mp4",
   type: "cloud",
   durationInFrames: 3643,
-  backgroundUrl: "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc.mp4",
+  backgroundTheme: "Minecraft",
+  backgroundUrls: defaultMinecraftBackgrounds,
   transcriptionId: "",
   transcription: splitScreenTranscriptionDefault,
 };
@@ -74,7 +89,8 @@ export const defaultRedditProps: z.infer<typeof RedditProps> = {
   text: "My brother Nicky (25m) is married to Liza (24f). They were at my parents house on Sunday for dinner and Liza really annoyed the crap out of me, something that isn't new, and I said something in anger and I might be TA for it maybe.\r\n\r\nSo Liza has a wealthy family. They paid for her and her siblings college expenses 100%. They paid for Nicky and Liza's house. They paid for their wedding. They're paying for one of their sons weddings this summer. They can afford all that. Liza has always been very... open, if trying to give her the benefit of the doubt, about it. She never hid the fact she came from money and was never shy about saying her parents pay for so much for her and her siblings.\r\n\r\nLiza doesn't understand that we're not all that lucky. I'm 19f, work full time and I still live with my parents. We couldn't afford college. I didn't get the grades for a scholarship. Struggled enough through school that getting into massive debt for college when I could end up flunking seemed like a bad move for me. So I focus on working and I applied for a couple of training programs close to my parents house so I could try and do better without risking debt for nothing.\r\n\r\nLiza looks down on me so hard for living with my parents still and for not going to college. Sunday she talked about how all her siblings attended college, how three of them are still in college, living there and doing just fine. How they'll be able to buy houses right out of college. How even she and my brother could do it. My parents said politely that not everyone can do all that. But then she talked about being 19 and not in college or living on my own and how I should really try so much harder. I snapped at that moment and I told her we can't all have rich parents who can afford to pay our ways through college, for our weddings and for our houses. I told her my parents didn't have that kind of money and neither did I, so we were doing our best in this shitty fucking economy.\r\n\r\nLiza told me I'm just lazy and making excuses and she stormed out. Nicky left a while after and he was pretty quiet. Liza used his phone to send me 30 texts three days later demanding I apologize and tearing me a new one for not doing it without being told and I know it was her because she texts in a very specific way.\r\n\r\nAITA?",
   subreddit: "AmITheAsshole",
   durationInFrames: Math.floor(30 * 131.655),
-  backgroundUrl: "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc.mp4",
+  backgroundTheme: "Minecraft",
+  backgroundUrls: defaultMinecraftBackgrounds,
   voiceoverUrl:
     "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/reddit_sample_audio.mp3",
   voiceoverFrames: alignmentDefault,
@@ -84,7 +100,8 @@ export const defaultRedditProps: z.infer<typeof RedditProps> = {
 export const defaultTwitterThreadProps: z.infer<typeof TwitterThreadProps> = {
   tweetIds: ["1803609101110550977"],
   durationInFrames: 900,
-  backgroundUrl: "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc.mp4",
+  backgroundTheme: "Minecraft",
+  backgroundUrls: defaultMinecraftBackgrounds,
 };
 
 export const VIDEO_WIDTH = 720;
@@ -112,8 +129,12 @@ type State = {
   ) => void;
   durationInFrames: number;
   setdurationInFrames: (length: number) => void;
-  backgroundUrl: string;
-  setBackgroundUrl: (url: string) => void;
+  backgroundTheme: z.infer<typeof SharedProps>["backgroundTheme"];
+  setBackgroundTheme: (
+    theme: z.infer<typeof SharedProps>["backgroundTheme"]
+  ) => void;
+  backgroundUrls: string[];
+  setBackgroundUrls: (urls: string[]) => void;
 };
 
 export const useTemplateStore = create<State>((set) => ({
@@ -148,12 +169,23 @@ export const useTemplateStore = create<State>((set) => ({
         durationInFrames: length,
       },
     })),
-  backgroundUrl: "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc.mp4",
-  setBackgroundUrl: (url) =>
+  backgroundTheme: "Minecraft",
+  setBackgroundTheme: (theme) =>
     set((state) => ({
-      backgroundUrl: url,
-      splitScreenState: { ...state.splitScreenState, backgroundUrl: url },
-      redditState: { ...state.redditState, backgroundUrl: url },
-      twitterThreadState: { ...state.twitterThreadState, backgroundUrl: url },
+      backgroundTheme: theme,
+      splitScreenState: { ...state.splitScreenState, backgroundTheme: theme },
+      redditState: { ...state.redditState, backgroundTheme: theme },
+      twitterThreadState: {
+        ...state.twitterThreadState,
+        backgroundTheme: theme,
+      },
+    })),
+  backgroundUrls: defaultMinecraftBackgrounds,
+  setBackgroundUrls: (urls) =>
+    set((state) => ({
+      backgroundUrls: urls,
+      splitScreenState: { ...state.splitScreenState, backgroundUrls: urls },
+      redditState: { ...state.redditState, backgroundUrls: urls },
+      twitterThreadState: { ...state.twitterThreadState, backgroundUrls: urls },
     })),
 }));

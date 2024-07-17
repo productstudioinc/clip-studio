@@ -24,25 +24,13 @@ export type SubtitleProp = {
 
 const FPS = 30;
 
-const backgroundParts = [
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_0.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_1.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_2.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_3.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_4.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_5.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_6.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_7.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_8.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_9.mp4",
-];
-
 export const RedditComposition = ({
   title,
   subreddit,
   voiceoverUrl,
   voiceoverFrames,
   titleEnd,
+  backgroundUrls,
 }: z.infer<typeof RedditProps>) => {
   const videoConfig = useVideoConfig();
   const [subtitles, setSubtitles] = useState<SubtitleProp[]>([]);
@@ -102,17 +90,17 @@ export const RedditComposition = ({
       <Audio src={voiceoverUrl} pauseWhenBuffering />
       <AbsoluteFill>
         <Series>
-          {backgroundParts.map((part, index) => (
+          {backgroundUrls.map((part, index) => (
             <Series.Sequence
               durationInFrames={
-                videoConfig.durationInFrames / backgroundParts.length
+                videoConfig.durationInFrames / backgroundUrls.length
               }
               key={index}
             >
               <OffthreadVideo
                 src={part}
                 startFrom={0}
-                endAt={videoConfig.durationInFrames / backgroundParts.length}
+                endAt={videoConfig.durationInFrames / backgroundUrls.length}
                 style={{
                   position: "absolute",
                   width: "100%",

@@ -5,12 +5,14 @@ import type { FC } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import { useTemplateStore } from "@/stores/templatestore";
+import { useRouter } from "next/navigation";
 
 interface TemplateSelectProps {
   templates: SelectTemplates[];
 }
 
 export const TemplateSelect: FC<TemplateSelectProps> = ({ templates }) => {
+  // const router = useRouter();
   const { selectedTemplate, setSelectedTemplate } = useTemplateStore(
     (state) => ({
       selectedTemplate: state.selectedTemplate,
@@ -20,6 +22,8 @@ export const TemplateSelect: FC<TemplateSelectProps> = ({ templates }) => {
 
   const handleSelect = (value: string) => {
     setSelectedTemplate(value as "SplitScreen" | "Reddit" | "TwitterThread");
+
+    // router.push(`?template=${value}`, { scroll: false });
   };
 
   return (

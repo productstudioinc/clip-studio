@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { backgroundParts, templates } from "@/db/schema";
+import { templates } from "@/db/schema";
 
 export const getTemplates = async () => {
   const response = await db.select().from(templates);
