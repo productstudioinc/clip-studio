@@ -166,7 +166,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
               </div>
             </div>
             <div className="w-full lg:w-1/2 flex items-center justify-center bg-muted rounded-lg">
-              <div className="w-full max-w-sm aspect-[9/16] relative">
+              <div className="w-full max-w-lg aspect-[9/16] relative">
                 <div className="absolute inset-0 rounded-lg border shadow-sm overflow-hidden">
                   <VideoPreview />
                 </div>

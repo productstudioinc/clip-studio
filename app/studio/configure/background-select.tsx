@@ -2,7 +2,8 @@
 import { SelectBackgroundWithParts } from "@/db/schema";
 import type { FC } from "react";
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { useTemplateStore } from "@/stores/templatestore";
 
 type BackgroundSelectProps = {
   backgrounds: SelectBackgroundWithParts[];
@@ -11,6 +12,18 @@ type BackgroundSelectProps = {
 export const BackgroundSelect: FC<BackgroundSelectProps> = ({
   backgrounds,
 }) => {
+  const { backgroundTheme, setBackgroundTheme, setBackgroundUrls } =
+    useTemplateStore((state) => ({
+      backgroundTheme: state.backgroundTheme,
+      setBackgroundTheme: state.setBackgroundTheme,
+      setBackgroundUrls: state.setBackgroundUrls,
+    }));
+
+  const handleSelect = (background: SelectBackgroundWithParts) => {
+    setBackgroundTheme(background.name as "Minecraft" | "GTA" | "Satisfying");
+    setBackgroundUrls(background.backgroundParts.map((part) => part.partUrl));
+  };
+
   return (
     <>
       <h2 className="text-2xl font-semibold leading-none tracking-tight pt-2 pb-6">
@@ -18,12 +31,19 @@ export const BackgroundSelect: FC<BackgroundSelectProps> = ({
       </h2>
       <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
         {backgrounds.map((background) => (
-          <div key={background.id} className="cursor-pointer">
-            <Card className="h-full transition-all duration-300">
-              <CardHeader>
-                <CardTitle className="text-2xl">{background.name}</CardTitle>
-              </CardHeader>
-              <CardContent className="flex items-center justify-center">
+          <div
+            key={background.id}
+            onClick={() => handleSelect(background)}
+            className="cursor-pointer"
+          >
+            <Card
+              className={`h-full transition-all duration-300 ${
+                backgroundTheme === background.name
+                  ? "ring-2 ring-primary"
+                  : "hover:shadow-md"
+              }`}
+            >
+              <CardContent className="p-1">
                 <div className="relative w-full pt-[56.25%]">
                   <Image
                     src={background.previewUrl}
