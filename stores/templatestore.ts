@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { create } from "zustand";
-import { alignmentDefault } from "@/stores/alignmenttext";
-import { splitScreenTranscriptionDefault } from "@/stores/splitscreentranscription";
+import { alignmentDefault } from "./alignmenttext";
+import { splitScreenTranscriptionDefault } from "./splitscreentranscription";
 
 const SharedProps = z.object({
   durationInFrames: z.number(),
