@@ -153,20 +153,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-        <main className="flex flex-col p-4 lg:p-6 flex-grow overflow-hidden">
+        <main className="flex flex-col p-4 lg:p-6 flex-grow overflow-auto">
           <div className="flex items-center mb-4">
             <h1 className="text-lg font-semibold md:text-2xl">
               {getTitle(currentRoute)}
             </h1>
           </div>
-          <div className="flex flex-col lg:flex-row flex-grow gap-4 overflow-hidden">
+          <div className="flex flex-col lg:flex-row gap-4 min-h-0 flex-grow">
             <div className="w-full lg:w-1/2 overflow-auto">
               <div className="h-full rounded-lg border shadow-sm p-4">
                 {children}
               </div>
             </div>
-            <div className="w-full lg:w-1/2 flex items-center justify-center bg-muted rounded-lg">
-              <div className="w-full max-w-lg aspect-[9/16] relative">
+            <div className="w-full lg:w-1/2 flex items-center justify-center bg-muted rounded-lg min-h-[300px] lg:min-h-0">
+              <div className="w-full max-w-lg aspect-video relative">
                 <div className="absolute inset-0 rounded-lg border shadow-sm overflow-hidden">
                   <VideoPreview />
                 </div>
