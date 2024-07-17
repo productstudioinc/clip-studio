@@ -17,6 +17,11 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      { source: "/studio", destination: "/studio/templates", permanent: true },
+    ];
+  },
 };
 
 export default withContentCollections(nextConfig);
