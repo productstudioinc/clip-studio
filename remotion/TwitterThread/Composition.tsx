@@ -5,27 +5,27 @@ import {
   useCurrentFrame,
   interpolate,
   spring,
-  Video,
+  OffthreadVideo,
+  Series,
+  useVideoConfig,
 } from "remotion";
 import { z } from "zod";
 
 export const TwitterThreadComposition = ({
   tweetIds,
   durationInFrames,
-  backgroundVideo,
-}: z.infer<typeof TwitterThreadProps> & { backgroundVideo: string }) => {
+  backgroundUrls,
+}: z.infer<typeof TwitterThreadProps>) => {
+  const videoConfig = useVideoConfig();
   const validTweetIds = Array.isArray(tweetIds) ? tweetIds : [];
-
   const frame = useCurrentFrame();
   const totalTweets = validTweetIds.length;
-
   const currentTweetIndex = Math.floor(
     interpolate(frame, [0, durationInFrames], [0, totalTweets], {
       extrapolateLeft: "clamp",
       extrapolateRight: "clamp",
     })
   );
-
   const progress = spring({
     frame,
     fps: 30,
@@ -41,18 +41,27 @@ export const TwitterThreadComposition = ({
 
   return (
     <AbsoluteFill>
-      <Video
-        src="https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc.mp4"
-        startFrom={0}
-        endAt={durationInFrames}
-        style={{
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-        }}
-        muted
-      />
+      <Series>
+        {backgroundUrls.map((part, index) => (
+          <Series.Sequence
+            durationInFrames={durationInFrames / backgroundUrls.length}
+            key={index}
+          >
+            <OffthreadVideo
+              src={part}
+              startFrom={0}
+              endAt={durationInFrames / backgroundUrls.length}
+              style={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+              muted
+            />
+          </Series.Sequence>
+        ))}
+      </Series>
       <AbsoluteFill
         style={{
           justifyContent: "center",
