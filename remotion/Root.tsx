@@ -11,33 +11,8 @@ import { SplitScreenComposition } from "./SplitScreen/Composition";
 import { RedditComposition } from "./Reddit/Composition";
 import { TwitterThreadComposition } from "./TwitterThread/Composition";
 import { getVideoMetadata } from "@remotion/media-utils";
-import { z } from "zod";
 
-type CompositionConfig = {
-  [K in z.infer<typeof TemplateSchema>]: {
-    component: React.ComponentType<any>;
-    calculateMetadata?: (props: any) => Promise<{ durationInFrames: number }>;
-  };
-};
-
-const compositionConfig: CompositionConfig = {
-  SplitScreen: {
-    component: SplitScreenComposition,
-    calculateMetadata: async ({ props }) => {
-      const data = await getVideoMetadata(props.videoUrl);
-      return { durationInFrames: Math.floor(data.durationInSeconds * 30) };
-    },
-  },
-  Reddit: {
-    component: RedditComposition,
-    calculateMetadata: async ({ props }) => ({
-      durationInFrames: props.durationInFrames,
-    }),
-  },
-  TwitterThread: {
-    component: TwitterThreadComposition,
-  },
-};
+// super ugly code but i couldnt figure out how to do it a cleaner way
 
 export const RemotionRoot: React.FC = () => {
   const {
@@ -52,30 +27,76 @@ export const RemotionRoot: React.FC = () => {
     twitterThreadState: state.twitterThreadState,
   }));
 
-  const getTemplateState = () => {
-    switch (selectedTemplate) {
-      case "SplitScreen":
-        return splitScreenState;
-      case "Reddit":
-        return redditState;
-      case "TwitterThread":
-        return twitterThreadState;
-    }
-  };
+  const defaultProps =
+    selectedTemplate === "SplitScreen"
+      ? splitScreenState
+      : selectedTemplate === "Reddit"
+      ? redditState
+      : twitterThreadState;
 
-  const templateState = getTemplateState();
-  const { component, calculateMetadata } = compositionConfig[selectedTemplate];
+  const videoDuration =
+    selectedTemplate === "SplitScreen"
+      ? splitScreenState.durationInFrames
+      : selectedTemplate === "Reddit"
+      ? redditState.durationInFrames
+      : twitterThreadState.durationInFrames;
 
   return (
-    <Composition
-      id={selectedTemplate}
-      component={component}
-      durationInFrames={templateState.durationInFrames}
-      fps={VIDEO_FPS}
-      width={VIDEO_WIDTH}
-      height={VIDEO_HEIGHT}
-      defaultProps={templateState}
-      calculateMetadata={calculateMetadata}
-    />
+    <>
+      <div
+        style={{
+          display: selectedTemplate === "SplitScreen" ? "block" : "none",
+        }}
+      >
+        <Composition
+          id="SplitScreen"
+          component={SplitScreenComposition}
+          durationInFrames={videoDuration}
+          fps={VIDEO_FPS}
+          width={VIDEO_WIDTH}
+          height={VIDEO_HEIGHT}
+          defaultProps={defaultProps as any}
+          calculateMetadata={async ({ props }) => {
+            const data = await getVideoMetadata(props.videoUrl);
+            return {
+              durationInFrames: Math.floor(data.durationInSeconds * 30),
+            };
+          }}
+        />
+      </div>
+      <div
+        style={{ display: selectedTemplate === "Reddit" ? "block" : "none" }}
+      >
+        <Composition
+          id="Reddit"
+          component={RedditComposition}
+          durationInFrames={videoDuration}
+          fps={VIDEO_FPS}
+          width={VIDEO_WIDTH}
+          height={VIDEO_HEIGHT}
+          defaultProps={defaultProps as any}
+          calculateMetadata={async ({ props }) => {
+            return {
+              durationInFrames: props.durationInFrames,
+            };
+          }}
+        />
+      </div>
+      <div
+        style={{
+          display: selectedTemplate === "TwitterThread" ? "block" : "none",
+        }}
+      >
+        <Composition
+          id="TwitterThread"
+          component={TwitterThreadComposition}
+          durationInFrames={videoDuration}
+          fps={VIDEO_FPS}
+          width={VIDEO_WIDTH}
+          height={VIDEO_HEIGHT}
+          defaultProps={defaultProps as any}
+        />
+      </div>
+    </>
   );
 };
