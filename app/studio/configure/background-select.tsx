@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import { SelectBackgroundWithParts } from "@/db/schema";
 import type { FC } from "react";
@@ -45,12 +46,10 @@ export const BackgroundSelect: FC<BackgroundSelectProps> = ({
             >
               <CardContent className="p-1">
                 <div className="relative w-full pt-[56.25%]">
-                  <Image
+                  <img
                     src={background.previewUrl}
                     alt={background.name}
-                    layout="fill"
-                    className="rounded-lg"
-                    unoptimized
+                    className="absolute inset-0 w-full h-full object-cover rounded-lg"
                   />
                 </div>
               </CardContent>
