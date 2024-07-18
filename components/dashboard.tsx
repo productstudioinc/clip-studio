@@ -22,6 +22,7 @@ import { VideoPreview } from "./video-preview";
 import { ReactNode } from "react";
 import useTemplateConfig from "@/stores/templateConfig";
 import { useTemplateStore } from "@/stores/templatestore";
+import { ModeToggle } from "./theme-toggle";
 
 interface NavItem {
   href: string;
@@ -101,6 +102,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
               <Logo />
               <span className="">Clip Studio</span>
             </Link>
+            <div className="mx-auto">
+              <ModeToggle />
+            </div>
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
