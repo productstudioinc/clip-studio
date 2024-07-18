@@ -27,7 +27,7 @@ export const TemplateSelect: FC<TemplateSelectProps> = ({ templates }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
       {templates.map((template) => (
         <div
           key={template.value}
@@ -41,10 +41,10 @@ export const TemplateSelect: FC<TemplateSelectProps> = ({ templates }) => {
                 : "hover:shadow-md"
             }`}
           >
-            <CardHeader>
-              <CardTitle className="text-2xl">{template.name}</CardTitle>
+            <CardHeader className="p-4">
+              <CardTitle className="text-lg">{template.name}</CardTitle>
             </CardHeader>
-            <CardContent className="flex items-center justify-center">
+            <CardContent className="flex items-center justify-center pb-4 px-4">
               <div className="relative w-full pt-[60%]">
                 <Image
                   src={template.previewUrl}
