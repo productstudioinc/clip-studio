@@ -10,10 +10,7 @@ export const RenderButton: React.FC<{
   renderMedia: () => void;
   state: RenderState;
 }> = ({ renderMedia, state }) => {
-  const isLoading =
-    state.status === "init" ||
-    state.status === "invoking" ||
-    state.status === "rendering";
+  const isLoading = state.status === "invoking" || state.status === "rendering";
 
   return (
     <Button
