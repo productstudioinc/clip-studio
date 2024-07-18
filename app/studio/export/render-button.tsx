@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { CloudLightning } from "lucide-react";
+import { CloudLightning, Loader2 } from "lucide-react";
 
 interface RenderState {
   status: "init" | "invoking" | "rendering" | "done" | "error";
@@ -10,18 +10,22 @@ export const RenderButton: React.FC<{
   renderMedia: () => void;
   state: RenderState;
 }> = ({ renderMedia, state }) => {
+  const isLoading =
+    state.status === "init" ||
+    state.status === "invoking" ||
+    state.status === "rendering";
+
   return (
     <Button
       variant={"ghost"}
-      disabled={
-        (state.status === "init",
-        state.status === "invoking" ||
-          state.status === "rendering" ||
-          state.status === "done")
-      }
+      disabled={isLoading || state.status === "done"}
       onClick={renderMedia}
     >
-      <CloudLightning className="mr-2 h-4 w-4" />
+      {isLoading ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      ) : (
+        <CloudLightning className="mr-2 h-4 w-4" />
+      )}
       Render
     </Button>
   );
