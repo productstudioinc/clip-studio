@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { CloudLightning, Loader2 } from "lucide-react";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 interface RenderState {
   status: "init" | "invoking" | "rendering" | "done" | "error";
@@ -10,6 +12,11 @@ export const RenderButton: React.FC<{
   renderMedia: () => void;
   state: RenderState;
 }> = ({ renderMedia, state }) => {
+  useEffect(() => {
+    if (state.status === "error") {
+      toast.error(state.error?.message);
+    }
+  }, [state]);
   const isLoading = state.status === "invoking" || state.status === "rendering";
 
   return (
