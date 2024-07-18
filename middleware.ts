@@ -4,12 +4,12 @@ import { updateSession } from "./supabase/middleware";
 export async function middleware(request: NextRequest) {
   const response = await updateSession(request);
 
-  if (process.env.NODE_ENV === "production") {
-    const url = request.nextUrl.clone();
-    if (url.pathname !== "/") {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-  }
+  // if (process.env.NODE_ENV === "production") {
+  //   const url = request.nextUrl.clone();
+  //   if (url.pathname !== "/") {
+  //     return NextResponse.redirect(new URL("/", request.url));
+  //   }
+  // }
 
   return response;
 }
