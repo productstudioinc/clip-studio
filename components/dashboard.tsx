@@ -160,7 +160,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children }) => {
                   <img
                     src={user.user_metadata.avatar_url}
                     alt="avatar"
-                    className="h-5 w-5 rounded-full"
+                    className="rounded-full"
                   />
                 ) : (
                   <CircleUser className="h-5 w-5" />
