@@ -23,6 +23,8 @@ import { ReactNode } from "react";
 import useTemplateConfig from "@/stores/templateConfig";
 import { useTemplateStore } from "@/stores/templatestore";
 import { ModeToggle } from "./theme-toggle";
+import { User } from "@supabase/supabase-js";
+import { signOut } from "@/utils/actions/user";
 
 interface NavItem {
   href: string;
@@ -35,6 +37,7 @@ interface NavLinkProps extends NavItem {
 }
 
 interface DashboardProps {
+  user: User | null;
   children: ReactNode;
 }
 
@@ -55,7 +58,7 @@ const NavLink: React.FC<NavLinkProps> = ({
   </Link>
 );
 
-export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ user, children }) => {
   const currentRoute = usePathname();
 
   const { selectedTemplate } = useTemplateStore((state) => ({
@@ -159,11 +162,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              {user ? (
+                <DropdownMenuItem onClick={() => signOut()}>
+                  Logout
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem>
+                  <Link href="/login">Login</Link>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
