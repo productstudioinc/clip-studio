@@ -174,8 +174,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ children }) => {
             </h1>
           </div>
           <div className="flex flex-col lg:flex-row gap-4 min-h-0 flex-grow">
-            <div className="w-full lg:w-1/2 overflow-auto">
-              <div className="h-full rounded-lg border shadow-sm p-4">
+            <div className="w-full lg:w-1/2 overflow-hidden flex flex-col">
+              <div className="flex-grow overflow-auto rounded-lg border shadow-sm">
                 {children}
               </div>
             </div>

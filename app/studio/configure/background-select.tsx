@@ -30,7 +30,7 @@ export const BackgroundSelect: FC<BackgroundSelectProps> = ({
       <h2 className="text-2xl font-semibold leading-none tracking-tight pt-2 pb-6">
         Select a background
       </h2>
-      <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
         {backgrounds.map((background) => (
           <div
             key={background.id}
