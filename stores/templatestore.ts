@@ -60,21 +60,20 @@ export const CompositionProps = z.union([
 ]);
 
 const defaultMinecraftBackgrounds = [
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_0.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_1.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_2.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_3.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_4.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_5.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_6.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_7.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_8.mp4",
-  "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/mc_9.mp4",
+  "https://assets.clip.studio/mc_0.mp4",
+  "https://assets.clip.studio/mc_1.mp4",
+  "https://assets.clip.studio/mc_2.mp4",
+  "https://assets.clip.studio/mc_3.mp4",
+  "https://assets.clip.studio/mc_4.mp4",
+  "https://assets.clip.studio/mc_5.mp4",
+  "https://assets.clip.studio/mc_6.mp4",
+  "https://assets.clip.studio/mc_7.mp4",
+  "https://assets.clip.studio/mc_8.mp4",
+  "https://assets.clip.studio/mc_9.mp4",
 ];
 
 export const defaultMyCompProps: z.infer<typeof SplitScreenProps> = {
-  videoUrl:
-    "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/transcribe_test.mp4",
+  videoUrl: "https://assets.clip.studio/transcribe_test.mp4",
   type: "cloud",
   durationInFrames: 3643,
   backgroundTheme: "Minecraft",
@@ -91,8 +90,7 @@ export const defaultRedditProps: z.infer<typeof RedditProps> = {
   durationInFrames: Math.floor(30 * 131.655),
   backgroundTheme: "Minecraft",
   backgroundUrls: defaultMinecraftBackgrounds,
-  voiceoverUrl:
-    "https://pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev/reddit_sample_audio.mp3",
+  voiceoverUrl: "https://assets.clip.studio/reddit_sample_audio.mp3",
   voiceoverFrames: alignmentDefault,
   titleEnd: 5.596,
 };

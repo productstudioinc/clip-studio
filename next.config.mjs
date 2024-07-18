@@ -12,7 +12,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "pub-4c7f268d86c44653aa9fcccd6761a834.r2.dev",
+        hostname: "assets.clip.studio",
         pathname: "/**",
       },
     ],

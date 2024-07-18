@@ -44,7 +44,7 @@ export const generateAudioAndTimestamps = createServerAction()
     const s3Key = `voiceovers/${input.voiceId}/${crypto.randomUUID()}.mp3`;
 
     const putObjectCommand = new PutObjectCommand({
-      Bucket: "videogen-user",
+      Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
       Key: s3Key,
       Body: audioBuffer,
       ContentType: "audio/mpeg",
@@ -53,7 +53,7 @@ export const generateAudioAndTimestamps = createServerAction()
     await R2.send(putObjectCommand);
 
     const getObjectCommand = new GetObjectCommand({
-      Bucket: "videogen-user",
+      Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
       Key: s3Key,
     });
 
