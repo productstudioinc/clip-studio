@@ -156,7 +156,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children }) => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
-                <CircleUser className="h-5 w-5" />
+                {user?.user_metadata.avatar_url ? (
+                  <img
+                    src={user.user_metadata.avatar_url}
+                    alt="avatar"
+                    className="h-5 w-5 rounded-full"
+                  />
+                ) : (
+                  <CircleUser className="h-5 w-5" />
+                )}
                 <span className="sr-only">Toggle user menu</span>
               </Button>
             </DropdownMenuTrigger>
