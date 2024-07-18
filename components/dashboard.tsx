@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { redirect, usePathname } from "next/navigation";
+import { redirect, usePathname, useRouter } from "next/navigation";
 import { Menu, CircleUser, LucideIcon, CogIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,7 +8,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -20,7 +19,6 @@ import {
 } from "lucide-react";
 import { VideoPreview } from "./video-preview";
 import { ReactNode } from "react";
-import useTemplateConfig from "@/stores/templateConfig";
 import { useTemplateStore } from "@/stores/templatestore";
 import { ModeToggle } from "./theme-toggle";
 import { User } from "@supabase/supabase-js";
@@ -60,6 +58,7 @@ const NavLink: React.FC<NavLinkProps> = ({
 
 export const Dashboard: React.FC<DashboardProps> = ({ user, children }) => {
   const currentRoute = usePathname();
+  const router = useRouter();
 
   const { selectedTemplate } = useTemplateStore((state) => ({
     selectedTemplate: state.selectedTemplate,
@@ -179,7 +178,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children }) => {
                 </DropdownMenuItem>
               ) : (
                 <DropdownMenuItem
-                  onClick={() => redirect("/login")}
+                  onClick={() => router.push("/login")}
                   className="cursor-pointer"
                 >
                   Login
