@@ -1,5 +1,4 @@
-import { ProgressComponent } from "./progress-component";
-import { RenderControls } from "./render";
+import { RenderControls } from "./render-component";
 
 export default function ExportPage() {
   return (

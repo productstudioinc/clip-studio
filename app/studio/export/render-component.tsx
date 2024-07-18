@@ -1,11 +1,13 @@
 "use client";
+
+import AnimatedCircularProgressBar from "@/components/magicui/animated-circular-progress-bar";
+import { RenderButton } from "./render-button";
 import { useTemplateStore } from "@/stores/templatestore";
 import { useRendering } from "@/utils/helpers/use-rendering";
-import React from "react";
-import { RenderButton } from "./render-button";
-import { ProgressComponent } from "./progress-component";
+import { Separator } from "@/components/ui/separator";
+import { ExportComponent } from "./export-component";
 
-export const RenderControls: React.FC = () => {
+export function RenderControls() {
   const {
     selectedTemplate,
     splitScreenState,
@@ -31,9 +33,18 @@ export const RenderControls: React.FC = () => {
   );
 
   return (
-    <div>
-      <RenderButton renderMedia={renderMedia} state={state} />
-      <ProgressComponent state={state} undo={undo} />
+    <div className="flex flex-row h-40">
+      <AnimatedCircularProgressBar
+        max={100}
+        min={0}
+        state={state}
+        undo={undo}
+        className="w-56"
+      >
+        <RenderButton renderMedia={renderMedia} state={state} />
+      </AnimatedCircularProgressBar>
+      <Separator orientation="vertical" className="mx-4 h-full" />
+      <ExportComponent state={state} undo={undo} />
     </div>
   );
-};
+}
