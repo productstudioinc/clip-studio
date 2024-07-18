@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import { Menu, CircleUser, LucideIcon, CogIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -171,12 +171,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children }) => {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               {user ? (
-                <DropdownMenuItem onClick={() => signOut()}>
+                <DropdownMenuItem
+                  onClick={() => signOut()}
+                  className="cursor-pointer"
+                >
                   Logout
                 </DropdownMenuItem>
               ) : (
-                <DropdownMenuItem>
-                  <Link href="/login">Login</Link>
+                <DropdownMenuItem
+                  onClick={() => redirect("/login")}
+                  className="cursor-pointer"
+                >
+                  Login
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
