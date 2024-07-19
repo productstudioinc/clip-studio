@@ -16,6 +16,7 @@ export const generatePresignedUrl = async (
   }
 
   const key = crypto.randomUUID();
+
   const putCommand = new PutObjectCommand({
     Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
     Key: key,
@@ -23,7 +24,6 @@ export const generatePresignedUrl = async (
     ContentType: contentType,
   });
 
-  await R2.send(putCommand);
   const presignedPutUrl = await getSignedUrl(R2, putCommand, {
     expiresIn: 1800,
   });
@@ -32,6 +32,7 @@ export const generatePresignedUrl = async (
     Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
     Key: key,
   });
+
   const presignedGetUrl = await getSignedUrl(R2, getCommand, {
     expiresIn: 1800,
   });

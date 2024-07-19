@@ -97,16 +97,11 @@ export const SplitScreenComposition = ({
       >
         <Series>
           {backgroundUrls.map((part, index) => (
-            <Series.Sequence
-              durationInFrames={
-                videoConfig.durationInFrames / backgroundUrls.length
-              }
-              key={index}
-            >
+            <Series.Sequence durationInFrames={FPS * 60} key={index}>
               <OffthreadVideo
                 src={part}
                 startFrom={0}
-                endAt={videoConfig.durationInFrames / backgroundUrls.length}
+                endAt={FPS * 60}
                 style={videoStyle}
                 muted
               />
