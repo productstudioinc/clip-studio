@@ -10,7 +10,6 @@ import { RenderRequest } from "@/types/schema";
 export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
   RenderRequest,
   async (_req, body) => {
-    console.log(body);
     if (
       !process.env.AWS_ACCESS_KEY_ID &&
       !process.env.REMOTION_AWS_ACCESS_KEY_ID
