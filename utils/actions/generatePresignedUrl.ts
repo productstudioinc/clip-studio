@@ -2,7 +2,9 @@
 
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { AwsRegion, getAwsClient } from "@remotion/lambda/client";
-import { v4 } from "uuid";
+import { R2 } from "../r2";
+import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+
 export const generatePresignedUrl = async (
   contentType: string,
   contentLength: number
@@ -12,21 +14,27 @@ export const generatePresignedUrl = async (
       `File may not be over 200MB. Yours is ${contentLength} bytes.`
     );
   }
-  const { client, sdk } = getAwsClient({
-    region: process.env.REMOTION_AWS_REGION as AwsRegion,
-    service: "s3",
-  });
-  const key = v4();
-  const command = new sdk.PutObjectCommand({
-    Bucket: "videogen-user-files",
+
+  const key = crypto.randomUUID();
+  const putCommand = new PutObjectCommand({
+    Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
     Key: key,
     ContentLength: contentLength,
     ContentType: contentType,
   });
-  const presignedUrl = await getSignedUrl(client, command, {
+
+  await R2.send(putCommand);
+  const presignedPutUrl = await getSignedUrl(R2, putCommand, {
     expiresIn: 1800,
   });
-  // The location of the asset after the upload
-  const readUrl = `https://videogen-user-files.s3.${process.env.REMOTION_AWS_REGION}.amazonaws.com/${key}`;
-  return { presignedUrl, readUrl };
+
+  const getCommand = new GetObjectCommand({
+    Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+    Key: key,
+  });
+  const presignedGetUrl = await getSignedUrl(R2, getCommand, {
+    expiresIn: 1800,
+  });
+
+  return { presignedUrl: presignedPutUrl, readUrl: presignedGetUrl };
 };

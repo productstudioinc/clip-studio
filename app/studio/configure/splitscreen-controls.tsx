@@ -3,16 +3,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { generatePresignedUrl } from "@/utils/actions/generatePresignedUrl";
 import { z } from "zod";
-import { SplitScreenProps } from "@/stores/templatestore";
+import { SplitScreenProps, useTemplateStore } from "@/stores/templatestore";
 import { getVideoMetadata } from "@remotion/media-utils";
 import { toast } from "sonner";
 
-export const SplitScreenControls: React.FC<{
-  splitScreenState: z.infer<typeof SplitScreenProps>;
-  setSplitScreenState: (
-    state: Partial<z.infer<typeof SplitScreenProps>>
-  ) => void;
-}> = ({ splitScreenState, setSplitScreenState }) => {
+export const SplitScreenControls: React.FC = ({}) => {
+  const { splitScreenState, setSplitScreenState } = useTemplateStore(
+    (state) => ({
+      splitScreenState: state.splitScreenState,
+      setSplitScreenState: state.setSplitScreenState,
+    })
+  );
+
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
