@@ -16,13 +16,27 @@ export const Word: React.FC<{
   const { width } = useVideoConfig();
   const desiredFontSize = 64;
 
-  const fittedText = fitText({
-    fontFamily,
-    text,
-    withinWidth: width * 0.8,
-  });
+  const splitText = (text: string, maxWordsPerLine: number) => {
+    const words = text.split(" ");
+    const lines = [];
+    for (let i = 0; i < words.length; i += maxWordsPerLine) {
+      lines.push(words.slice(i, i + maxWordsPerLine).join(" "));
+    }
+    return lines;
+  };
 
-  const fontSize = Math.min(desiredFontSize, fittedText.fontSize);
+  const textLines = splitText(text, 5);
+
+  const fontSizes = textLines.map(
+    (line) =>
+      fitText({
+        fontFamily,
+        text: line,
+        withinWidth: width * 0.8,
+      }).fontSize
+  );
+
+  const minFontSize = Math.min(desiredFontSize, ...fontSizes);
 
   return (
     <AbsoluteFill
@@ -32,24 +46,30 @@ export const Word: React.FC<{
         top: undefined,
         bottom: 350,
         height: 150,
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      <div
-        style={{
-          fontSize,
-          color: "white",
-          WebkitTextStroke: stroke ? "10px black" : undefined,
-          transform: makeTransform([
-            scale(interpolate(enterProgress, [0, 1], [0.8, 1])),
-            translateY(interpolate(enterProgress, [0, 1], [50, 0])),
-          ]),
-          fontFamily,
-          textTransform: "uppercase",
-          textAlign: "center",
-        }}
-      >
-        {text}
-      </div>
+      {textLines.map((line, index) => (
+        <div
+          key={index}
+          style={{
+            fontSize: minFontSize,
+            color: "white",
+            WebkitTextStroke: stroke ? "10px black" : undefined,
+            transform: makeTransform([
+              scale(interpolate(enterProgress, [0, 1], [0.8, 1])),
+              translateY(interpolate(enterProgress, [0, 1], [50, 0])),
+            ]),
+            fontFamily,
+            textTransform: "uppercase",
+            textAlign: "center",
+            marginBottom: 10,
+          }}
+        >
+          {line}
+        </div>
+      ))}
     </AbsoluteFill>
   );
 };
