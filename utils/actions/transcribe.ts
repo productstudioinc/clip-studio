@@ -8,8 +8,9 @@ export const getTranscriptionId = createServerAction()
   .input(z.string().url())
   .output(z.string())
   .handler(async ({ input }) => {
+    const encodedUrl = encodeURIComponent(input);
     const response = await fetch(
-      `${process.env.WHISPER_MODAL_URL}/transcribe?video_url=${input}`,
+      `${process.env.WHISPER_MODAL_URL}/transcribe?video_url=${encodedUrl}`,
       {
         method: "POST",
       }
