@@ -37,3 +37,6 @@ yarn-error.log*
 next-env.d.ts
 
 .content-collections
+
+# python
+/modal/__pycache__
