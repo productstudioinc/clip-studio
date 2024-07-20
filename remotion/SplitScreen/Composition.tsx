@@ -20,7 +20,6 @@ export type SubtitleProp = {
 };
 
 const FPS = 30;
-const OFFSET_FRAMES = -5;
 
 export const SplitScreenComposition = ({
   videoUrl,
@@ -38,8 +37,8 @@ export const SplitScreenComposition = ({
       const subtitlesData: SubtitleProp[] = [];
       for (let i = 0; i < chunks.length; i++) {
         const { timestamp, text } = chunks[i];
-        const startFrame = Math.floor(timestamp[0] * FPS) + OFFSET_FRAMES;
-        const endFrame = Math.floor(timestamp[1] * FPS) + OFFSET_FRAMES;
+        const startFrame = Math.floor(timestamp[0] * FPS);
+        const endFrame = Math.floor(timestamp[1] * FPS);
         subtitlesData.push({
           startFrame,
           endFrame,

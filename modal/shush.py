@@ -66,7 +66,6 @@ class WhisperV3:
             MODEL_DIR,
             torch_dtype=self.torch_dtype,
             use_safetensors=True,
-            use_flash_attention_2=True,
         )
         processor = AutoProcessor.from_pretrained(MODEL_DIR)
         model.to(self.device)
@@ -76,12 +75,11 @@ class WhisperV3:
             tokenizer=processor.tokenizer,
             feature_extractor=processor.feature_extractor,
             max_new_tokens=128,
-            chunk_length_s=30,
-            batch_size=8,
-            stride_length_s=5,
-            return_timestamps=True,
+            chunk_length_s=10,
+            batch_size=4,
+            stride_length_s=1,  # Changed from 5 to 1
+            return_timestamps="word",
             torch_dtype=self.torch_dtype,
-            model_kwargs={"use_flash_attention_2": True},
             device=0,
         )
 
@@ -90,7 +88,7 @@ class WhisperV3:
         import time
         start = time.time()
         output = self.pipe(
-            audio_file, chunk_length_s=30, batch_size=8, return_timestamps=True, stride_length_s=5
+            audio_file, chunk_length_s=10, batch_size=4, return_timestamps="word", stride_length_s=1  # Changed from 5 to 1
         )
         elapsed = time.time() - start
         return output, elapsed

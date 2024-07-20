@@ -32,7 +32,7 @@ export const Word: React.FC<{
       fitText({
         fontFamily,
         text: line,
-        withinWidth: width * 0.8,
+        withinWidth: width * 0.7,
       }).fontSize
   );
 
