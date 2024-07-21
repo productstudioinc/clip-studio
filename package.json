@@ -37,6 +37,8 @@
     "next": "^15.0.0-rc.0",
     "next-themes": "^0.3.0",
     "postgres": "^3.4.4",
+    "posthog-js": "^1.148.0",
+    "posthog-node": "^4.0.1",
     "react": "^19.0.0-rc-512b09b2-20240718",
     "react-dom": "^19.0.0-rc-512b09b2-20240718",
     "react-tweet": "^3.2.1",
