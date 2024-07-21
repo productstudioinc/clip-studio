@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { ReactNode } from "react";
@@ -33,6 +32,7 @@ import { useTemplateStore } from "@/stores/templatestore";
 import { ModeToggle } from "./theme-toggle";
 import { User } from "@supabase/supabase-js";
 import { signOut } from "@/utils/actions/user";
+import { Separator } from "@/components/ui/separator";
 
 interface NavItem {
   href: string;
@@ -47,6 +47,7 @@ interface NavLinkProps extends NavItem {
 interface DashboardProps {
   user: User | null;
   children: ReactNode;
+  showVideoPreview?: boolean;
 }
 
 const NavLink: React.FC<NavLinkProps> = ({
@@ -66,7 +67,11 @@ const NavLink: React.FC<NavLinkProps> = ({
   </Link>
 );
 
-export const Dashboard: React.FC<DashboardProps> = ({ user, children }) => {
+export const Dashboard: React.FC<DashboardProps> = ({
+  user,
+  children,
+  showVideoPreview = true,
+}) => {
   const currentRoute = usePathname();
   const router = useRouter();
 
@@ -86,6 +91,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children }) => {
         return selectedTemplate === "SplitScreen" ? "Caption" : "Voiceover";
       case "/studio/export":
         return "Export";
+      case "/my-account":
+        return "My Account";
+
       default:
         return "Studio";
     }
@@ -104,6 +112,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children }) => {
     },
     { href: "/studio/export", icon: FileUpIcon, label: "Export" },
   ];
+
+  const profileNavItem: NavItem = {
+    href: "/my-account",
+    icon: UserIcon,
+    label: "My Account",
+  };
 
   const UserMenu = () => (
     <DropdownMenu>
@@ -152,6 +166,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children }) => {
                   currentRoute={currentRoute}
                 />
               ))}
+              <Separator orientation="horizontal" className="my-2" />
+              <NavLink {...profileNavItem} currentRoute={currentRoute} />
             </nav>
           </div>
           <div className="px-2 lg:px-4">
@@ -199,6 +215,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children }) => {
                     currentRoute={currentRoute}
                   />
                 ))}
+                <Separator orientation="horizontal" className="my-2" />
+                <NavLink {...profileNavItem} currentRoute={currentRoute} />
                 {user ? (
                   <UserMenu />
                 ) : (
@@ -223,18 +241,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children }) => {
               {getTitle(currentRoute)}
             </h1>
           </div>
-          <div className="flex flex-col lg:flex-row gap-4 min-h-0 flex-grow">
-            <div className="w-full lg:w-1/2 overflow-hidden flex flex-col">
-              <div className="flex-grow overflow-auto rounded-lg border shadow-sm p-4">
-                {children}
+          {showVideoPreview ? (
+            <div className="flex flex-col lg:flex-row gap-4 min-h-0 flex-grow">
+              <div className="w-full lg:w-1/2 overflow-hidden flex flex-col">
+                <div className="flex-grow overflow-auto rounded-lg border shadow-sm p-4">
+                  {children}
+                </div>
+              </div>
+              <div className="w-full lg:w-1/2 flex items-center justify-center bg-muted rounded-lg">
+                <div className="w-full h-full max-h-[calc(50vw*16/9)] lg:max-h-[calc((100vh-60px-2rem)*0.9)] aspect-[9/16]">
+                  <VideoPreview />
+                </div>
               </div>
             </div>
-            <div className="w-full lg:w-1/2 flex items-center justify-center bg-muted rounded-lg">
-              <div className="w-full h-full max-h-[calc(50vw*16/9)] lg:max-h-[calc((100vh-60px-2rem)*0.9)] aspect-[9/16]">
-                <VideoPreview />
-              </div>
+          ) : (
+            <div className="flex-grow overflow-auto rounded-lg border shadow-sm p-4">
+              {children}
             </div>
-          </div>
+          )}
         </main>
       </div>
     </div>

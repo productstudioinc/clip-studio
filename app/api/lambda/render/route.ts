@@ -6,6 +6,8 @@ import {
 import { DISK, RAM, REGION, SITE_NAME, TIMEOUT } from "@/config.mjs";
 import { executeApi } from "@/helpers/api-response";
 import { RenderRequest } from "@/types/schema";
+import { getUser } from "@/utils/actions/user";
+import { redirect } from "next/navigation";
 
 export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
   RenderRequest,
@@ -25,6 +27,12 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
       throw new TypeError(
         "The environment variable REMOTION_AWS_SECRET_ACCESS_KEY is missing. Add it to your .env file."
       );
+    }
+
+    const { user } = await getUser();
+
+    if (user) {
+      redirect("/login");
     }
 
     const result = await renderMediaOnLambda({
