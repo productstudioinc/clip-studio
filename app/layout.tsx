@@ -3,6 +3,12 @@ import "@/styles/globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { GeistSans } from "geist/font/sans";
+import { PHProvider } from "./provider";
+import dynamic from "next/dynamic";
+
+const PostHogPageView = dynamic(() => import("./PostHogPageView"), {
+  ssr: false,
+});
 
 export const metadata: Metadata = {
   title: "Clip Studio",
@@ -15,12 +21,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={GeistSans.className}>
-        <ThemeProvider attribute="class" defaultTheme="light">
-          {children}
-          <Toaster position="top-right" />
-        </ThemeProvider>
-      </body>
+      <PHProvider>
+        <body className={GeistSans.className}>
+          <ThemeProvider attribute="class" defaultTheme="light">
+            {children}
+            <Toaster position="top-right" />
+          </ThemeProvider>
+        </body>
+      </PHProvider>
     </html>
   );
 }
