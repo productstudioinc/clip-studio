@@ -43,10 +43,11 @@ export const TemplateSelect: FC<TemplateSelectProps> = ({ templates }) => {
             </CardHeader>
             <CardContent className="flex items-center justify-center pb-4 px-4">
               <div className="relative w-full pt-[60%]">
-                <img
+                <video
                   src={template.previewUrl}
-                  alt={template.name}
                   className="absolute inset-0 w-full h-full object-cover rounded-lg"
+                  autoPlay
+                  loop
                 />
               </div>
             </CardContent>

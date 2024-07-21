@@ -46,10 +46,11 @@ export const BackgroundSelect: FC<BackgroundSelectProps> = ({
             >
               <CardContent className="p-1">
                 <div className="relative w-full pt-[56.25%]">
-                  <img
+                  <video
                     src={background.previewUrl}
-                    alt={background.name}
                     className="absolute inset-0 w-full h-full object-cover rounded-lg"
+                    autoPlay
+                    loop
                   />
                 </div>
               </CardContent>
