@@ -10,30 +10,17 @@ import {
   getTranscriptionId,
   getTranscription,
 } from "@/utils/actions/transcribe";
-import { Label } from "@radix-ui/react-dropdown-menu";
 
 export default function TranscribeControls() {
-  const {
-    selectedTemplate,
-    redditState,
-    setRedditState,
-    splitScreenState,
-    setSplitScreenState,
-  } = useTemplateStore((state) => ({
-    selectedTemplate: state.selectedTemplate,
-    setRedditState: state.setRedditState,
-    redditState: state.redditState,
-    splitScreenState: state.splitScreenState,
-    setSplitScreenState: state.setSplitScreenState,
-  }));
-
-  const handleTitleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setRedditState({ ...redditState, title: event.target.value });
-  };
-
-  const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setRedditState({ ...redditState, text: event.target.value });
-  };
+  const { splitScreenState, setSplitScreenState } = useTemplateStore(
+    (state) => ({
+      selectedTemplate: state.selectedTemplate,
+      setRedditState: state.setRedditState,
+      redditState: state.redditState,
+      splitScreenState: state.splitScreenState,
+      setSplitScreenState: state.setSplitScreenState,
+    })
+  );
 
   const handleTranscriptionChange = (
     index: number,
@@ -57,6 +44,8 @@ export default function TranscribeControls() {
       videoUrl
     );
 
+    toast.success("Extraced audio, generating transcription...");
+
     if (transcriptionIdErr) {
       toast.error(transcriptionIdErr.message);
     } else {
@@ -76,6 +65,7 @@ export default function TranscribeControls() {
         } else if (transcription.status === "processing") {
           setTimeout(checkTranscription, 5000);
         } else if (transcription.status === "done") {
+          toast.success("Transcription generated!");
           setIsTranscribing(false);
           setSplitScreenState({
             ...splitScreenState,
