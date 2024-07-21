@@ -1,16 +1,27 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
+
+import React, { ReactNode } from "react";
 import Link from "next/link";
-import { redirect, usePathname, useRouter } from "next/navigation";
-import { Menu, CircleUser, LucideIcon, CogIcon } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  Menu,
+  CircleUser,
+  LucideIcon,
+  CogIcon,
+  LogOut,
+  User as UserIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   LayoutTemplateIcon,
   CaptionsIcon,
@@ -18,7 +29,6 @@ import {
   FileUpIcon,
 } from "lucide-react";
 import { VideoPreview } from "./video-preview";
-import { ReactNode } from "react";
 import { useTemplateStore } from "@/stores/templatestore";
 import { ModeToggle } from "./theme-toggle";
 import { User } from "@supabase/supabase-js";
@@ -95,6 +105,34 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children }) => {
     { href: "/studio/export", icon: FileUpIcon, label: "Export" },
   ];
 
+  const UserMenu = () => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:text-primary"
+        >
+          <img
+            src={user?.user_metadata.avatar_url}
+            alt="User avatar"
+            className="w-5 h-5 rounded-full"
+          />
+          <span className="text-sm font-medium truncate">
+            {user?.user_metadata.full_name}
+          </span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={() => signOut()}>
+          <LogOut className="mr-2 h-5 w-5" />
+          <span>Sign out</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">
@@ -115,6 +153,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children }) => {
                 />
               ))}
             </nav>
+          </div>
+          <div className="px-2 lg:px-4">
+            {user ? (
+              <UserMenu />
+            ) : (
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:text-primary"
+                onClick={() => router.push("/login")}
+              >
+                <CircleUser className="h-4 w-4" />
+                Login
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -147,45 +199,23 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children }) => {
                     currentRoute={currentRoute}
                   />
                 ))}
+                {user ? (
+                  <UserMenu />
+                ) : (
+                  <Button
+                    variant="ghost"
+                    className="justify-start gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:text-primary text-lg"
+                    onClick={() => router.push("/login")}
+                  >
+                    <CircleUser className="h-4 w-4" />
+                    Login
+                  </Button>
+                )}
               </nav>
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1"></div>
           <ModeToggle />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="rounded-full">
-                {user?.user_metadata.avatar_url ? (
-                  <img
-                    src={user.user_metadata.avatar_url}
-                    alt="avatar"
-                    className="rounded-full"
-                  />
-                ) : (
-                  <CircleUser className="h-5 w-5" />
-                )}
-                <span className="sr-only">Toggle user menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              {user ? (
-                <DropdownMenuItem
-                  onClick={() => signOut()}
-                  className="cursor-pointer"
-                >
-                  Logout
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem
-                  onClick={() => router.push("/login")}
-                  className="cursor-pointer"
-                >
-                  Login
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
         </header>
         <main className="flex flex-col p-4 lg:p-6 flex-grow overflow-auto">
           <div className="flex items-center mb-4">
