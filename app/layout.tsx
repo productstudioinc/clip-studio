@@ -22,17 +22,18 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <HighlightInit
-        projectId={"memow6xd"}
-        serviceName="clip-studio"
-        tracingOrigins
-        networkRecording={{
-          enabled: true,
-          recordHeadersAndBody: true,
-          urlBlocklist: [],
-        }}
-      />
       <html lang="en">
+        <HighlightInit
+          projectId={process.env.NEXT_PUBLIC_HIGHLIGHT_PROJECT_ID}
+          serviceName="clip.studio"
+          tracingOrigins
+          version={process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA}
+          networkRecording={{
+            enabled: true,
+            recordHeadersAndBody: true,
+            urlBlocklist: [],
+          }}
+        />
         <PHProvider>
           <body className={GeistSans.className}>
             <PostHogPageView />
