@@ -1,10 +1,11 @@
 "use server";
 import { ElevenLabsClient } from "elevenlabs";
-import { createServerAction } from "zsa";
+import { createServerAction, ZSAError } from "zsa";
 import z from "zod";
 import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { R2 } from "../r2";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { getUser } from "./user";
 
 const elevenLabsClient = new ElevenLabsClient({
   apiKey: process.env.ELEVEN_LABS_API_KEY!,
@@ -32,6 +33,13 @@ export const generateAudioAndTimestamps = createServerAction()
     })
   )
   .handler(async ({ input }) => {
+    const { user } = await getUser();
+    if (!user) {
+      throw new ZSAError(
+        "NOT_AUTHORIZED",
+        "You must be logged in to use this."
+      );
+    }
     const fullText = `${input.title}\n\n${input.text}`;
     const audio = (await elevenLabsClient.textToSpeech.convertWithTimstamps(
       input.voiceId,

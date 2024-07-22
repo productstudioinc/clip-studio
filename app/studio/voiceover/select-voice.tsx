@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -32,12 +32,10 @@ export const SelectVoice: React.FC<{
 
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const [selectedVoice, setSelectedVoice] = useState<ElevenlabsVoice | null>(
-    null
+    voices.length > 0 ? voices[0] : null
   );
 
-  const { isPending, execute, data } = useServerAction(
-    generateAudioAndTimestamps
-  );
+  const { isPending, execute } = useServerAction(generateAudioAndTimestamps);
 
   const handlePlayPause = (previewUrl: string | undefined, voiceId: string) => {
     if (!previewUrl) return;
@@ -79,6 +77,9 @@ export const SelectVoice: React.FC<{
         voiceoverUrl: data.signedUrl,
         voiceoverFrames: data.voiceoverObject,
       });
+    } else if (selectedTemplate === "TwitterThread") {
+    } else {
+      toast.error("Voiceover generation not supported for this template.");
     }
     // need to handle twitter thread too
   };

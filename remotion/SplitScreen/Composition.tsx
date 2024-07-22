@@ -61,7 +61,6 @@ export const SplitScreenComposition = ({
     width: "100%",
     height: "100%",
     objectFit: "cover",
-    opacity: type === "blob" ? 0.5 : 1,
   };
 
   const subtitleStyle: CSSProperties = {
@@ -74,15 +73,30 @@ export const SplitScreenComposition = ({
     textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
   };
 
+  const overlayStyle: CSSProperties = {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    display: type === "blob" ? "flex" : "none",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+  };
+
+  const uploadingTextStyle: CSSProperties = {
+    fontSize: "32px",
+    fontWeight: "bold",
+    color: "white",
+    textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+  };
+
   return (
     <AbsoluteFill>
       <div
-        style={{
-          position: "absolute",
-          top: 0,
-          width: "100%",
-          height: "50%",
-        }}
+        style={{ position: "absolute", top: 0, width: "100%", height: "50%" }}
       >
         <OffthreadVideo src={videoUrl} style={videoStyle} />
       </div>
@@ -121,6 +135,9 @@ export const SplitScreenComposition = ({
           </Sequence>
         ) : null
       )}
+      <div style={overlayStyle}>
+        <div style={uploadingTextStyle}>Uploading video...</div>
+      </div>
     </AbsoluteFill>
   );
 };
