@@ -10,7 +10,7 @@ const links: Link[] = [
   { text: "privacy", url: "/privacy" },
 ];
 
-export default async function Hero() {
+export default function Hero() {
   return (
     <main className="container relative mx-auto p-4 md:p-16 gap-4 flex flex-col max-w-2xl lowercase">
       <section>

@@ -33,6 +33,15 @@ import { ModeToggle } from "./theme-toggle";
 import { User } from "@supabase/supabase-js";
 import { signOut } from "@/utils/actions/user";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import Hero from "@/app/hero";
 
 interface NavItem {
   href: string;
@@ -146,10 +155,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
       <div className="hidden border-r bg-muted/40 md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold">
+            {/* <Link href="/" className="flex items-center gap-2 font-semibold">
               <Logo />
               <span className="">Clip Studio</span>
-            </Link>
+            </Link> */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  variant="link"
+                  className="flex w-full items-center justify-start gap-2 px-2 p-0 font-semibold"
+                >
+                  <Logo />
+                  <span>Clip Studio</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <Hero />
+              </DialogContent>
+            </Dialog>
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
