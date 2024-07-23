@@ -4,6 +4,7 @@ import PostHogClient from "@/lib/posthog";
 import { getUser } from "@/utils/actions/user";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import Hero from "./hero";
+import HeroWrapper from "@/components/ui/hero-wrapper";
 
 interface SearchParams {
   [key: string]: string | string[] | undefined;
@@ -27,11 +28,7 @@ export default async function TemplatesPage({
 
   return (
     <>
-      <Dialog defaultOpen>
-        <DialogContent className="p-0">
-          <Hero />
-        </DialogContent>
-      </Dialog>
+      <HeroWrapper />
       <TemplateSelect templates={templates} />
     </>
   );
