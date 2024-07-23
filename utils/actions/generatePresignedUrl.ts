@@ -3,11 +3,21 @@
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { R2 } from '../r2';
+import { getUser } from './user';
 
 export const generatePresignedUrl = async (
 	contentType: string,
 	contentLength: number
 ): Promise<{ presignedUrl: string; readUrl: string }> => {
+	const { user } = await getUser();
+	if (
+		!user ||
+		!['rkwarya@gmail.com', 'useclipstudio@gmail.com', 'hello@dillion.io'].includes(
+			user.email as string
+		)
+	) {
+		throw new Error('You must be logged in to use this.');
+	}
 	if (contentLength > 1024 * 1024 * 200) {
 		throw new Error(`File may not be over 200MB. Yours is ${contentLength} bytes.`);
 	}

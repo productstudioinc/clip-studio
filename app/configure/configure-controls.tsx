@@ -46,17 +46,16 @@ const SplitScreenControls: React.FC = ({}) => {
 
 		const blobUrl = URL.createObjectURL(file);
 
-		setSplitScreenState({
-			...splitScreenState,
-			type: 'blob',
-			videoUrl: blobUrl
-		});
-
 		const contentType = file.type || 'application/octet-stream';
 		const arrayBuffer = await file.arrayBuffer();
 		const contentLength = arrayBuffer.byteLength;
 
 		const { presignedUrl, readUrl } = await generatePresignedUrl(contentType, contentLength);
+		setSplitScreenState({
+			...splitScreenState,
+			type: 'blob',
+			videoUrl: blobUrl
+		});
 
 		await fetch(presignedUrl, {
 			method: 'PUT',

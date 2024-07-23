@@ -3,11 +3,21 @@
 import { Transcription } from '@/stores/templatestore';
 import { z } from 'zod';
 import { createServerAction, ZSAError } from 'zsa';
+import { getUser } from './user';
 
 export const getTranscriptionId = createServerAction()
 	.input(z.string().url())
 	.output(z.string())
 	.handler(async ({ input }) => {
+		const { user } = await getUser();
+		if (
+			!user ||
+			!['rkwarya@gmail.com', 'useclipstudio@gmail.com', 'hello@dillion.io'].includes(
+				user.email as string
+			)
+		) {
+			throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.');
+		}
 		const encodedUrl = encodeURIComponent(input);
 		const response = await fetch(
 			`${process.env.WHISPER_MODAL_URL}/transcribe?video_url=${encodedUrl}`,

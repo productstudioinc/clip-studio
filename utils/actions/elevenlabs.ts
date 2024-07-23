@@ -34,7 +34,12 @@ export const generateAudioAndTimestamps = createServerAction()
 	)
 	.handler(async ({ input }) => {
 		const { user } = await getUser();
-		if (!user) {
+		if (
+			!user ||
+			!['rkwarya@gmail.com', 'useclipstudio@gmail.com', 'hello@dillion.io'].includes(
+				user.email as string
+			)
+		) {
 			throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.');
 		}
 		const fullText = `${input.title}\n\n${input.text}`;
