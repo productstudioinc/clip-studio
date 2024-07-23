@@ -6,6 +6,8 @@ import { GeistSans } from "geist/font/sans";
 import { PHProvider } from "./provider";
 import dynamic from "next/dynamic";
 import { HighlightInit } from "@highlight-run/next/client";
+import { Dashboard } from "@/components/dashboard";
+import { getUser } from "@/utils/actions/user";
 
 const PostHogPageView = dynamic(() => import("./PostHogPageView"), {
   ssr: false,
@@ -15,11 +17,12 @@ export const metadata: Metadata = {
   title: "Clip Studio",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { user } = await getUser();
   return (
     <>
       <HighlightInit
@@ -37,7 +40,7 @@ export default function RootLayout({
           <body className={GeistSans.className}>
             <PostHogPageView />
             <ThemeProvider attribute="class" defaultTheme="light">
-              {children}
+              <Dashboard user={user}>{children}</Dashboard>
               <Toaster position="top-right" />
             </ThemeProvider>
           </body>

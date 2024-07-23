@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 export default async function Page() {
   const { user } = await getUser();
   if (user) {
-    redirect("/studio/templates");
+    redirect("/");
   }
   return <LoginComponent />;
 }
