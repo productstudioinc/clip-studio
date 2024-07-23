@@ -35,7 +35,7 @@ export default function LoginComponent() {
             supabase.auth.signInWithOAuth({
               provider: "google",
               options: {
-                redirectTo: `${location.origin}/auth/callback?next=/studio/templates`,
+                redirectTo: `${location.origin}/auth/callback?next=/studio/templates?login=true`,
               },
             });
           }}
