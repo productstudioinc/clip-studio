@@ -35,6 +35,16 @@ const nextConfig = {
     ];
   },
   skipTrailingSlashRedirect: true,
+  experimental: {
+    instrumentationHook: true,
+  },
+  productionBrowserSourceMaps: true,
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.devtool = "source-map";
+    }
+    return config;
+  },
 };
 
 export default withContentCollections(nextConfig);
