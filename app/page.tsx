@@ -6,25 +6,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import Hero from "./hero";
 import HeroWrapper from "@/components/ui/hero-wrapper";
 
-interface SearchParams {
-  [key: string]: string | string[] | undefined;
-}
-
-export default async function TemplatesPage({
-  searchParams,
-}: {
-  searchParams?: SearchParams;
-}) {
-  const [templates, user] = await Promise.all([getTemplates(), getUser()]);
-
-  if (searchParams?.login === "true" && user) {
-    const posthog = PostHogClient();
-    posthog.identify({
-      distinctId: user.user?.id as string,
-      properties: { email: user.user?.email },
-    });
-    await posthog.shutdown();
-  }
+export default async function TemplatesPage() {
+  const [templates] = await Promise.all([getTemplates()]);
 
   return (
     <>

@@ -3,13 +3,13 @@ import "@/styles/globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { GeistSans } from "geist/font/sans";
-import { PHProvider } from "./provider";
 import dynamic from "next/dynamic";
 import { HighlightInit } from "@highlight-run/next/client";
 import { Dashboard } from "@/components/dashboard";
 import { getUser } from "@/utils/actions/user";
+import { PHProvider } from "./_analytics/provider";
 
-const PostHogPageView = dynamic(() => import("./PostHogPageView"), {
+const PostHogPageView = dynamic(() => import("./_analytics/PostHogPageView"), {
   ssr: false,
 });
 
