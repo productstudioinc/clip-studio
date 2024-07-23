@@ -1,9 +1,34 @@
+import { Button } from "@/components/ui/button";
+import { fetchUserConnectSocialMediaAccounts } from "@/utils/actions/socialMediaAccounts";
+import { getUser } from "@/utils/actions/user";
+import { connectYoutubeAccount } from "@/utils/actions/youtube";
+import { Youtube } from "lucide-react";
+import { redirect } from "next/navigation";
 import React from "react";
 
-export default function ProfilePage() {
+export default async function ProfilePage() {
+  const { user } = await getUser();
+  if (!user) {
+    redirect("/login");
+  }
+  const { youtubeChannels } = await fetchUserConnectSocialMediaAccounts(
+    user.id
+  );
   return (
-    <div className="flex flex-col">
-      <h1>Profile</h1>
-    </div>
+    <main className="flex flex-col">
+      <div>connected accs</div>
+      <div>youtube channels</div>
+      <form action={connectYoutubeAccount}>
+        <Button>Connect YouTube</Button>
+      </form>
+      <div>youtubeChannels</div>
+      {youtubeChannels.map((channel) => (
+        <div key={channel.id}>
+          <img src={channel.profile_picture_path} />
+          <div>{channel.channelCustomUrl}</div>
+          <div>{channel.error}</div>
+        </div>
+      ))}
+    </main>
   );
 }

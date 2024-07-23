@@ -1,4 +1,13 @@
-import { integer, pgTable, text } from "drizzle-orm/pg-core";
+import {
+  foreignKey,
+  integer,
+  jsonb,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const templates = pgTable("templates", {
@@ -35,6 +44,79 @@ export const backgroundPartsRelations = relations(
     }),
   })
 );
+
+export const socialMediaPosts = pgTable(
+  "social_media_posts",
+  {
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull(),
+  },
+  (table) => {
+    return {
+      userIdForeignKey: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [users.id],
+      }),
+    };
+  }
+);
+
+export const youtubeChannels = pgTable(
+  "youtube_channels",
+  {
+    channelCustomUrl: text("channel_custom_url").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    credentials: jsonb("credentials").notNull(),
+    id: text("id").primaryKey(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    userId: uuid("user_id").notNull(),
+  },
+  (table) => {
+    return {
+      userIdForeignKey: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [users.id],
+      }),
+    };
+  }
+);
+
+export const youtubePosts = pgTable(
+  "youtube_posts",
+  {
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    id: uuid("id").primaryKey().defaultRandom(),
+    parentSocialMediaPostId: uuid("parent_social_media_post_id").notNull(),
+    title: text("title").notNull(),
+    userId: uuid("user_id").notNull(),
+    youtubeChannelId: uuid("youtube_channel_id").notNull(),
+  },
+  (table) => {
+    return {
+      parentSocialMediaPostIdForeignKey: foreignKey({
+        columns: [table.parentSocialMediaPostId],
+        foreignColumns: [socialMediaPosts.id],
+      }),
+      userIdForeignKey: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [users.id],
+      }),
+      youtubeChannelIdForeignKey: foreignKey({
+        columns: [table.youtubeChannelId],
+        foreignColumns: [youtubeChannels.id],
+      }),
+    };
+  }
+);
+
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey().notNull(),
+  fullName: text("full_name"),
+  avatarUrl: text("avatar_url"),
+  billingAddress: jsonb("billing_address"),
+  paymentMethod: jsonb("payment_method"),
+});
 
 export type SelectTemplates = typeof templates.$inferSelect;
 export type SelectBackgrounds = typeof backgrounds.$inferSelect;
