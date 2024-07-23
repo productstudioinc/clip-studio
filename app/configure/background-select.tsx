@@ -2,7 +2,6 @@
 "use client";
 import { SelectBackgroundWithParts } from "@/db/schema";
 import type { FC } from "react";
-import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTemplateStore } from "@/stores/templatestore";
 

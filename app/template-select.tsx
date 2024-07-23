@@ -4,7 +4,6 @@ import React from "react";
 import { SelectTemplates } from "@/db/schema";
 import type { FC } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Image from "next/image";
 import { useTemplateStore } from "@/stores/templatestore";
 
 interface TemplateSelectProps {

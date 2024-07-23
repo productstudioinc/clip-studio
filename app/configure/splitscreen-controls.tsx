@@ -2,8 +2,7 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { generatePresignedUrl } from "@/utils/actions/generatePresignedUrl";
-import { z } from "zod";
-import { SplitScreenProps, useTemplateStore } from "@/stores/templatestore";
+import { useTemplateStore } from "@/stores/templatestore";
 import { getVideoMetadata } from "@remotion/media-utils";
 import { toast } from "sonner";
 

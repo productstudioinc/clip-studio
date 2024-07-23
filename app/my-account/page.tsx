@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { fetchUserConnectSocialMediaAccounts } from "@/utils/actions/socialMediaAccounts";
 import { getUser } from "@/utils/actions/user";
 import { connectYoutubeAccount } from "@/utils/actions/youtube";
-import { Youtube } from "lucide-react";
 import { redirect } from "next/navigation";
 import React from "react";
 
