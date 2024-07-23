@@ -81,36 +81,30 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const getTitle = (route: string): string => {
     switch (route) {
-      case "/studio/templates":
+      case "/":
         return "Templates";
-      case "/studio/configure":
+      case "/configure":
         return "Configure";
-      case "/studio/voiceover":
+      case selectedTemplate === "SplitScreen" ? "/caption" : "/voiceover":
         return selectedTemplate === "SplitScreen" ? "Caption" : "Voiceover";
-      case "/studio/caption":
-        return selectedTemplate === "SplitScreen" ? "Caption" : "Voiceover";
-      case "/studio/export":
+      case "/export":
         return "Export";
       case "/my-account":
         return "My Account";
-
       default:
         return "Studio";
     }
   };
 
   const navItems: NavItem[] = [
-    { href: "/studio/templates", icon: LayoutTemplateIcon, label: "Templates" },
-    { href: "/studio/configure", icon: CogIcon, label: "Configure" },
+    { href: "/", icon: LayoutTemplateIcon, label: "Templates" },
+    { href: "/configure", icon: CogIcon, label: "Configure" },
     {
-      href:
-        selectedTemplate === "SplitScreen"
-          ? "/studio/caption"
-          : "/studio/voiceover",
+      href: selectedTemplate === "SplitScreen" ? "/caption" : "/voiceover",
       icon: selectedTemplate === "SplitScreen" ? CaptionsIcon : MicVocalIcon,
       label: selectedTemplate === "SplitScreen" ? "Caption" : "Voiceover",
     },
-    { href: "/studio/export", icon: FileUpIcon, label: "Export" },
+    { href: "/export", icon: FileUpIcon, label: "Export" },
   ];
 
   const profileNavItem: NavItem = {

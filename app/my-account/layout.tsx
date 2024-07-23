@@ -7,11 +7,5 @@ export default async function StudioLayout({
   children: React.ReactNode;
 }>) {
   const { user } = await getUser();
-  return (
-    <>
-      <Dashboard showVideoPreview={false} user={user}>
-        {children}
-      </Dashboard>
-    </>
-  );
+  return <>{children}</>;
 }

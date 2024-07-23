@@ -17,11 +17,6 @@ const nextConfig = {
       },
     ],
   },
-  async redirects() {
-    return [
-      { source: "/studio", destination: "/studio/templates", permanent: true },
-    ];
-  },
   async rewrites() {
     return [
       {
