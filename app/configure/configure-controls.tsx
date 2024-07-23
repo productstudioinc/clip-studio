@@ -50,36 +50,43 @@ const SplitScreenControls: React.FC = ({}) => {
 		const arrayBuffer = await file.arrayBuffer();
 		const contentLength = arrayBuffer.byteLength;
 
-		const { presignedUrl, readUrl } = await generatePresignedUrl(contentType, contentLength);
-		setSplitScreenState({
-			...splitScreenState,
-			type: 'blob',
-			videoUrl: blobUrl
+		const [data, err] = await generatePresignedUrl({
+			contentType: contentType,
+			contentLength: contentLength
 		});
+		if (err) {
+			toast.error(err.message);
+		} else {
+			setSplitScreenState({
+				...splitScreenState,
+				type: 'blob',
+				videoUrl: blobUrl
+			});
 
-		await fetch(presignedUrl, {
-			method: 'PUT',
-			body: arrayBuffer,
-			headers: {
-				'Content-Type': contentType
-			}
-		});
+			await fetch(data?.presignedUrl, {
+				method: 'PUT',
+				body: arrayBuffer,
+				headers: {
+					'Content-Type': contentType
+				}
+			});
 
-		const { durationInSeconds } = await getVideoMetadata(readUrl);
+			const { durationInSeconds } = await getVideoMetadata(data?.readUrl);
 
-		setSplitScreenState({
-			...splitScreenState,
-			type: 'cloud',
-			videoUrl: readUrl,
-			durationInFrames: Math.floor(durationInSeconds * 30),
-			transcriptionId: '',
-			transcription: {
-				text: '',
-				chunks: []
-			}
-		});
+			setSplitScreenState({
+				...splitScreenState,
+				type: 'cloud',
+				videoUrl: data?.readUrl,
+				durationInFrames: Math.floor(durationInSeconds * 30),
+				transcriptionId: '',
+				transcription: {
+					text: '',
+					chunks: []
+				}
+			});
 
-		URL.revokeObjectURL(blobUrl);
+			URL.revokeObjectURL(blobUrl);
+		}
 	};
 
 	return (
