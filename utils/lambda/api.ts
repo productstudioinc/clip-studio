@@ -1,60 +1,47 @@
-import { z } from "zod";
-import type { RenderMediaOnLambdaOutput } from "@remotion/lambda/client";
-import { ApiResponse } from "../helpers/api-response";
-import { CompositionProps } from "@/stores/templatestore";
-import {
-  ProgressRequest,
-  ProgressResponse,
-  RenderRequest,
-} from "@/types/schema";
+import { CompositionProps } from '@/stores/templatestore';
+import { ProgressRequest, ProgressResponse, RenderRequest } from '@/types/schema';
+import type { RenderMediaOnLambdaOutput } from '@remotion/lambda/client';
+import { z } from 'zod';
+import { ApiResponse } from '../helpers/api-response';
 
-const makeRequest = async <Res>(
-  endpoint: string,
-  body: unknown
-): Promise<Res> => {
-  const result = await fetch(endpoint, {
-    method: "post",
-    body: JSON.stringify(body),
-    headers: {
-      "content-type": "application/json",
-    },
-  });
-  const json = (await result.json()) as ApiResponse<Res>;
-  if (json.type === "error") {
-    throw new Error(json.message);
-  }
+const makeRequest = async <Res>(endpoint: string, body: unknown): Promise<Res> => {
+	const result = await fetch(endpoint, {
+		method: 'post',
+		body: JSON.stringify(body),
+		headers: {
+			'content-type': 'application/json'
+		}
+	});
+	const json = (await result.json()) as ApiResponse<Res>;
+	if (json.type === 'error') {
+		throw new Error(json.message);
+	}
 
-  return json.data;
+	return json.data;
 };
 
 export const renderVideo = async ({
-  id,
-  inputProps,
+	id,
+	inputProps
 }: {
-  id: string;
-  inputProps: z.infer<typeof CompositionProps>;
+	id: string;
+	inputProps: z.infer<typeof CompositionProps>;
 }) => {
-  CompositionProps.parse(inputProps);
+	CompositionProps.parse(inputProps);
 
-  const body: z.infer<typeof RenderRequest> = {
-    id,
-    inputProps,
-  };
+	const body: z.infer<typeof RenderRequest> = {
+		id,
+		inputProps
+	};
 
-  return makeRequest<RenderMediaOnLambdaOutput>("/api/lambda/render", body);
+	return makeRequest<RenderMediaOnLambdaOutput>('/api/lambda/render', body);
 };
 
-export const getProgress = async ({
-  id,
-  bucketName,
-}: {
-  id: string;
-  bucketName: string;
-}) => {
-  const body: z.infer<typeof ProgressRequest> = {
-    id,
-    bucketName,
-  };
+export const getProgress = async ({ id, bucketName }: { id: string; bucketName: string }) => {
+	const body: z.infer<typeof ProgressRequest> = {
+		id,
+		bucketName
+	};
 
-  return makeRequest<ProgressResponse>("/api/lambda/progress", body);
+	return makeRequest<ProgressResponse>('/api/lambda/progress', body);
 };

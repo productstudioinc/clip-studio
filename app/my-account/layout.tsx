@@ -1,10 +1,10 @@
-import { getUser } from "@/utils/actions/user";
+import { getUser } from '@/utils/actions/user';
 
 export default async function StudioLayout({
-  children,
+	children
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  const { user } = await getUser();
-  return <>{children}</>;
+	const { user } = await getUser();
+	return <>{children}</>;
 }
