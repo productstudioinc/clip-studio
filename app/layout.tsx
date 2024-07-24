@@ -29,8 +29,7 @@ export default async function RootLayout({
 				tracingOrigins
 				disableSessionRecording
 				networkRecording={{
-					enabled: true,
-					recordHeadersAndBody: true
+					enabled: false
 				}}
 			/>
 			<html lang="en">
