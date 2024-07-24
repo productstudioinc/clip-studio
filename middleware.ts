@@ -1,8 +1,10 @@
+import { highlightMiddleware } from '@highlight-run/next/server';
 import { type NextRequest } from 'next/server';
 import { updateSession } from './supabase/middleware';
 
 export async function middleware(request: NextRequest) {
 	const response = await updateSession(request);
+	highlightMiddleware(request);
 
 	// if (process.env.NODE_ENV === "production") {
 	//   const url = request.nextUrl.clone();

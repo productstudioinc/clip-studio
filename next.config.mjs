@@ -1,4 +1,5 @@
 import { withContentCollections } from '@content-collections/next';
+import { withHighlightConfig } from '@highlight-run/next/config';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -33,13 +34,9 @@ const nextConfig = {
 	experimental: {
 		instrumentationHook: true
 	},
-	productionBrowserSourceMaps: true,
-	webpack: (config, { isServer }) => {
-		if (isServer) {
-			config.devtool = 'source-map';
-		}
-		return config;
-	}
+	serverExternalPackages: ['@highlight-run/node']
 };
 
-export default withContentCollections(nextConfig);
+export default withHighlightConfig(withContentCollections(nextConfig), {
+	uploadSourceMaps: true
+});

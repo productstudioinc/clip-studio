@@ -34,7 +34,6 @@ export default async function RootLayout({
 					enabled: true,
 					recordHeadersAndBody: true
 				}}
-				debug
 			/>
 			<html lang="en">
 				<PHProvider>
