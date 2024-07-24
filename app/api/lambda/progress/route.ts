@@ -1,11 +1,11 @@
 import { DISK, RAM, REGION, TIMEOUT } from '@/config.mjs';
 import { executeApi } from '@/helpers/api-response';
 import { ProgressRequest, ProgressResponse } from '@/types/schema';
+import { withAppRouterHighlight } from '@/utils/app-router-highlight.config';
 import { AwsRegion, getRenderProgress, speculateFunctionName } from '@remotion/lambda/client';
 
-export const POST = executeApi<ProgressResponse, typeof ProgressRequest>(
-	ProgressRequest,
-	async (req, body) => {
+export const POST = withAppRouterHighlight(
+	executeApi<ProgressResponse, typeof ProgressRequest>(ProgressRequest, async (_req, body) => {
 		const renderProgress = await getRenderProgress({
 			bucketName: body.bucketName,
 			functionName: speculateFunctionName({
@@ -36,5 +36,5 @@ export const POST = executeApi<ProgressResponse, typeof ProgressRequest>(
 			type: 'progress',
 			progress: Math.max(0.03, renderProgress.overallProgress)
 		};
-	}
+	})
 );

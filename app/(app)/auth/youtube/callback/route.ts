@@ -2,17 +2,17 @@ import { db } from '@/db';
 import { youtubeChannels } from '@/db/schema';
 import { createClient } from '@/supabase/server';
 import { getYoutubeChannelInfo } from '@/utils/actions/youtube';
+import { withAppRouterHighlight } from '@/utils/app-router-highlight.config';
 import youtubeAuthClient from '@/utils/youtube';
 import { and, DrizzleError, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { NextResponse } from 'next/server';
 
-export const GET = async (request: Request) => {
+export const GET = withAppRouterHighlight(async (request: Request) => {
 	const requestUrl = new URL(request.url);
 	const error = requestUrl.searchParams.get('error');
 	const code = requestUrl.searchParams.get('code');
 	const origin = requestUrl.origin;
-	const errorString = 'Error in YouTube authentication handler:';
 
 	try {
 		if (error) {
@@ -63,7 +63,7 @@ export const GET = async (request: Request) => {
 
 	revalidatePath('/my-account');
 	return NextResponse.redirect(`${origin}/my-account`);
-};
+});
 
 const checkIfYoutubeChannelIsAlreadySaved = async ({
 	channelId,
