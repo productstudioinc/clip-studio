@@ -37,31 +37,38 @@ export const SplitScreenControls: React.FC = ({}) => {
 		const arrayBuffer = await file.arrayBuffer();
 		const contentLength = arrayBuffer.byteLength;
 
-		const { presignedUrl, readUrl } = await generatePresignedUrl(contentType, contentLength);
-
-		await fetch(presignedUrl, {
-			method: 'PUT',
-			body: arrayBuffer,
-			headers: {
-				'Content-Type': contentType
-			}
+		const [data, err] = await generatePresignedUrl({
+			contentType: contentType,
+			contentLength: contentLength
 		});
 
-		const { durationInSeconds } = await getVideoMetadata(readUrl);
+		if (err) {
+			toast.error(err.message);
+		} else {
+			await fetch(data.presignedUrl, {
+				method: 'PUT',
+				body: arrayBuffer,
+				headers: {
+					'Content-Type': contentType
+				}
+			});
 
-		setSplitScreenState({
-			...splitScreenState,
-			type: 'cloud',
-			videoUrl: readUrl,
-			durationInFrames: Math.floor(durationInSeconds * 30),
-			transcriptionId: '',
-			transcription: {
-				text: '',
-				chunks: []
-			}
-		});
+			const { durationInSeconds } = await getVideoMetadata(data.readUrl);
 
-		URL.revokeObjectURL(blobUrl);
+			setSplitScreenState({
+				...splitScreenState,
+				type: 'cloud',
+				videoUrl: data.readUrl,
+				durationInFrames: Math.floor(durationInSeconds * 30),
+				transcriptionId: '',
+				transcription: {
+					text: '',
+					chunks: []
+				}
+			});
+
+			URL.revokeObjectURL(blobUrl);
+		}
 	};
 
 	return (
