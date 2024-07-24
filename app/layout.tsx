@@ -23,6 +23,7 @@ export default async function RootLayout({
 	return (
 		<>
 			<HighlightInit
+				backendUrl="/highlight-events"
 				projectId={process.env.NEXT_PUBLIC_HIGHLIGHT_PROJECT_ID}
 				serviceName="clip-studio"
 				tracingOrigins
