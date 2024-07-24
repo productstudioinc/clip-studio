@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 type Link = {
 	text: string;
@@ -12,7 +13,7 @@ const links: Link[] = [
 
 export default function Hero() {
 	return (
-		<main className="container relative mx-auto p-4 md:p-16 gap-4 flex flex-col max-w-2xl lowercase">
+		<main className="container mx-auto p-4 gap-4 flex flex-col max-w-2xl lowercase">
 			<section>
 				<div className="flex items-center justify-between">
 					<div className="flex-1 space-y-1.5">
@@ -42,7 +43,7 @@ export default function Hero() {
 								key={index}
 								className="text-[15px]/normaltext-neutral-400 transition-all duration-100 ease-linear hover:text-neutral-900 hover:underline hover:underline-offset-4 dark:text-neutral-400 hover:dark:text-neutral-100"
 							>
-								<a href={link.url}>{link.text}</a>
+								<Link href={link.url}>{link.text}</Link>
 							</li>
 						))}
 					</ul>

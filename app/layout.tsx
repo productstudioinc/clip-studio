@@ -31,6 +31,8 @@ export default async function RootLayout({
 				networkRecording={{
 					enabled: false
 				}}
+				disableConsoleRecording
+				disableBackgroundRecording
 			/>
 			<html lang="en">
 				<PHProvider>
