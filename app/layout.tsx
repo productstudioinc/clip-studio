@@ -29,6 +29,7 @@ export default async function RootLayout({
 				projectId={process.env.NEXT_PUBLIC_HIGHLIGHT_PROJECT_ID}
 				serviceName="clip-studio"
 				tracingOrigins
+				disableSessionRecording
 				networkRecording={{
 					enabled: true,
 					recordHeadersAndBody: true
