@@ -1,8 +1,6 @@
-import { Dashboard } from '@/components/dashboard';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 import '@/styles/globals.css';
-import { getUser } from '@/utils/actions/user';
 import { HighlightInit } from '@highlight-run/next/client';
 import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from 'next';
@@ -22,7 +20,6 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const { user } = await getUser();
 	return (
 		<>
 			<HighlightInit
@@ -40,7 +37,7 @@ export default async function RootLayout({
 					<body className={GeistSans.className}>
 						<PostHogPageView />
 						<ThemeProvider attribute="class" defaultTheme="light">
-							<Dashboard user={user}>{children}</Dashboard>
+							{children}
 							<Toaster position="top-right" />
 						</ThemeProvider>
 					</body>
