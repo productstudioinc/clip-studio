@@ -20,7 +20,7 @@ export default async function ProfilePage() {
 			<div>youtubeChannels</div>
 			{youtubeChannels.map((channel) => (
 				<div key={channel.id}>
-					<img src={channel.profile_picture_path} />
+					<img src={channel.profile_picture_path as string} />
 					<div>{channel.channelCustomUrl}</div>
 					<div>{channel.error}</div>
 				</div>
