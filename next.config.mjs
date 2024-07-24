@@ -37,6 +37,8 @@ const nextConfig = {
 	serverExternalPackages: ['@highlight-run/node']
 };
 
-export default withHighlightConfig(withContentCollections(nextConfig), {
-	uploadSourceMaps: true
-});
+export default withContentCollections(
+	withHighlightConfig(nextConfig, {
+		uploadSourceMaps: true
+	})
+);
