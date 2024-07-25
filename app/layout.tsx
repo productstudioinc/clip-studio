@@ -16,9 +16,11 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({
-	children
+	children,
+	auth
 }: Readonly<{
 	children: React.ReactNode;
+	auth: React.ReactNode;
 }>) {
 	return (
 		<>
@@ -39,6 +41,7 @@ export default async function RootLayout({
 					<body className={GeistSans.className}>
 						<PostHogPageView />
 						<ThemeProvider attribute="class" defaultTheme="light">
+							{auth}
 							{children}
 							<Toaster position="top-right" />
 						</ThemeProvider>

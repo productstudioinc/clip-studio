@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createClient } from '@/supabase/clients';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -23,28 +22,24 @@ export default function LoginComponent() {
 	});
 
 	return (
-		<Card className="mx-auto max-w-sm">
-			<CardHeader>
-				<CardTitle className="text-2xl">Login</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<Button
-					variant="outline"
-					className="w-full"
-					onClick={() => {
-						supabase.auth.signInWithOAuth({
-							provider: 'google',
-							options: {
-								redirectTo: `${location.origin}/auth/callback`
-							}
-						});
-					}}
-				>
-					<GoogleIcon className="mr-2 h-4 w-4" />
-					Login with Google
-				</Button>
-			</CardContent>
-		</Card>
+		<main className="flex flex-col">
+			<h2 className="text-2xl font-bold pb-4">Login</h2>
+			<Button
+				variant="outline"
+				className="w-full"
+				onClick={() => {
+					supabase.auth.signInWithOAuth({
+						provider: 'google',
+						options: {
+							redirectTo: `${location.origin}/auth/callback`
+						}
+					});
+				}}
+			>
+				<GoogleIcon className="mr-2 h-4 w-4" />
+				Login with Google
+			</Button>
+		</main>
 	);
 }
 
