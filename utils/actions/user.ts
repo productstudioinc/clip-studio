@@ -1,9 +1,11 @@
 'use server';
 
+import { db } from '@/db';
 import { createClient } from '@/supabase/server';
 import { redirect } from 'next/navigation';
+import { cache } from 'react';
 
-export const getUser = async () => {
+export const getUser = cache(async () => {
 	const supabase = createClient();
 
 	const {
@@ -11,7 +13,11 @@ export const getUser = async () => {
 	} = await supabase.auth.getUser();
 
 	return { user };
-};
+});
+
+export const getUserSubscription = cache(async () => {
+	const response = await db;
+});
 
 export const signOut = async () => {
 	const supabase = createClient();
