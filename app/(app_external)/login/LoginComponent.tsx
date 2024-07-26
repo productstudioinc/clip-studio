@@ -23,7 +23,6 @@ export default function LoginComponent() {
 
 	return (
 		<main className="flex flex-col">
-			<h2 className="text-2xl font-bold pb-4">Login</h2>
 			<Button
 				variant="outline"
 				className="w-full"
