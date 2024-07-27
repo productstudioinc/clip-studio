@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
+import { constructMetadata } from '@/lib/seo-utils';
 import '@/styles/globals.css';
 import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from 'next';
@@ -10,9 +11,7 @@ const PostHogPageView = dynamic(() => import('./_analytics/PostHogPageView'), {
 	ssr: false
 });
 
-export const metadata: Metadata = {
-	title: 'Clip Studio'
-};
+export const metadata: Metadata = constructMetadata({});
 
 export default async function RootLayout({
 	children,

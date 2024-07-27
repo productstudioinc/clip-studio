@@ -86,8 +86,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
 				return 'Export';
 			case '/my-account':
 				return 'My Account';
-			case '/login':
-				return 'Login';
 			default:
 				return 'Studio';
 		}

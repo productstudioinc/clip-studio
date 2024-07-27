@@ -1,15 +1,11 @@
-import { Dashboard } from '@/components/dashboard';
-import { getUser } from '@/utils/actions/user';
-
-export default async function RootLayout({
-	children
-}: Readonly<{
+interface AuthLayoutProps {
 	children: React.ReactNode;
-}>) {
-	const { user } = await getUser();
+}
+
+export default function AuthLayout({ children }: AuthLayoutProps) {
 	return (
-		<Dashboard showVideoPreview={false} user={user}>
+		<div className="flex h-screen mx-auto max-w-sm flex-col items-center justify-center">
 			{children}
-		</Dashboard>
+		</div>
 	);
 }
