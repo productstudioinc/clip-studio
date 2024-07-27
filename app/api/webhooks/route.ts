@@ -4,7 +4,7 @@ import {
 	manageSubscriptionStatusChange,
 	upsertPriceRecord,
 	upsertProductRecord
-} from '@/db/queries';
+} from '@/db/admin-queries';
 import { stripe } from '@/utils/stripe/config';
 import Stripe from 'stripe';
 
