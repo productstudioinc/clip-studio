@@ -123,7 +123,6 @@ export const getYoutubeChannelInfo = async (token: Credentials) => {
 	if (channels.length == 0) {
 		throw new Error('No channels found.');
 	}
-	console.log('Fetched channel', channels[0]);
 	const snippet = channels[0].snippet;
 	if (!snippet) {
 		throw new Error('No snippet found.');
