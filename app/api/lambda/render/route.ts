@@ -2,7 +2,6 @@ import { DISK, RAM, REGION, SITE_NAME, TIMEOUT } from '@/config.mjs';
 import { executeApi } from '@/helpers/api-response';
 import { RenderRequest } from '@/types/schema';
 import { getUser } from '@/utils/actions/user';
-import { withAppRouterHighlight } from '@/utils/highlight.config';
 import {
 	AwsRegion,
 	renderMediaOnLambda,
@@ -11,8 +10,9 @@ import {
 } from '@remotion/lambda/client';
 import { redirect } from 'next/navigation';
 
-export const POST = withAppRouterHighlight(
-	executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(RenderRequest, async (_req, body) => {
+export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
+	RenderRequest,
+	async (_req, body) => {
 		if (!process.env.AWS_ACCESS_KEY_ID && !process.env.REMOTION_AWS_ACCESS_KEY_ID) {
 			throw new TypeError(
 				'Set up Remotion Lambda to render videos. See the README.md for how to do so.'
@@ -54,5 +54,5 @@ export const POST = withAppRouterHighlight(
 		});
 
 		return result;
-	})
+	}
 );
