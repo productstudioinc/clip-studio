@@ -50,7 +50,11 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 				type: 'download',
 				fileName: 'video.mp4'
 			},
-			logLevel: 'verbose'
+			logLevel: 'verbose',
+			webhook: {
+				url: 'https://clip.studio/api/test-webhook',
+				secret: 'test'
+			}
 		});
 
 		return result;
