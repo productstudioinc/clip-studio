@@ -1,7 +1,7 @@
 'use client';
 
 import Hero from '@/app/hero';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import {
 	DropdownMenu,
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { cn } from '@/lib/utils';
 import { useTemplateStore } from '@/stores/templatestore';
 import { signOut } from '@/utils/actions/user';
 import { User } from '@supabase/supabase-js';
@@ -26,7 +27,8 @@ import {
 	LucideIcon,
 	Menu,
 	MicVocalIcon,
-	User as UserIcon
+	User as UserIcon,
+	ZapIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -166,6 +168,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
 							<Separator orientation="horizontal" className="my-2" />
 							<NavLink {...profileNavItem} currentRoute={currentRoute} />
 						</nav>
+					</div>
+					<div className="px-2 lg:px-4">
+						<Link href="/pricing" className={cn(buttonVariants(), 'w-full')}>
+							<ZapIcon className="h-4 w-4 mr-2" />
+							Upgrade
+						</Link>
 					</div>
 					<div className="px-2 lg:px-4">
 						{user ? (
