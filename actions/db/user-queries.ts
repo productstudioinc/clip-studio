@@ -1,10 +1,12 @@
-import { getUser } from '@/utils/actions/user';
+'use server';
+
+import { getUser } from '@/actions/auth/user';
+import { db } from '@/db';
+import { prices, products, socialMediaPosts } from '@/db/schema';
 import { and, desc, DrizzleError, eq, sql } from 'drizzle-orm';
 import { cache } from 'react';
 import { z } from 'zod';
 import { createServerAction, ZSAError } from 'zsa';
-import { db } from '.';
-import { prices, products, socialMediaPosts } from './schema';
 
 export const getProducts = cache(async () => {
 	const result = await db

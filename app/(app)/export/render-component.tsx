@@ -1,9 +1,9 @@
 'use client';
 
+import { YoutubeChannel } from '@/actions/db/social-media-queries';
 import AnimatedCircularProgressBar from '@/components/magicui/animated-circular-progress-bar';
 import { Separator } from '@/components/ui/separator';
 import { useTemplateStore } from '@/stores/templatestore';
-import { YoutubeChannel } from '@/utils/actions/socialMediaAccounts';
 import { useRendering } from '@/utils/helpers/use-rendering';
 import { ExportComponent } from './export-component';
 import { RenderButton } from './render-button';

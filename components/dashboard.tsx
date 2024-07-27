@@ -1,5 +1,6 @@
 'use client';
 
+import { signOut } from '@/actions/auth/user';
 import Hero from '@/app/hero';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
@@ -14,7 +15,6 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useTemplateStore } from '@/stores/templatestore';
-import { signOut } from '@/utils/actions/user';
 import { User } from '@supabase/supabase-js';
 import {
 	CaptionsIcon,

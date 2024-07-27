@@ -7,7 +7,7 @@ import { and, DrizzleError, eq } from 'drizzle-orm';
 import { Credentials } from 'google-auth-library';
 import { google } from 'googleapis';
 import { redirect } from 'next/navigation';
-import youtubeAuthClient from '../youtube';
+import youtubeAuthClient from '../utils/youtube';
 
 export type YoutubeVideoStats = 'private' | 'public';
 

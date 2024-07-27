@@ -3,7 +3,7 @@
 import { Transcription } from '@/stores/templatestore';
 import { z } from 'zod';
 import { createServerAction, ZSAError } from 'zsa';
-import { getUser } from './user';
+import { getUser } from './auth/user';
 
 export const getTranscriptionId = createServerAction()
 	.input(z.string().url())

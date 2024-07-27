@@ -1,5 +1,5 @@
+import { getTemplates } from '@/actions/db/page-data';
 import HeroWrapper from '@/components/ui/hero-wrapper';
-import { getTemplates } from '@/utils/actions/getData';
 import { TemplateSelect } from '../template-select';
 
 export default async function TemplatesPage() {

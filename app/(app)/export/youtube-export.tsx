@@ -1,5 +1,7 @@
 'use client';
 
+import { YoutubeChannel } from '@/actions/db/social-media-queries';
+import { createSocialMediaPost } from '@/actions/db/user-queries';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -17,8 +19,6 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/components/ui/select';
-import { createSocialMediaPost } from '@/db/user-queries';
-import { YoutubeChannel } from '@/utils/actions/socialMediaAccounts';
 import { useState } from 'react';
 import { toast } from 'sonner';
 

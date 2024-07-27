@@ -4,7 +4,7 @@ import { db } from '@/db';
 import { youtubeChannels } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { Credentials } from 'google-auth-library';
-import { getYoutubeChannelInfo } from './youtube';
+import { getYoutubeChannelInfo } from '../youtube';
 
 export type YoutubeChannel = {
 	profile_picture_path: string | null | undefined;

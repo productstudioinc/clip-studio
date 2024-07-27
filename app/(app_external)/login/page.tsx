@@ -1,4 +1,4 @@
-import { getUser } from '@/utils/actions/user';
+import { getUser } from '@/actions/auth/user';
 import { redirect } from 'next/navigation';
 import LoginComponent from './LoginComponent';
 

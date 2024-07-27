@@ -1,5 +1,5 @@
-import { fetchUserConnectSocialMediaAccounts } from '@/utils/actions/socialMediaAccounts';
-import { getUser } from '@/utils/actions/user';
+import { getUser } from '@/actions/auth/user';
+import { fetchUserConnectSocialMediaAccounts } from '@/actions/db/social-media-queries';
 import { redirect } from 'next/navigation';
 import { RenderControls } from './render-component';
 

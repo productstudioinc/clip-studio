@@ -1,4 +1,4 @@
-import { getBackgrounds } from '@/utils/actions/getData';
+import { getBackgrounds } from '@/actions/db/page-data';
 import { BackgroundSelect } from './background-select';
 import ConfigureControls from './configure-controls';
 
