@@ -17,8 +17,10 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/components/ui/select';
+import { createSocialMediaPost } from '@/db/user-queries';
 import { YoutubeChannel } from '@/utils/actions/socialMediaAccounts';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export function YoutubeExportDialog({
 	youtubeChannels,
@@ -31,8 +33,16 @@ export function YoutubeExportDialog({
 	const [title, setTitle] = useState('');
 
 	const handleUpload = async () => {
-		// Implement upload logic here
+		const [data, err] = await createSocialMediaPost();
+		if (err) {
+			toast.error(err.message);
+		}
+		if (data) {
+			await uploadPost(data);
+		}
 	};
+
+	const uploadPost = async (socialMediaPostId: string) => {};
 
 	return (
 		<Dialog>

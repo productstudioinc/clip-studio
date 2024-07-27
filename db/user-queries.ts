@@ -1,7 +1,10 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { getUser } from '@/utils/actions/user';
+import { and, desc, DrizzleError, eq, sql } from 'drizzle-orm';
 import { cache } from 'react';
+import { z } from 'zod';
+import { createServerAction, ZSAError } from 'zsa';
 import { db } from '.';
-import { prices, products } from './schema';
+import { prices, products, socialMediaPosts } from './schema';
 
 export const getProducts = cache(async () => {
 	const result = await db
@@ -16,3 +19,27 @@ export const getProducts = cache(async () => {
 
 	return result;
 });
+
+export const createSocialMediaPost = createServerAction()
+	.input(z.void())
+	.handler(async () => {
+		const { user } = await getUser();
+		if (!user) {
+			throw new ZSAError('NOT_AUTHORIZED', 'You are not authorized to perform this action.');
+		}
+		try {
+			const result = await db
+				.insert(socialMediaPosts)
+				.values({
+					userId: user.id
+				})
+				.returning({
+					insertedId: socialMediaPosts.id
+				});
+			return result[0].insertedId;
+		} catch (error) {
+			if (error instanceof DrizzleError || error instanceof Error) {
+				throw new ZSAError('INTERNAL_SERVER_ERROR', error.message);
+			}
+		}
+	});
