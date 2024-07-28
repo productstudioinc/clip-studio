@@ -1,4 +1,4 @@
-import { validateWebhookSignature, WebhookPayload } from '@remotion/lambda';
+import { validateWebhookSignature, WebhookPayload } from '@remotion/lambda/client';
 import { withAxiom } from 'next-axiom';
 
 export const POST = withAxiom(async (req) => {
