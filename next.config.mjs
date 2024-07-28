@@ -1,4 +1,5 @@
 import { withContentCollections } from '@content-collections/next';
+import { withAxiom } from 'next-axiom';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -32,4 +33,4 @@ const nextConfig = {
 	skipTrailingSlashRedirect: true
 };
 
-export default withContentCollections(nextConfig);
+export default withContentCollections(withAxiom(nextConfig));

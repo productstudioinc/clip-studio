@@ -52,8 +52,8 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 			},
 			logLevel: 'verbose',
 			webhook: {
-				url: 'https://clip.studio/api/test-webhook',
-				secret: 'test'
+				url: 'https://clip.studio/api/render-webhook',
+				secret: process.env.REMOTION_WEBHOOK_SECRET!
 			}
 		});
 

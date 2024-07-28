@@ -9,10 +9,12 @@ import { randomBytes } from 'crypto';
 import { and, DrizzleError, eq } from 'drizzle-orm';
 import { Credentials } from 'google-auth-library';
 import { google } from 'googleapis';
+import { Logger } from 'next-axiom';
 import { redirect } from 'next/navigation';
 import { Readable } from 'stream';
 import { z } from 'zod';
 import { createServerAction, ZSAError } from 'zsa';
+import { endingFunctionString, errorString, startingFunctionString } from '../utils/logging';
 import youtubeAuthClient from '../utils/youtube';
 import { getUser } from './auth/user';
 
@@ -171,4 +173,77 @@ const getVideoStream = async (videoUrl: string): Promise<Readable> => {
 	}
 
 	return data.Body as Readable;
+};
+
+export const refreshYoutubeAccessTokens = async () => {
+	const logger = new Logger().with({
+		function: 'refreshYoutubeAccessTokens'
+	});
+
+	try {
+		logger.info(startingFunctionString);
+
+		const channels = await db.select().from(youtubeChannels);
+
+		if (!channels.length) {
+			logger.error(errorString, {
+				error: 'No data returned from youtube channels'
+			});
+			throw new Error('No YouTube channels found');
+		}
+
+		for (const channel of channels) {
+			await refreshYoutubeAccessToken({
+				credentials: channel.credentials as Credentials,
+				id: channel.id
+			});
+		}
+
+		logger.info(endingFunctionString, {
+			numberOfAccounts: channels.length
+		});
+	} catch (error) {
+		logger.error(errorString, {
+			error: error instanceof Error ? error.message : JSON.stringify(error)
+		});
+		throw error;
+	} finally {
+		await logger.flush();
+	}
+};
+
+const refreshYoutubeAccessToken = async ({
+	credentials,
+	id
+}: {
+	credentials: Credentials;
+	id: string;
+}) => {
+	const logger = new Logger().with({
+		function: 'refreshYoutubeAccessToken',
+		id
+	});
+
+	try {
+		logger.info(startingFunctionString);
+
+		youtubeAuthClient.setCredentials(credentials);
+		const { credentials: updatedCredentials } = await youtubeAuthClient.refreshAccessToken();
+
+		await db
+			.update(youtubeChannels)
+			.set({
+				credentials: updatedCredentials as Credentials,
+				updatedAt: new Date()
+			})
+			.where(eq(youtubeChannels.id, id));
+
+		logger.info(endingFunctionString);
+	} catch (error) {
+		logger.error(errorString, {
+			error: error instanceof Error ? error.message : JSON.stringify(error)
+		});
+	} finally {
+		await logger.flush();
+	}
 };
