@@ -1,6 +1,6 @@
 // app/providers.tsx
 'use client';
-import { getUser } from '@/utils/actions/user';
+import { getUser } from '@/actions/auth/user';
 import { User } from '@supabase/supabase-js';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';

@@ -140,11 +140,11 @@ export const youtubeChannels = pgTable('youtube_channels', {
 });
 
 export const youtubePosts = pgTable('youtube_posts', {
-	id: uuid('id').primaryKey().defaultRandom(),
+	id: text('id').primaryKey(),
 	userId: uuid('user_id')
 		.notNull()
 		.references(() => users.id),
-	youtubeChannelId: uuid('youtube_channel_id')
+	youtubeChannelId: text('youtube_channel_id')
 		.notNull()
 		.references(() => youtubeChannels.id),
 	parentSocialMediaPostId: uuid('parent_social_media_post_id')

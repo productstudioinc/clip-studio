@@ -1,9 +1,9 @@
 'use client';
+import { getTranscription, getTranscriptionId } from '@/actions/transcribe';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useTemplateStore } from '@/stores/templatestore';
-import { getTranscription, getTranscriptionId } from '@/utils/actions/transcribe';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';

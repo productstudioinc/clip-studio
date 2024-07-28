@@ -1,5 +1,6 @@
 'use client';
 
+import { signOut } from '@/actions/auth/user';
 import Hero from '@/app/hero';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
@@ -15,7 +16,6 @@ import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useTemplateStore } from '@/stores/templatestore';
-import { signOut } from '@/utils/actions/user';
 import { User } from '@supabase/supabase-js';
 import {
 	CaptionsIcon,
@@ -141,10 +141,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
 			<div className="hidden border-r bg-muted/40 md:block">
 				<div className="flex h-full max-h-screen flex-col gap-2">
 					<div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-						{/* <Link href="/" className="flex items-center gap-2 font-semibold">
-              <Logo />
-              <span className="">Clip Studio</span>
-            </Link> */}
 						<Dialog>
 							<DialogTrigger asChild>
 								<Button
@@ -229,7 +225,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 					<div className="w-full flex-1"></div>
 					<ModeToggle />
 				</header>
-				<main className="flex flex-col p-4 lg:p-6 flex-grow overflow-auto">
+				<main className="flex flex-col p-4 lg:p-6 flex-grow overflow-hidden">
 					<div className="flex items-center mb-4">
 						<h1 className="text-lg font-semibold md:text-2xl">{getTitle(currentRoute)}</h1>
 					</div>
@@ -247,8 +243,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
 							</div>
 						</div>
 					) : (
-						<div className="flex-grow overflow-auto rounded-lg border shadow-sm p-4">
-							{children}
+						<div className="flex-grow overflow-hidden rounded-lg border shadow-sm p-4">
+							<div className="overflow-x-auto">{children}</div>
 						</div>
 					)}
 				</main>
