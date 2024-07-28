@@ -81,9 +81,6 @@ export default function Pricing({
 						}}
 					/>
 					<span>Annual</span>
-					<span className="inline-block whitespace-nowrap rounded-full bg-black px-2.5 py-1 text-[11px] font-semibold uppercase leading-5 tracking-wide text-white dark:bg-white dark:text-black">
-						2 MONTHS FREE ✨
-					</span>
 				</div>
 
 				<div className="mx-auto grid w-full justify-center gap-8 sm:grid-cols-1 lg:grid-cols-3">
@@ -156,17 +153,19 @@ export default function Pricing({
 								</Button>
 
 								<hr className="m-0 h-px w-full border-none bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0" />
-								{product.metadata && (product.metadata as any).features && (
+								{(product.metadata as any) && (
 									<ul className="flex flex-col gap-2 font-normal">
-										{(product.metadata as any).features
-											.split(',')
-											.map((feature: string, idx: number) => (
+										{Object.entries(product.metadata as any)
+											.filter(([key]) => key !== '1')
+											.map(([_key, feature], idx) => (
 												<li
 													key={idx}
 													className="flex items-center gap-3 text-xs font-medium text-black dark:text-white"
 												>
 													<CheckIcon className="h-5 w-5 shrink-0 rounded-full bg-green-400 p-[2px] text-black dark:text-white" />
-													<span className="flex">{feature.trim()}</span>
+													<span className="flex">
+														{typeof feature === 'string' ? feature : String(feature)}
+													</span>
 												</li>
 											))}
 									</ul>
