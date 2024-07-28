@@ -41,7 +41,8 @@ export function RenderControls({ youtubeChannels }: { youtubeChannels: YoutubeCh
 					<div className="flex flex-col">
 						<YoutubeExportDialog
 							youtubeChannels={youtubeChannels}
-							disabled={state.status === 'done'}
+							disabled={state.status !== 'done'}
+							state={state}
 						/>
 					</div>
 				</div>

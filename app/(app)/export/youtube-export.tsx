@@ -2,6 +2,7 @@
 
 import { YoutubeChannel } from '@/actions/db/social-media-queries';
 import { createSocialMediaPost } from '@/actions/db/user-queries';
+import { postVideoToYoutube } from '@/actions/youtube';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -12,6 +13,7 @@ import {
 	DialogTrigger
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
 	Select,
 	SelectContent,
@@ -19,35 +21,65 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { State } from '@/utils/helpers/use-rendering';
+import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 export function YoutubeExportDialog({
 	youtubeChannels,
-	disabled
+	disabled,
+	state
 }: {
 	youtubeChannels: YoutubeChannel[];
 	disabled: boolean;
+	state: State;
 }) {
 	const [selectedChannel, setSelectedChannel] = useState<YoutubeChannel | null>(null);
 	const [title, setTitle] = useState('');
+	const [isPrivate, setIsPrivate] = useState(false);
+	const [isUploading, setIsUploading] = useState(false);
 
 	const handleUpload = async () => {
+		setIsUploading(true);
 		const [data, err] = await createSocialMediaPost();
 		if (err) {
 			toast.error(err.message);
 		}
-		if (data) {
+		if (data && selectedChannel) {
+			console.log('social media post id', data);
 			await uploadPost(data);
+		} else {
+			toast.error('Please select a channel.');
 		}
 	};
 
-	const uploadPost = async (socialMediaPostId: string) => {};
+	const uploadPost = async (socialMediaPostId: string) => {
+		if (selectedChannel) {
+			console.log('uploading to youtube');
+			const [data, err] = await postVideoToYoutube({
+				title: title,
+				youtubeChannelId: selectedChannel.id,
+				parentSocialMediaPostId: socialMediaPostId,
+				videoUrl:
+					'https://s3.us-east-1.amazonaws.com/remotionlambda-useast1-0yusc48yt2/renders/xlzbkuf3vp/out.mp4',
+				isPrivate
+			});
+			if (err) {
+				setIsUploading(false);
+				toast.error(err.message);
+			} else {
+				setIsUploading(false);
+				toast.success('Video uploaded to YouTube!');
+			}
+		}
+	};
 
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button variant="outline" className="w-full" disabled={disabled}>
+				<Button variant="outline" className="w-full" disabled={!disabled}>
 					<YoutubeIcon className="mr-2 h-4 w-4 dark:invert" />
 					Export to Youtube
 				</Button>
@@ -82,7 +114,17 @@ export function YoutubeExportDialog({
 					placeholder="Title"
 					disabled={!selectedChannel}
 				/>
-				<Button disabled={!selectedChannel || !title} onClick={handleUpload}>
+				<div className="flex items-center gap-2">
+					<Label htmlFor="is-private">Private?</Label>
+					<Switch
+						id="is-private"
+						checked={isPrivate}
+						onCheckedChange={(checked) => setIsPrivate(checked)}
+						disabled={!selectedChannel}
+					/>
+				</div>
+				<Button disabled={!selectedChannel || !title || isUploading} onClick={handleUpload}>
+					{isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 					Upload
 				</Button>
 			</DialogContent>

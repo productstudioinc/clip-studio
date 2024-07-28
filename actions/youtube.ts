@@ -2,12 +2,19 @@
 
 import { db } from '@/db';
 import { youtubeChannels, youtubePosts } from '@/db/schema';
+import { parseS3Url } from '@/utils/s3';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { getAwsClient } from '@remotion/lambda/client';
 import { randomBytes } from 'crypto';
 import { and, DrizzleError, eq } from 'drizzle-orm';
 import { Credentials } from 'google-auth-library';
 import { google } from 'googleapis';
 import { redirect } from 'next/navigation';
+import { Readable } from 'stream';
+import { z } from 'zod';
+import { createServerAction, ZSAError } from 'zsa';
 import youtubeAuthClient from '../utils/youtube';
+import { getUser } from './auth/user';
 
 export type YoutubeVideoStats = 'private' | 'public';
 
@@ -29,62 +36,67 @@ export const connectYoutubeAccount = async () => {
 	redirect(authUrl);
 };
 
-export const postVideoToYoutube = async ({
-	title,
-	videoUrl,
-	userId,
-	parentSocialMediaPostId,
-	youtubeChannelId,
-	isPrivate
-}: {
-	title: string;
-	videoUrl: string;
-	userId: string;
-	parentSocialMediaPostId: string;
-	youtubeChannelId: string;
-	isPrivate: boolean;
-}) => {
-	const youtubeAccount = await getYoutubeAccountForUser({
-		userId,
-		youtubeChannelId
-	});
-	youtubeAuthClient.setCredentials(youtubeAccount?.credentials as Credentials);
-	try {
-		const youtube = google.youtube('v3');
-		const resp = await youtube.videos.insert({
-			auth: youtubeAuthClient,
-			part: ['snippet', 'status'],
-			requestBody: {
-				snippet: { title },
-				status: { privacyStatus: isPrivate ? 'private' : 'public' }
-			},
-			media: {
-				body: videoUrl,
-				mimeType: 'application/octet-stream'
+export const postVideoToYoutube = createServerAction()
+	.input(
+		z.object({
+			title: z.string(),
+			videoUrl: z.string(),
+			parentSocialMediaPostId: z.string(),
+			youtubeChannelId: z.string(),
+			isPrivate: z.boolean().default(false)
+		})
+	)
+	.handler(async ({ input }) => {
+		const { user } = await getUser();
+		if (!user) {
+			throw new ZSAError('NOT_AUTHORIZED', 'You are not authorized to perform this action.');
+		}
+		const { title, videoUrl, parentSocialMediaPostId, youtubeChannelId, isPrivate } = input;
+		const videoStream = await getVideoStream(videoUrl);
+		const youtubeAccount = await getYoutubeAccountForUser({
+			userId: user.id,
+			youtubeChannelId
+		});
+		youtubeAuthClient.setCredentials(youtubeAccount?.credentials as Credentials);
+		try {
+			const youtube = google.youtube('v3');
+			const resp = await youtube.videos.insert({
+				auth: youtubeAuthClient,
+				part: ['snippet', 'status'],
+				requestBody: {
+					snippet: { title },
+					status: { privacyStatus: isPrivate ? 'private' : 'public' }
+				},
+				media: {
+					body: videoStream,
+					mimeType: 'video/mp4'
+				}
+			});
+			const videoId = resp?.data.id;
+			console.log('video id', videoId);
+			if (!videoId) {
+				throw new ZSAError(
+					'INTERNAL_SERVER_ERROR',
+					"Sorry, we couldn't upload your video to YouTube. Please try again."
+				);
 			}
-		});
-		const videoId = resp?.data.id;
-		if (!videoId) {
-			return {
-				error: "Sorry, we couldn't upload your video to YouTube. Please try again."
-			};
+			await db.insert(youtubePosts).values({
+				id: videoId,
+				parentSocialMediaPostId: parentSocialMediaPostId,
+				title,
+				userId: user.id,
+				youtubeChannelId: youtubeChannelId
+			});
+			console.log('youtube post id', videoId);
+		} catch (error) {
+			console.error('Error uploading to YouTube:', error);
+			if (error instanceof DrizzleError) {
+				throw new ZSAError('INTERNAL_SERVER_ERROR', error.message);
+			} else {
+				throw new ZSAError('INTERNAL_SERVER_ERROR', 'An error occurred while uploading the video.');
+			}
 		}
-		await db.insert(youtubePosts).values({
-			id: videoId,
-			parentSocialMediaPostId: parentSocialMediaPostId,
-			title,
-			userId: userId,
-			youtubeChannelId: youtubeChannelId
-		});
-	} catch (error: any) {
-		// Handle API errors
-		if (error.response && error.response.data) {
-			const apiError = error.response.data.error;
-		} else {
-		}
-		throw error;
-	}
-};
+	});
 
 const getYoutubeAccountForUser = async ({
 	userId,
@@ -137,4 +149,25 @@ export const getYoutubeChannelInfo = async (token: Credentials) => {
 		channelId,
 		thumbnail
 	};
+};
+
+const getVideoStream = async (videoUrl: string): Promise<Readable> => {
+	const { client } = getAwsClient({
+		region: 'us-east-1',
+		service: 's3'
+	});
+	const { bucketName, key } = parseS3Url(videoUrl);
+	console.log('bucketName', bucketName);
+	console.log('key', key);
+	const getObjectCommand = new GetObjectCommand({
+		Bucket: bucketName,
+		Key: key
+	});
+	const data = await client.send(getObjectCommand);
+
+	if (!data.Body) {
+		throw new Error('Failed to get video stream from S3');
+	}
+
+	return data.Body as Readable;
 };
