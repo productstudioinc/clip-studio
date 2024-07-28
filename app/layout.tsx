@@ -4,6 +4,7 @@ import { constructMetadata } from '@/lib/seo-utils';
 import '@/styles/globals.css';
 import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from 'next';
+import { AxiomWebVitals } from 'next-axiom';
 import dynamic from 'next/dynamic';
 import { PHProvider } from './_analytics/provider';
 
@@ -23,6 +24,7 @@ export default async function RootLayout({
 	return (
 		<>
 			<html lang="en">
+				<AxiomWebVitals />
 				<PHProvider>
 					<body className={GeistSans.className}>
 						<PostHogPageView />
