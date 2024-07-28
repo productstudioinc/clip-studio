@@ -1,7 +1,7 @@
+import { generatePresignedUrl } from '@/actions/generatePresignedUrl';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTemplateStore } from '@/stores/templatestore';
-import { generatePresignedUrl } from '@/utils/actions/generatePresignedUrl';
 import { getVideoMetadata } from '@remotion/media-utils';
 import React from 'react';
 import { toast } from 'sonner';

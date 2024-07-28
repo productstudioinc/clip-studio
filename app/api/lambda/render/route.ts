@@ -1,7 +1,7 @@
+import { getUser } from '@/actions/auth/user';
 import { DISK, RAM, REGION, SITE_NAME, TIMEOUT } from '@/config.mjs';
 import { executeApi } from '@/helpers/api-response';
 import { RenderRequest } from '@/types/schema';
-import { getUser } from '@/utils/actions/user';
 import {
 	AwsRegion,
 	renderMediaOnLambda,

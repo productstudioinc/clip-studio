@@ -1,8 +1,8 @@
+import { db } from '@/db';
+import { customers, prices, products, subscriptions, users } from '@/db/schema';
 import { stripe } from '@/utils/stripe/config';
 import { DrizzleError, eq } from 'drizzle-orm';
 import Stripe from 'stripe';
-import { db } from '.';
-import { customers, prices, products, subscriptions, users } from './schema';
 
 const upsertProductRecord = async (product: Stripe.Product) => {
 	const productData = {

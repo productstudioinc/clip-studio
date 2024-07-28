@@ -35,10 +35,8 @@ export const POST = async (req: Request) => {
 	const payload = body as WebhookPayload;
 
 	if (payload.type === 'success') {
-		//...
 		console.log(body);
 	} else if (payload.type === 'timeout') {
-		//...
 		console.log(body);
 	}
 

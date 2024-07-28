@@ -1,5 +1,5 @@
+import { getUser } from '@/actions/auth/user';
 import { Dashboard } from '@/components/dashboard';
-import { getUser } from '@/utils/actions/user';
 
 export default async function RootLayout({
 	children,

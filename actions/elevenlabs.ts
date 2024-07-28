@@ -4,8 +4,8 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ElevenLabsClient } from 'elevenlabs';
 import z from 'zod';
 import { createServerAction, ZSAError } from 'zsa';
-import { R2 } from '../r2';
-import { getUser } from './user';
+import { R2 } from '../utils/r2';
+import { getUser } from './auth/user';
 
 const elevenLabsClient = new ElevenLabsClient({
 	apiKey: process.env.ELEVEN_LABS_API_KEY!
