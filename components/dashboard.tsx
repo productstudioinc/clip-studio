@@ -239,8 +239,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
 							</div>
 						</div>
 					) : (
-						<div className="flex-grow overflow-hidden rounded-lg border shadow-sm p-4">
-							<div className="overflow-x-auto">{children}</div>
+						<div className="flex-grow overflow-scroll rounded-lg border shadow-sm p-4">
+							<div className="overflow-auto">{children}</div>
 						</div>
 					)}
 				</main>
