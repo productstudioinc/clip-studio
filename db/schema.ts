@@ -154,6 +154,17 @@ export const youtubePosts = pgTable('youtube_posts', {
 	createdAt: timestamp('created_at').notNull().defaultNow()
 });
 
+export const productsRelations = relations(products, ({ many }) => ({
+	prices: many(prices)
+}));
+
+export const pricesRelations = relations(prices, ({ one }) => ({
+	product: one(products, {
+		fields: [prices.productId],
+		references: [products.id]
+	})
+}));
+
 // Types
 export type SelectTemplates = typeof templates.$inferSelect;
 export type SelectBackgrounds = typeof backgrounds.$inferSelect;

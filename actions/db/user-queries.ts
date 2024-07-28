@@ -2,25 +2,40 @@
 
 import { getUser } from '@/actions/auth/user';
 import { db } from '@/db';
-import { prices, products, socialMediaPosts } from '@/db/schema';
-import { and, desc, DrizzleError, eq, sql } from 'drizzle-orm';
+import { socialMediaPosts } from '@/db/schema';
+import { DrizzleError } from 'drizzle-orm';
 import { cache } from 'react';
 import { z } from 'zod';
 import { createServerAction, ZSAError } from 'zsa';
 
 export const getProducts = cache(async () => {
-	const result = await db
-		.select({
-			product: products,
-			prices: prices
-		})
-		.from(products)
-		.leftJoin(prices, eq(products.id, prices.productId))
-		.where(and(eq(products.active, true), eq(prices.active, true)))
-		.orderBy(sql`${products.metadata}->>'index'`, desc(prices.unitAmount));
+	const result = await db.query.products.findMany({
+		where: (products, { eq }) => eq(products.active, true),
+		columns: {
+			id: true,
+			name: true,
+			description: true,
+			metadata: true
+		},
+		with: {
+			prices: {
+				where: (prices, { eq }) => eq(prices.active, true),
+				columns: {
+					id: true,
+					productId: true,
+					unitAmount: true,
+					currency: true,
+					interval: true
+				}
+			}
+		}
+	});
 
+	console.log(result);
 	return result;
 });
+
+export type GetProductsResult = Awaited<ReturnType<typeof getProducts>>;
 
 export const createSocialMediaPost = createServerAction()
 	.input(z.void())

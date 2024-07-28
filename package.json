@@ -31,6 +31,7 @@
     "@remotion/layout-utils": "4.0.182",
     "@remotion/media-utils": "4.0.182",
     "@remotion/player": "4.0.182",
+    "@stripe/stripe-js": "^4.1.0",
     "@supabase/ssr": "^0.4.0",
     "@supabase/supabase-js": "^2.44.4",
     "@types/uuid": "^10.0.0",
