@@ -16,6 +16,9 @@ export const RenderButton: React.FC<{
 		if (state.status === 'error') {
 			toast.error(state.error?.message);
 		}
+		if (state.status === 'done') {
+			toast.success('Render completed!');
+		}
 	}, [state]);
 	const isLoading = state.status === 'invoking' || state.status === 'rendering';
 
