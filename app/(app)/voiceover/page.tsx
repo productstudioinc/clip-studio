@@ -1,4 +1,4 @@
-import { getVoices } from '@/utils/actions/elevenlabs';
+import { getVoices } from '@/actions/elevenlabs';
 import { SelectVoice } from './select-voice';
 
 export default async function VoiceoverPage() {

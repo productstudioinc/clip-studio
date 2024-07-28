@@ -1,10 +1,10 @@
 'use client';
 
+import { generatePresignedUrl } from '@/actions/generatePresignedUrl';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useTemplateStore } from '@/stores/templatestore';
-import { generatePresignedUrl } from '@/utils/actions/generatePresignedUrl';
 import { getVideoMetadata } from '@remotion/media-utils';
 import { toast } from 'sonner';
 

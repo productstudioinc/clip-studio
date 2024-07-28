@@ -1,7 +1,7 @@
+import { getUser } from '@/actions/auth/user';
+import { fetchUserConnectSocialMediaAccounts } from '@/actions/db/social-media-queries';
+import { connectYoutubeAccount } from '@/actions/youtube';
 import { Button } from '@/components/ui/button';
-import { fetchUserConnectSocialMediaAccounts } from '@/utils/actions/socialMediaAccounts';
-import { getUser } from '@/utils/actions/user';
-import { connectYoutubeAccount } from '@/utils/actions/youtube';
 import { redirect } from 'next/navigation';
 
 export default async function ProfilePage() {

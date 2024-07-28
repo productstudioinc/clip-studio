@@ -2,11 +2,15 @@
 'use client'; // Error components must be Client Components
 
 import { Button } from '@/components/ui/button';
-import { AppRouterErrorProps, appRouterSsrErrorHandler } from '@highlight-run/next/ssr';
 
-export default appRouterSsrErrorHandler(({ error, reset }: AppRouterErrorProps) => {
+export default function Error({
+	error,
+	reset
+}: {
+	error: Error & { digest?: string };
+	reset: () => void;
+}) {
 	console.error(error);
-
 	return (
 		<main className="container relative mx-auto pb-16 flex flex-col lowercase items-center justify-center min-h-screen">
 			<section>
@@ -21,4 +25,4 @@ export default appRouterSsrErrorHandler(({ error, reset }: AppRouterErrorProps) 
 			</section>
 		</main>
 	);
-});
+}

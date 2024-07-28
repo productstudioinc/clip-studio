@@ -1,4 +1,4 @@
-import { getProducts } from '@/db/user-queries';
+import { getProducts } from '@/actions/db/user-queries';
 
 export default async function Page() {
 	const products = await getProducts();

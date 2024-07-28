@@ -1,10 +1,10 @@
 'use client';
 
+import { ElevenlabsVoice, generateAudioAndTimestamps } from '@/actions/elevenlabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTemplateStore } from '@/stores/templatestore';
-import { ElevenlabsVoice, generateAudioAndTimestamps } from '@/utils/actions/elevenlabs';
 import { Pause, Play } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';

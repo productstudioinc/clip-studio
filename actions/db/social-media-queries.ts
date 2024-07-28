@@ -4,7 +4,21 @@ import { db } from '@/db';
 import { youtubeChannels } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { Credentials } from 'google-auth-library';
-import { getYoutubeChannelInfo } from './youtube';
+import { getYoutubeChannelInfo } from '../youtube';
+
+export type YoutubeChannel = {
+	profile_picture_path: string | null | undefined;
+	min_video_duration: number;
+	max_video_duration: number;
+	max_video_size: number;
+	error: string;
+	id: string;
+	userId: string;
+	createdAt: Date;
+	channelCustomUrl: string;
+	credentials: unknown;
+	updatedAt: Date;
+};
 
 export const fetchUserConnectSocialMediaAccounts = async (userId: string) => {
 	const youtubeChannelsResponse = await db
@@ -12,7 +26,7 @@ export const fetchUserConnectSocialMediaAccounts = async (userId: string) => {
 		.from(youtubeChannels)
 		.where(eq(youtubeChannels.userId, userId));
 
-	const youtubeChannelsWithSignedUrl = youtubeChannels
+	const youtubeChannelsWithSignedUrl = youtubeChannelsResponse
 		? await Promise.all(
 				youtubeChannelsResponse?.map(async (channel) => {
 					const channelInfo = await getYoutubeChannelInfo(channel.credentials as Credentials);
