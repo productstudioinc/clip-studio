@@ -2,7 +2,7 @@
 
 import { signOut } from '@/actions/auth/user';
 import Hero from '@/app/hero';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import {
 	DropdownMenu,
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { cn } from '@/lib/utils';
+import UpgradeCard from '@/components/upgrade-card';
 import { useTemplateStore } from '@/stores/templatestore';
 import { User } from '@supabase/supabase-js';
 import {
@@ -27,8 +27,7 @@ import {
 	LucideIcon,
 	Menu,
 	MicVocalIcon,
-	User as UserIcon,
-	ZapIcon
+	User as UserIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -86,7 +85,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 				return selectedTemplate === 'SplitScreen' ? 'Caption' : 'Voiceover';
 			case '/export':
 				return 'Export';
-			case '/my-account':
+			case '/account':
 				return 'My Account';
 			default:
 				return 'Studio';
@@ -105,7 +104,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 	];
 
 	const profileNavItem: NavItem = {
-		href: '/my-account',
+		href: '/account',
 		icon: UserIcon,
 		label: 'My Account'
 	};
@@ -166,10 +165,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 						</nav>
 					</div>
 					<div className="px-2 lg:px-4">
-						<Link href="/pricing" className={cn(buttonVariants(), 'w-full')}>
-							<ZapIcon className="h-4 w-4 mr-2" />
-							Upgrade
-						</Link>
+						<UpgradeCard />
 					</div>
 					<div className="px-2 lg:px-4">
 						{user ? (

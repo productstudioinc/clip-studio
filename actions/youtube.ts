@@ -30,11 +30,12 @@ export const connectYoutubeAccount = async () => {
 	const authUrl = youtubeAuthClient.generateAuthUrl({
 		access_type: 'offline',
 		scope: scopes,
-		redirect_uri: process.env.YOUTUBE_REDIRECT_URI,
 		include_granted_scopes: true,
 		state: state,
 		prompt: 'consent' // Forces consent screen to appear — necessary b/c google only issues refresh on initial auth
 	});
+
+	console.log(authUrl);
 
 	redirect(authUrl);
 };

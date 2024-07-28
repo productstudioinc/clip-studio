@@ -28,9 +28,12 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 		// temporary fix to prevent unauthorized access
 		if (
 			!user ||
-			!['rkwarya@gmail.com', 'useclipstudio@gmail.com', 'hello@dillion.io'].includes(
-				user.email as string
-			)
+			![
+				'rkwarya@gmail.com',
+				'useclipstudio@gmail.com',
+				'hello@dillion.io',
+				'vermadillion@gmail.com'
+			].includes(user.email as string)
 		) {
 			redirect('/login');
 		}
