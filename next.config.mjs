@@ -1,5 +1,4 @@
 import { withContentCollections } from '@content-collections/next';
-import { withHighlightConfig } from '@highlight-run/next/config';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -30,16 +29,7 @@ const nextConfig = {
 			}
 		];
 	},
-	skipTrailingSlashRedirect: true,
-	experimental: {
-		instrumentationHook: true
-	},
-	serverExternalPackages: ['@highlight-run/node']
+	skipTrailingSlashRedirect: true
 };
 
-export default withContentCollections(
-	withHighlightConfig(nextConfig, {
-		uploadSourceMaps: true,
-		appVersion: process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA
-	})
-);
+export default withContentCollections(nextConfig);

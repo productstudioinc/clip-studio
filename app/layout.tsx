@@ -1,7 +1,6 @@
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 import '@/styles/globals.css';
-import { HighlightInit } from '@highlight-run/next/client';
 import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
@@ -24,18 +23,6 @@ export default async function RootLayout({
 }>) {
 	return (
 		<>
-			<HighlightInit
-				backendUrl="/highlight-events"
-				projectId={process.env.NEXT_PUBLIC_HIGHLIGHT_PROJECT_ID}
-				serviceName="clip-studio"
-				tracingOrigins
-				disableSessionRecording
-				networkRecording={{
-					enabled: false
-				}}
-				disableConsoleRecording
-				disableBackgroundRecording
-			/>
 			<html lang="en">
 				<PHProvider>
 					<body className={GeistSans.className}>
