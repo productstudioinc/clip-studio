@@ -13,3 +13,7 @@ export function formatDate(input: string | number | Date): string {
 		year: 'numeric'
 	});
 }
+
+export const toHumanPrice = (price: number, decimals: number = 2) => {
+	return Number(price / 100).toFixed(decimals);
+};
