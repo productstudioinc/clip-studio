@@ -31,7 +31,6 @@ export const getProducts = cache(async () => {
 		}
 	});
 
-	console.log(result);
 	return result;
 });
 
