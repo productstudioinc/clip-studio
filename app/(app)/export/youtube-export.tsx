@@ -87,7 +87,9 @@ export function YoutubeExportDialog({
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>Youtube Upload</DialogTitle>
-					<DialogDescription></DialogDescription>
+					<DialogDescription>
+						Keep in mind the video must be under 60 seconds to be uploaded as a short
+					</DialogDescription>
 				</DialogHeader>
 				<div className="flex flex-col">
 					<Select
