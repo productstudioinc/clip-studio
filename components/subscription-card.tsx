@@ -5,7 +5,7 @@ import { Loader2, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import { useServerAction } from 'zsa-react';
 
-export default function SubscriptionCard() {
+export default function SubscriptionCard({ subscriptionName }: { subscriptionName: string }) {
 	const { isPending, execute } = useServerAction(getBillingPortal);
 	const manageSubscription = async () => {
 		const [data, err] = await execute();
@@ -18,10 +18,8 @@ export default function SubscriptionCard() {
 	return (
 		<Card>
 			<CardHeader className="p-2 pt-0 md:p-4">
-				<CardTitle>Upgrade to Pro</CardTitle>
-				<CardDescription>
-					Unlock all features and get unlimited access to our support team.
-				</CardDescription>
+				<CardTitle>Your Usage</CardTitle>
+				<CardDescription>{subscriptionName}</CardDescription>
 			</CardHeader>
 			<CardContent className="p-2 pt-0 md:p-4 md:pt-0">
 				<Button size={'sm'} className="w-full" onClick={manageSubscription} disabled={isPending}>

@@ -17,24 +17,22 @@ export const getUser = cache(async () => {
 
 export const getUserSubscription = cache(async () => {
 	try {
-		const response = await db.query.subscriptions.findMany({
+		const response = await db.query.subscriptions.findFirst({
 			where: (subscriptions, { inArray }) => inArray(subscriptions.status, ['trialing', 'active']),
-			columns: {
-				id: true,
-				status: true,
-				priceId: true,
-				created: true,
-				currentPeriodStart: true,
-				currentPeriodEnd: true,
-				endedAt: true,
-				cancelAt: true,
-				canceledAt: true
-			},
-			limit: 1
+			with: {
+				price: {
+					with: {
+						product: {
+							columns: {
+								name: true
+							}
+						}
+					}
+				}
+			}
 		});
-		console.log('subscriptions');
-		console.log(response);
-		return { subscription: response[0] };
+
+		return response?.price?.product?.name || null;
 	} catch (error) {
 		console.error(error);
 		return null;
