@@ -158,6 +158,13 @@ export const productsRelations = relations(products, ({ many }) => ({
 	prices: many(prices)
 }));
 
+export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
+	price: one(prices, {
+		fields: [subscriptions.priceId],
+		references: [prices.id]
+	})
+}));
+
 export const pricesRelations = relations(prices, ({ one }) => ({
 	product: one(products, {
 		fields: [prices.productId],

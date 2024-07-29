@@ -16,8 +16,32 @@ export const getUser = cache(async () => {
 });
 
 export const getUserSubscription = cache(async () => {
-	const response = await db;
+	try {
+		const response = await db.query.subscriptions.findMany({
+			where: (subscriptions, { inArray }) => inArray(subscriptions.status, ['trialing', 'active']),
+			columns: {
+				id: true,
+				status: true,
+				priceId: true,
+				created: true,
+				currentPeriodStart: true,
+				currentPeriodEnd: true,
+				endedAt: true,
+				cancelAt: true,
+				canceledAt: true
+			},
+			limit: 1
+		});
+		console.log('subscriptions');
+		console.log(response);
+		return { subscription: response[0] };
+	} catch (error) {
+		console.error(error);
+		return null;
+	}
 });
+
+export type GetUserSubscriptionResult = Awaited<ReturnType<typeof getUserSubscription>>;
 
 export const signOut = async () => {
 	const supabase = createClient();

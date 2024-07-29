@@ -14,8 +14,26 @@ type CheckoutResponse = {
 	sessionId?: string;
 };
 
+export const getBillingPortal = createServerAction()
+	.input(z.void())
+	.handler(async () => {
+		const { user } = await getUser();
+		if (!user) {
+			throw redirect('/login');
+		}
+		const customerId = await createOrRetrieveCustomer({
+			uuid: user.id,
+			email: user.email as string
+		});
+		const session = await stripe.billingPortal.sessions.create({
+			customer: customerId as string,
+			return_url: getURL('/account')
+		});
+		return { url: session.url };
+	});
+
 export const checkoutWithStripe = createServerAction()
-	.input(z.object({ priceId: z.string(), redirectPath: z.string().default('/my-account') }))
+	.input(z.object({ priceId: z.string(), redirectPath: z.string().default('/account') }))
 	.output(z.object({ sessionId: z.string().optional(), errorRedirect: z.string().optional() }))
 	.handler(async ({ input }): Promise<CheckoutResponse> => {
 		const { user } = await getUser();

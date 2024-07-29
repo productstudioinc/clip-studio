@@ -15,13 +15,13 @@ export const GET = async (request: Request) => {
 
 	try {
 		if (error) {
-			return NextResponse.redirect(`${origin}/my-account?error=${error}`);
+			return NextResponse.redirect(`${origin}/account?error=${error}`);
 		} else if (code) {
 			const { tokens } = await youtubeAuthClient.getToken(code);
 			const channelInfo = await getYoutubeChannelInfo(tokens);
 			if (!channelInfo) {
 				return NextResponse.redirect(
-					`${origin}/my-account?error=We could not connect your Youtube channel. Please try again.`
+					`${origin}/account?error=We could not connect your Youtube channel. Please try again.`
 				);
 			}
 			const { customUrl, accessToken, channelId } = channelInfo;
@@ -31,7 +31,7 @@ export const GET = async (request: Request) => {
 			if (!customUrl || !accessToken || !channelId || !userId) {
 				console.log('Essential channel details are missing or incomplete.');
 				return NextResponse.redirect(
-					`${origin}/my-account?error=Sorry, something unexpected happened. Our team is looking into it.`
+					`${origin}/account?error=Sorry, something unexpected happened. Our team is looking into it.`
 				);
 			}
 			const isAlreadySaved = await checkIfYoutubeChannelIsAlreadySaved({
@@ -39,7 +39,7 @@ export const GET = async (request: Request) => {
 				userId
 			});
 			if (isAlreadySaved) {
-				return NextResponse.redirect(`${origin}/my-account`);
+				return NextResponse.redirect(`${origin}/account`);
 			}
 			try {
 				await db.insert(youtubeChannels).values({
@@ -50,18 +50,18 @@ export const GET = async (request: Request) => {
 				});
 			} catch (err) {
 				return NextResponse.redirect(
-					`${origin}/my-account?error=${err instanceof Error ? err.message : String(err)}`
+					`${origin}/account?error=${err instanceof Error ? err.message : String(err)}`
 				);
 			}
 		}
 	} catch (error: any) {
 		return NextResponse.redirect(
-			`${origin}/my-account?error=${error instanceof Error ? error.message : String(error)}`
+			`${origin}/account?error=${error instanceof Error ? error.message : String(error)}`
 		);
 	}
 
-	revalidatePath('/my-account');
-	return NextResponse.redirect(`${origin}/my-account`);
+	revalidatePath('/account');
+	return NextResponse.redirect(`${origin}/account`);
 };
 
 const checkIfYoutubeChannelIsAlreadySaved = async ({

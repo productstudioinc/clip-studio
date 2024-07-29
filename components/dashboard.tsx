@@ -1,6 +1,6 @@
 'use client';
 
-import { signOut } from '@/actions/auth/user';
+import { GetUserSubscriptionResult, signOut } from '@/actions/auth/user';
 import Hero from '@/app/hero';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
@@ -32,6 +32,7 @@ import {
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { ReactNode } from 'react';
+import SubscriptionCard from './subscription-card';
 import { ModeToggle } from './theme-toggle';
 import { VideoPreview } from './video-preview';
 
@@ -48,6 +49,7 @@ interface NavLinkProps extends NavItem {
 interface DashboardProps {
 	user: User | null;
 	children: ReactNode;
+	subscription: GetUserSubscriptionResult | undefined;
 	showVideoPreview?: boolean;
 }
 
@@ -66,6 +68,7 @@ const NavLink: React.FC<NavLinkProps> = ({ href, icon: Icon, label, currentRoute
 export const Dashboard: React.FC<DashboardProps> = ({
 	user,
 	children,
+	subscription,
 	showVideoPreview = true
 }) => {
 	const currentRoute = usePathname();
@@ -165,7 +168,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 						</nav>
 					</div>
 					<div className="px-2 lg:px-4">
-						<UpgradeCard />
+						{subscription ? <SubscriptionCard /> : <UpgradeCard />}
 					</div>
 					<div className="px-2 lg:px-4">
 						{user ? (
