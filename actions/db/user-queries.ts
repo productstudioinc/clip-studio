@@ -4,11 +4,11 @@ import { getUser } from '@/actions/auth/user';
 import { db } from '@/db';
 import { socialMediaPosts } from '@/db/schema';
 import { DrizzleError } from 'drizzle-orm';
-import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 import { z } from 'zod';
 import { createServerAction, ZSAError } from 'zsa';
 
-export const getProducts = cache(async () => {
+export const getProducts = unstable_cache(async () => {
 	const result = await db.query.products.findMany({
 		where: (products, { eq }) => eq(products.active, true),
 		columns: {
@@ -32,7 +32,7 @@ export const getProducts = cache(async () => {
 	});
 
 	return result;
-});
+}, ['products']);
 
 export type GetProductsResult = Awaited<ReturnType<typeof getProducts>>;
 
