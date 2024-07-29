@@ -47,6 +47,7 @@ export const SelectVoice: React.FC<{
 			}
 			setPlayingAudio(voiceId);
 			const newAudio = document.getElementById(voiceId) as HTMLAudioElement;
+			newAudio.volume = 0.4;
 			newAudio.play();
 		}
 	};
