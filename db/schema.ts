@@ -24,8 +24,9 @@ const subscriptionStatusEnum = pgEnum('subscription_status', [
 	'unpaid',
 	'paused'
 ]);
+const planTierEnum = pgEnum('plan_tier', ['hobby', 'creator', 'pro']);
 
-// User-related tables
+// User-related tables and relations
 export const users = pgTable('users', {
 	id: uuid('id').primaryKey().notNull(),
 	fullName: text('full_name'),
@@ -42,14 +43,23 @@ export const customers = pgTable('customers', {
 	stripeCustomerId: text('stripe_customer_id')
 });
 
-// Product and pricing tables
+// Product and pricing tables and relations
 export const products = pgTable('products', {
 	id: text('id').primaryKey().notNull(),
 	active: boolean('active'),
 	name: text('name'),
 	description: text('description'),
 	image: text('image'),
-	metadata: jsonb('metadata')
+	metadata: jsonb('metadata'),
+	planTier: planTierEnum('plan_tier')
+});
+
+export const planLimits = pgTable('plan_limits', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	productId: text('product_id').references(() => products.id),
+	voiceoverCharacters: integer('voiceover_characters').notNull(),
+	transcriptionMinutes: integer('transcription_minutes').notNull(),
+	connectedAccounts: integer('connected_accounts').notNull()
 });
 
 export const prices = pgTable('prices', {
@@ -65,6 +75,29 @@ export const prices = pgTable('prices', {
 	metadata: jsonb('metadata')
 });
 
+export const productsRelations = relations(products, ({ many, one }) => ({
+	prices: many(prices),
+	planLimits: one(planLimits, {
+		fields: [products.id],
+		references: [planLimits.productId]
+	})
+}));
+
+export const planLimitsRelations = relations(planLimits, ({ one }) => ({
+	product: one(products, {
+		fields: [planLimits.productId],
+		references: [products.id]
+	})
+}));
+
+export const pricesRelations = relations(prices, ({ one }) => ({
+	product: one(products, {
+		fields: [prices.productId],
+		references: [products.id]
+	})
+}));
+
+// Subscription and usage tables and relations
 export const subscriptions = pgTable('subscriptions', {
 	id: text('id').primaryKey(),
 	userId: uuid('user_id')
@@ -85,7 +118,27 @@ export const subscriptions = pgTable('subscriptions', {
 	canceledAt: timestamp('canceled_at', { withTimezone: true }).defaultNow()
 });
 
-// Content-related tables
+export const userUsage = pgTable('user_usage', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	userId: uuid('user_id')
+		.notNull()
+		.references(() => users.id),
+	subscriptionId: text('subscription_id').references(() => subscriptions.id),
+	voiceoverCharactersUsed: integer('voiceover_characters_used').notNull().default(0),
+	transcriptionMinutesUsed: integer('transcription_minutes_used').notNull().default(0),
+	connectedAccountsCount: integer('connected_accounts_count').notNull().default(0),
+	lastResetDate: timestamp('last_reset_date').notNull().defaultNow()
+});
+
+export const subscriptionsRelations = relations(subscriptions, ({ one, many }) => ({
+	price: one(prices, {
+		fields: [subscriptions.priceId],
+		references: [prices.id]
+	}),
+	userUsage: many(userUsage)
+}));
+
+// Content-related tables and relations
 export const templates = pgTable('templates', {
 	id: integer('id').primaryKey(),
 	value: text('value').notNull(),
@@ -107,7 +160,6 @@ export const backgroundParts = pgTable('background_parts', {
 	partUrl: text('part_url').notNull()
 });
 
-// Relations
 export const backgroundsRelations = relations(backgrounds, ({ many }) => ({
 	backgroundParts: many(backgroundParts)
 }));
@@ -153,24 +205,6 @@ export const youtubePosts = pgTable('youtube_posts', {
 	title: text('title').notNull(),
 	createdAt: timestamp('created_at').notNull().defaultNow()
 });
-
-export const productsRelations = relations(products, ({ many }) => ({
-	prices: many(prices)
-}));
-
-export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
-	price: one(prices, {
-		fields: [subscriptions.priceId],
-		references: [prices.id]
-	})
-}));
-
-export const pricesRelations = relations(prices, ({ one }) => ({
-	product: one(products, {
-		fields: [prices.productId],
-		references: [products.id]
-	})
-}));
 
 // Types
 export type SelectTemplates = typeof templates.$inferSelect;
