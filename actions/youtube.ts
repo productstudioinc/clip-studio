@@ -6,7 +6,7 @@ import { parseS3Url } from '@/utils/s3';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getAwsClient } from '@remotion/lambda/client';
 import { randomBytes } from 'crypto';
-import { and, DrizzleError, eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { Credentials } from 'google-auth-library';
 import { google } from 'googleapis';
 import { Logger } from 'next-axiom';
@@ -35,8 +35,6 @@ export const connectYoutubeAccount = async () => {
 		prompt: 'consent' // Forces consent screen to appear — necessary b/c google only issues refresh on initial auth
 	});
 
-	console.log(authUrl);
-
 	redirect(authUrl);
 };
 
@@ -51,54 +49,107 @@ export const postVideoToYoutube = createServerAction()
 		})
 	)
 	.handler(async ({ input }) => {
-		const { user } = await getUser();
-		if (!user) {
-			throw new ZSAError('NOT_AUTHORIZED', 'You are not authorized to perform this action.');
-		}
-		const { title, videoUrl, parentSocialMediaPostId, youtubeChannelId, isPrivate } = input;
-		const videoStream = await getVideoStream(videoUrl);
-		const youtubeAccount = await getYoutubeAccountForUser({
-			userId: user.id,
-			youtubeChannelId
+		const logger = new Logger().with({
+			function: 'postVideoToYoutube',
+			...input
 		});
-		youtubeAuthClient.setCredentials(youtubeAccount?.credentials as Credentials);
+		logger.info(startingFunctionString);
+
 		try {
-			const youtube = google.youtube('v3');
-			const resp = await youtube.videos.insert({
-				auth: youtubeAuthClient,
-				part: ['snippet', 'status'],
-				requestBody: {
-					snippet: { title },
-					status: { privacyStatus: isPrivate ? 'private' : 'public' }
-				},
-				media: {
-					body: videoStream,
-					mimeType: 'video/mp4'
-				}
-			});
-			const videoId = resp?.data.id;
-			console.log('video id', videoId);
-			if (!videoId) {
+			const { user } = await getUser();
+			if (!user) {
+				logger.error(errorString, {
+					error: 'User not authorized'
+				});
+				throw new ZSAError('NOT_AUTHORIZED', 'You are not authorized to perform this action.');
+			}
+
+			const { title, videoUrl, parentSocialMediaPostId, youtubeChannelId, isPrivate } = input;
+
+			let videoStream;
+			try {
+				videoStream = await getVideoStream(videoUrl);
+			} catch (error) {
+				logger.error('Failed to get video stream', { error });
 				throw new ZSAError(
-					'INTERNAL_SERVER_ERROR',
-					"Sorry, we couldn't upload your video to YouTube. Please try again."
+					'INPUT_PARSE_ERROR',
+					'Unable to process the provided video. Please check the URL and try again.'
 				);
 			}
-			await db.insert(youtubePosts).values({
-				id: videoId,
-				parentSocialMediaPostId: parentSocialMediaPostId,
-				title,
-				userId: user.id,
-				youtubeChannelId: youtubeChannelId
-			});
-			console.log('youtube post id', videoId);
-		} catch (error) {
-			console.error('Error uploading to YouTube:', error);
-			if (error instanceof DrizzleError) {
-				throw new ZSAError('INTERNAL_SERVER_ERROR', error.message);
-			} else {
-				throw new ZSAError('INTERNAL_SERVER_ERROR', 'An error occurred while uploading the video.');
+
+			let youtubeAccount;
+			try {
+				youtubeAccount = await getYoutubeAccountForUser({
+					userId: user.id,
+					youtubeChannelId
+				});
+				if (!youtubeAccount) {
+					throw new Error('YouTube account not found');
+				}
+			} catch (error) {
+				logger.error('Failed to get YouTube account', { error });
+				throw new ZSAError(
+					'INTERNAL_SERVER_ERROR',
+					'Unable to access your YouTube account. Please reconnect your account and try again.'
+				);
 			}
+
+			youtubeAuthClient.setCredentials(youtubeAccount.credentials as Credentials);
+
+			let videoId;
+			try {
+				const youtube = google.youtube('v3');
+				const resp = await youtube.videos.insert({
+					auth: youtubeAuthClient,
+					part: ['snippet', 'status'],
+					requestBody: {
+						snippet: { title },
+						status: { privacyStatus: isPrivate ? 'private' : 'public' }
+					},
+					media: {
+						body: videoStream,
+						mimeType: 'video/mp4'
+					}
+				});
+				videoId = resp?.data.id;
+				if (!videoId) {
+					throw new Error('Video ID not returned from YouTube API');
+				}
+			} catch (error) {
+				logger.error('Failed to upload video to YouTube', { error });
+				throw new ZSAError(
+					'INTERNAL_SERVER_ERROR',
+					'Failed to upload the video to YouTube. Please try again later.'
+				);
+			}
+
+			try {
+				await db.insert(youtubePosts).values({
+					id: videoId,
+					parentSocialMediaPostId: parentSocialMediaPostId,
+					title,
+					userId: user.id,
+					youtubeChannelId: youtubeChannelId
+				});
+			} catch (error) {
+				logger.error('Failed to save YouTube post to database', { error });
+				throw new ZSAError(
+					'INTERNAL_SERVER_ERROR',
+					'The video was uploaded but we encountered an error saving the details. Please contact support.'
+				);
+			}
+
+			logger.info('Video successfully uploaded and saved', { videoId });
+			return { success: true, videoId };
+		} catch (error) {
+			if (error instanceof ZSAError) {
+				throw error;
+			}
+			logger.error('Unexpected error in postVideoToYoutube', { error });
+			throw new ZSAError(
+				'INTERNAL_SERVER_ERROR',
+				'An unexpected error occurred. Please try again later.'
+			);
 		}
 	});
 
@@ -116,13 +167,17 @@ const getYoutubeAccountForUser = async ({
 			.where(and(eq(youtubeChannels.userId, userId), eq(youtubeChannels.id, youtubeChannelId)));
 		return response[0];
 	} catch (error) {
-		if (error instanceof DrizzleError) {
-			throw new Error(error.message);
+		if (error instanceof Error) {
+			throw new Error('Youtube account not found');
 		}
 	}
 };
 
 export const getYoutubeChannelInfo = async (token: Credentials) => {
+	const logger = new Logger().with({
+		function: 'getYoutubeChannelInfo',
+		token
+	});
 	youtubeAuthClient.setCredentials(token);
 	var service = google.youtube('v3');
 
@@ -134,13 +189,22 @@ export const getYoutubeChannelInfo = async (token: Credentials) => {
 
 	var channels = response?.data.items;
 	if (!channels) {
+		logger.error(errorString, {
+			error: 'No response from YouTube API'
+		});
 		throw new Error('No channels found.');
 	}
 	if (channels.length == 0) {
+		logger.error(errorString, {
+			error: 'No channels found.'
+		});
 		throw new Error('No channels found.');
 	}
 	const snippet = channels[0].snippet;
 	if (!snippet) {
+		logger.error(errorString, {
+			error: 'No snippet found.'
+		});
 		throw new Error('No snippet found.');
 	}
 	const customUrl = snippet.customUrl;

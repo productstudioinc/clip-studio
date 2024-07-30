@@ -3,7 +3,7 @@ import { db } from '@/db';
 import { youtubeChannels } from '@/db/schema';
 import { createClient } from '@/supabase/server';
 import youtubeAuthClient from '@/utils/youtube';
-import { and, DrizzleError, eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { NextResponse } from 'next/server';
 
@@ -78,7 +78,7 @@ const checkIfYoutubeChannelIsAlreadySaved = async ({
 			.where(and(eq(youtubeChannels.userId, userId), eq(youtubeChannels.id, channelId)));
 		return response.length > 0;
 	} catch (error) {
-		if (error instanceof DrizzleError) {
+		if (error instanceof Error) {
 			throw new Error(error.message);
 		}
 	}

@@ -3,7 +3,6 @@
 import { getUser } from '@/actions/auth/user';
 import { db } from '@/db';
 import { socialMediaPosts } from '@/db/schema';
-import { DrizzleError } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 import { z } from 'zod';
 import { createServerAction, ZSAError } from 'zsa';
@@ -54,7 +53,7 @@ export const createSocialMediaPost = createServerAction()
 				});
 			return result[0].insertedId;
 		} catch (error) {
-			if (error instanceof DrizzleError || error instanceof Error) {
+			if (error instanceof Error || error instanceof Error) {
 				throw new ZSAError('INTERNAL_SERVER_ERROR', error.message);
 			}
 		}

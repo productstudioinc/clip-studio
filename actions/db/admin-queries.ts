@@ -1,7 +1,7 @@
 import { db } from '@/db';
 import { customers, prices, products, subscriptions, users } from '@/db/schema';
 import { stripe } from '@/utils/stripe/config';
-import { DrizzleError, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import Stripe from 'stripe';
 
 const upsertProductRecord = async (product: Stripe.Product) => {
@@ -20,7 +20,7 @@ const upsertProductRecord = async (product: Stripe.Product) => {
 			set: productData
 		});
 	} catch (error) {
-		if (error instanceof DrizzleError) {
+		if (error instanceof Error) {
 			throw new Error(error.message);
 		}
 	}
@@ -44,7 +44,7 @@ const upsertPriceRecord = async (price: Stripe.Price) => {
 			set: priceData
 		});
 	} catch (error) {
-		if (error instanceof DrizzleError) {
+		if (error instanceof Error) {
 			throw new Error(error.message);
 		}
 	}
@@ -55,7 +55,7 @@ const deleteProductRecord = async (product: Stripe.Product) => {
 		await db.delete(products).where(eq(products.id, product.id));
 		console.log(`Product deleted: ${product.id}`);
 	} catch (error) {
-		if (error instanceof DrizzleError) {
+		if (error instanceof Error) {
 			throw new Error(`Product deletion failed: ${error.message}`);
 		}
 	}
@@ -66,7 +66,7 @@ const deletePriceRecord = async (price: Stripe.Price) => {
 		await db.delete(prices).where(eq(prices.id, price.id));
 		console.log(`Price deleted: ${price.id}`);
 	} catch (error) {
-		if (error instanceof DrizzleError) {
+		if (error instanceof Error) {
 			throw new Error(`Price deletion failed: ${error.message}`);
 		}
 	}
@@ -83,7 +83,7 @@ const upsertCustomerToDb = async (uuid: string, customerId: string) => {
 			});
 		return customerId;
 	} catch (error) {
-		if (error instanceof DrizzleError) {
+		if (error instanceof Error) {
 			throw new Error(`DB customer record creation failed: ${error.message}`);
 		}
 	}
@@ -132,7 +132,7 @@ const createOrRetrieveCustomer = async ({ email, uuid }: { email: string; uuid: 
 			return await upsertCustomerToDb(uuid, stripeIdToInsert);
 		}
 	} catch (error) {
-		if (error instanceof DrizzleError) {
+		if (error instanceof Error) {
 			throw new Error(`Customer lookup/creation failed: ${error.message}`);
 		}
 	}
@@ -153,7 +153,7 @@ const copyBillingDetailsToCustomer = async (uuid: string, paymentMethod: Stripe.
 			})
 			.where(eq(users.id, uuid));
 	} catch (error) {
-		if (error instanceof DrizzleError) {
+		if (error instanceof Error) {
 			throw new Error(`Customer update failed: ${error.message}`);
 		}
 	}
@@ -203,7 +203,7 @@ const manageSubscriptionStatusChange = async (
 			);
 		}
 	} catch (error) {
-		if (error instanceof DrizzleError) {
+		if (error instanceof Error) {
 			throw new Error(`Subscription insert/update failed: ${error.message}`);
 		}
 		throw error; // Re-throw other errors
