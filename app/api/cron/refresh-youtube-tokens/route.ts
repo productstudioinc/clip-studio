@@ -1,5 +1,5 @@
 import { refreshYoutubeAccessTokens } from '@/actions/youtube';
-import { endingFunctionString, errorString, startingFunctionString } from '@/utils/logging';
+import { errorString } from '@/utils/logging';
 import { AxiomRequest, withAxiom } from 'next-axiom';
 import { NextResponse } from 'next/server';
 
@@ -15,9 +15,7 @@ export const GET = withAxiom(async (req: AxiomRequest) => {
 		});
 	}
 	try {
-		logger.info(startingFunctionString);
 		await refreshYoutubeAccessTokens();
-		logger.info(endingFunctionString);
 		return NextResponse.json(
 			{ message: 'Successfully refreshed youtube access tokens' },
 			{ status: 200 }
