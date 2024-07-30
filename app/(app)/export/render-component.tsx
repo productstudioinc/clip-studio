@@ -1,5 +1,4 @@
 'use client';
-
 import { YoutubeChannel } from '@/actions/db/social-media-queries';
 import AnimatedCircularProgressBar from '@/components/magicui/animated-circular-progress-bar';
 import { Separator } from '@/components/ui/separator';
@@ -29,11 +28,16 @@ export function RenderControls({ youtubeChannels }: { youtubeChannels: YoutubeCh
 	const { renderMedia, state, undo } = useRendering(selectedTemplate, inputProps);
 
 	return (
-		<div className="flex flex-row h-40">
-			<AnimatedCircularProgressBar max={100} min={0} state={state} undo={undo} className="w-56">
-				<RenderButton renderMedia={renderMedia} state={state} />
-			</AnimatedCircularProgressBar>
-			<Separator orientation="vertical" className="mx-4 h-full" />
+		<div className="flex flex-col xl:flex-row xl:h-40">
+			<div className="flex justify-center xl:justify-start mb-4 xl:mb-0">
+				<AnimatedCircularProgressBar max={100} min={0} state={state} undo={undo}>
+					<RenderButton renderMedia={renderMedia} state={state} />
+				</AnimatedCircularProgressBar>
+			</div>
+
+			<Separator orientation="horizontal" className="my-4 xl:hidden" />
+			<Separator orientation="vertical" className="mx-4 h-full hidden xl:block" />
+
 			<div className="flex flex-col w-full">
 				<ExportComponent state={state} undo={undo} />
 				<div className="flex flex-col w-full">
