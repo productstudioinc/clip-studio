@@ -3,12 +3,15 @@ import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createClient } from '@/supabase/clients';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function LoginComponent() {
 	const supabase = createClient();
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const [isMounted, setIsMounted] = useState(false);
 
 	useEffect(() => {
 		const {
@@ -18,8 +21,20 @@ export default function LoginComponent() {
 				router.refresh();
 			}
 		});
+
+		setIsMounted(true);
+
 		return () => subscription.unsubscribe();
-	});
+	}, [supabase.auth, router]);
+
+	useEffect(() => {
+		if (isMounted) {
+			const message = searchParams.get('message');
+			if (message) {
+				toast.error(message);
+			}
+		}
+	}, [isMounted, searchParams]);
 
 	return (
 		<Card className="w-full">
