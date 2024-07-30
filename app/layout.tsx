@@ -28,7 +28,12 @@ export default async function RootLayout({
 				<PHProvider>
 					<body className={GeistSans.className}>
 						<PostHogPageView />
-						<ThemeProvider attribute="class" defaultTheme="light">
+						<ThemeProvider
+							attribute="class"
+							defaultTheme="system"
+							enableSystem
+							disableTransitionOnChange
+						>
 							{auth}
 							{children}
 							<Toaster position="top-right" />
