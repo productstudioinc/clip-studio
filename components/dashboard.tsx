@@ -1,6 +1,7 @@
 'use client';
 
 import { GetUserSubscriptionResult, signOut } from '@/actions/auth/user';
+import { GetUserUsageResult } from '@/actions/db/user-queries';
 import Hero from '@/app/hero';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
@@ -50,6 +51,7 @@ interface DashboardProps {
 	user: User | null;
 	children: ReactNode;
 	subscription: GetUserSubscriptionResult | undefined;
+	usage: GetUserUsageResult;
 	showVideoPreview?: boolean;
 }
 
@@ -69,6 +71,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 	user,
 	children,
 	subscription,
+	usage,
 	showVideoPreview = true
 }) => {
 	const currentRoute = usePathname();
@@ -168,7 +171,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
 						</nav>
 					</div>
 					<div className="px-2 lg:px-4">
-						{subscription ? <SubscriptionCard subscriptionName={subscription} /> : <UpgradeCard />}
+						{subscription && usage ? (
+							<SubscriptionCard subscriptionName={subscription} usage={usage} />
+						) : (
+							<UpgradeCard />
+						)}
 					</div>
 					<div className="px-2 lg:px-4">
 						{user ? (
