@@ -33,27 +33,28 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 		}
 
 		const { user } = await getUser();
-		logger.info('User requested render', { email: user?.email });
-
-		// temporary fix to prevent unauthorized access
-		if (
-			!user ||
-			![
-				'rkwarya@gmail.com',
-				'useclipstudio@gmail.com',
-				'hello@dillion.io',
-				'vermadillion@gmail.com'
-			].includes(user.email as string)
-		) {
-			logger.warn('Unauthorized access attempt', { email: user?.email });
+		if (!user) {
+			logger.error('Unauthorized access attempt');
 			redirect('/login');
 		}
+
+		logger.info('User requested render', { email: user?.email });
 
 		logger.info('Initiating renderMediaOnLambda', {
 			composition: body.id,
 			region: REGION,
 			serveUrl: SITE_NAME
 		});
+
+		const secondsLeft = await db
+			.select({ exportSecondsLeft: userUsage.exportSecondsLeft })
+			.from(userUsage)
+			.where(eq(userUsage.userId, user.id));
+
+		if (secondsLeft[0].exportSecondsLeft < Math.floor(body.inputProps.durationInFrames / 30)) {
+			logger.error('Not enough seconds left to render', { email: user?.email });
+			throw new Error("You don't have enough seconds left to render this video.");
+		}
 
 		await db
 			.update(userUsage)
@@ -83,7 +84,8 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 				secret: process.env.REMOTION_WEBHOOK_SECRET!,
 				customData: {
 					durationInFrames: body.inputProps.durationInFrames,
-					userId: user.id
+					userId: user.id,
+					userEmail: user.email
 				}
 			}
 		});
