@@ -44,7 +44,6 @@ export const getUserSubscription = cache(async () => {
 			}
 		});
 
-		console.log(response);
 		return response?.price?.product?.name || null;
 	} catch (error) {
 		if (error instanceof Error) {
