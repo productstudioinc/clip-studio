@@ -32,6 +32,7 @@ export const executeApi = <Res, Req extends ZodType>(
 
 			const data = await handler(req, parsed);
 			logger.info(endingFunctionString);
+			await logger.flush();
 
 			return NextResponse.json({
 				type: 'success',
@@ -41,6 +42,7 @@ export const executeApi = <Res, Req extends ZodType>(
 			logger.error(errorString, {
 				error: err instanceof Error ? err.message : JSON.stringify(err)
 			});
+			await logger.flush();
 
 			return NextResponse.json(
 				{

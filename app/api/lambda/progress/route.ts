@@ -31,6 +31,7 @@ export const POST = executeApi<ProgressResponse, typeof ProgressRequest>(
 				error: renderProgress.errors[0].message,
 				renderId: body.id
 			});
+			await logger.flush();
 			return {
 				type: 'error',
 				message: renderProgress.errors[0].message
@@ -54,6 +55,7 @@ export const POST = executeApi<ProgressResponse, typeof ProgressRequest>(
 			renderId: body.id,
 			progress: Math.max(0.03, renderProgress.overallProgress)
 		});
+		await logger.flush();
 		return {
 			type: 'progress',
 			progress: Math.max(0.03, renderProgress.overallProgress)

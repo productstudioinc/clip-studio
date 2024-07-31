@@ -6,8 +6,4 @@ const youtubeAuthClient = new google.auth.OAuth2(
 	process.env.YOUTUBE_REDIRECT_URI
 );
 
-console.log(process.env.YOUTUBE_CLIENT_ID);
-console.log(process.env.YOUTUBE_CLIENT_SECRET);
-console.log(process.env.YOUTUBE_REDIRECT_URI);
-
 export default youtubeAuthClient;

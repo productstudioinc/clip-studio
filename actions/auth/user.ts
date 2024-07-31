@@ -44,6 +44,8 @@ export const getUserSubscription = cache(async () => {
 			}
 		});
 
+		logger.info('User subscription retrieved', { subscription: response?.price?.product?.name });
+		await logger.flush();
 		return response?.price?.product?.name || null;
 	} catch (error) {
 		if (error instanceof Error) {
@@ -67,5 +69,6 @@ export const signOut = async () => {
 		return redirect('/login?message=' + error.message);
 	}
 	logger.info(endingFunctionString);
+	await logger.flush();
 	return redirect('/');
 };

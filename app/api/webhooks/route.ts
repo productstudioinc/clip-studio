@@ -7,6 +7,7 @@ import {
 	upsertProductRecord
 } from '@/actions/db/admin-queries';
 import { stripe } from '@/utils/stripe/config';
+import { AxiomRequest, withAxiom } from 'next-axiom';
 import Stripe from 'stripe';
 
 const relevantEvents = new Set([
@@ -22,18 +23,30 @@ const relevantEvents = new Set([
 	'customer.subscription.deleted'
 ]);
 
-export async function POST(req: Request) {
+export const POST = withAxiom(async (req: AxiomRequest) => {
+	const logger = req.log.with({
+		path: '/api/webhooks/route',
+		method: req.method
+	});
+
+	logger.info('Webhook received');
+
 	const body = await req.text();
 	const sig = req.headers.get('stripe-signature') as string;
 	const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 	let event: Stripe.Event;
 
 	try {
-		if (!sig || !webhookSecret) return new Response('Webhook secret not found.', { status: 400 });
+		if (!sig || !webhookSecret) {
+			logger.error('Webhook secret not found');
+			await logger.flush();
+			return new Response('Webhook secret not found.', { status: 400 });
+		}
 		event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-		console.log(`🔔  Webhook received: ${event.type}`);
+		logger.info(`Webhook event constructed`, { eventType: event.type });
 	} catch (err: any) {
-		console.log(`❌ Error message: ${err.message}`);
+		logger.error(`Error constructing webhook event`, { error: err.message });
+		await logger.flush();
 		return new Response(`Webhook Error: ${err.message}`, { status: 400 });
 	}
 
@@ -43,16 +56,20 @@ export async function POST(req: Request) {
 				case 'product.created':
 				case 'product.updated':
 					await upsertProductRecord(event.data.object as Stripe.Product);
+					logger.info(`Product upserted`, { eventType: event.type });
 					break;
 				case 'price.created':
 				case 'price.updated':
 					await upsertPriceRecord(event.data.object as Stripe.Price);
+					logger.info(`Price upserted`, { eventType: event.type });
 					break;
 				case 'price.deleted':
 					await deletePriceRecord(event.data.object as Stripe.Price);
+					logger.info(`Price deleted`, { eventType: event.type });
 					break;
 				case 'product.deleted':
 					await deleteProductRecord(event.data.object as Stripe.Product);
+					logger.info(`Product deleted`, { eventType: event.type });
 					break;
 				case 'customer.subscription.created':
 				case 'customer.subscription.updated':
@@ -64,6 +81,10 @@ export async function POST(req: Request) {
 						event.type === 'customer.subscription.created'
 					);
 					await updateUserUsageLimits(subscription);
+					logger.info(`Subscription status changed`, {
+						eventType: event.type,
+						subscriptionId: subscription.id
+					});
 					break;
 				case 'checkout.session.completed':
 					const checkoutSession = event.data.object as Stripe.Checkout.Session;
@@ -74,21 +95,31 @@ export async function POST(req: Request) {
 							checkoutSession.customer as string,
 							true
 						);
+						logger.info(`Checkout session completed`, { subscriptionId });
 					}
 					break;
 				default:
+					logger.warn(`Unhandled relevant event`, { eventType: event.type });
 					throw new Error('Unhandled relevant event!');
 			}
 		} catch (error) {
-			console.log(error);
+			logger.error(`Webhook handler failed`, {
+				error: error instanceof Error ? error.message : String(error)
+			});
+			await logger.flush();
 			return new Response('Webhook handler failed. View your Next.js function logs.', {
 				status: 400
 			});
 		}
 	} else {
+		logger.warn(`Unsupported event type`, { eventType: event.type });
+		await logger.flush();
 		return new Response(`Unsupported event type: ${event.type}`, {
 			status: 400
 		});
 	}
+
+	logger.info('Webhook processed successfully');
+	await logger.flush();
 	return new Response(JSON.stringify({ received: true }));
-}
+});

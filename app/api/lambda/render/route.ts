@@ -53,6 +53,7 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 
 		if (secondsLeft[0].exportSecondsLeft < Math.floor(body.inputProps.durationInFrames / 30)) {
 			logger.error('Not enough seconds left to render', { email: user?.email });
+			await logger.flush();
 			throw new Error("You don't have enough seconds left to render this video.");
 		}
 
@@ -94,6 +95,8 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 			renderId: result.renderId,
 			bucketName: result.bucketName
 		});
+
+		await logger.flush();
 
 		return result;
 	}
