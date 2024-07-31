@@ -1,39 +1,17 @@
 'use client';
 import Hero from '@/app/hero';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function HeroWrapper() {
-	const [showDialog, setShowDialog] = useState(false);
-
-	useEffect(() => {
-		const visited = localStorage.getItem('visited');
-		if (!visited) {
-			setShowDialog(true);
-		}
-	}, []);
-
-	const handleClose = () => {
-		localStorage.setItem('visited', 'true');
-		setShowDialog(false);
-	};
-
+	const pathname = usePathname();
 	return (
-		<>
-			{showDialog && (
-				<Dialog
-					defaultOpen={showDialog}
-					onOpenChange={(open) => {
-						if (!open) {
-							handleClose();
-						}
-					}}
-				>
-					<DialogContent>
-						<Hero />
-					</DialogContent>
-				</Dialog>
-			)}
-		</>
+		pathname === '/' && (
+			<Dialog defaultOpen={true}>
+				<DialogContent>
+					<Hero />
+				</DialogContent>
+			</Dialog>
+		)
 	);
 }
