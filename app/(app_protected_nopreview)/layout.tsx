@@ -1,4 +1,5 @@
 import { getUser, getUserSubscription } from '@/actions/auth/user';
+import { getUserUsage } from '@/actions/db/user-queries';
 import { Dashboard } from '@/components/dashboard';
 
 export default async function RootLayout({
@@ -6,9 +7,13 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const [{ user }, subscriptionData] = await Promise.all([getUser(), getUserSubscription()]);
+	const [{ user }, subscriptionData, usage] = await Promise.all([
+		getUser(),
+		getUserSubscription(),
+		getUserUsage()
+	]);
 	return (
-		<Dashboard showVideoPreview={false} user={user} subscription={subscriptionData}>
+		<Dashboard showVideoPreview={false} user={user} subscription={subscriptionData} usage={usage}>
 			{children}
 		</Dashboard>
 	);
