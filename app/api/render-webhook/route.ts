@@ -59,6 +59,14 @@ export const POST = withAxiom(async (req) => {
 				timeToFinish: payload.timeToFinish,
 				estimatedCost: payload.costs.estimatedCost
 			});
+			await db
+				.update(userUsage)
+				.set({
+					//@ts-ignore
+					exportSecondsLeft: sql`export_seconds_left + ${Math.floor(payload.customData.durationInFrames / 30)}`
+				})
+				//@ts-ignore
+				.where(eq(userUsage.userId, payload.customData.userId));
 			break;
 		case 'timeout':
 			req.log.error('Render timeout', {
