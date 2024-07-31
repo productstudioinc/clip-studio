@@ -176,8 +176,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
 						</nav>
 					</div>
 					<div className="px-2 lg:px-4">
-						{subscription && usage ? (
-							<SubscriptionCard subscriptionName={subscription} usage={usage} />
+						{subscription && usage && user ? (
+							<SubscriptionCard subscriptionName={subscription} usage={usage} userId={user?.id} />
 						) : (
 							<UpgradeCard />
 						)}

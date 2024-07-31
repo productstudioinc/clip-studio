@@ -1,8 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { createClient } from '@/supabase/client';
 import { getBillingPortal } from '@/utils/stripe/server';
 import { Loader2, Settings } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useServerAction } from 'zsa-react';
 
@@ -23,10 +25,12 @@ type Usage = {
 
 export default function SubscriptionCard({
 	subscriptionName,
-	usage
+	usage,
+	userId
 }: {
 	subscriptionName: string;
 	usage: Usage;
+	userId: string;
 }) {
 	const { isPending, execute } = useServerAction(getBillingPortal);
 	const manageSubscription = async () => {
@@ -45,7 +49,7 @@ export default function SubscriptionCard({
 				<CardDescription>{subscriptionName}</CardDescription>
 			</CardHeader>
 			<CardContent className="p-2 pt-0 md:p-4 md:pt-0">
-				<UsageDisplay usage={usage} />
+				<UsageDisplay usage={usage} userId={userId} />
 				<Button size={'sm'} className="w-full" onClick={manageSubscription} disabled={isPending}>
 					{isPending ? (
 						<Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -59,8 +63,48 @@ export default function SubscriptionCard({
 	);
 }
 
-const UsageDisplay = ({ usage }: { usage: Usage }) => {
-	const { currentUsage, totalLimits } = usage;
+const UsageDisplay = ({ usage: initialUsage, userId }: { usage: Usage; userId: string }) => {
+	const [realtimeUsage, setRealtimeUsage] = useState<Usage>(initialUsage);
+	const supabase = createClient();
+
+	useEffect(() => {
+		const channel = supabase
+			.channel('realtime_usage')
+			.on(
+				'postgres_changes',
+				{
+					event: 'UPDATE',
+					schema: 'public',
+					table: 'user_usage',
+					filter: `user_id=eq.${userId}`
+				},
+				({ new: newUsage }) => {
+					setRealtimeUsage((prevUsage) => ({
+						...prevUsage,
+						currentUsage: {
+							...prevUsage.currentUsage,
+							exportSecondsLeft:
+								newUsage.export_seconds_left ?? prevUsage.currentUsage.exportSecondsLeft,
+							voiceoverCharactersLeft:
+								newUsage.voiceover_characters_left ??
+								prevUsage.currentUsage.voiceoverCharactersLeft,
+							transcriptionMinutesLeft:
+								newUsage.transcription_minutes_left ??
+								prevUsage.currentUsage.transcriptionMinutesLeft,
+							connectedAccountsLeft:
+								newUsage.connected_accounts_left ?? prevUsage.currentUsage.connectedAccountsLeft
+						}
+					}));
+				}
+			)
+			.subscribe();
+
+		return () => {
+			supabase.removeChannel(channel);
+		};
+	}, [realtimeUsage, supabase, userId]);
+
+	const { currentUsage, totalLimits } = realtimeUsage;
 	const calculateUsed = (total: number, left: number) => total - left;
 	const calculatePercentage = (used: number, total: number) => (used / total) * 100;
 	const secondsToMinutes = (seconds: number) => Math.round(seconds / 60);
