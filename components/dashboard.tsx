@@ -52,7 +52,6 @@ interface DashboardProps {
 	children: ReactNode;
 	subscription: GetUserSubscriptionResult | undefined;
 	usage: GetUserUsageResult;
-	showVideoPreview?: boolean;
 }
 
 const NavLink: React.FC<NavLinkProps> = ({ href, icon: Icon, label, currentRoute }) => (
@@ -67,19 +66,16 @@ const NavLink: React.FC<NavLinkProps> = ({ href, icon: Icon, label, currentRoute
 	</Link>
 );
 
-export const Dashboard: React.FC<DashboardProps> = ({
-	user,
-	children,
-	subscription,
-	usage,
-	showVideoPreview = true
-}) => {
+export const Dashboard: React.FC<DashboardProps> = ({ user, children, subscription, usage }) => {
 	const currentRoute = usePathname();
 	const router = useRouter();
 
 	const { selectedTemplate } = useTemplateStore((state) => ({
 		selectedTemplate: state.selectedTemplate
 	}));
+
+	const routesWithoutPreview = ['/account'];
+	const shouldShowVideoPreview = !routesWithoutPreview.includes(currentRoute);
 
 	const getTitle = (route: string): string => {
 		switch (route) {
@@ -240,7 +236,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 					<div className="flex items-center mb-4">
 						<h1 className="text-lg font-semibold md:text-2xl">{getTitle(currentRoute)}</h1>
 					</div>
-					{showVideoPreview ? (
+					{shouldShowVideoPreview ? (
 						<div className="flex flex-col lg:flex-row gap-4 min-h-0 flex-grow">
 							<div className="w-full lg:w-1/2 overflow-hidden flex flex-col">
 								<div className="flex-grow overflow-auto rounded-lg border shadow-sm p-4">
