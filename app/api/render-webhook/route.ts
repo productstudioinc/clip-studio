@@ -1,4 +1,7 @@
+import { db } from '@/db';
+import { userUsage } from '@/db/schema';
 import { validateWebhookSignature, WebhookPayload } from '@remotion/lambda/client';
+import { eq, sql } from 'drizzle-orm';
 import { withAxiom } from 'next-axiom';
 
 export const POST = withAxiom(async (req) => {
@@ -40,6 +43,14 @@ export const POST = withAxiom(async (req) => {
 				renderId: payload.renderId,
 				errors: payload.errors
 			});
+			await db
+				.update(userUsage)
+				.set({
+					//@ts-ignore
+					exportSecondsLeft: sql`export_seconds_left + ${Math.floor(payload.customData.durationInFrames / 30)}`
+				})
+				//@ts-ignore
+				.where(eq(userUsage.userId, payload.customData.userId));
 			break;
 		case 'success':
 			req.log.info('Render success', {

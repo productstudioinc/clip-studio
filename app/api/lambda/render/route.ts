@@ -1,5 +1,7 @@
 import { getUser } from '@/actions/auth/user';
 import { DISK, RAM, REGION, SITE_NAME, TIMEOUT } from '@/config.mjs';
+import { db } from '@/db';
+import { userUsage } from '@/db/schema';
 import { executeApi } from '@/helpers/api-response';
 import { RenderRequest } from '@/types/schema';
 import {
@@ -8,6 +10,7 @@ import {
 	RenderMediaOnLambdaOutput,
 	speculateFunctionName
 } from '@remotion/lambda/client';
+import { eq, sql } from 'drizzle-orm';
 import { AxiomRequest } from 'next-axiom';
 import { redirect } from 'next/navigation';
 
@@ -52,6 +55,13 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 			serveUrl: SITE_NAME
 		});
 
+		await db
+			.update(userUsage)
+			.set({
+				exportSecondsLeft: sql`export_seconds_left - ${Math.floor(body.inputProps.durationInFrames / 30)}`
+			})
+			.where(eq(userUsage.userId, user.id));
+
 		const result = await renderMediaOnLambda({
 			codec: 'h264',
 			functionName: speculateFunctionName({
@@ -70,7 +80,11 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 			logLevel: 'verbose',
 			webhook: {
 				url: 'https://clip.studio/api/render-webhook',
-				secret: process.env.REMOTION_WEBHOOK_SECRET!
+				secret: process.env.REMOTION_WEBHOOK_SECRET!,
+				customData: {
+					durationInFrames: body.inputProps.durationInFrames,
+					userId: user.id
+				}
 			}
 		});
 
