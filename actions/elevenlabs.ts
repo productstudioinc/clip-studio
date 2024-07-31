@@ -1,7 +1,13 @@
 'use server';
+
+import { db } from '@/db';
+import { userUsage } from '@/db/schema';
+import { endingFunctionString, errorString, startingFunctionString } from '@/utils/logging';
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { eq, sql } from 'drizzle-orm';
 import { ElevenLabsClient } from 'elevenlabs';
+import { Logger } from 'next-axiom';
 import z from 'zod';
 import { createServerAction, ZSAError } from 'zsa';
 import { R2 } from '../utils/r2';
@@ -33,63 +39,107 @@ export const generateAudioAndTimestamps = createServerAction()
 		})
 	)
 	.handler(async ({ input }) => {
+		const logger = new Logger().with({
+			function: 'generateAudioAndTimestamps',
+			...input
+		});
+		logger.info(startingFunctionString);
+
 		const { user } = await getUser();
-		if (
-			!user ||
-			!['rkwarya@gmail.com', 'useclipstudio@gmail.com', 'hello@dillion.io'].includes(
-				user.email as string
-			)
-		) {
+		if (!user) {
+			logger.error(errorString, { error: 'User not authorized' });
 			throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.');
 		}
+
 		const fullText = `${input.title}\n\n${input.text}`;
-		const audio = (await elevenLabsClient.textToSpeech.convertWithTimstamps(input.voiceId, {
-			text: fullText
-		})) as AudioResponse;
+		const characterCount = fullText.length;
 
-		const audioBuffer = Buffer.from(audio.audio_base64, 'base64');
-		const s3Key = `voiceovers/${input.voiceId}/${crypto.randomUUID()}.mp3`;
+		try {
+			const userUsageRecord = await db
+				.select({ voiceoverCharactersLeft: userUsage.voiceoverCharactersLeft })
+				.from(userUsage)
+				.where(eq(userUsage.userId, user.id));
 
-		const putObjectCommand = new PutObjectCommand({
-			Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-			Key: s3Key,
-			Body: audioBuffer,
-			ContentType: 'audio/mpeg'
-		});
+			if (userUsageRecord[0].voiceoverCharactersLeft < characterCount) {
+				logger.error(errorString, { error: 'Insufficient voiceover characters' });
+				throw new ZSAError(
+					'INSUFFICIENT_CREDITS',
+					`You don't have enough characters left to generate this voiceover.`
+				);
+			}
 
-		await R2.send(putObjectCommand);
+			// Deduct the characters
+			await db
+				.update(userUsage)
+				.set({
+					voiceoverCharactersLeft: sql`${userUsage.voiceoverCharactersLeft} - ${characterCount}`
+				})
+				.where(eq(userUsage.userId, user.id));
 
-		const getObjectCommand = new GetObjectCommand({
-			Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-			Key: s3Key
-		});
+			const audio = (await elevenLabsClient.textToSpeech.convertWithTimstamps(input.voiceId, {
+				text: fullText
+			})) as AudioResponse;
 
-		const signedUrl = await getSignedUrl(R2, getObjectCommand, {
-			expiresIn: 3600
-		});
+			const audioBuffer = Buffer.from(audio.audio_base64, 'base64');
+			const s3Key = `voiceovers/${input.voiceId}/${crypto.randomUUID()}.mp3`;
 
-		const normalizedText = input.text.toLowerCase();
-		const normalizedCharacters = audio.normalized_alignment.characters.map((char) =>
-			char.toLowerCase()
-		);
+			const putObjectCommand = new PutObjectCommand({
+				Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+				Key: s3Key,
+				Body: audioBuffer,
+				ContentType: 'audio/mpeg'
+			});
 
-		const titleEndIndex = normalizedCharacters.findIndex(
-			(char, index) =>
-				char === normalizedText[0] &&
-				normalizedCharacters.slice(index, index + normalizedText.length).join('') === normalizedText
-		);
+			await R2.send(putObjectCommand);
 
-		const titleEnd =
-			titleEndIndex > 0
-				? audio.normalized_alignment.character_end_times_seconds[titleEndIndex - 1]
-				: 0;
+			const getObjectCommand = new GetObjectCommand({
+				Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+				Key: s3Key
+			});
 
-		return {
-			signedUrl,
-			endTimestamp: audio.normalized_alignment.character_end_times_seconds.slice(-1)[0],
-			voiceoverObject: audio.normalized_alignment,
-			titleEnd
-		};
+			const signedUrl = await getSignedUrl(R2, getObjectCommand, {
+				expiresIn: 3600
+			});
+
+			const normalizedText = input.text.toLowerCase();
+			const normalizedCharacters = audio.normalized_alignment.characters.map((char) =>
+				char.toLowerCase()
+			);
+
+			const titleEndIndex = normalizedCharacters.findIndex(
+				(char, index) =>
+					char === normalizedText[0] &&
+					normalizedCharacters.slice(index, index + normalizedText.length).join('') ===
+						normalizedText
+			);
+
+			const titleEnd =
+				titleEndIndex > 0
+					? audio.normalized_alignment.character_end_times_seconds[titleEndIndex - 1]
+					: 0;
+
+			logger.info(endingFunctionString);
+			return {
+				signedUrl,
+				endTimestamp: audio.normalized_alignment.character_end_times_seconds.slice(-1)[0],
+				voiceoverObject: audio.normalized_alignment,
+				titleEnd
+			};
+		} catch (error) {
+			// If an error occurred, refund the characters
+			await db
+				.update(userUsage)
+				.set({
+					voiceoverCharactersLeft: sql`${userUsage.voiceoverCharactersLeft} + ${characterCount}`
+				})
+				.where(eq(userUsage.userId, user.id));
+
+			logger.error(errorString, { error });
+			throw new ZSAError(
+				'INTERNAL_SERVER_ERROR',
+				'An error occurred while generating the voiceover.'
+			);
+		}
 	});
 
 export type ElevenlabsVoice = Awaited<ReturnType<typeof getVoices>>[number];
