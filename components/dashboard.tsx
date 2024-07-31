@@ -133,7 +133,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
 			<DropdownMenuContent align="start">
 				<DropdownMenuLabel>My Account</DropdownMenuLabel>
 				<DropdownMenuSeparator />
-				<DropdownMenuItem onSelect={() => signOut()}>
+				<DropdownMenuItem
+					onSelect={async () => {
+						await signOut();
+						router.refresh();
+					}}
+				>
 					<LogOut className="mr-2 h-5 w-5" />
 					<span>Sign out</span>
 				</DropdownMenuItem>
