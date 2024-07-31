@@ -56,7 +56,7 @@ export default function LoginComponent() {
 							});
 						}}
 					>
-						<Icons.google className="mr-2 h-4 w-4" />
+						<Icons.google className="mr-2 h-4 w-4 dark:invert" />
 						Login with Google
 					</Button>
 				</div>
