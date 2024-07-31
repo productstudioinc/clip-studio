@@ -2,6 +2,7 @@ import {
 	deletePriceRecord,
 	deleteProductRecord,
 	manageSubscriptionStatusChange,
+	updateUserUsageLimits,
 	upsertPriceRecord,
 	upsertProductRecord
 } from '@/actions/db/admin-queries';
@@ -62,6 +63,7 @@ export async function POST(req: Request) {
 						subscription.customer as string,
 						event.type === 'customer.subscription.created'
 					);
+					await updateUserUsageLimits(subscription);
 					break;
 				case 'checkout.session.completed':
 					const checkoutSession = event.data.object as Stripe.Checkout.Session;

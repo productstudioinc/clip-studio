@@ -1,7 +1,15 @@
 import { db } from '@/db';
-import { customers, prices, products, subscriptions, users } from '@/db/schema';
+import {
+	customers,
+	planLimits,
+	prices,
+	products,
+	subscriptions,
+	users,
+	userUsage
+} from '@/db/schema';
 import { stripe } from '@/utils/stripe/config';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import Stripe from 'stripe';
 
 const upsertProductRecord = async (product: Stripe.Product) => {
@@ -210,11 +218,59 @@ const manageSubscriptionStatusChange = async (
 	}
 };
 
+const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
+	try {
+		const subscriptionDetails = await db
+			.select({
+				userId: subscriptions.userId,
+				subscriptionId: subscriptions.id,
+				voiceoverCharacters: planLimits.voiceoverCharacters,
+				transcriptionMinutes: planLimits.transcriptionMinutes,
+				connectedAccounts: planLimits.connectedAccounts
+			})
+			.from(subscriptions)
+			.innerJoin(prices, eq(subscriptions.priceId, prices.id))
+			.innerJoin(products, eq(prices.productId, products.id))
+			.innerJoin(planLimits, eq(products.id, planLimits.productId))
+			.where(and(eq(subscriptions.status, 'active'), eq(subscriptions.id, subscription.id)))
+			.limit(1);
+		if (!subscriptionDetails[0]) {
+			throw new Error('No active subscription found');
+		}
+
+		await db
+			.insert(userUsage)
+			.values({
+				userId: subscriptionDetails[0].userId,
+				subscriptionId: subscriptionDetails[0].subscriptionId,
+				voiceoverCharactersLeft: subscriptionDetails[0].voiceoverCharacters,
+				transcriptionMinutesLeft: subscriptionDetails[0].transcriptionMinutes,
+				connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
+				lastResetDate: new Date()
+			})
+			.onConflictDoUpdate({
+				target: userUsage.userId,
+				set: {
+					voiceoverCharactersLeft: subscriptionDetails[0].voiceoverCharacters,
+					transcriptionMinutesLeft: subscriptionDetails[0].transcriptionMinutes,
+					connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
+					lastResetDate: new Date()
+				}
+			});
+		console.log(`Updated usage limits for user ${subscriptionDetails[0].userId}`);
+	} catch (error) {
+		if (error instanceof Error) {
+			throw new Error(`Subscription insert/update failed: ${error.message}`);
+		}
+	}
+};
+
 export {
 	createOrRetrieveCustomer,
 	deletePriceRecord,
 	deleteProductRecord,
 	manageSubscriptionStatusChange,
+	updateUserUsageLimits,
 	upsertPriceRecord,
 	upsertProductRecord
 };

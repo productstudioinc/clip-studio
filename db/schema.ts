@@ -122,11 +122,12 @@ export const userUsage = pgTable('user_usage', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	userId: uuid('user_id')
 		.notNull()
-		.references(() => users.id),
+		.references(() => users.id)
+		.unique(),
 	subscriptionId: text('subscription_id').references(() => subscriptions.id),
-	voiceoverCharactersUsed: integer('voiceover_characters_used').notNull().default(0),
-	transcriptionMinutesUsed: integer('transcription_minutes_used').notNull().default(0),
-	connectedAccountsCount: integer('connected_accounts_count').notNull().default(0),
+	voiceoverCharactersLeft: integer('voiceover_characters_left').notNull(),
+	transcriptionMinutesLeft: integer('transcription_minutes_left').notNull(),
+	connectedAccountsLeft: integer('connected_accounts_left').notNull(),
 	lastResetDate: timestamp('last_reset_date').notNull().defaultNow()
 });
 
