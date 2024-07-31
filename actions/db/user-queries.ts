@@ -44,18 +44,20 @@ export const getProducts = unstable_cache(async () => {
 export const getUserUsage = async () => {
 	const { user } = await getUser();
 	if (!user) {
-		throw new Error('User not authenticated');
+		return null;
 	}
 
 	try {
 		const result = await db
 			.select({
 				currentUsage: {
+					exportSecondsLeft: userUsage.exportSecondsLeft,
 					voiceoverCharactersLeft: userUsage.voiceoverCharactersLeft,
 					transcriptionMinutesLeft: userUsage.transcriptionMinutesLeft,
 					connectedAccountsLeft: userUsage.connectedAccountsLeft
 				},
 				totalLimits: {
+					exportSeconds: planLimits.exportSeconds,
 					voiceoverCharacters: planLimits.voiceoverCharacters,
 					transcriptionMinutes: planLimits.transcriptionMinutes,
 					connectedAccounts: planLimits.connectedAccounts

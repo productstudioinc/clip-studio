@@ -8,11 +8,13 @@ import { useServerAction } from 'zsa-react';
 
 type Usage = {
 	currentUsage: {
+		exportSecondsLeft: number;
 		voiceoverCharactersLeft: number;
 		transcriptionMinutesLeft: number;
 		connectedAccountsLeft: number;
 	};
 	totalLimits: {
+		exportSeconds: number;
 		voiceoverCharacters: number;
 		transcriptionMinutes: number;
 		connectedAccounts: number;
@@ -35,6 +37,7 @@ export default function SubscriptionCard({
 			window.open(data.url, '_blank');
 		}
 	};
+
 	return (
 		<Card>
 			<CardHeader className="p-2 pt-0 md:p-4">
@@ -60,9 +63,28 @@ const UsageDisplay = ({ usage }: { usage: Usage }) => {
 	const { currentUsage, totalLimits } = usage;
 	const calculateUsed = (total: number, left: number) => total - left;
 	const calculatePercentage = (used: number, total: number) => (used / total) * 100;
+	const secondsToMinutes = (seconds: number) => Math.round(seconds / 60);
 
 	return (
 		<div className="flex flex-col gap-2 pb-6">
+			<div className="flex flex-col gap-1">
+				<div className="flex justify-between items-center">
+					<span className="text-xs">Export Minutes</span>
+					<span className="text-xs text-muted-foreground">
+						{secondsToMinutes(
+							calculateUsed(totalLimits.exportSeconds, currentUsage.exportSecondsLeft)
+						)}{' '}
+						/ {secondsToMinutes(totalLimits.exportSeconds)}
+					</span>
+				</div>
+				<Progress
+					value={calculatePercentage(
+						calculateUsed(totalLimits.exportSeconds, currentUsage.exportSecondsLeft),
+						totalLimits.exportSeconds
+					)}
+					className="h-2"
+				/>
+			</div>
 			<div className="flex flex-col gap-1">
 				<div className="flex justify-between items-center">
 					<span className="text-xs">Voiceover</span>
