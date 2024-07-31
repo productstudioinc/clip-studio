@@ -107,7 +107,7 @@ const UsageDisplay = ({ usage: initialUsage, userId }: { usage: Usage; userId: s
 	const { currentUsage, totalLimits } = realtimeUsage;
 	const calculateUsed = (total: number, left: number) => total - left;
 	const calculatePercentage = (used: number, total: number) => (used / total) * 100;
-	const secondsToMinutes = (seconds: number) => Math.round(seconds / 60);
+	const secondsToMinutes = (seconds: number) => (seconds / 60).toFixed(1);
 
 	return (
 		<div className="flex flex-col gap-2 pb-6">
