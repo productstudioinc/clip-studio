@@ -22,6 +22,7 @@ import {
 	CaptionsIcon,
 	CircleUser,
 	CogIcon,
+	FileText,
 	FileUpIcon,
 	LayoutTemplateIcon,
 	LogOut,
@@ -74,7 +75,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children, subscripti
 		selectedTemplate: state.selectedTemplate
 	}));
 
-	const routesWithoutPreview = ['/account'];
+	const routesWithoutPreview = ['/account', '/terms', '/privacy'];
 	const shouldShowVideoPreview = !routesWithoutPreview.includes(currentRoute);
 
 	const getTitle = (route: string): string => {
@@ -89,6 +90,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children, subscripti
 				return 'Export';
 			case '/account':
 				return 'My Account';
+			case '/terms':
+				return 'Terms of Service';
+			case '/privacy':
+				return 'Privacy Policy';
 			default:
 				return 'Studio';
 		}
@@ -111,6 +116,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children, subscripti
 		label: 'My Account'
 	};
 
+	const bottomNavItems: NavItem[] = [
+		{ href: '/terms', icon: FileText, label: 'Terms of Service' },
+		{ href: '/privacy', icon: FileText, label: 'Privacy Policy' }
+	];
+
 	const UserMenu = () => (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -128,6 +138,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children, subscripti
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="start">
 				<DropdownMenuLabel>My Account</DropdownMenuLabel>
+				<DropdownMenuSeparator />
+				<DropdownMenuItem asChild>
+					<Link href="/account">
+						<UserIcon className="mr-2 h-5 w-5" />
+						<span>Account Settings</span>
+					</Link>
+				</DropdownMenuItem>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem
 					onSelect={async () => {
@@ -169,6 +186,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children, subscripti
 							))}
 							<Separator orientation="horizontal" className="my-2" />
 							<NavLink {...profileNavItem} currentRoute={currentRoute} />
+						</nav>
+					</div>
+					<div className="px-2 lg:px-4">
+						<nav className="grid items-start text-sm font-medium">
+							{bottomNavItems.map((item) => (
+								<NavLink key={item.href} {...item} currentRoute={currentRoute} />
+							))}
 						</nav>
 					</div>
 					<div className="px-2 lg:px-4">
@@ -214,6 +238,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, children, subscripti
 								))}
 								<Separator orientation="horizontal" className="my-2" />
 								<NavLink {...profileNavItem} currentRoute={currentRoute} />
+								{bottomNavItems.map((item) => (
+									<NavLink key={item.href} {...item} currentRoute={currentRoute} />
+								))}
 								{user ? (
 									<UserMenu />
 								) : (
