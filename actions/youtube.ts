@@ -10,6 +10,7 @@ import { and, eq } from 'drizzle-orm';
 import { Credentials } from 'google-auth-library';
 import { google } from 'googleapis';
 import { Logger } from 'next-axiom';
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { Readable } from 'stream';
 import { z } from 'zod';
@@ -276,6 +277,40 @@ export const refreshYoutubeAccessTokens = async () => {
 		await logger.flush();
 	}
 };
+
+export const deleteYoutubeChannel = createServerAction()
+	.input(
+		z.object({
+			channelId: z.string()
+		})
+	)
+	.handler(async ({ input }) => {
+		const logger = new Logger().with({
+			function: 'deleteYoutubeChannel',
+			channelId: input.channelId
+		});
+		const { user } = await getUser();
+		if (!user) {
+			logger.error(errorString, {
+				error: 'User not authorized'
+			});
+			await logger.flush();
+			throw new ZSAError('NOT_AUTHORIZED', 'You are not authorized to perform this action.');
+		}
+		try {
+			await db
+				.delete(youtubeChannels)
+				.where(and(eq(youtubeChannels.userId, user.id), eq(youtubeChannels.id, input.channelId)));
+			revalidatePath('/account');
+			await logger.flush();
+		} catch (error) {
+			if (error instanceof Error) {
+				logger.error(errorString, error);
+				await logger.flush();
+				throw new ZSAError('INTERNAL_SERVER_ERROR', error.message);
+			}
+		}
+	});
 
 const refreshYoutubeAccessToken = async ({
 	credentials,

@@ -10,6 +10,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import DeleteYoutubeAccount from './delete-account';
 
 export default async function Account() {
 	const { user } = await getUser();
@@ -81,9 +82,7 @@ export default async function Account() {
 												</div>
 											</CardContent>
 											<CardFooter>
-												<Button variant="destructive" size="sm" className="w-full">
-													Disconnect
-												</Button>
+												<DeleteYoutubeAccount channelId={channel.id} />
 											</CardFooter>
 										</Card>
 									))}
