@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db';
-import { youtubeChannels, youtubePosts } from '@/db/schema';
+import { socialMediaPosts, youtubeChannels, youtubePosts } from '@/db/schema';
 import { parseS3Url } from '@/utils/s3';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getAwsClient } from '@remotion/lambda/client';
@@ -298,9 +298,25 @@ export const deleteYoutubeChannel = createServerAction()
 			throw new ZSAError('NOT_AUTHORIZED', 'You are not authorized to perform this action.');
 		}
 		try {
-			await db
-				.delete(youtubeChannels)
-				.where(and(eq(youtubeChannels.userId, user.id), eq(youtubeChannels.id, input.channelId)));
+			await db.transaction(async (tx) => {
+				// Delete YouTube posts
+				await tx
+					.delete(youtubePosts)
+					.where(
+						and(
+							eq(youtubePosts.userId, user.id),
+							eq(youtubePosts.youtubeChannelId, input.channelId)
+						)
+					);
+
+				// Delete social media posts
+				await tx.delete(socialMediaPosts).where(eq(socialMediaPosts.userId, user.id));
+
+				// Delete the YouTube channel
+				await tx
+					.delete(youtubeChannels)
+					.where(and(eq(youtubeChannels.userId, user.id), eq(youtubeChannels.id, input.channelId)));
+			});
 			revalidatePath('/account');
 			await logger.flush();
 		} catch (error) {
