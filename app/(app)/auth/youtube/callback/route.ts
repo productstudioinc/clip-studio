@@ -1,9 +1,9 @@
 import { getYoutubeChannelInfo } from '@/actions/youtube';
 import { db } from '@/db';
-import { youtubeChannels } from '@/db/schema';
+import { userUsage, youtubeChannels } from '@/db/schema';
 import { createClient } from '@/supabase/server';
 import youtubeAuthClient from '@/utils/youtube';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { NextResponse } from 'next/server';
 
@@ -34,6 +34,26 @@ export const GET = async (request: Request) => {
 					`${origin}/account?error=Sorry, something unexpected happened. Our team is looking into it.`
 				);
 			}
+			await db.transaction(async (tx) => {
+				const remainingAccounts = await tx
+					.select({ connectedAccountsLeft: userUsage.connectedAccountsLeft })
+					.from(userUsage)
+					.where(eq(userUsage.userId, userId));
+
+				console.log(remainingAccounts[0].connectedAccountsLeft);
+
+				if (remainingAccounts[0].connectedAccountsLeft < 1) {
+					return NextResponse.redirect(
+						`${origin}/account?error=You have reached your daily limit of connected accounts.`
+					);
+				}
+				await tx
+					.update(userUsage)
+					.set({
+						connectedAccountsLeft: sql`connected_accounts_left - 1`
+					})
+					.where(eq(userUsage.userId, userId));
+			});
 			const isAlreadySaved = await checkIfYoutubeChannelIsAlreadySaved({
 				channelId,
 				userId
