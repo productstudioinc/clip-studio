@@ -57,7 +57,7 @@ export const GET = async (request: Request) => {
 
 			if (!canConnect) {
 				return NextResponse.redirect(
-					`${origin}/account?error=You have reached your daily limit of connected accounts.`
+					`${origin}/account?error=You have reached your limit of connected accounts.`
 				);
 			}
 
