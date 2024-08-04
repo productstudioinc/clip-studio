@@ -7,6 +7,7 @@ import type { Metadata } from 'next';
 import { AxiomWebVitals } from 'next-axiom';
 import dynamic from 'next/dynamic';
 import { PHProvider } from './_analytics/provider';
+import { ErrorToast } from './error-toast';
 
 const PostHogPageView = dynamic(() => import('./_analytics/PostHogPageView'), {
 	ssr: false
@@ -27,6 +28,7 @@ export default async function RootLayout({
 				<AxiomWebVitals />
 				<PHProvider>
 					<body className={GeistSans.className}>
+						<ErrorToast />
 						<PostHogPageView />
 						<ThemeProvider
 							attribute="class"
