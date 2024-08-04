@@ -226,7 +226,7 @@ const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
 				subscriptionId: subscriptions.id,
 				exportSecondsLeft: planLimits.exportSeconds,
 				voiceoverCharacters: planLimits.voiceoverCharacters,
-				transcriptionMinutes: planLimits.transcriptionMinutes,
+				transcriptionSeconds: planLimits.transcriptionSeconds,
 				connectedAccounts: planLimits.connectedAccounts
 			})
 			.from(subscriptions)
@@ -246,7 +246,7 @@ const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
 				subscriptionId: subscriptionDetails[0].subscriptionId,
 				exportSecondsLeft: subscriptionDetails[0].exportSecondsLeft,
 				voiceoverCharactersLeft: subscriptionDetails[0].voiceoverCharacters,
-				transcriptionMinutesLeft: subscriptionDetails[0].transcriptionMinutes,
+				transcriptionSecondsLeft: subscriptionDetails[0].transcriptionSeconds,
 				connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
 				lastResetDate: new Date()
 			})
@@ -255,7 +255,7 @@ const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
 				set: {
 					voiceoverCharactersLeft: subscriptionDetails[0].voiceoverCharacters,
 					exportSecondsLeft: subscriptionDetails[0].exportSecondsLeft,
-					transcriptionMinutesLeft: subscriptionDetails[0].transcriptionMinutes,
+					transcriptionSecondsLeft: subscriptionDetails[0].transcriptionSeconds,
 					connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
 					lastResetDate: new Date()
 				}
