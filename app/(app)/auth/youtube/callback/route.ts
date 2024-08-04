@@ -34,18 +34,17 @@ export const GET = async (request: Request) => {
 					`${origin}/account?error=Sorry, something unexpected happened. Our team is looking into it.`
 				);
 			}
+
+			let canConnect = false;
 			await db.transaction(async (tx) => {
 				const remainingAccounts = await tx
 					.select({ connectedAccountsLeft: userUsage.connectedAccountsLeft })
 					.from(userUsage)
 					.where(eq(userUsage.userId, userId));
-
 				console.log(remainingAccounts[0].connectedAccountsLeft);
-
 				if (remainingAccounts[0].connectedAccountsLeft < 1) {
-					return NextResponse.redirect(
-						`${origin}/account?error=You have reached your daily limit of connected accounts.`
-					);
+					canConnect = false;
+					return;
 				}
 				await tx
 					.update(userUsage)
@@ -53,7 +52,15 @@ export const GET = async (request: Request) => {
 						connectedAccountsLeft: sql`connected_accounts_left - 1`
 					})
 					.where(eq(userUsage.userId, userId));
+				canConnect = true;
 			});
+
+			if (!canConnect) {
+				return NextResponse.redirect(
+					`${origin}/account?error=You have reached your daily limit of connected accounts.`
+				);
+			}
+
 			const isAlreadySaved = await checkIfYoutubeChannelIsAlreadySaved({
 				channelId,
 				userId
@@ -79,7 +86,6 @@ export const GET = async (request: Request) => {
 			`${origin}/account?error=${error instanceof Error ? error.message : String(error)}`
 		);
 	}
-
 	revalidatePath('/account');
 	return NextResponse.redirect(`${origin}/account`);
 };
