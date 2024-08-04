@@ -4,8 +4,7 @@ import {
 	OffthreadVideo,
 	Series,
 	spring,
-	useCurrentFrame,
-	useVideoConfig
+	useCurrentFrame
 } from 'remotion';
 import { z } from 'zod';
 import { Tweet } from '../../components/tweet/tweet';
@@ -16,7 +15,6 @@ export const TwitterThreadComposition = ({
 	durationInFrames,
 	backgroundUrls
 }: z.infer<typeof TwitterThreadProps>) => {
-	const videoConfig = useVideoConfig();
 	const validTweetIds = Array.isArray(tweetIds) ? tweetIds : [];
 	const frame = useCurrentFrame();
 	const totalTweets = validTweetIds.length;
@@ -43,11 +41,11 @@ export const TwitterThreadComposition = ({
 		<AbsoluteFill>
 			<Series>
 				{backgroundUrls.map((part, index) => (
-					<Series.Sequence durationInFrames={durationInFrames / backgroundUrls.length} key={index}>
+					<Series.Sequence durationInFrames={60 * 30} key={index}>
 						<OffthreadVideo
 							src={part}
 							startFrom={0}
-							endAt={durationInFrames / backgroundUrls.length}
+							endAt={60 * 30}
 							style={{
 								position: 'absolute',
 								width: '100%',
