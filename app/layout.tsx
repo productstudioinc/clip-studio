@@ -6,6 +6,7 @@ import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from 'next';
 import { AxiomWebVitals } from 'next-axiom';
 import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
 import { PHProvider } from './_analytics/provider';
 import { ErrorToast } from './error-toast';
 
@@ -28,7 +29,9 @@ export default async function RootLayout({
 				<AxiomWebVitals />
 				<PHProvider>
 					<body className={GeistSans.className}>
-						<ErrorToast />
+						<Suspense fallback={<></>}>
+							<ErrorToast />
+						</Suspense>
 						<PostHogPageView />
 						<ThemeProvider
 							attribute="class"
