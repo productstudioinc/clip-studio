@@ -1,12 +1,12 @@
 'use server';
 
 import { db } from '@/db';
-import { socialMediaPosts, youtubeChannels, youtubePosts } from '@/db/schema';
+import { socialMediaPosts, userUsage, youtubeChannels, youtubePosts } from '@/db/schema';
 import { parseS3Url } from '@/utils/s3';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getAwsClient } from '@remotion/lambda/client';
 import { randomBytes } from 'crypto';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { Credentials } from 'google-auth-library';
 import { google } from 'googleapis';
 import { Logger } from 'next-axiom';
@@ -316,6 +316,14 @@ export const deleteYoutubeChannel = createServerAction()
 				await tx
 					.delete(youtubeChannels)
 					.where(and(eq(youtubeChannels.userId, user.id), eq(youtubeChannels.id, input.channelId)));
+
+				// Increase the number of connected accounts
+				await tx
+					.update(userUsage)
+					.set({
+						connectedAccountsLeft: sql`connected_accounts_left + 1`
+					})
+					.where(eq(userUsage.userId, user.id));
 			});
 			revalidatePath('/account');
 			await logger.flush();
