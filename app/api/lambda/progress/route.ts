@@ -8,13 +8,11 @@ export const POST = executeApi<ProgressResponse, typeof ProgressRequest>(
 	ProgressRequest,
 	async (req: AxiomRequest, body) => {
 		const logger = req.log;
-
 		logger.info('Initiating getRenderProgress', {
 			bucketName: body.bucketName,
 			renderId: body.id,
 			region: REGION
 		});
-
 		const renderProgress = await getRenderProgress({
 			bucketName: body.bucketName,
 			functionName: speculateFunctionName({
@@ -23,9 +21,13 @@ export const POST = executeApi<ProgressResponse, typeof ProgressRequest>(
 				timeoutInSeconds: TIMEOUT
 			}),
 			region: REGION as AwsRegion,
-			renderId: body.id
+			renderId: body.id,
+			s3OutputProvider: {
+				endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+				accessKeyId: process.env.CLOUDFLARE_ACCESS_KEY_ID!,
+				secretAccessKey: process.env.CLOUDFLARE_SECRET_ACCESS_KEY!
+			}
 		});
-
 		if (renderProgress.fatalErrorEncountered) {
 			logger.error('Fatal error encountered in render progress', {
 				error: renderProgress.errors[0].message,
@@ -37,20 +39,25 @@ export const POST = executeApi<ProgressResponse, typeof ProgressRequest>(
 				message: renderProgress.errors[0].message
 			};
 		}
-
 		if (renderProgress.done) {
+			let outputFile = renderProgress.outputFile as string;
+			// Replace the URL prefix
+			outputFile = outputFile.replace(
+				'https://s3.us-east-1.amazonaws.com/videogen-renders',
+				'https://renders.clip.studio'
+			);
 			logger.info('Render completed successfully', {
 				renderId: body.id,
-				outputFile: renderProgress.outputFile,
+				outputFile: outputFile,
 				outputSize: renderProgress.outputSizeInBytes
 			});
+			console.log(outputFile);
 			return {
 				type: 'done',
-				url: renderProgress.outputFile as string,
+				url: outputFile,
 				size: renderProgress.outputSizeInBytes as number
 			};
 		}
-
 		logger.info('Render in progress', {
 			renderId: body.id,
 			progress: Math.max(0.03, renderProgress.overallProgress)

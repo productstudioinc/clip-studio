@@ -75,11 +75,17 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 			serveUrl: SITE_NAME,
 			composition: body.id,
 			inputProps: body.inputProps,
-			downloadBehavior: {
-				type: 'download',
-				fileName: 'video.mp4'
-			},
 			logLevel: 'verbose',
+			overwrite: true,
+			outName: {
+				key: `renders/${crypto.randomUUID()}.mp4`,
+				bucketName: 'videogen-renders',
+				s3OutputProvider: {
+					endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+					accessKeyId: process.env.CLOUDFLARE_ACCESS_KEY_ID!,
+					secretAccessKey: process.env.CLOUDFLARE_SECRET_ACCESS_KEY!
+				}
+			},
 			webhook: {
 				url: 'https://clip.studio/api/render-webhook',
 				secret: process.env.REMOTION_WEBHOOK_SECRET!,
