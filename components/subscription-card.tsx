@@ -1,9 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { createClient } from '@/supabase/client';
 import { getBillingPortal } from '@/utils/stripe/server';
-import { Loader2, Settings } from 'lucide-react';
+import { Info, Loader2, Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useServerAction } from 'zsa-react';
@@ -12,13 +13,13 @@ type Usage = {
 	currentUsage: {
 		exportSecondsLeft: number;
 		voiceoverCharactersLeft: number;
-		transcriptionMinutesLeft: number;
+		transcriptionSecondsLeft: number;
 		connectedAccountsLeft: number;
 	};
 	totalLimits: {
 		exportSeconds: number;
 		voiceoverCharacters: number;
-		transcriptionMinutes: number;
+		transcriptionSeconds: number;
 		connectedAccounts: number;
 	};
 };
@@ -88,9 +89,9 @@ const UsageDisplay = ({ usage: initialUsage, userId }: { usage: Usage; userId: s
 							voiceoverCharactersLeft:
 								newUsage.voiceover_characters_left ??
 								prevUsage.currentUsage.voiceoverCharactersLeft,
-							transcriptionMinutesLeft:
-								newUsage.transcription_minutes_left ??
-								prevUsage.currentUsage.transcriptionMinutesLeft,
+							transcriptionSecondsLeft:
+								newUsage.transcription_seconds_left ??
+								prevUsage.currentUsage.transcriptionSecondsLeft,
 							connectedAccountsLeft:
 								newUsage.connected_accounts_left ?? prevUsage.currentUsage.connectedAccountsLeft
 						}
@@ -105,78 +106,80 @@ const UsageDisplay = ({ usage: initialUsage, userId }: { usage: Usage; userId: s
 	}, [realtimeUsage, supabase, userId]);
 
 	const { currentUsage, totalLimits } = realtimeUsage;
+
 	const calculateUsed = (total: number, left: number) => total - left;
 	const calculatePercentage = (used: number, total: number) => (used / total) * 100;
 	const secondsToMinutes = (seconds: number) => (seconds / 60).toFixed(1);
 
+	const usageItems = [
+		{
+			label: 'Export Minutes',
+			current: secondsToMinutes(
+				calculateUsed(totalLimits.exportSeconds, currentUsage.exportSecondsLeft)
+			),
+			total: secondsToMinutes(totalLimits.exportSeconds),
+			unit: 'minutes',
+			percentage: calculatePercentage(
+				calculateUsed(totalLimits.exportSeconds, currentUsage.exportSecondsLeft),
+				totalLimits.exportSeconds
+			)
+		},
+		{
+			label: 'Voiceover Characters',
+			current: calculateUsed(totalLimits.voiceoverCharacters, currentUsage.voiceoverCharactersLeft),
+			total: totalLimits.voiceoverCharacters,
+			unit: 'characters',
+			percentage: calculatePercentage(
+				calculateUsed(totalLimits.voiceoverCharacters, currentUsage.voiceoverCharactersLeft),
+				totalLimits.voiceoverCharacters
+			)
+		},
+		{
+			label: 'Transcribe Minutes',
+			current: secondsToMinutes(
+				calculateUsed(totalLimits.transcriptionSeconds, currentUsage.transcriptionSecondsLeft)
+			),
+			total: secondsToMinutes(totalLimits.transcriptionSeconds),
+			unit: 'minutes',
+			percentage: calculatePercentage(
+				calculateUsed(totalLimits.transcriptionSeconds, currentUsage.transcriptionSecondsLeft),
+				totalLimits.transcriptionSeconds
+			)
+		},
+		{
+			label: 'Connected Accounts',
+			current: calculateUsed(totalLimits.connectedAccounts, currentUsage.connectedAccountsLeft),
+			total: totalLimits.connectedAccounts,
+			unit: '',
+			percentage: calculatePercentage(
+				calculateUsed(totalLimits.connectedAccounts, currentUsage.connectedAccountsLeft),
+				totalLimits.connectedAccounts
+			)
+		}
+	];
+
 	return (
-		<div className="flex flex-col gap-2 pb-6">
-			<div className="flex flex-col gap-1">
-				<div className="flex justify-between items-center">
-					<span className="text-xs">Export Minutes</span>
-					<span className="text-xs text-muted-foreground">
-						{secondsToMinutes(
-							calculateUsed(totalLimits.exportSeconds, currentUsage.exportSecondsLeft)
-						)}{' '}
-						/ {secondsToMinutes(totalLimits.exportSeconds)}
-					</span>
-				</div>
-				<Progress
-					value={calculatePercentage(
-						calculateUsed(totalLimits.exportSeconds, currentUsage.exportSecondsLeft),
-						totalLimits.exportSeconds
-					)}
-					className="h-2"
-				/>
+		<TooltipProvider>
+			<div className="flex flex-col gap-3 pb-6">
+				{usageItems.map((item, index) => (
+					<div key={index} className="flex flex-col gap-1">
+						<div className="flex justify-between items-center text-xs">
+							<span className="flex-grow">{item.label}</span>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button variant="ghost" size="icon" className="h-4 w-4 p-0">
+										<Info className="h-3 w-3" />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>
+									<p>{`${item.current} / ${item.total} ${item.unit}`}</p>
+								</TooltipContent>
+							</Tooltip>
+						</div>
+						<Progress value={item.percentage} className="h-2" />
+					</div>
+				))}
 			</div>
-			<div className="flex flex-col gap-1">
-				<div className="flex justify-between items-center">
-					<span className="text-xs">Voiceover</span>
-					<span className="text-xs text-muted-foreground">
-						{calculateUsed(totalLimits.voiceoverCharacters, currentUsage.voiceoverCharactersLeft)} /{' '}
-						{totalLimits.voiceoverCharacters}
-					</span>
-				</div>
-				<Progress
-					value={calculatePercentage(
-						calculateUsed(totalLimits.voiceoverCharacters, currentUsage.voiceoverCharactersLeft),
-						totalLimits.voiceoverCharacters
-					)}
-					className="h-2"
-				/>
-			</div>
-			<div className="flex flex-col gap-1">
-				<div className="flex justify-between items-center">
-					<span className="text-xs">Transcription</span>
-					<span className="text-xs text-muted-foreground">
-						{calculateUsed(totalLimits.transcriptionMinutes, currentUsage.transcriptionMinutesLeft)}{' '}
-						/ {totalLimits.transcriptionMinutes}
-					</span>
-				</div>
-				<Progress
-					value={calculatePercentage(
-						calculateUsed(totalLimits.transcriptionMinutes, currentUsage.transcriptionMinutesLeft),
-						totalLimits.transcriptionMinutes
-					)}
-					className="h-2"
-				/>
-			</div>
-			<div className="flex flex-col gap-1">
-				<div className="flex justify-between items-center">
-					<span className="text-xs">Connected Accounts</span>
-					<span className="text-xs text-muted-foreground">
-						{calculateUsed(totalLimits.connectedAccounts, currentUsage.connectedAccountsLeft)} /{' '}
-						{totalLimits.connectedAccounts}
-					</span>
-				</div>
-				<Progress
-					value={calculatePercentage(
-						calculateUsed(totalLimits.connectedAccounts, currentUsage.connectedAccountsLeft),
-						totalLimits.connectedAccounts
-					)}
-					className="h-2"
-				/>
-			</div>
-		</div>
+		</TooltipProvider>
 	);
 };

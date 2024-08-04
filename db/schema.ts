@@ -59,7 +59,7 @@ export const planLimits = pgTable('plan_limits', {
 	productId: text('product_id').references(() => products.id),
 	exportSeconds: integer('export_seconds').notNull(),
 	voiceoverCharacters: integer('voiceover_characters').notNull(),
-	transcriptionMinutes: integer('transcription_minutes').notNull(),
+	transcriptionSeconds: integer('transcription_seconds').notNull(),
 	connectedAccounts: integer('connected_accounts').notNull()
 });
 
@@ -128,7 +128,7 @@ export const userUsage = pgTable('user_usage', {
 	subscriptionId: text('subscription_id').references(() => subscriptions.id),
 	exportSecondsLeft: integer('export_seconds_left').notNull(),
 	voiceoverCharactersLeft: integer('voiceover_characters_left').notNull(),
-	transcriptionMinutesLeft: integer('transcription_minutes_left').notNull(),
+	transcriptionSecondsLeft: integer('transcription_seconds_left').notNull(),
 	connectedAccountsLeft: integer('connected_accounts_left').notNull(),
 	lastResetDate: timestamp('last_reset_date').notNull().defaultNow()
 });

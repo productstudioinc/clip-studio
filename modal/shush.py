@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import tempfile
 import moviepy.editor as mp
 import requests
+import math
 
 MODEL_DIR = "/model"
 web_app = FastAPI()
@@ -77,7 +78,7 @@ class WhisperV3:
             max_new_tokens=128,
             chunk_length_s=10,
             batch_size=4,
-            stride_length_s=1,  # Changed from 5 to 1
+            stride_length_s=1,
             return_timestamps="word",
             torch_dtype=self.torch_dtype,
             device=0,
@@ -88,7 +89,7 @@ class WhisperV3:
         import time
         start = time.time()
         output = self.pipe(
-            audio_file, chunk_length_s=10, batch_size=4, return_timestamps="word", stride_length_s=1  # Changed from 5 to 1
+            audio_file, chunk_length_s=10, batch_size=4, return_timestamps="word", stride_length_s=1
         )
         elapsed = time.time() - start
         return output, elapsed
@@ -112,6 +113,21 @@ async def transcribe(request: Request, video_url: str = Query(...)):
     model = WhisperV3()
     call = model.generate.spawn(audio_content)
     return {"call_id": call.object_id}
+
+@web_app.get("/getLength")
+async def get_video_length(request: Request, video_url: str = Query(...)):
+    print("Received a length request from", request.client)
+
+    video_response = requests.get(video_url)
+    video_fp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
+    video_fp.write(video_response.content)
+    video_fp.close()
+
+    video = mp.VideoFileClip(video_fp.name)
+    duration = math.ceil(video.duration)
+    video.close()
+
+    return {"duration": duration}
 
 @web_app.get("/stats")
 def stats(request: Request):

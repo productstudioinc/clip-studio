@@ -53,13 +53,13 @@ export const getUserUsage = async () => {
 				currentUsage: {
 					exportSecondsLeft: userUsage.exportSecondsLeft,
 					voiceoverCharactersLeft: userUsage.voiceoverCharactersLeft,
-					transcriptionMinutesLeft: userUsage.transcriptionMinutesLeft,
+					transcriptionSecondsLeft: userUsage.transcriptionSecondsLeft,
 					connectedAccountsLeft: userUsage.connectedAccountsLeft
 				},
 				totalLimits: {
 					exportSeconds: planLimits.exportSeconds,
 					voiceoverCharacters: planLimits.voiceoverCharacters,
-					transcriptionMinutes: planLimits.transcriptionMinutes,
+					transcriptionSeconds: planLimits.transcriptionSeconds,
 					connectedAccounts: planLimits.connectedAccounts
 				}
 			})

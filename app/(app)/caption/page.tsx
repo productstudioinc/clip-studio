@@ -31,20 +31,23 @@ export default function TranscribeControls() {
 	const handleSplitScreenTranscribeClick = async () => {
 		setIsTranscribing(true);
 		const videoUrl = splitScreenState.videoUrl;
-		const [transcriptionId, transcriptionIdErr] = await getTranscriptionId(videoUrl);
-
-		toast.success('Extraced audio, generating transcription...');
+		const [transcriptionData, transcriptionIdErr] = await getTranscriptionId(videoUrl);
 
 		if (transcriptionIdErr) {
 			toast.error(transcriptionIdErr.message);
+			setIsTranscribing(false);
 		} else {
+			toast.success('Extraced audio, generating transcription...');
 			setSplitScreenState({
 				...splitScreenState,
-				transcriptionId: transcriptionId
+				transcriptionId: transcriptionData.callId
 			});
 
 			const checkTranscription = async () => {
-				const [transcription, transcriptionErr] = await getTranscription(transcriptionId);
+				const [transcription, transcriptionErr] = await getTranscription(
+					transcriptionData.callId,
+					transcriptionData.duration
+				);
 
 				if (transcriptionErr) {
 					toast.error(transcriptionErr.message);
