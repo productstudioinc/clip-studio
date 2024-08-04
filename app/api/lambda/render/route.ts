@@ -10,6 +10,7 @@ import {
 	RenderMediaOnLambdaOutput,
 	speculateFunctionName
 } from '@remotion/lambda/client';
+import { format } from 'date-fns';
 import { eq, sql } from 'drizzle-orm';
 import { AxiomRequest } from 'next-axiom';
 import { redirect } from 'next/navigation';
@@ -77,6 +78,10 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 			inputProps: body.inputProps,
 			logLevel: 'verbose',
 			overwrite: true,
+			downloadBehavior: {
+				type: 'download',
+				fileName: `${body.id}-${format(new Date(), 'M-d-yy')}`
+			},
 			outName: {
 				key: `renders/${crypto.randomUUID()}.mp4`,
 				bucketName: 'videogen-renders',
