@@ -2,14 +2,17 @@
 
 import { getUser } from '@/actions/auth/user';
 import { db } from '@/db';
-import { tiktokAccounts } from '@/db/schema';
+import { socialMediaPosts, tiktokAccounts, tiktokPosts, userUsage } from '@/db/schema';
 import { endingFunctionString, errorString, startingFunctionString } from '@/utils/logging';
 import { createHash } from 'crypto';
-import { eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { Logger } from 'next-axiom';
+import { revalidatePath } from 'next/cache';
 // import { db } from '@/db';
 // import { tiktokAccounts } from '@/db/schema';
 import { redirect } from 'next/navigation';
+import { z } from 'zod';
+import { createServerAction, ZSAError } from 'zsa';
 
 export const connectTiktokAccount = async () => {
 	const { user } = await getUser();
@@ -51,117 +54,48 @@ const generateRandomString = (length: number) => {
 	return result;
 };
 
-async function exchangeCodeForToken(code: string): Promise<string> {
-	if (
-		!process.env.TIKTOK_CLIENT_ID ||
-		!process.env.TIKTOK_CLIENT_SECRET ||
-		!process.env.TIKTOK_REDIRECT_URI
-	) {
-		throw new Error('TikTok credentials not configured');
-	}
-
-	const tokenUrl = 'https://open-api.tiktok.com/oauth/access_token/';
-	const params = new URLSearchParams({
-		client_key: process.env.TIKTOK_CLIENT_ID,
-		client_secret: process.env.TIKTOK_CLIENT_SECRET,
-		code: code,
-		grant_type: 'authorization_code',
-		redirect_uri: process.env.TIKTOK_REDIRECT_URI
-	});
-
-	try {
-		const response = await fetch(`${tokenUrl}?${params.toString()}`, {
-			method: 'POST'
+export const deleteTiktokAccount = createServerAction()
+	.input(z.object({ id: z.string() }))
+	.handler(async ({ input }) => {
+		const logger = new Logger().with({
+			function: 'deleteTiktokAccount',
+			accountId: input.id
 		});
-
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`);
+		const { user } = await getUser();
+		if (!user) {
+			throw new ZSAError('NOT_AUTHORIZED', 'You must be authorized to perform this action.');
 		}
+		try {
+			await db.transaction(async (tx) => {
+				// Delete TikTok posts
+				await tx
+					.delete(tiktokPosts)
+					.where(and(eq(tiktokPosts.userId, user.id), eq(tiktokPosts.tiktokAccountId, input.id)));
 
-		const data = await response.json();
+				// Delete social media posts
+				await tx.delete(socialMediaPosts).where(eq(socialMediaPosts.userId, user.id));
 
-		if (data.data && data.data.access_token) {
-			return data.data.access_token;
-		} else {
-			throw new Error('Failed to retrieve access token from TikTok');
-		}
-	} catch (error) {
-		console.error('Error exchanging code for token:', error);
-		throw new Error('Failed to exchange code for token');
-	}
-}
-async function getTiktokUserInfo(
-	accessToken: string
-): Promise<{ open_id: string; username: string }> {
-	const userInfoUrl = 'https://open.tiktokapis.com/v2/user/info/';
-	const fields = [
-		'open_id',
-		'union_id',
-		'avatar_url',
-		'avatar_url_100',
-		'avatar_large_url',
-		'display_name',
-		'bio_description',
-		'profile_deep_link',
-		'is_verified',
-		'follower_count',
-		'following_count',
-		'likes_count',
-		'video_count'
-	];
+				// Delete the TikTok account
+				await tx
+					.delete(tiktokAccounts)
+					.where(and(eq(tiktokAccounts.userId, user.id), eq(tiktokAccounts.id, input.id)));
 
-	try {
-		const response = await fetch(userInfoUrl, {
-			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-				'Content-Type': 'application/json'
-			}
-		});
-
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`);
-		}
-
-		const data = await response.json();
-
-		if (data.data && data.data.user) {
-			return {
-				open_id: data.data.user.open_id,
-				username: data.data.user.display_name
-			};
-		} else {
-			throw new Error('Failed to retrieve user info from TikTok');
-		}
-	} catch (error) {
-		console.error('Error fetching TikTok user info:', error);
-		throw new Error('Failed to fetch TikTok user info');
-	}
-}
-
-export const refreshTikTokAccessTokens = async () => {
-	const logger = new Logger().with({
-		function: 'refreshTikTokAccessToken'
-	});
-
-	try {
-		const response = await db.select().from(tiktokAccounts);
-		logger.info(startingFunctionString);
-		for (let i = 0; i < response.length; i++) {
-			const { refreshToken, id } = response[i];
-			await refreshTikTokAccessToken({ refreshToken: refreshToken, id });
-			logger.info(endingFunctionString, {
-				numberOfAccounts: response.length
+				// Increase the number of connected accounts
+				await tx
+					.update(userUsage)
+					.set({
+						connectedAccountsLeft: sql`connected_accounts_left + 1`
+					})
+					.where(eq(userUsage.userId, user.id));
 			});
+			revalidatePath('/account');
+			await logger.flush();
+		} catch (error) {
+			if (error instanceof Error) {
+				throw new ZSAError('INTERNAL_SERVER_ERROR', error.message);
+			}
 		}
-	} catch (error) {
-		logger.error(errorString, {
-			error: error instanceof Error ? error.message : String(error)
-		});
-		await logger.flush();
-		throw error;
-	}
-};
+	});
 
 type TikTokRefreshTokenResponse = {
 	access_token?: string;

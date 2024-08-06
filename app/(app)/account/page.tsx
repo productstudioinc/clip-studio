@@ -10,7 +10,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import DeleteYoutubeAccount from './delete-account';
+import { DeleteTikTokAccount, DeleteYoutubeAccount } from './delete-account';
 
 export default async function Account() {
 	const { user } = await getUser();
@@ -116,7 +116,7 @@ export default async function Account() {
 												<div className="flex items-center space-x-4 justify-center">
 													<Avatar className="size-20">
 														<AvatarImage
-															src={account.profile_picture_file_path}
+															src={account.profile_picture_file_path as string}
 															alt={`${account.account_name} profile`}
 														/>
 														<AvatarFallback>{account.account_name[0]}</AvatarFallback>
@@ -127,9 +127,7 @@ export default async function Account() {
 												</div>
 											</CardContent>
 											<CardFooter>
-												<Button variant="destructive" size="sm" className="w-full">
-													Disconnect
-												</Button>
+												<DeleteTikTokAccount accountId={account.id} />
 											</CardFooter>
 										</Card>
 									))}
