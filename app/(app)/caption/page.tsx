@@ -2,7 +2,6 @@
 import { getTranscription, getTranscriptionId } from '@/actions/transcribe';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { useTemplateStore } from '@/stores/templatestore';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
@@ -81,18 +80,17 @@ export default function TranscribeControls() {
 							<Input
 								value={chunk.timestamp[0]}
 								onChange={(e) => handleTranscriptionChange(index, 'start', e.target.value)}
-								className="mr-2 w-16"
+								className="mr-2 w-16 h-full"
 							/>
 							<Input
 								value={chunk.timestamp[1]}
 								onChange={(e) => handleTranscriptionChange(index, 'end', e.target.value)}
-								className="mr-2 w-16"
+								className="mr-2 w-16 h-full"
 							/>
-							<Textarea
+							<Input
 								value={chunk.text}
 								onChange={(e) => handleTranscriptionChange(index, 'text', e.target.value)}
 								className="mr-2"
-								rows={1}
 							/>
 						</li>
 					))}

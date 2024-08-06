@@ -30,7 +30,7 @@ export const connectTiktokAccount = async () => {
 		client_key: process.env.TIKTOK_CLIENT_KEY,
 		scope: scope,
 		response_type: 'code',
-		redirect_uri: process.env.TIKTOK_REDIRECT_URI,
+    redirect_uri: process.env.TIKTOK_REDIRECT_URI,
 		state: state,
 		code_challenge: code_challenge,
 		code_challenge_method: 'S256'
