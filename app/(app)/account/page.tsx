@@ -19,7 +19,7 @@ export default async function Account() {
 		redirect('/');
 	}
 
-	const { youtubeChannels } = await fetchUserConnectSocialMediaAccounts(user.id);
+	const { youtubeChannels, tiktokAccounts } = await fetchUserConnectSocialMediaAccounts(user.id);
 
 	const tiktokChannels = [
 		{ id: '1', channelCustomUrl: 'tiktok1', avatar: '/icon.png', error: null }
@@ -104,25 +104,25 @@ export default async function Account() {
 											</form>
 										</CardContent>
 									</Card>
-									{tiktokChannels.map((channel) => (
+									{tiktokAccounts.map((account) => (
 										<Card
-											key={channel.id}
+											key={account.id}
 											className="justify-center min-h-[200px] text-center w-[250px] flex-shrink-0"
 										>
 											<CardHeader>
-												<CardTitle>{channel.channelCustomUrl}</CardTitle>
+												<CardTitle>{account.account_name}</CardTitle>
 											</CardHeader>
 											<CardContent>
 												<div className="flex items-center space-x-4 justify-center">
 													<Avatar className="size-20">
 														<AvatarImage
-															src={channel.avatar as string}
-															alt={`${channel.channelCustomUrl} profile`}
+															src={account.profile_picture_file_path}
+															alt={`${account.account_name} profile`}
 														/>
-														<AvatarFallback>{channel.channelCustomUrl[0]}</AvatarFallback>
+														<AvatarFallback>{account.account_name[0]}</AvatarFallback>
 													</Avatar>
 													<div>
-														{channel.error && <p className="text-red-500">{channel.error}</p>}
+														{account.error && <p className="text-red-500">{account.error}</p>}
 													</div>
 												</div>
 											</CardContent>

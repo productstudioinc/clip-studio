@@ -1,8 +1,9 @@
 import { db } from '@/db';
-import { youtubeChannels } from '@/db/schema';
+import { tiktokAccounts, youtubeChannels } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { Credentials } from 'google-auth-library';
 import { Logger } from 'next-axiom';
+import { fetchCreatorInfo } from '../tiktok';
 import { getYoutubeChannelInfo } from '../youtube';
 
 const logger = new Logger({
@@ -24,9 +25,13 @@ export type YoutubeChannel = {
 };
 
 export const fetchUserConnectSocialMediaAccounts = async (userId: string) => {
-	logger.info('Fetching user connected social media accounts', { userId });
+	const logger = new Logger().with({
+		userId,
+		function: 'fetchUserConnectSocialMediaAccounts'
+	});
 
 	try {
+		// Fetch YouTube channels
 		const youtubeChannelsResponse = await db
 			.select()
 			.from(youtubeChannels)
@@ -37,52 +42,94 @@ export const fetchUserConnectSocialMediaAccounts = async (userId: string) => {
 			channelCount: youtubeChannelsResponse.length
 		});
 
-		const youtubeChannelsWithSignedUrl = youtubeChannelsResponse
-			? await Promise.all(
-					youtubeChannelsResponse?.map(async (channel) => {
-						try {
-							const channelInfo = await getYoutubeChannelInfo(channel.credentials as Credentials);
-							logger.info('Fetched YouTube channel info', {
-								userId,
-								channelId: channel.id
-							});
+		// Process YouTube channels
+		const youtubeChannelsWithSignedUrl = await Promise.all(
+			youtubeChannelsResponse.map(async (channel) => {
+				try {
+					const channelInfo = await getYoutubeChannelInfo(channel.credentials as Credentials);
+					return {
+						...channel,
+						profile_picture_path: channelInfo?.thumbnail,
+						min_video_duration: 3,
+						max_video_duration: 60,
+						max_video_size: 1024 * 1024 * 1024 * 256,
+						error: channelInfo ? '' : 'Please reconnect your Youtube Channel'
+					};
+				} catch (error) {
+					logger.error('Error fetching YouTube channel info', {
+						userId,
+						channelId: channel.id,
+						error: error instanceof Error ? error.message : String(error)
+					});
+					return {
+						...channel,
+						profile_picture_path: null,
+						min_video_duration: 3,
+						max_video_duration: 60,
+						max_video_size: 1024 * 1024 * 1024 * 256,
+						error: 'Error fetching channel info'
+					};
+				}
+			})
+		);
 
-							return {
-								...channel,
-								profile_picture_path: channelInfo?.thumbnail,
-								min_video_duration: 3,
-								max_video_duration: 60,
-								max_video_size: 1024 * 1024 * 1024 * 256,
-								error: channelInfo ? '' : 'Please reconnect your Youtube Channel'
-							};
-						} catch (error) {
-							logger.error('Error fetching YouTube channel info', {
-								userId,
-								channelId: channel.id,
-								error: error instanceof Error ? error.message : String(error)
-							});
-							return {
-								...channel,
-								profile_picture_path: null,
-								min_video_duration: 3,
-								max_video_duration: 60,
-								max_video_size: 1024 * 1024 * 1024 * 256,
-								error: 'Error fetching channel info'
-							};
-						}
-					})
-				)
-			: [];
+		// Fetch TikTok accounts
+		const tiktokAccountsResponse = await db
+			.select()
+			.from(tiktokAccounts)
+			.where(eq(tiktokAccounts.userId, userId));
 
-		logger.info('Processed YouTube channels', {
+		logger.info('Fetched TikTok accounts', {
 			userId,
-			processedChannelCount: youtubeChannelsWithSignedUrl.length
+			accountCount: tiktokAccountsResponse.length
+		});
+
+		// Process TikTok accounts
+		const tiktokAccountsWithSignedUrl = await Promise.all(
+			tiktokAccountsResponse.map(async (account) => {
+				try {
+					const { data, errorMessage } = await fetchCreatorInfo(account.accessToken);
+					return {
+						...account,
+						profile_picture_file_path: data?.creator_avatar_url,
+						account_name:
+							data?.creator_nickname ??
+							'error fetching account — refresh or reconnect your account',
+						min_video_duration: 3,
+						max_video_duration: data?.max_video_post_duration_sec ?? 0,
+						max_video_size: 1024 * 1024 * 1024 * 4,
+						error: errorMessage
+					};
+				} catch (error) {
+					logger.error('Error fetching TikTok account info', {
+						userId,
+						accountId: account.id,
+						error: error instanceof Error ? error.message : String(error)
+					});
+					return {
+						...account,
+						profile_picture_file_path: null,
+						account_name: 'error fetching account — refresh or reconnect your account',
+						min_video_duration: 3,
+						max_video_duration: 0,
+						max_video_size: 1024 * 1024 * 1024 * 4,
+						error: 'Error fetching account info'
+					};
+				}
+			})
+		);
+
+		logger.info('Processed social media accounts', {
+			userId,
+			processedYouTubeChannelCount: youtubeChannelsWithSignedUrl.length,
+			processedTikTokAccountCount: tiktokAccountsWithSignedUrl.length
 		});
 
 		await logger.flush();
 
 		return {
-			youtubeChannels: youtubeChannelsWithSignedUrl
+			youtubeChannels: youtubeChannelsWithSignedUrl,
+			tiktokAccounts: tiktokAccountsWithSignedUrl
 		};
 	} catch (error) {
 		logger.error('Error fetching user connected social media accounts', {

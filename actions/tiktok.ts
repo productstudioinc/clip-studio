@@ -30,7 +30,7 @@ export const connectTiktokAccount = async () => {
 		client_key: process.env.TIKTOK_CLIENT_KEY,
 		scope: scope,
 		response_type: 'code',
-    redirect_uri: process.env.TIKTOK_REDIRECT_URI,
+		redirect_uri: process.env.TIKTOK_REDIRECT_URI,
 		state: state,
 		code_challenge: code_challenge,
 		code_challenge_method: 'S256'
@@ -226,4 +226,77 @@ const refreshTikTokAccessToken = async ({
 	}
 
 	await logger.flush();
+};
+
+type TikTokCreatorInfoErrorCode =
+	| 'ok'
+	| 'spam_risk_too_many_posts'
+	| 'spam_risk_user_banned_from_posting'
+	| 'reached_active_user_cap'
+	| 'unaudited_client_can_only_post_to_private_accounts'
+	| 'access_token_invalid'
+	| 'scope_not_authorized'
+	| 'rate_limit_exceeded'
+	| 'internal_error';
+
+type TikTokCreatorInfoResponse = {
+	data: {
+		creator_avatar_url: string;
+		creator_username: string;
+		creator_nickname: string;
+		privacy_level_options: string[];
+		comment_disabled: boolean;
+		duet_disabled: boolean;
+		stitch_disabled: boolean;
+		max_video_post_duration_sec: number;
+	};
+	error: {
+		code: TikTokCreatorInfoErrorCode;
+		message: string;
+		logid: string;
+	};
+};
+
+export const fetchCreatorInfo = async (accessToken: string) => {
+	const logger = new Logger().with({
+		function: 'fetchCreatorInfo',
+		accessToken
+	});
+	const response = await fetch('https://open.tiktokapis.com/v2/post/publish/creator_info/query/', {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${accessToken}`,
+			'Content-Type': 'application/json; charset=UTF-8'
+		}
+	});
+	const { data, error } = (await response.json()) as TikTokCreatorInfoResponse;
+	if (error.code !== 'ok') {
+		logger.error(errorString, error);
+		await logger.flush();
+	}
+
+	return { data, errorMessage: generateErrorMessage(error.code) };
+};
+
+const generateErrorMessage = (error: TikTokCreatorInfoErrorCode) => {
+	switch (error) {
+		case 'ok':
+			return;
+		case 'spam_risk_too_many_posts':
+			return "You've posted too many times recently — please try again later";
+		case 'spam_risk_user_banned_from_posting':
+			return "You've been banned from posting — please contact TikTok support if you believe this is an error";
+		case 'reached_active_user_cap':
+			return "You've reached the maximum number of active posts — please try again later";
+		case 'unaudited_client_can_only_post_to_private_accounts':
+			return 'You can only post to private accounts — please try again later';
+		case 'access_token_invalid':
+			return 'Your access token is invalid — please reconnect your account and try again';
+		case 'scope_not_authorized':
+			return 'Your scope is not authorized — please reconnect your account and try again';
+		case 'rate_limit_exceeded':
+			return "You've posted too many times recently — please try again later";
+		case 'internal_error':
+			return 'It seems like TikTok is having some issues — please try again later';
+	}
 };
