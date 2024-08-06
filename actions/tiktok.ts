@@ -23,7 +23,7 @@ export const connectTiktokAccount = async () => {
 	}
 
 	const state = Buffer.from(JSON.stringify({ userId: user.id })).toString('base64');
-	const scope = 'user.info.basic,video.list,video.upload';
+	const scope = 'user.info.profile,user.info.stats,video.publish,video.upload';
 	const code_challenge = createHash('sha256').update(generateRandomString(128)).digest('hex');
 
 	const authUrlParams = new URLSearchParams({
