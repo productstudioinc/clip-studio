@@ -234,3 +234,41 @@ const generateErrorMessage = (error: TikTokCreatorInfoErrorCode) => {
 			return 'It seems like TikTok is having some issues — please try again later';
 	}
 };
+
+export const refreshTikTokAccessTokens = async () => {
+	const logger = new Logger().with({
+		function: 'refreshTikTokAccessTokens'
+	});
+	logger.info(startingFunctionString);
+
+	try {
+		const accounts = await db.select().from(tiktokAccounts);
+
+		if (accounts.length === 0) {
+			logger.error(errorString, {
+				error: 'No data returned from tiktok accounts'
+			});
+			throw new Error('No TikTok accounts found');
+		}
+
+		for (const account of accounts) {
+			await refreshTikTokAccessToken({
+				refreshToken: account.refreshToken,
+				id: account.id
+			});
+		}
+
+		logger.info(endingFunctionString, {
+			numberOfAccounts: accounts.length
+		});
+	} catch (error) {
+		if (error instanceof Error) {
+			logger.error(errorString, {
+				error: error.message
+			});
+			throw error;
+		}
+	} finally {
+		await logger.flush();
+	}
+};
