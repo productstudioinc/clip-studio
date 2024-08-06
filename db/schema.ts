@@ -209,6 +209,61 @@ export const youtubePosts = pgTable('youtube_posts', {
 	createdAt: timestamp('created_at').notNull().defaultNow()
 });
 
+export const tiktokAccounts = pgTable('tiktok_accounts', {
+	id: text('id').primaryKey(),
+	userId: uuid('user_id')
+		.notNull()
+		.references(() => users.id),
+	accessToken: text('access_token').notNull(),
+	refreshToken: text('refresh_token').notNull(),
+	createdAt: timestamp('created_at').notNull().defaultNow(),
+	updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const tiktokPosts = pgTable('tiktok_posts', {
+	id: text('id').primaryKey(),
+	userId: uuid('user_id')
+		.notNull()
+		.references(() => users.id),
+	tiktokAccountId: text('tiktok_account_id')
+		.notNull()
+		.references(() => tiktokAccounts.id),
+	parentSocialMediaPostId: uuid('parent_social_media_post_id')
+		.notNull()
+		.references(() => socialMediaPosts.id),
+	caption: text('caption'),
+	disableComment: boolean('disable_comment').notNull(),
+	disableDuet: boolean('disable_duet').notNull(),
+	disableStitch: boolean('disable_stitch').notNull(),
+	privacyLevel: text('privacy_level').notNull(),
+	publicalyAvailablePostId: text('publicaly_available_post_id'),
+	publishId: text('publish_id').notNull(),
+	videoCoverTimestampMs: bigint('video_cover_timestamp_ms', { mode: 'number' }).notNull(),
+	createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
+export const tiktokAccountsRelations = relations(tiktokAccounts, ({ one }) => ({
+	user: one(users, {
+		fields: [tiktokAccounts.userId],
+		references: [users.id]
+	})
+}));
+
+export const tiktokPostsRelations = relations(tiktokPosts, ({ one }) => ({
+	user: one(users, {
+		fields: [tiktokPosts.userId],
+		references: [users.id]
+	}),
+	tiktokAccount: one(tiktokAccounts, {
+		fields: [tiktokPosts.tiktokAccountId],
+		references: [tiktokAccounts.id]
+	}),
+	socialMediaPost: one(socialMediaPosts, {
+		fields: [tiktokPosts.parentSocialMediaPostId],
+		references: [socialMediaPosts.id]
+	})
+}));
+
 // Types
 export type SelectTemplates = typeof templates.$inferSelect;
 export type SelectBackgrounds = typeof backgrounds.$inferSelect;

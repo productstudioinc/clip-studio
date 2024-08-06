@@ -1,7 +1,12 @@
 'use server';
 
 import { getUser } from '@/actions/auth/user';
+import { db } from '@/db';
+import { tiktokAccounts } from '@/db/schema';
+import { endingFunctionString, errorString, startingFunctionString } from '@/utils/logging';
 import { createHash } from 'crypto';
+import { eq } from 'drizzle-orm';
+import { Logger } from 'next-axiom';
 // import { db } from '@/db';
 // import { tiktokAccounts } from '@/db/schema';
 import { redirect } from 'next/navigation';
@@ -13,7 +18,7 @@ export const connectTiktokAccount = async () => {
 		throw new Error('User not authenticated');
 	}
 
-	if (!process.env.TIKTOK_CLIENT_KEY) {
+	if (!process.env.TIKTOK_CLIENT_KEY || !process.env.TIKTOK_REDIRECT_URI) {
 		throw new Error('TikTok credentials not configured');
 	}
 
@@ -25,7 +30,7 @@ export const connectTiktokAccount = async () => {
 		client_key: process.env.TIKTOK_CLIENT_KEY,
 		scope: scope,
 		response_type: 'code',
-		redirect_uri: 'https://clip.studio/auth/tiktok/callback',
+    redirect_uri: process.env.TIKTOK_REDIRECT_URI,
 		state: state,
 		code_challenge: code_challenge,
 		code_challenge_method: 'S256'
@@ -133,3 +138,92 @@ async function getTiktokUserInfo(
 		throw new Error('Failed to fetch TikTok user info');
 	}
 }
+
+export const refreshTikTokAccessTokens = async () => {
+	const logger = new Logger().with({
+		function: 'refreshTikTokAccessToken'
+	});
+
+	try {
+		const response = await db.select().from(tiktokAccounts);
+		logger.info(startingFunctionString);
+		for (let i = 0; i < response.length; i++) {
+			const { refreshToken, id } = response[i];
+			await refreshTikTokAccessToken({ refreshToken: refreshToken, id });
+			logger.info(endingFunctionString, {
+				numberOfAccounts: response.length
+			});
+		}
+	} catch (error) {
+		logger.error(errorString, {
+			error: error instanceof Error ? error.message : String(error)
+		});
+		await logger.flush();
+		throw error;
+	}
+};
+
+type TikTokRefreshTokenResponse = {
+	access_token?: string;
+	expires_in?: number;
+	open_id?: string;
+	refresh_expires_in?: number;
+	refresh_token?: string;
+	scope?: string;
+	token_type?: string;
+	error?: string;
+	error_description?: string;
+};
+
+const refreshTikTokAccessToken = async ({
+	refreshToken,
+	id
+}: {
+	refreshToken: string;
+	id: string;
+}) => {
+	const logger = new Logger().with({
+		function: 'refreshTikTokAccessToken',
+		refreshToken,
+		id
+	});
+	logger.info(startingFunctionString);
+
+	try {
+		const response = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			},
+			body: `client_key=${process.env.TIKTOK_CLIENT_KEY}&client_secret=${process.env.TIKTOK_CLIENT_SECRET}&grant_type=refresh_token&refresh_token=${refreshToken}`
+		});
+
+		const { error, error_description, refresh_token, access_token } =
+			(await response.json()) as TikTokRefreshTokenResponse;
+
+		if (error) {
+			logger.error(errorString, { error, error_description });
+			await logger.flush();
+			throw Error(error);
+		}
+
+		await db
+			.update(tiktokAccounts)
+			.set({
+				refreshToken: refresh_token,
+				accessToken: access_token,
+				updatedAt: new Date()
+			})
+			.where(eq(tiktokAccounts.id, id));
+
+		logger.info(endingFunctionString);
+	} catch (error) {
+		logger.error(errorString, {
+			error: error instanceof Error ? error.message : String(error)
+		});
+		await logger.flush();
+		throw error;
+	}
+
+	await logger.flush();
+};
