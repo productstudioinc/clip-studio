@@ -1,6 +1,8 @@
 'use server';
 
 import { getUser } from '@/actions/auth/user';
+import { getURL } from '@/utils/helpers/helpers';
+import { createHash } from 'crypto';
 // import { db } from '@/db';
 // import { tiktokAccounts } from '@/db/schema';
 import { redirect } from 'next/navigation';
@@ -12,46 +14,37 @@ export const connectTiktokAccount = async () => {
 		throw new Error('User not authenticated');
 	}
 
-	if (!process.env.TIKTOK_CLIENT_ID || !process.env.TIKTOK_REDIRECT_URI) {
+	if (!process.env.TIKTOK_CLIENT_KEY) {
 		throw new Error('TikTok credentials not configured');
 	}
 
 	const state = Buffer.from(JSON.stringify({ userId: user.id })).toString('base64');
 	const scope = 'user.info.basic,video.list,video.upload';
+	const code_challenge = createHash('sha256').update(generateRandomString(128)).digest('hex');
 
 	const authUrlParams = new URLSearchParams({
-		client_key: process.env.TIKTOK_CLIENT_ID,
+		client_key: process.env.TIKTOK_CLIENT_KEY,
 		scope: scope,
 		response_type: 'code',
-		redirect_uri: process.env.TIKTOK_REDIRECT_URI,
-		state: state
+		redirect_uri: getURL('/auth/tiktok/callback'),
+		state: state,
+		code_challenge: code_challenge,
+		code_challenge_method: 'S256'
 	});
 
-	const authUrl = `https://www.tiktok.com/auth/authorize/?${authUrlParams.toString()}`;
+	const authUrl = `https://www.tiktok.com/v2/auth/authorize/?${authUrlParams.toString()}`;
 
 	redirect(authUrl);
 };
 
-export const handleTiktokCallback = async (code: string, state: string) => {
-	const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
-
-	// Exchange code for access token (implement API call to TikTok)
-	const accessToken = await exchangeCodeForToken(code);
-
-	// Get user info from TikTok API
-	const tiktokUserInfo = await getTiktokUserInfo(accessToken);
-
-	// Save TikTok account info to database
-	// await db.insert(tiktokAccounts).values({
-	// 	userId,
-	// 	tiktokUserId: tiktokUserInfo.open_id,
-	// 	accessToken,
-	// 	username: tiktokUserInfo.username
-	// 	// Add other relevant fields
-	// });
-
-	// Redirect to account page or show success message
-	redirect('/account');
+const generateRandomString = (length: number) => {
+	var result = '';
+	var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+	var charactersLength = characters.length;
+	for (var i = 0; i < length; i++) {
+		result += characters.charAt(Math.floor(Math.random() * charactersLength));
+	}
+	return result;
 };
 
 async function exchangeCodeForToken(code: string): Promise<string> {
