@@ -6,7 +6,7 @@
 			"schedule": "0 17 * * *"
 		},
 		{
-			"path": "/api/cron/refresh-youtube-tokens",
+			"path": "/api/cron/refresh-tiktok-tokens",
 			"schedule": "0 17 * * *"
 		}
 	]
