@@ -1,13 +1,24 @@
-'use server';
-
 import { db } from '@/db';
 import { templates } from '@/db/schema';
+import { Logger } from 'next-axiom';
 import { unstable_cache } from 'next/cache';
+
+const logger = new Logger({
+	source: 'actions/db/page-data'
+});
 
 const getCachedTemplates = unstable_cache(
 	async () => {
-		const response = await db.select().from(templates);
-		return response;
+		try {
+			const response = await db.select().from(templates);
+			return response;
+		} catch (error) {
+			logger.error('Error fetching templates', {
+				error: error instanceof Error ? error.message : String(error)
+			});
+			await logger.flush();
+			throw error;
+		}
 	},
 	['templates'],
 	{ revalidate: 86400 }
@@ -15,12 +26,20 @@ const getCachedTemplates = unstable_cache(
 
 const getCachedBackgrounds = unstable_cache(
 	async () => {
-		const result = await db.query.backgrounds.findMany({
-			with: {
-				backgroundParts: true
-			}
-		});
-		return result;
+		try {
+			const result = await db.query.backgrounds.findMany({
+				with: {
+					backgroundParts: true
+				}
+			});
+			return result;
+		} catch (error) {
+			logger.error('Error fetching backgrounds', {
+				error: error instanceof Error ? error.message : String(error)
+			});
+			await logger.flush();
+			throw error;
+		}
 	},
 	['backgrounds'],
 	{ revalidate: 86400 }

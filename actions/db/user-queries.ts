@@ -1,5 +1,3 @@
-'use server';
-
 import { getUser } from '@/actions/auth/user';
 import { db } from '@/db';
 import {
@@ -11,42 +9,60 @@ import {
 	userUsage
 } from '@/db/schema';
 import { and, eq } from 'drizzle-orm';
+import { Logger } from 'next-axiom';
 import { unstable_cache } from 'next/cache';
 import { z } from 'zod';
 import { createServerAction, ZSAError } from 'zsa';
 
+const logger = new Logger({
+	source: 'actions/db/user-queries'
+});
+
 export const getProducts = unstable_cache(async () => {
-	const result = await db.query.products.findMany({
-		where: (products, { eq }) => eq(products.active, true),
-		columns: {
-			id: true,
-			name: true,
-			description: true,
-			metadata: true
-		},
-		with: {
-			prices: {
-				where: (prices, { eq }) => eq(prices.active, true),
-				columns: {
-					id: true,
-					productId: true,
-					unitAmount: true,
-					currency: true,
-					interval: true
+	logger.info('Fetching products');
+	try {
+		const result = await db.query.products.findMany({
+			where: (products, { eq }) => eq(products.active, true),
+			columns: {
+				id: true,
+				name: true,
+				description: true,
+				metadata: true
+			},
+			with: {
+				prices: {
+					where: (prices, { eq }) => eq(prices.active, true),
+					columns: {
+						id: true,
+						productId: true,
+						unitAmount: true,
+						currency: true,
+						interval: true
+					}
 				}
 			}
-		}
-	});
-
-	return result;
+		});
+		logger.info('Products fetched successfully', { count: result.length });
+		await logger.flush();
+		return result;
+	} catch (error) {
+		logger.error('Error fetching products', {
+			error: error instanceof Error ? error.message : String(error)
+		});
+		await logger.flush();
+		throw error;
+	}
 }, ['products']);
 
 export const getUserUsage = async () => {
 	const { user } = await getUser();
 	if (!user) {
+		logger.warn('Attempted to get user usage for unauthenticated user');
+		await logger.flush();
 		return null;
 	}
 
+	logger.info('Fetching user usage', { userId: user.id });
 	try {
 		const result = await db
 			.select({
@@ -72,14 +88,21 @@ export const getUserUsage = async () => {
 			.limit(1);
 
 		if (result.length === 0) {
+			logger.warn('No active subscription found for user', { userId: user.id });
+			await logger.flush();
 			return null;
 		}
 
+		logger.info('User usage fetched successfully', { userId: user.id });
+		await logger.flush();
 		return result[0];
 	} catch (error) {
-		if (error instanceof Error) {
-			throw new Error(error.message);
-		}
+		logger.error('Error fetching user usage', {
+			userId: user.id,
+			error: error instanceof Error ? error.message : String(error)
+		});
+		await logger.flush();
+		throw error;
 	}
 };
 
@@ -92,8 +115,11 @@ export const createSocialMediaPost = createServerAction()
 	.handler(async () => {
 		const { user } = await getUser();
 		if (!user) {
+			logger.warn('Attempted to create social media post for unauthenticated user');
+			await logger.flush();
 			throw new ZSAError('NOT_AUTHORIZED', 'You are not authorized to perform this action.');
 		}
+		logger.info('Creating social media post', { userId: user.id });
 		try {
 			const result = await db
 				.insert(socialMediaPosts)
@@ -103,10 +129,18 @@ export const createSocialMediaPost = createServerAction()
 				.returning({
 					insertedId: socialMediaPosts.id
 				});
+			logger.info('Social media post created successfully', {
+				userId: user.id,
+				postId: result[0].insertedId
+			});
+			await logger.flush();
 			return result[0].insertedId;
 		} catch (error) {
-			if (error instanceof Error || error instanceof Error) {
-				throw new ZSAError('INTERNAL_SERVER_ERROR', error.message);
-			}
+			logger.error('Error creating social media post', {
+				userId: user.id,
+				error: error instanceof Error ? error.message : String(error)
+			});
+			await logger.flush();
+			throw new ZSAError('INTERNAL_SERVER_ERROR', 'Failed to create social media post');
 		}
 	});

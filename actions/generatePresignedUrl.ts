@@ -1,11 +1,16 @@
 'use server';
 
+import { getUser } from '@/actions/auth/user';
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { Logger } from 'next-axiom';
 import { z } from 'zod';
 import { createServerAction, ZSAError } from 'zsa';
 import { R2 } from '../utils/r2';
-import { getUser } from './auth/user';
+
+const logger = new Logger({
+	source: 'actions/generatePresignedUrl'
+});
 
 export const generatePresignedUrl = createServerAction()
 	.input(
@@ -16,16 +21,18 @@ export const generatePresignedUrl = createServerAction()
 	)
 	.handler(async ({ input }) => {
 		const { user } = await getUser();
-		if (
-			!user ||
-			!['rkwarya@gmail.com', 'useclipstudio@gmail.com', 'hello@dillion.io'].includes(
-				user.email as string
-			)
-		) {
+		if (!user) {
+			logger.error('User not authenticated');
+			await logger.flush();
 			throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.');
 		}
 
 		if (input.contentLength > 1024 * 1024 * 200) {
+			logger.error('Payload too large', {
+				email: user.email,
+				contentLength: input.contentLength
+			});
+			await logger.flush();
 			throw new ZSAError(
 				'PAYLOAD_TOO_LARGE',
 				`File may not be over 200MB. Yours is ${input.contentLength} bytes.`
@@ -33,25 +40,38 @@ export const generatePresignedUrl = createServerAction()
 		}
 
 		const key = crypto.randomUUID();
-		const putCommand = new PutObjectCommand({
-			Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-			Key: key,
-			ContentLength: input.contentLength,
-			ContentType: input.contentType
-		});
 
-		const presignedPutUrl = await getSignedUrl(R2, putCommand, {
-			expiresIn: 1800
-		});
+		try {
+			const putCommand = new PutObjectCommand({
+				Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+				Key: key,
+				ContentLength: input.contentLength,
+				ContentType: input.contentType
+			});
 
-		const getCommand = new GetObjectCommand({
-			Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-			Key: key
-		});
+			const presignedPutUrl = await getSignedUrl(R2, putCommand, {
+				expiresIn: 1800
+			});
 
-		const presignedGetUrl = await getSignedUrl(R2, getCommand, {
-			expiresIn: 1800
-		});
+			const getCommand = new GetObjectCommand({
+				Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+				Key: key
+			});
 
-		return { presignedUrl: presignedPutUrl, readUrl: presignedGetUrl };
+			const presignedGetUrl = await getSignedUrl(R2, getCommand, {
+				expiresIn: 1800
+			});
+
+			return { presignedUrl: presignedPutUrl, readUrl: presignedGetUrl };
+		} catch (error) {
+			logger.error('Error generating presigned URL', {
+				email: user.email,
+				error: error instanceof Error ? error.message : String(error)
+			});
+			await logger.flush();
+			throw new ZSAError(
+				'INTERNAL_SERVER_ERROR',
+				'An error occurred while generating the presigned URL.'
+			);
+		}
 	});

@@ -1,21 +1,32 @@
 import { createClient } from '@/supabase/server';
+import { AxiomRequest, withAxiom } from 'next-axiom';
 import { NextResponse } from 'next/server';
-// The client you created from the Server-Side Auth instructions
 
-export async function GET(request: Request) {
+export const GET = withAxiom(async (request: AxiomRequest) => {
+	const logger = request.log.with({
+		path: '/auth/callback',
+		method: 'GET'
+	});
+
 	const { searchParams, origin } = new URL(request.url);
 	const code = searchParams.get('code');
-	// if "next" is in param, use it as the redirect URL
 	const next = searchParams.get('next') ?? '/';
+
+	logger.info('Auth callback initiated', { next });
 
 	if (code) {
 		const supabase = createClient();
 		const { error } = await supabase.auth.exchangeCodeForSession(code);
 		if (!error) {
+			logger.info('Successfully exchanged code for session');
 			return NextResponse.redirect(`${origin}${next}`);
+		} else {
+			logger.error('Failed to exchange code for session', { error: error.message });
 		}
+	} else {
+		logger.warn('No code provided in auth callback');
 	}
 
-	// return the user to an error page with instructions
+	logger.info('Redirecting to auth error page');
 	return NextResponse.redirect(`${origin}/auth/auth-code-error`);
-}
+});

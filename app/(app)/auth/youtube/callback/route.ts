@@ -4,32 +4,51 @@ import { userUsage, youtubeChannels } from '@/db/schema';
 import { createClient } from '@/supabase/server';
 import youtubeAuthClient from '@/utils/youtube';
 import { and, eq, sql } from 'drizzle-orm';
+import { AxiomRequest, withAxiom } from 'next-axiom';
 import { revalidatePath } from 'next/cache';
 import { NextResponse } from 'next/server';
 
-export const GET = async (request: Request) => {
+export const GET = withAxiom(async (request: AxiomRequest) => {
+	const logger = request.log.with({
+		path: '/auth/youtube/callback',
+		method: 'GET'
+	});
+
 	const requestUrl = new URL(request.url);
 	const error = requestUrl.searchParams.get('error');
 	const code = requestUrl.searchParams.get('code');
 	const origin = requestUrl.origin;
 
+	logger.info('YouTube auth callback initiated', { error: !!error, code: !!code });
+
 	try {
 		if (error) {
+			logger.warn('Error in YouTube auth callback', { error });
 			return NextResponse.redirect(`${origin}/account?error=${error}`);
 		} else if (code) {
 			const { tokens } = await youtubeAuthClient.getToken(code);
+			logger.info('Obtained tokens from YouTube');
+
 			const channelInfo = await getYoutubeChannelInfo(tokens);
 			if (!channelInfo) {
+				logger.error('Failed to get YouTube channel info');
 				return NextResponse.redirect(
 					`${origin}/account?error=We could not connect your Youtube channel. Please try again.`
 				);
 			}
+
 			const { customUrl, accessToken, channelId } = channelInfo;
 			const supabase = createClient();
 			const currentUser = await supabase.auth.getUser();
 			const userId = currentUser.data.user?.id;
+
 			if (!customUrl || !accessToken || !channelId || !userId) {
-				console.log('Essential channel details are missing or incomplete.');
+				logger.error('Missing essential channel details', {
+					customUrl,
+					accessToken,
+					channelId,
+					userId
+				});
 				return NextResponse.redirect(
 					`${origin}/account?error=Sorry, something unexpected happened. Our team is looking into it.`
 				);
@@ -41,7 +60,10 @@ export const GET = async (request: Request) => {
 					.select({ connectedAccountsLeft: userUsage.connectedAccountsLeft })
 					.from(userUsage)
 					.where(eq(userUsage.userId, userId));
-				console.log(remainingAccounts[0].connectedAccountsLeft);
+				logger.info('Checking remaining connected accounts', {
+					remaining: remainingAccounts[0].connectedAccountsLeft
+				});
+
 				if (remainingAccounts[0].connectedAccountsLeft < 1) {
 					canConnect = false;
 					return;
@@ -56,6 +78,7 @@ export const GET = async (request: Request) => {
 			});
 
 			if (!canConnect) {
+				logger.warn('User reached limit of connected accounts', { userId });
 				return NextResponse.redirect(
 					`${origin}/account?error=You have reached your limit of connected accounts.`
 				);
@@ -66,8 +89,10 @@ export const GET = async (request: Request) => {
 				userId
 			});
 			if (isAlreadySaved) {
+				logger.info('YouTube channel already saved', { channelId, userId });
 				return NextResponse.redirect(`${origin}/account`);
 			}
+
 			try {
 				await db.insert(youtubeChannels).values({
 					credentials: { ...tokens },
@@ -75,20 +100,29 @@ export const GET = async (request: Request) => {
 					id: channelId,
 					userId: userId
 				});
+				logger.info('Successfully saved YouTube channel', { channelId, userId });
 			} catch (err) {
+				logger.error('Error saving YouTube channel', {
+					error: err instanceof Error ? err.message : String(err)
+				});
 				return NextResponse.redirect(
 					`${origin}/account?error=${err instanceof Error ? err.message : String(err)}`
 				);
 			}
 		}
 	} catch (error: any) {
+		logger.error('Unexpected error in YouTube auth callback', {
+			error: error instanceof Error ? error.message : String(error)
+		});
 		return NextResponse.redirect(
 			`${origin}/account?error=${error instanceof Error ? error.message : String(error)}`
 		);
 	}
+
 	revalidatePath('/account');
+	logger.info('YouTube auth callback completed successfully');
 	return NextResponse.redirect(`${origin}/account`);
-};
+});
 
 const checkIfYoutubeChannelIsAlreadySaved = async ({
 	channelId,

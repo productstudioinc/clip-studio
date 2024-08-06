@@ -13,21 +13,33 @@ import { createServerAction, ZSAError } from 'zsa';
 import { R2 } from '../utils/r2';
 import { getUser } from './auth/user';
 
+const logger = new Logger({
+	source: 'actions/elevenlabs'
+});
+
 const elevenLabsClient = new ElevenLabsClient({
 	apiKey: process.env.ELEVEN_LABS_API_KEY!
 });
 
 export const getVoices = async () => {
-	const voices = await elevenLabsClient.voices.getAll();
-	const filteredVoices = voices.voices.slice(0, 10).map((voice) => ({
-		voice_id: voice.voice_id,
-		name: voice.name,
-		description: voice.description,
-		samples: voice.samples,
-		labels: voice.labels,
-		preview_url: voice.preview_url
-	}));
-	return filteredVoices;
+	try {
+		const voices = await elevenLabsClient.voices.getAll();
+		const filteredVoices = voices.voices.slice(0, 10).map((voice) => ({
+			voice_id: voice.voice_id,
+			name: voice.name,
+			description: voice.description,
+			samples: voice.samples,
+			labels: voice.labels,
+			preview_url: voice.preview_url
+		}));
+		return filteredVoices;
+	} catch (error) {
+		logger.error('Error fetching voices from ElevenLabs', {
+			error: error instanceof Error ? error.message : String(error)
+		});
+		await logger.flush();
+		throw error;
+	}
 };
 
 export const generateAudioAndTimestamps = createServerAction()
@@ -48,6 +60,7 @@ export const generateAudioAndTimestamps = createServerAction()
 		const { user } = await getUser();
 		if (!user) {
 			logger.error(errorString, { error: 'User not authorized' });
+			await logger.flush();
 			throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.');
 		}
 
@@ -62,6 +75,7 @@ export const generateAudioAndTimestamps = createServerAction()
 
 			if (userUsageRecord[0].voiceoverCharactersLeft < characterCount) {
 				logger.error(errorString, { error: 'Insufficient voiceover characters' });
+				await logger.flush();
 				throw new ZSAError(
 					'INSUFFICIENT_CREDITS',
 					`You don't have enough characters left to generate this voiceover.`
@@ -119,6 +133,7 @@ export const generateAudioAndTimestamps = createServerAction()
 					: 0;
 
 			logger.info(endingFunctionString);
+			await logger.flush();
 			return {
 				signedUrl,
 				endTimestamp: audio.normalized_alignment.character_end_times_seconds.slice(-1)[0],
@@ -135,6 +150,7 @@ export const generateAudioAndTimestamps = createServerAction()
 				.where(eq(userUsage.userId, user.id));
 
 			logger.error(errorString, { error });
+			await logger.flush();
 			throw new ZSAError(
 				'INTERNAL_SERVER_ERROR',
 				'An error occurred while generating the voiceover.'

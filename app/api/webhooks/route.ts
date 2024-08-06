@@ -56,20 +56,32 @@ export const POST = withAxiom(async (req: AxiomRequest) => {
 				case 'product.created':
 				case 'product.updated':
 					await upsertProductRecord(event.data.object as Stripe.Product);
-					logger.info(`Product upserted`, { eventType: event.type });
+					logger.info(`Product upserted`, {
+						eventType: event.type,
+						productId: (event.data.object as Stripe.Product).id
+					});
 					break;
 				case 'price.created':
 				case 'price.updated':
 					await upsertPriceRecord(event.data.object as Stripe.Price);
-					logger.info(`Price upserted`, { eventType: event.type });
+					logger.info(`Price upserted`, {
+						eventType: event.type,
+						priceId: (event.data.object as Stripe.Price).id
+					});
 					break;
 				case 'price.deleted':
 					await deletePriceRecord(event.data.object as Stripe.Price);
-					logger.info(`Price deleted`, { eventType: event.type });
+					logger.info(`Price deleted`, {
+						eventType: event.type,
+						priceId: (event.data.object as Stripe.Price).id
+					});
 					break;
 				case 'product.deleted':
 					await deleteProductRecord(event.data.object as Stripe.Product);
-					logger.info(`Product deleted`, { eventType: event.type });
+					logger.info(`Product deleted`, {
+						eventType: event.type,
+						productId: (event.data.object as Stripe.Product).id
+					});
 					break;
 				case 'customer.subscription.created':
 				case 'customer.subscription.updated':
@@ -83,7 +95,9 @@ export const POST = withAxiom(async (req: AxiomRequest) => {
 					await updateUserUsageLimits(subscription);
 					logger.info(`Subscription status changed`, {
 						eventType: event.type,
-						subscriptionId: subscription.id
+						subscriptionId: subscription.id,
+						customerId: subscription.customer as string,
+						status: subscription.status
 					});
 					break;
 				case 'checkout.session.completed':
@@ -95,7 +109,10 @@ export const POST = withAxiom(async (req: AxiomRequest) => {
 							checkoutSession.customer as string,
 							true
 						);
-						logger.info(`Checkout session completed`, { subscriptionId });
+						logger.info(`Checkout session completed`, {
+							subscriptionId,
+							customerId: checkoutSession.customer as string
+						});
 					}
 					break;
 				default:
@@ -104,7 +121,8 @@ export const POST = withAxiom(async (req: AxiomRequest) => {
 			}
 		} catch (error) {
 			logger.error(`Webhook handler failed`, {
-				error: error instanceof Error ? error.message : String(error)
+				error: error instanceof Error ? error.message : String(error),
+				eventType: event.type
 			});
 			await logger.flush();
 			return new Response('Webhook handler failed. View your Next.js function logs.', {
@@ -119,7 +137,7 @@ export const POST = withAxiom(async (req: AxiomRequest) => {
 		});
 	}
 
-	logger.info('Webhook processed successfully');
+	logger.info('Webhook processed successfully', { eventType: event.type });
 	await logger.flush();
 	return new Response(JSON.stringify({ received: true }));
 });
