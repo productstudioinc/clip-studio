@@ -103,15 +103,27 @@ const RedditControls: React.FC = ({}) => {
 		redditState: state.redditState,
 		setRedditState: state.setRedditState
 	}));
+	const handleRedditChange = (value: string) => {
+		setRedditState({
+			...redditState,
+			title: value
+		});
+	};
+	const handleRedditTextChange = (value: string) => {
+		setRedditState({
+			...redditState,
+			text: value
+		});
+	};
 	return (
 		<>
 			<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
 				<Label htmlFor="redditTitle">Title</Label>
-				<Textarea id="redditTitle" />
+				<Textarea id="redditTitle" onChange={(e) => handleRedditChange(e.target.value)} />
 			</div>
 			<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
 				<Label htmlFor="redditText">Text</Label>
-				<Textarea id="redditText" />
+				<Textarea id="redditText" onChange={(e) => handleRedditTextChange(e.target.value)} />
 			</div>
 		</>
 	);
