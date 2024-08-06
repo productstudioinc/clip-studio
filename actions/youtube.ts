@@ -2,9 +2,8 @@
 
 import { db } from '@/db';
 import { socialMediaPosts, userUsage, youtubeChannels, youtubePosts } from '@/db/schema';
-import { parseS3Url } from '@/utils/s3';
+import { R2 } from '@/utils/r2';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
-import { getAwsClient } from '@remotion/lambda/client';
 import { randomBytes } from 'crypto';
 import { and, eq, sql } from 'drizzle-orm';
 import { Credentials } from 'google-auth-library';
@@ -221,23 +220,19 @@ export const getYoutubeChannelInfo = async (token: Credentials) => {
 };
 
 const getVideoStream = async (videoUrl: string): Promise<Readable> => {
-	const { client } = getAwsClient({
-		region: 'us-east-1',
-		service: 's3'
-	});
-	const { bucketName, key } = parseS3Url(videoUrl);
-	console.log('bucketName', bucketName);
-	console.log('key', key);
+	const urlParts = videoUrl.split('/');
+	const filename = urlParts[urlParts.length - 1];
+	const key = `renders/${filename}`;
+
 	const getObjectCommand = new GetObjectCommand({
-		Bucket: bucketName,
+		Bucket: 'videogen-renders',
 		Key: key
 	});
-	const data = await client.send(getObjectCommand);
 
+	const data = await R2.send(getObjectCommand);
 	if (!data.Body) {
-		throw new Error('Failed to get video stream from S3');
+		throw new Error('Failed to get video stream from R2');
 	}
-
 	return data.Body as Readable;
 };
 

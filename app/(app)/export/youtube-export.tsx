@@ -56,14 +56,13 @@ export function YoutubeExportDialog({
 	};
 
 	const uploadPost = async (socialMediaPostId: string) => {
-		if (selectedChannel) {
+		if (selectedChannel && state.status === 'done') {
 			console.log('uploading to youtube');
 			const [data, err] = await postVideoToYoutube({
 				title: title,
 				youtubeChannelId: selectedChannel.id,
 				parentSocialMediaPostId: socialMediaPostId,
-				videoUrl:
-					'https://s3.us-east-1.amazonaws.com/remotionlambda-useast1-0yusc48yt2/renders/xlzbkuf3vp/out.mp4',
+				videoUrl: state.url,
 				isPrivate
 			});
 			if (err) {
