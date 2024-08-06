@@ -1,7 +1,6 @@
 'use server';
 
 import { getUser } from '@/actions/auth/user';
-import { getURL } from '@/utils/helpers/helpers';
 import { createHash } from 'crypto';
 // import { db } from '@/db';
 // import { tiktokAccounts } from '@/db/schema';
@@ -14,7 +13,7 @@ export const connectTiktokAccount = async () => {
 		throw new Error('User not authenticated');
 	}
 
-	if (!process.env.TIKTOK_CLIENT_KEY) {
+	if (!process.env.TIKTOK_CLIENT_KEY || !process.env.TIKTOK_REDIRECT_URI) {
 		throw new Error('TikTok credentials not configured');
 	}
 
@@ -26,7 +25,7 @@ export const connectTiktokAccount = async () => {
 		client_key: process.env.TIKTOK_CLIENT_KEY,
 		scope: scope,
 		response_type: 'code',
-		redirect_uri: getURL('/auth/tiktok/callback'),
+		redirect_uri: process.env.TIKTOK_REDIRECT_URI,
 		state: state,
 		code_challenge: code_challenge,
 		code_challenge_method: 'S256'
