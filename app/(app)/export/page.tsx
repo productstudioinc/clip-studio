@@ -8,6 +8,6 @@ export default async function ExportPage() {
 	if (!user) {
 		redirect('/login');
 	}
-	const { youtubeChannels } = await fetchUserConnectSocialMediaAccounts(user.id);
-	return <RenderControls youtubeChannels={youtubeChannels} />;
+	const { youtubeChannels, tiktokAccounts } = await fetchUserConnectSocialMediaAccounts(user.id);
+	return <RenderControls youtubeChannels={youtubeChannels} tiktokAccounts={tiktokAccounts} />;
 }

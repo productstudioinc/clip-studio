@@ -116,7 +116,7 @@ export default async function Account() {
 												<div className="flex items-center space-x-4 justify-center">
 													<Avatar className="size-20">
 														<AvatarImage
-															src={account.profile_picture_file_path as string}
+															src={account.profile_picture_path as string}
 															alt={`${account.account_name} profile`}
 														/>
 														<AvatarFallback>{account.account_name[0]}</AvatarFallback>

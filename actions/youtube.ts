@@ -5,7 +5,7 @@ import { socialMediaPosts, userUsage, youtubeChannels, youtubePosts } from '@/db
 import { R2 } from '@/utils/r2';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { randomBytes } from 'crypto';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { Credentials } from 'google-auth-library';
 import { google } from 'googleapis';
 import { Logger } from 'next-axiom';
@@ -305,7 +305,20 @@ export const deleteYoutubeChannel = createServerAction()
 					);
 
 				// Delete social media posts
-				await tx.delete(socialMediaPosts).where(eq(socialMediaPosts.userId, user.id));
+				await tx
+					.delete(socialMediaPosts)
+					.where(
+						and(
+							eq(socialMediaPosts.userId, user.id),
+							inArray(
+								socialMediaPosts.id,
+								db
+									.select({ id: youtubePosts.parentSocialMediaPostId })
+									.from(youtubePosts)
+									.where(eq(youtubePosts.youtubeChannelId, input.channelId))
+							)
+						)
+					);
 
 				// Delete the YouTube channel
 				await tx

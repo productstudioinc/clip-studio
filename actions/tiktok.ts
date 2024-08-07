@@ -5,7 +5,7 @@ import { db } from '@/db';
 import { socialMediaPosts, tiktokAccounts, tiktokPosts, userUsage } from '@/db/schema';
 import { endingFunctionString, errorString, startingFunctionString } from '@/utils/logging';
 import { createHash } from 'crypto';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { Logger } from 'next-axiom';
 import { revalidatePath } from 'next/cache';
 // import { db } from '@/db';
@@ -73,7 +73,20 @@ export const deleteTiktokAccount = createServerAction()
 					.where(and(eq(tiktokPosts.userId, user.id), eq(tiktokPosts.tiktokAccountId, input.id)));
 
 				// Delete social media posts
-				await tx.delete(socialMediaPosts).where(eq(socialMediaPosts.userId, user.id));
+				await tx
+					.delete(socialMediaPosts)
+					.where(
+						and(
+							eq(socialMediaPosts.userId, user.id),
+							inArray(
+								socialMediaPosts.id,
+								db
+									.select({ id: tiktokPosts.parentSocialMediaPostId })
+									.from(tiktokPosts)
+									.where(eq(tiktokPosts.tiktokAccountId, input.id))
+							)
+						)
+					);
 
 				// Delete the TikTok account
 				await tx
