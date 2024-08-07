@@ -24,26 +24,38 @@ export type YoutubeChannel = {
 	updatedAt: Date;
 };
 
+export type TikTokAccount = {
+	profile_picture_path: string | null;
+	account_name: string;
+	min_video_duration: number;
+	max_video_duration: number;
+	max_video_size: number;
+	error: string;
+	id: string;
+	userId: string;
+	createdAt: Date;
+	updatedAt: Date;
+	accessToken: string;
+	refreshToken: string;
+};
+
 export const fetchUserConnectSocialMediaAccounts = async (userId: string) => {
 	const logger = new Logger().with({
 		userId,
 		function: 'fetchUserConnectSocialMediaAccounts'
 	});
-
 	try {
 		// Fetch YouTube channels
 		const youtubeChannelsResponse = await db
 			.select()
 			.from(youtubeChannels)
 			.where(eq(youtubeChannels.userId, userId));
-
 		logger.info('Fetched YouTube channels', {
 			userId,
 			channelCount: youtubeChannelsResponse.length
 		});
-
 		// Process YouTube channels
-		const youtubeChannelsWithSignedUrl = await Promise.all(
+		const youtubeChannelsWithSignedUrl: YoutubeChannel[] = await Promise.all(
 			youtubeChannelsResponse.map(async (channel) => {
 				try {
 					const channelInfo = await getYoutubeChannelInfo(channel.credentials as Credentials);
@@ -72,33 +84,28 @@ export const fetchUserConnectSocialMediaAccounts = async (userId: string) => {
 				}
 			})
 		);
-
 		// Fetch TikTok accounts
 		const tiktokAccountsResponse = await db
 			.select()
 			.from(tiktokAccounts)
 			.where(eq(tiktokAccounts.userId, userId));
-
 		logger.info('Fetched TikTok accounts', {
 			userId,
 			accountCount: tiktokAccountsResponse.length
 		});
-
 		// Process TikTok accounts
-		const tiktokAccountsWithSignedUrl = await Promise.all(
+		const tiktokAccountsWithSignedUrl: TikTokAccount[] = await Promise.all(
 			tiktokAccountsResponse.map(async (account) => {
 				try {
 					const { data, errorMessage } = await fetchCreatorInfo(account.accessToken);
 					return {
 						...account,
-						profile_picture_file_path: data?.creator_avatar_url,
-						account_name:
-							data?.creator_nickname ??
-							'error fetching account — refresh or reconnect your account',
+						profile_picture_path: data?.creator_avatar_url ?? null,
+						account_name: data?.creator_nickname ?? 'Unknown',
 						min_video_duration: 3,
 						max_video_duration: data?.max_video_post_duration_sec ?? 0,
 						max_video_size: 1024 * 1024 * 1024 * 4,
-						error: errorMessage
+						error: errorMessage || ''
 					};
 				} catch (error) {
 					logger.error('Error fetching TikTok account info', {
@@ -108,8 +115,8 @@ export const fetchUserConnectSocialMediaAccounts = async (userId: string) => {
 					});
 					return {
 						...account,
-						profile_picture_file_path: null,
-						account_name: 'error fetching account — refresh or reconnect your account',
+						profile_picture_path: null,
+						account_name: 'Unknown',
 						min_video_duration: 3,
 						max_video_duration: 0,
 						max_video_size: 1024 * 1024 * 1024 * 4,
@@ -118,15 +125,12 @@ export const fetchUserConnectSocialMediaAccounts = async (userId: string) => {
 				}
 			})
 		);
-
 		logger.info('Processed social media accounts', {
 			userId,
 			processedYouTubeChannelCount: youtubeChannelsWithSignedUrl.length,
 			processedTikTokAccountCount: tiktokAccountsWithSignedUrl.length
 		});
-
 		await logger.flush();
-
 		return {
 			youtubeChannels: youtubeChannelsWithSignedUrl,
 			tiktokAccounts: tiktokAccountsWithSignedUrl
