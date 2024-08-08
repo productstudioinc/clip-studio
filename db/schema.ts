@@ -221,7 +221,7 @@ export const tiktokAccounts = pgTable('tiktok_accounts', {
 });
 
 export const tiktokPosts = pgTable('tiktok_posts', {
-	id: text('id').primaryKey(),
+	id: text('id').primaryKey().generatedAlwaysAs('uuid_generate_v4()'),
 	userId: uuid('user_id')
 		.notNull()
 		.references(() => users.id),

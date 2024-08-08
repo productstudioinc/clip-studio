@@ -285,3 +285,288 @@ export const refreshTikTokAccessTokens = async () => {
 		await logger.flush();
 	}
 };
+
+type StatusCode = 'PROCESSING_DOWNLOAD' | 'PUBLISH_COMPLETE' | 'FAILED';
+
+type FailureReason =
+	| 'file_format_check_failed'
+	| 'duration_check_failed'
+	| 'frame_rate_check_failed'
+	| 'picture_size_check_failed'
+	| 'internal'
+	| 'video_pull_failed'
+	| 'photo_pull_failed'
+	| 'publish_cancelled';
+
+type ErrorCode =
+	| 'ok'
+	| 'invalid_publish_id'
+	| 'token_not_authorized_for_specified_publish_id'
+	| 'access_token_invalid'
+	| 'scope_not_authorized'
+	| 'rate_limit_exceeded'
+	| 'internal_error';
+
+type TikTokPublishStatusResponseType = {
+	data: {
+		status: StatusCode;
+		fail_reason?: FailureReason;
+		publicaly_available_post_id: [string];
+		uploaded_bytes: number;
+	};
+	error: {
+		code: ErrorCode;
+		message: string;
+		log_id: string;
+	};
+};
+
+export const uploadTiktokPost = createServerAction()
+	.input(
+		z.object({
+			accessToken: z.string(),
+			caption: z.string(),
+			videoUrl: z.string(),
+			parentSocialMediaPostId: z.string(),
+			tiktokAccountId: z.string(),
+			privacyLevel: z.enum([
+				'PUBLIC_TO_EVERYONE',
+				'SELF_ONLY',
+				'MUTUAL_FOLLOW_FRIENDS',
+				'FOLLOWER_OF_CREATOR'
+			]),
+			videoCoverTimestampMs: z.number().default(0),
+			disableDuet: z.boolean().default(false),
+			disableStitch: z.boolean().default(false),
+			disableComments: z.boolean().default(false),
+			discloseVideoContent: z.boolean().default(false),
+			videoContentType: z.enum(['yourBrand', 'brandedContent']).optional()
+		})
+	)
+	.handler(async ({ input }) => {
+		const logger = new Logger().with({
+			function: 'uploadTiktokPost',
+			...input
+		});
+		const { user } = await getUser();
+		if (!user) {
+			throw new ZSAError('NOT_AUTHORIZED', 'You are not authorized to perform this action.');
+		}
+		const body = {
+			post_info: {
+				title: input.caption,
+				privacy_level: input.privacyLevel,
+				disable_duet: input.disableDuet,
+				disable_stitch: input.disableStitch,
+				disable_comment: input.disableComments,
+				video_cover_timestamp_ms: input.videoCoverTimestampMs,
+				brand_organic_toggle: input.videoContentType === 'yourBrand' ? true : false,
+				brand_content_toggle: input.videoContentType === 'brandedContent' ? true : false
+			},
+			source_info: {
+				source: 'PULL_FROM_URL',
+				video_url: input.videoUrl
+			}
+		};
+		const response = await fetch('https://open.tiktokapis.com/v2/post/publish/video/init/', {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${input.accessToken}`,
+				'Content-Type': 'application/json; charset=UTF-8'
+			},
+			body: JSON.stringify(body)
+		});
+
+		const { data, error } = (await response.json()) as {
+			data?: {
+				publish_id: string;
+			};
+			error?: {
+				code: string;
+				message: string;
+				log_id: string;
+			};
+		};
+
+		if (!response.ok) {
+			logger.error(errorString, {
+				error: 'Failed to upload video to TikTok',
+				...error
+			});
+			throw new ZSAError('INTERNAL_SERVER_ERROR', 'Failed to upload video to TikTok');
+		}
+		if (!data) {
+			logger.error(errorString, {
+				error: 'Failed to upload video to TikTok, no data returned'
+			});
+			throw new ZSAError('INTERNAL_SERVER_ERROR', 'Failed to upload video to TikTok');
+		}
+
+		const [data2, err] = await checkTiktokPublishStatus({
+			publishId: data.publish_id,
+			accessToken: input.accessToken
+		});
+		if (err) {
+			throw err;
+		} else {
+			try {
+				await db.insert(tiktokPosts).values({
+					userId: user.id,
+					publishId: data.publish_id,
+					parentSocialMediaPostId: input.parentSocialMediaPostId,
+					caption: input.caption,
+					privacyLevel: input.privacyLevel,
+					disableComment: input.disableComments,
+					disableDuet: input.disableDuet,
+					disableStitch: input.disableStitch,
+					videoCoverTimestampMs: 0,
+					tiktokAccountId: input.tiktokAccountId
+				});
+			} catch (error) {
+				logger.error(errorString, {
+					error: error instanceof Error ? error.message : String(error)
+				});
+				throw new ZSAError('INTERNAL_SERVER_ERROR', 'Failed to save TikTok post to database');
+			}
+		}
+	});
+
+export const checkTiktokPublishStatus = createServerAction()
+	.input(
+		z.object({
+			publishId: z.string(),
+			accessToken: z.string()
+		})
+	)
+	.handler(async ({ input }) => {
+		const logger = new Logger().with({
+			function: 'checkTiktokPublishStatus',
+			...input
+		});
+
+		const { publishId, accessToken } = input;
+
+		let numberOfPolls = 0;
+		const maxNumberOfPolls = 15;
+		let statusCode: StatusCode | null = null;
+
+		const url = `https://open.tiktokapis.com/v2/post/publish/status/fetch/`;
+
+		while (numberOfPolls <= maxNumberOfPolls) {
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json; charset=UTF-8'
+				},
+				body: JSON.stringify({
+					publish_id: publishId
+				})
+			});
+
+			const { error, data }: TikTokPublishStatusResponseType = await response.json();
+
+			if (error) {
+				handleTikTokPublishError(error.code);
+			}
+
+			statusCode = data.status;
+			handleTikTokPublishStatus(statusCode, data.fail_reason);
+
+			if (statusCode === 'PUBLISH_COMPLETE') {
+				logger.info('TikTok publish completed successfully', { statusCode });
+				await logger.flush();
+				return;
+			}
+
+			logger.info('Checked TikTok publish status', { statusCode, numberOfPolls });
+			numberOfPolls++;
+
+			if (numberOfPolls <= maxNumberOfPolls) {
+				await new Promise((resolve) => setTimeout(resolve, 15000));
+			} else {
+				logger.error('Status check timed out');
+				await logger.flush();
+				throw new ZSAError('INTERNAL_SERVER_ERROR', 'Status check timed out');
+			}
+		}
+	});
+
+const handleTikTokPublishError = (error: ErrorCode) => {
+	switch (error) {
+		case 'invalid_publish_id':
+			throw new ZSAError(
+				'INTERNAL_SERVER_ERROR',
+				'Something went wrong making your post. Please try again.'
+			);
+		case 'token_not_authorized_for_specified_publish_id':
+			throw new ZSAError(
+				'NOT_AUTHORIZED',
+				"It seems like you didn't have the right permissions to post this video. Please reconnect your account and try again."
+			);
+		case 'access_token_invalid':
+			throw new ZSAError(
+				'NOT_AUTHORIZED',
+				"It seems like you didn't have the right permissions to post this video. Please reconnect your account and try again."
+			);
+		case 'scope_not_authorized':
+			throw new ZSAError(
+				'FORBIDDEN',
+				"It seems like you didn't have the right permissions to post this video. Please reconnect your account and try again."
+			);
+		case 'rate_limit_exceeded':
+			throw new ZSAError(
+				'TOO_MANY_REQUESTS',
+				"You've made too many requests to TikTok recently. Please try again in a few minutes."
+			);
+		case 'internal_error':
+			throw new ZSAError(
+				'INTERNAL_SERVER_ERROR',
+				'Something went wrong making your post. Please try again.'
+			);
+		case 'ok':
+			return;
+		default:
+			throw new ZSAError('ERROR', 'Something went wrong making your post. Please try again.');
+	}
+};
+
+const handleTikTokPublishStatus = (status: StatusCode, failReason?: FailureReason) => {
+	switch (status) {
+		case 'PUBLISH_COMPLETE':
+			return;
+		case 'FAILED':
+			switch (failReason) {
+				case 'file_format_check_failed':
+					throw new ZSAError(
+						'UNPROCESSABLE_CONTENT',
+						"You've uploaded an incompatible file. Please try again with a different file."
+					);
+				case 'duration_check_failed':
+					throw new ZSAError(
+						'UNPROCESSABLE_CONTENT',
+						"You've uploaded a video that is too long. Please try again with a shorter video."
+					);
+				case 'frame_rate_check_failed':
+					throw new ZSAError('UNPROCESSABLE_CONTENT', 'Your video has an unsupported frame rate.');
+				case 'picture_size_check_failed':
+					throw new ZSAError(
+						'PAYLOAD_TOO_LARGE',
+						"You've uploaded a picture that is too large. Please try a smaller photo."
+					);
+				case 'internal':
+					throw new ZSAError(
+						'INTERNAL_SERVER_ERROR',
+						'Something went wrong making your post. Please try again.'
+					);
+				case 'video_pull_failed':
+					throw new ZSAError('ERROR', 'Something went wrong making your post. Please try again.');
+				case 'photo_pull_failed':
+					throw new ZSAError('ERROR', 'Something went wrong making your post. Please try again.');
+				case 'publish_cancelled':
+					throw new ZSAError('ERROR', 'Something went wrong making your post. Please try again.');
+			}
+		case 'PROCESSING_DOWNLOAD':
+			return;
+	}
+};

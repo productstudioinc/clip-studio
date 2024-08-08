@@ -1,14 +1,23 @@
 import { TikTokAccount } from '@/actions/db/social-media-queries';
+import { createSocialMediaPost } from '@/actions/db/user-queries';
+import { uploadTiktokPost } from '@/actions/tiktok';
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger
+} from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
-	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
 	Select,
 	SelectContent,
@@ -18,8 +27,11 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { State } from '@/utils/helpers/use-rendering';
+import { InfoIcon, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export function TikTokExportDialog({
 	tiktokAccounts,
@@ -32,108 +44,250 @@ export function TikTokExportDialog({
 }) {
 	const [selectedAccount, setSelectedAccount] = useState<TikTokAccount | null>(null);
 	const [caption, setCaption] = useState('');
-	const [visibility, setVisibility] = useState('public');
+	const [visibility, setVisibility] = useState<
+		'PUBLIC_TO_EVERYONE' | 'SELF_ONLY' | 'MUTUAL_FOLLOW_FRIENDS' | 'FOLLOWER_OF_CREATOR'
+	>('PUBLIC_TO_EVERYONE');
 	const [disableDuet, setDisableDuet] = useState(false);
 	const [disableStitch, setDisableStitch] = useState(false);
 	const [disableComments, setDisableComments] = useState(false);
 	const [discloseVideoContent, setDiscloseVideoContent] = useState(false);
+	const [videoContentType, setVideoContentType] = useState<
+		'yourBrand' | 'brandedContent' | undefined
+	>(undefined);
 	const [isUploading, setIsUploading] = useState(false);
 
 	const handleupload = async () => {
 		setIsUploading(true);
+		const [data, err] = await createSocialMediaPost();
+		if (err) {
+			toast.error(err.message);
+		}
+		if (data && selectedAccount) {
+			await uploadPost(data);
+		}
+	};
+
+	const uploadPost = async (socialMediaPostId: string) => {
+		if (selectedAccount && state.status === 'done') {
+			console.log('uploading to tiktok');
+
+			toast.promise(
+				new Promise((resolve, reject) => {
+					uploadTiktokPost({
+						accessToken: selectedAccount.accessToken,
+						caption,
+						videoUrl: state.url,
+						parentSocialMediaPostId: socialMediaPostId,
+						tiktokAccountId: selectedAccount.id,
+						privacyLevel: visibility,
+						disableComments,
+						disableDuet,
+						disableStitch,
+						discloseVideoContent,
+						videoContentType
+					}).then(([data, error]) => {
+						if (error) {
+							reject(error);
+						} else {
+							resolve(data);
+						}
+					});
+				}),
+				{
+					loading: 'Uploading video to TikTok...',
+					success: 'Video uploaded to TikTok!',
+					error: (err) => `Upload failed: ${err.message}`
+				}
+			);
+		}
+		setIsUploading(false);
 	};
 
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button variant="outline" className="w-full" disabled={!disabled}>
+				<Button variant="outline" className="w-full" disabled={disabled}>
 					<TikTokIcon className="mr-2 h-4 w-4 dark:invert" />
 					Export to TikTok
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
 					<DialogTitle>TikTok Upload</DialogTitle>
-					<DialogDescription>
-						Keep in mind the video must be under 60 seconds to be uploaded as a short
-					</DialogDescription>
 				</DialogHeader>
-				<div className="flex flex-col space-y-4">
-					<Select
-						onValueChange={(value) => {
-							const account = tiktokAccounts.find((ch) => ch.id === value);
-							setSelectedAccount(account || null);
-						}}
-					>
-						<SelectTrigger>
-							<SelectValue placeholder="Select a channel" />
-						</SelectTrigger>
-						<SelectContent>
-							{tiktokAccounts.map((account) => (
-								<SelectItem key={account.id} value={account.id}>
-									{account.account_name}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-
-					{selectedAccount && (
-						<>
-							<div>
-								<Label htmlFor="caption">Caption</Label>
-								<Textarea value={caption} onChange={(e) => setCaption(e.target.value)} />
-							</div>
-							<div>
-								<Label htmlFor="visibility">Visibility</Label>
-								<Select value={visibility} onValueChange={setVisibility}>
-									<SelectTrigger>
-										<SelectValue placeholder="Select visibility" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="public">Public</SelectItem>
-										<SelectItem value="onlyyou">Only you</SelectItem>
-										<SelectItem value="friends">Friends</SelectItem>
-										<SelectItem value="followers">Followers</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-							<div className="flex items-center justify-between">
-								<Label htmlFor="disable-duet">Disable Duet</Label>
-								<Switch id="disable-duet" checked={disableDuet} onCheckedChange={setDisableDuet} />
-							</div>
-							<div className="flex items-center justify-between">
-								<Label htmlFor="disable-stitch">Disable Stitch</Label>
-								<Switch
-									id="disable-stitch"
-									checked={disableStitch}
-									onCheckedChange={setDisableStitch}
-								/>
-							</div>
-							<div className="flex items-center justify-between">
-								<Label htmlFor="disable-comments">Disable Comments</Label>
-								<Switch
-									id="disable-comments"
-									checked={disableComments}
-									onCheckedChange={setDisableComments}
-								/>
-							</div>
-							<div className="flex items-center justify-between">
-								<Label htmlFor="disclose-video-content">Disclose Video Content</Label>
-								<Switch
-									id="disclose-video-content"
-									checked={discloseVideoContent}
-									onCheckedChange={setDiscloseVideoContent}
-								/>
-							</div>
-							<Button
-								onClick={() => handleupload()}
-								disabled={isUploading || !selectedAccount || !caption}
-							>
-								Upload
-							</Button>
-						</>
-					)}
+				<div className="grid gap-4 py-4">
+					<div className="grid grid-cols-4 items-center gap-4">
+						<Label htmlFor="account" className="text-right">
+							Account
+						</Label>
+						<Select
+							onValueChange={(value) => {
+								const account = tiktokAccounts.find((ch) => ch.id === value);
+								setSelectedAccount(account || null);
+							}}
+						>
+							<SelectTrigger className="col-span-3">
+								<SelectValue placeholder="Select a channel" />
+							</SelectTrigger>
+							<SelectContent>
+								{tiktokAccounts.map((account) => (
+									<SelectItem key={account.id} value={account.id}>
+										{account.account_name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+					<div className="grid grid-cols-4 items-center gap-4">
+						<Label htmlFor="caption" className="text-right">
+							Caption
+						</Label>
+						<Textarea
+							id="caption"
+							value={caption}
+							onChange={(e) => setCaption(e.target.value)}
+							className="col-span-3"
+						/>
+					</div>
+					<div className="grid grid-cols-4 items-center gap-4">
+						<Label htmlFor="visibility" className="text-right">
+							Visibility
+						</Label>
+						<Select
+							value={visibility}
+							onValueChange={(
+								value:
+									| 'PUBLIC_TO_EVERYONE'
+									| 'SELF_ONLY'
+									| 'MUTUAL_FOLLOW_FRIENDS'
+									| 'FOLLOWER_OF_CREATOR'
+							) => setVisibility(value)}
+						>
+							<SelectTrigger className="col-span-3">
+								<SelectValue placeholder="Select visibility" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="PUBLIC_TO_EVERYONE">Public</SelectItem>
+								<SelectItem value="SELF_ONLY">Only you</SelectItem>
+								<SelectItem value="MUTUAL_FOLLOW_FRIENDS">Friends</SelectItem>
+								<SelectItem value="FOLLOWER_OF_CREATOR">Followers</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
 				</div>
+
+				<Accordion type="single" collapsible className="w-full">
+					<AccordionItem value="additional-settings">
+						<AccordionTrigger className="pt-0">Additional Settings</AccordionTrigger>
+						<AccordionContent>
+							<div className="space-y-4">
+								<div className="flex items-center justify-between">
+									<Label htmlFor="disable-duet">Disable Duet</Label>
+									<Switch
+										id="disable-duet"
+										checked={disableDuet}
+										onCheckedChange={setDisableDuet}
+									/>
+								</div>
+								<div className="flex items-center justify-between">
+									<Label htmlFor="disable-stitch">Disable Stitch</Label>
+									<Switch
+										id="disable-stitch"
+										checked={disableStitch}
+										onCheckedChange={setDisableStitch}
+									/>
+								</div>
+								<div className="flex items-center justify-between">
+									<Label htmlFor="disable-comments">Disable Comments</Label>
+									<Switch
+										id="disable-comments"
+										checked={disableComments}
+										onCheckedChange={setDisableComments}
+									/>
+								</div>
+								<div className="flex items-center justify-between">
+									<Label htmlFor="disclose-video-content">Disclose Video Content</Label>
+									<Switch
+										id="disclose-video-content"
+										checked={discloseVideoContent}
+										onCheckedChange={setDiscloseVideoContent}
+									/>
+								</div>
+								{discloseVideoContent && (
+									<div className="space-y-4">
+										<Label>Video Content Type</Label>
+										<RadioGroup
+											value={videoContentType || ''}
+											onValueChange={(value) =>
+												setVideoContentType(value as 'yourBrand' | 'brandedContent')
+											}
+											className="space-y-2"
+										>
+											<TooltipProvider>
+												<div className="flex items-center space-x-2">
+													<RadioGroupItem value="yourBrand" id="yourBrand" />
+													<Label htmlFor="yourBrand">Your Brand</Label>
+													<Tooltip>
+														<TooltipTrigger asChild>
+															<InfoIcon className="h-4 w-4 text-gray-500" />
+														</TooltipTrigger>
+														<TooltipContent>
+															<p>
+																You are promoting yourself or your own business. This video will be
+																classified as Business Organic.
+															</p>
+														</TooltipContent>
+													</Tooltip>
+												</div>
+												<div className="flex items-center space-x-2">
+													<RadioGroupItem value="brandedContent" id="brandedContent" />
+													<Label htmlFor="brandedContent">Branded Content</Label>
+													<Tooltip>
+														<TooltipTrigger asChild>
+															<InfoIcon className="h-4 w-4 text-gray-500" />
+														</TooltipTrigger>
+														<TooltipContent>
+															<p>
+																You are promoting another brand or a third party. This video will be
+																classified as Branded Content.
+															</p>
+														</TooltipContent>
+													</Tooltip>
+												</div>
+											</TooltipProvider>
+										</RadioGroup>
+									</div>
+								)}
+							</div>
+						</AccordionContent>
+					</AccordionItem>
+				</Accordion>
+
+				<DialogFooter className="sm:justify-start">
+					<div className="text-sm text-gray-500 mb-2">
+						By posting, you agree to TikTok&apos;s{' '}
+						<a
+							href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="text-blue-500 hover:underline"
+						>
+							Music Usage Confirmation
+						</a>
+					</div>
+					<Button
+						onClick={() => handleupload()}
+						disabled={
+							isUploading ||
+							!selectedAccount ||
+							!caption ||
+							(discloseVideoContent && !videoContentType)
+						}
+					>
+						{isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+						Submit
+					</Button>
+				</DialogFooter>
 			</DialogContent>
 		</Dialog>
 	);
