@@ -34,10 +34,10 @@ const upsertProductRecord = async (product: Stripe.Product) => {
 	}
 };
 
-const upsertPriceRecord = async (price: Stripe.Price) => {
+const upsertPriceRecord = async (price: Stripe.Price, retryCount = 0, maxRetries = 3) => {
 	const priceData = {
 		id: price.id,
-		productId: typeof price.product === 'string' ? price.product : '',
+		productId: typeof price.product === 'string' ? price.product : null,
 		active: price.active,
 		currency: price.currency,
 		type: price.type,
@@ -51,10 +51,20 @@ const upsertPriceRecord = async (price: Stripe.Price) => {
 			target: prices.id,
 			set: priceData
 		});
+		console.log(`Price inserted/updated: ${price.id}`);
 	} catch (error) {
 		if (error instanceof Error) {
-			throw new Error(error.message);
+			if (error.message.includes('foreign key constraint') && retryCount < maxRetries) {
+				console.log(`Retry attempt ${retryCount + 1} for price ID: ${price.id}`);
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+				return upsertPriceRecord(price, retryCount + 1, maxRetries);
+			} else if (retryCount >= maxRetries) {
+				throw new Error(`Price insert/update failed after ${maxRetries} retries: ${error.message}`);
+			} else {
+				throw new Error(`Price insert/update failed: ${error.message}`);
+			}
 		}
+		throw error;
 	}
 };
 
