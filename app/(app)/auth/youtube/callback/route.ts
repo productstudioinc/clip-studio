@@ -56,15 +56,22 @@ export const GET = withAxiom(async (request: AxiomRequest) => {
 
 			let canConnect = false;
 			await db.transaction(async (tx) => {
-				const remainingAccounts = await tx
+				const userUsageData = await tx
 					.select({ connectedAccountsLeft: userUsage.connectedAccountsLeft })
 					.from(userUsage)
 					.where(eq(userUsage.userId, userId));
+
+				if (userUsageData.length === 0) {
+					logger.warn('User does not have usage data', { userId });
+					canConnect = false;
+					return;
+				}
+
 				logger.info('Checking remaining connected accounts', {
-					remaining: remainingAccounts[0].connectedAccountsLeft
+					remaining: userUsageData[0].connectedAccountsLeft
 				});
 
-				if (remainingAccounts[0].connectedAccountsLeft < 1) {
+				if (userUsageData[0].connectedAccountsLeft < 1) {
 					canConnect = false;
 					return;
 				}
@@ -78,9 +85,9 @@ export const GET = withAxiom(async (request: AxiomRequest) => {
 			});
 
 			if (!canConnect) {
-				logger.warn('User reached limit of connected accounts', { userId });
+				logger.warn('User cannot connect account', { userId });
 				return NextResponse.redirect(
-					`${origin}/account?error=You have reached your limit of connected accounts.`
+					`${origin}/account?error=You must have a subscription to use this feature.`
 				);
 			}
 
