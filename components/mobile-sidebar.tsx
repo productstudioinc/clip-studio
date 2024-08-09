@@ -37,8 +37,6 @@ interface NavLinkProps extends NavItem {
 interface MobileSidebarProps {
 	user: User | null;
 	children?: ReactNode;
-	// subscription: GetUserSubscriptionResult | undefined;
-	// usage: GetUserUsageResult;
 }
 
 const NavLink: React.FC<NavLinkProps> = ({ href, icon: Icon, label, currentRoute }) => (
