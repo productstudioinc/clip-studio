@@ -39,8 +39,8 @@ export function TikTokExportDialog({
 	state
 }: {
 	tiktokAccounts: TikTokAccount[];
-	disabled: boolean;
-	state: State;
+	disabled?: boolean;
+	state?: State;
 }) {
 	const [selectedAccount, setSelectedAccount] = useState<TikTokAccount | null>(null);
 	const [caption, setCaption] = useState('');
@@ -68,7 +68,7 @@ export function TikTokExportDialog({
 	};
 
 	const uploadPost = async (socialMediaPostId: string) => {
-		if (selectedAccount && state.status === 'done') {
+		if (selectedAccount && state?.status === 'done') {
 			console.log('uploading to tiktok');
 
 			toast.promise(
@@ -76,7 +76,7 @@ export function TikTokExportDialog({
 					uploadTiktokPost({
 						accessToken: selectedAccount.accessToken,
 						caption,
-						videoUrl: state.url,
+						videoUrl: state?.url,
 						parentSocialMediaPostId: socialMediaPostId,
 						tiktokAccountId: selectedAccount.id,
 						privacyLevel: visibility,

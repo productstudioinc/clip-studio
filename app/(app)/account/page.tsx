@@ -8,7 +8,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { DeleteTikTokAccount, DeleteYoutubeAccount } from './delete-account';
 
@@ -21,122 +20,116 @@ export default async function Account() {
 
 	const { youtubeChannels, tiktokAccounts } = await fetchUserConnectSocialMediaAccounts(user.id);
 
-	const tiktokChannels = [
-		{ id: '1', channelCustomUrl: 'tiktok1', avatar: '/icon.png', error: null }
-	];
-
 	return (
-		<div className="flex min-h-screen w-full flex-col">
-			<main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
-				<div className="mx-auto grid w-full max-w-6xl gap-2">
-					<h1 className="text-3xl font-semibold">Settings</h1>
-				</div>
-				<div className="mx-auto grid w-full max-w-6xl items-start gap-6">
-					<nav className="grid gap-4 text-sm text-muted-foreground xl:hidden">
-						<h2 className="font-semibold text-primary text-xl">General</h2>
-					</nav>
-					<div className="grid xl:grid-cols-[250px_1fr] gap-6">
-						<nav className="hidden xl:grid gap-4 text-sm text-muted-foreground">
+		<main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
+			<div className="mx-auto grid w-full max-w-6xl gap-2">
+				<h1 className="text-3xl font-semibold">Settings</h1>
+			</div>
+			<div className="mx-auto grid w-full max-w-6xl items-start gap-6">
+				<nav className="grid gap-4 text-sm text-muted-foreground xl:hidden">
+					<h2 className="font-semibold text-primary text-xl">General</h2>
+				</nav>
+				<div className="grid gap-6">
+					{/* <nav className="hidden xl:grid gap-4 text-sm text-muted-foreground">
 							<Link href="#" className="font-semibold text-primary text-xl">
 								General
 							</Link>
-						</nav>
-						<div className="grid gap-6">
-							<ProfileForm user={user} />
-							<Separator />
-							<div className="overflow-x-auto">
-								<div className="flex gap-4 pb-4">
-									<Card className="border-dashed min-h-[200px] flex flex-col text-balance text-center w-[250px] flex-shrink-0">
+						</nav> */}
+					<div className="grid gap-6">
+						<ProfileForm user={user} />
+						<Separator />
+						<div className="overflow-x-auto">
+							<div className="flex gap-4 pb-4">
+								<Card className="border-dashed min-h-[200px] flex flex-col text-balance text-center w-[250px] flex-shrink-0">
+									<CardHeader>
+										<CardTitle>Connect YouTube</CardTitle>
+									</CardHeader>
+									<CardContent className="flex flex-1">
+										<form action={connectYoutubeAccount} className="w-full flex items-end">
+											<Button size="sm" className="w-full">
+												<Icons.youtube className="size-4 mr-2" />
+												Connect Youtube
+											</Button>
+										</form>
+									</CardContent>
+								</Card>
+								{youtubeChannels.map((channel) => (
+									<Card
+										key={channel.id}
+										className="justify-center min-h-[200px] text-center w-[250px] flex-shrink-0"
+									>
 										<CardHeader>
-											<CardTitle>Connect YouTube</CardTitle>
+											<CardTitle>{channel.channelCustomUrl}</CardTitle>
 										</CardHeader>
-										<CardContent className="flex flex-1">
-											<form action={connectYoutubeAccount} className="w-full flex items-end">
-												<Button size="sm" className="w-full">
-													<Icons.youtube className="size-4 mr-2" />
-													Connect Youtube
-												</Button>
-											</form>
-										</CardContent>
-									</Card>
-									{youtubeChannels.map((channel) => (
-										<Card
-											key={channel.id}
-											className="justify-center min-h-[200px] text-center w-[250px] flex-shrink-0"
-										>
-											<CardHeader>
-												<CardTitle>{channel.channelCustomUrl}</CardTitle>
-											</CardHeader>
-											<CardContent>
-												<div className="flex items-center space-x-4 justify-center">
-													<Avatar className="size-20">
-														<AvatarImage
-															src={channel.profile_picture_path as string}
-															alt={`${channel.channelCustomUrl} profile`}
-														/>
-														<AvatarFallback>{channel.channelCustomUrl[0]}</AvatarFallback>
-													</Avatar>
-													<div>
-														{channel.error && <p className="text-red-500">{channel.error}</p>}
-													</div>
+										<CardContent>
+											<div className="flex items-center space-x-4 justify-center">
+												<Avatar className="size-20">
+													<AvatarImage
+														src={channel.profile_picture_path as string}
+														alt={`${channel.channelCustomUrl} profile`}
+													/>
+													<AvatarFallback>{channel.channelCustomUrl[0]}</AvatarFallback>
+												</Avatar>
+												<div>
+													{channel.error && <p className="text-red-500">{channel.error}</p>}
 												</div>
-											</CardContent>
-											<CardFooter>
-												<DeleteYoutubeAccount channelId={channel.id} />
-											</CardFooter>
-										</Card>
-									))}
-								</div>
+											</div>
+										</CardContent>
+										<CardFooter>
+											<DeleteYoutubeAccount channelId={channel.id} />
+										</CardFooter>
+									</Card>
+								))}
 							</div>
-							<Separator />
-							<div className="overflow-x-auto">
-								<div className="flex gap-4 pb-4">
-									<Card className="border-dashed min-h-[200px] flex flex-col text-balance text-center w-[250px] flex-shrink-0">
+						</div>
+						<Separator />
+						<div className="overflow-x-auto">
+							<div className="flex gap-4 pb-4">
+								<Card className="border-dashed min-h-[200px] flex flex-col text-balance text-center w-[250px] flex-shrink-0">
+									<CardHeader>
+										<CardTitle>Connect TikTok</CardTitle>
+									</CardHeader>
+									<CardContent className="flex flex-1">
+										<form action={connectTiktokAccount} className="w-full flex items-end">
+											<Button size="sm" className="w-full">
+												<Icons.tiktok className="size-4 mr-2" />
+												Connect TikTok
+											</Button>
+										</form>
+									</CardContent>
+								</Card>
+								{tiktokAccounts.map((account) => (
+									<Card
+										key={account.id}
+										className="justify-center min-h-[200px] text-center w-[250px] flex-shrink-0"
+									>
 										<CardHeader>
-											<CardTitle>Connect TikTok</CardTitle>
+											<CardTitle>{account.account_name}</CardTitle>
 										</CardHeader>
-										<CardContent className="flex flex-1">
-											<form action={connectTiktokAccount} className="w-full flex items-end">
-												<Button size="sm" className="w-full">
-													<Icons.tiktok className="size-4 mr-2" />
-													Connect TikTok
-												</Button>
-											</form>
-										</CardContent>
-									</Card>
-									{tiktokAccounts.map((account) => (
-										<Card
-											key={account.id}
-											className="justify-center min-h-[200px] text-center w-[250px] flex-shrink-0"
-										>
-											<CardHeader>
-												<CardTitle>{account.account_name}</CardTitle>
-											</CardHeader>
-											<CardContent>
-												<div className="flex items-center space-x-4 justify-center">
-													<Avatar className="size-20">
-														<AvatarImage
-															src={account.profile_picture_path as string}
-															alt={`${account.account_name} profile`}
-														/>
-														<AvatarFallback>{account.account_name[0]}</AvatarFallback>
-													</Avatar>
-													<div>
-														{account.error && <p className="text-red-500">{account.error}</p>}
-													</div>
+										<CardContent>
+											<div className="flex items-center space-x-4 justify-center">
+												<Avatar className="size-20">
+													<AvatarImage
+														src={account.profile_picture_path as string}
+														alt={`${account.account_name} profile`}
+													/>
+													<AvatarFallback>{account.account_name[0]}</AvatarFallback>
+												</Avatar>
+												<div>
+													{account.error && <p className="text-red-500">{account.error}</p>}
 												</div>
-											</CardContent>
-											<CardFooter>
-												<DeleteTikTokAccount accountId={account.id} />
-											</CardFooter>
-										</Card>
-									))}
-								</div>
+											</div>
+										</CardContent>
+										<CardFooter>
+											<DeleteTikTokAccount accountId={account.id} />
+										</CardFooter>
+									</Card>
+								))}
 							</div>
 						</div>
 					</div>
 				</div>
-			</main>
-		</div>
+			</div>
+		</main>
 	);
 }

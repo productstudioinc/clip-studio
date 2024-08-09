@@ -64,11 +64,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) =
 	const navItems: NavItem[] = [
 		{ href: '/', icon: LayoutTemplateIcon, label: 'Templates' },
 		{ href: '/configure', icon: CogIcon, label: 'Configure' },
-		{
-			href: selectedTemplate === 'SplitScreen' ? '/caption' : '/voiceover',
-			icon: selectedTemplate === 'SplitScreen' ? CaptionsIcon : MicVocalIcon,
-			label: selectedTemplate === 'SplitScreen' ? 'Caption' : 'Voiceover'
-		},
+		{ href: '/voiceover', icon: MicVocalIcon, label: 'Voiceover' },
+		{ href: '/caption', icon: CaptionsIcon, label: 'Caption' },
+		// {
+		// 	href: selectedTemplate === 'SplitScreen' ? '/caption' : '/voiceover',
+		// 	icon: selectedTemplate === 'SplitScreen' ? CaptionsIcon : MicVocalIcon,
+		// 	label: selectedTemplate === 'SplitScreen' ? 'Caption' : 'Voiceover'
+		// },
 		{ href: '/export', icon: FileUpIcon, label: 'Export' }
 	];
 

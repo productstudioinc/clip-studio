@@ -94,38 +94,37 @@ export const SelectVoice: React.FC<{
 				{voices.map((voice) => (
 					<Card
 						key={voice.voice_id}
-						className={`flex flex-col h-full cursor-pointer transition-all ${
+						className={`flex flex-row h-full cursor-pointer transition-all ${
 							selectedVoice?.voice_id === voice.voice_id ? 'ring-2 ring-primary' : ''
 						}`}
 						onClick={() => handleSelectVoice(voice)}
 					>
-						<CardHeader className="p-4">
-							<CardTitle className="text-lg truncate">{voice.name || 'Unnamed Voice'}</CardTitle>
+						<CardHeader className="p-4 justify-center items-center">
+							<Button
+								size="icon"
+								onClick={(e: React.MouseEvent) => {
+									e.stopPropagation();
+									handlePlayPause(voice.preview_url, voice.voice_id);
+								}}
+							>
+								{playingAudio === voice.voice_id ? (
+									<Pause className="h-4 w-4" />
+								) : (
+									<Play className="h-4 w-4" />
+								)}
+							</Button>
 						</CardHeader>
-						<CardContent className="flex-grow flex flex-col justify-between pb-4 px-4">
+						<CardContent className="flex-grow flex flex-col gap-2 p-2">
+							<CardTitle className="text-sm truncate">{voice.name || 'Unnamed Voice'}</CardTitle>
 							{voice.labels && Object.keys(voice.labels).length > 0 && (
-								<div className="flex flex-wrap gap-2 mb-4">
+								<div className="flex flex-wrap gap-1">
 									{Object.entries(voice.labels).map(([key, value]) => (
-										<Badge key={key} variant="secondary">
+										<Badge key={key} variant="secondary" className="text-[10px] font-normal">
 											{value}
 										</Badge>
 									))}
 								</div>
 							)}
-							<Button
-								onClick={(e: React.MouseEvent) => {
-									e.stopPropagation();
-									handlePlayPause(voice.preview_url, voice.voice_id);
-								}}
-								className="w-full"
-							>
-								{playingAudio === voice.voice_id ? (
-									<Pause className="mr-2 h-4 w-4" />
-								) : (
-									<Play className="mr-2 h-4 w-4" />
-								)}
-								{playingAudio === voice.voice_id ? 'Pause' : 'Play'}
-							</Button>
 							<audio id={voice.voice_id} src={voice.preview_url} />
 						</CardContent>
 					</Card>
