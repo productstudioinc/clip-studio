@@ -33,8 +33,8 @@ export function YoutubeExportDialog({
 	state
 }: {
 	youtubeChannels: YoutubeChannel[];
-	disabled: boolean;
-	state: State;
+	disabled?: boolean;
+	state?: State;
 }) {
 	const [selectedChannel, setSelectedChannel] = useState<YoutubeChannel | null>(null);
 	const [title, setTitle] = useState('');
@@ -56,13 +56,13 @@ export function YoutubeExportDialog({
 	};
 
 	const uploadPost = async (socialMediaPostId: string) => {
-		if (selectedChannel && state.status === 'done') {
+		if (selectedChannel && state?.status === 'done') {
 			console.log('uploading to youtube');
 			const [data, err] = await postVideoToYoutube({
 				title: title,
 				youtubeChannelId: selectedChannel.id,
 				parentSocialMediaPostId: socialMediaPostId,
-				videoUrl: state.url,
+				videoUrl: state?.url,
 				isPrivate
 			});
 			if (err) {

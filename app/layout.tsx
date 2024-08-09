@@ -1,3 +1,4 @@
+import { ErrorToast } from '@/components/error-toast';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { constructMetadata } from '@/lib/seo-utils';
@@ -8,7 +9,6 @@ import { AxiomWebVitals } from 'next-axiom';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { PHProvider } from './_analytics/provider';
-import { ErrorToast } from './error-toast';
 
 const PostHogPageView = dynamic(() => import('./_analytics/PostHogPageView'), {
 	ssr: false

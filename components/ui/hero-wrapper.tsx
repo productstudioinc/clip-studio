@@ -1,5 +1,6 @@
 'use client';
-import Hero from '@/app/hero';
+
+import Hero from '@/components/hero';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { usePathname } from 'next/navigation';
 
