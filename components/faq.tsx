@@ -29,9 +29,9 @@ const faqs = [
 				answer: (
 					<span>
 						Clip Studio is a <strong>self-serve</strong> product. We do not offer technical support.
-						However, if you have a bug to report, please open an issue on{' '}
-						<a href="/discord" className="underline">
-							Discord
+						However, if you have a bug to report, please send us an email at{' '}
+						<a href="mailto:support@clip.studio" className="underline">
+							support@clip.studio
 						</a>{' '}
 						and we will fix it as soon as possible.
 					</span>
