@@ -7,6 +7,7 @@ import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from 'next';
 import { AxiomWebVitals } from 'next-axiom';
 import dynamic from 'next/dynamic';
+import Script from 'next/script';
 import { Suspense } from 'react';
 import { PHProvider } from './_analytics/provider';
 
@@ -26,6 +27,10 @@ export default async function RootLayout({
 	return (
 		<>
 			<html lang="en">
+				<Script
+					src="https://cdn.tolt.io/tolt.js"
+					data-tolt="4196373f-07fe-4d9a-927b-5aa9c7952153"
+				/>
 				<AxiomWebVitals />
 				<PHProvider>
 					<body className={GeistSans.className}>

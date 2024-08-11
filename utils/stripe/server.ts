@@ -33,40 +33,36 @@ export const getBillingPortal = createServerAction()
 	});
 
 export const checkoutWithStripe = createServerAction()
-	.input(z.object({ priceId: z.string(), redirectPath: z.string().default('/account') }))
+	.input(
+		z.object({
+			priceId: z.string(),
+			redirectPath: z.string().default('/account'),
+			referralId: z.string().optional()
+		})
+	)
 	.output(z.object({ sessionId: z.string().optional(), errorRedirect: z.string().optional() }))
 	.handler(async ({ input }): Promise<CheckoutResponse> => {
 		const { user } = await getUser();
 		if (!user) {
 			throw redirect('/login');
 		}
-
 		try {
 			const customer = await createOrRetrieveCustomer({
 				uuid: user.id,
 				email: user.email as string
 			});
-
 			const params: Stripe.Checkout.SessionCreateParams = {
 				allow_promotion_codes: true,
 				billing_address_collection: 'required',
 				customer,
-				customer_update: {
-					address: 'auto'
-				},
-				line_items: [
-					{
-						price: input.priceId,
-						quantity: 1
-					}
-				],
+				customer_update: { address: 'auto' },
+				line_items: [{ price: input.priceId, quantity: 1 }],
 				cancel_url: getURL(),
 				mode: 'subscription',
-				success_url: getURL(input.redirectPath)
+				success_url: getURL(input.redirectPath),
+				metadata: input.referralId ? { tolt_referral: input.referralId } : undefined
 			};
-
 			const session = await stripe.checkout.sessions.create(params);
-
 			return { sessionId: session.id };
 		} catch (error) {
 			console.error('Error in checkoutWithStripe:', error);

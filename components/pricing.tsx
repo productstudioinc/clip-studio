@@ -11,7 +11,7 @@ import { User } from '@supabase/supabase-js';
 import { motion } from 'framer-motion';
 import { Loader } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 type Interval = 'month' | 'year';
@@ -32,6 +32,13 @@ export default function Pricing({
 	const [interval, setInterval] = useState<Interval>('month');
 	const [isLoading, setIsLoading] = useState(false);
 	const [id, setId] = useState<string | null>(null);
+	const [toltReferralId, setToltReferralId] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (typeof window !== 'undefined' && (window as any).tolt_referral) {
+			setToltReferralId((window as any).tolt_referral);
+		}
+	}, []);
 
 	const onSubscribeClick = async (priceId: string) => {
 		setIsLoading(true);
@@ -41,7 +48,8 @@ export default function Pricing({
 			return router.push('/login');
 		}
 		const [data, err] = await checkoutWithStripe({
-			priceId
+			priceId,
+			referralId: toltReferralId || undefined
 		});
 		if (err) {
 			toast.error(err.message);
