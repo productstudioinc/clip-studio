@@ -36,6 +36,11 @@ const nextConfig = {
 				source: '/',
 				destination: '/editor',
 				permanent: true
+			},
+			{
+				source: '/affiliate',
+				destination: 'https://clipstudio.tolt.io',
+				permanent: true
 			}
 		];
 	},

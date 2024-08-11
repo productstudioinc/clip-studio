@@ -14,7 +14,10 @@ export default function UpgradeCard() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="p-2 pt-0 md:p-4 md:pt-0">
-				<Link href="/pricing" className={cn(buttonVariants({ size: 'sm' }), 'w-full')}>
+				<Link
+					href="/pricing"
+					className={cn(buttonVariants({ size: 'sm', variant: 'rainbow' }), 'w-full')}
+				>
 					<ZapIcon className="h-4 w-4 mr-2" />
 					Upgrade
 				</Link>

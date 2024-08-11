@@ -7,7 +7,6 @@ import { Separator } from '@/components/ui/separator';
 import UpgradeCard from '@/components/upgrade-card';
 import { UserAccountMenu } from '@/components/user-account-menu';
 import { cn } from '@/lib/utils';
-import { useTemplateStore } from '@/stores/templatestore';
 import { User } from '@supabase/supabase-js';
 import {
 	CaptionsIcon,
@@ -15,6 +14,7 @@ import {
 	CogIcon,
 	FileText,
 	FileUpIcon,
+	HandCoins,
 	LayoutTemplateIcon,
 	LucideIcon,
 	MicVocalIcon,
@@ -57,28 +57,21 @@ const NavLink: React.FC<NavLinkProps> = ({ href, icon: Icon, label, currentRoute
 export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) => {
 	const currentRoute = usePathname();
 
-	const { selectedTemplate } = useTemplateStore((state) => ({
-		selectedTemplate: state.selectedTemplate
-	}));
-
 	const navItems: NavItem[] = [
 		{ href: '/', icon: LayoutTemplateIcon, label: 'Templates' },
 		{ href: '/configure', icon: CogIcon, label: 'Configure' },
 		{ href: '/voiceover', icon: MicVocalIcon, label: 'Voiceover' },
 		{ href: '/caption', icon: CaptionsIcon, label: 'Caption' },
-		// {
-		// 	href: selectedTemplate === 'SplitScreen' ? '/caption' : '/voiceover',
-		// 	icon: selectedTemplate === 'SplitScreen' ? CaptionsIcon : MicVocalIcon,
-		// 	label: selectedTemplate === 'SplitScreen' ? 'Caption' : 'Voiceover'
-		// },
 		{ href: '/export', icon: FileUpIcon, label: 'Export' }
 	];
 
-	const profileNavItem: NavItem = {
-		href: '/account',
-		icon: UserIcon,
-		label: 'My Account'
-	};
+	const profileNavItems: NavItem[] = [
+		{
+			href: '/account',
+			icon: UserIcon,
+			label: 'My Account'
+		}
+	];
 
 	const bottomNavItems: NavItem[] = [
 		{ href: '/terms', icon: FileText, label: 'Terms of Service' },
@@ -93,8 +86,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) =
 						<NavLink key={item.href} {...item} currentRoute={currentRoute} />
 					))}
 					<Separator orientation="horizontal" className="my-2" />
-					<NavLink {...profileNavItem} currentRoute={currentRoute} />
+					{profileNavItems.map((item) => (
+						<NavLink key={item.href} {...item} currentRoute={currentRoute} />
+					))}
 				</nav>
+			</div>
+			<div className="px-2 lg:px-4">
+				<Link
+					href="/affiliate"
+					className={cn(buttonVariants({ variant: 'default' }), 'w-full gap-2 rounded-md')}
+				>
+					<HandCoins className="h-4 w-4 flex-shrink-0" />
+					<span>Earn 20% per referral</span>
+				</Link>
 			</div>
 			<div className="px-2 lg:px-4">
 				<nav className="grid items-start text-sm font-medium">
@@ -103,6 +107,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) =
 					))}
 				</nav>
 			</div>
+
 			<div className="px-2 lg:px-4">
 				{subscription && usage && user ? (
 					<SubscriptionCard subscriptionName={subscription} usage={usage} userId={user?.id} />
