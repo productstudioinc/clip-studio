@@ -29,11 +29,12 @@ export const getProducts = unstable_cache(async () => {
 				id: true,
 				name: true,
 				description: true,
-				metadata: true
+				metadata: true,
+				defaultPriceId: true
 			},
 			with: {
 				prices: {
-					where: (prices, { eq }) => eq(prices.active, true),
+					where: (prices, { eq }) => eq(products.defaultPriceId, prices.id),
 					columns: {
 						id: true,
 						productId: true,

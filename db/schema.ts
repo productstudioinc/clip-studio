@@ -51,6 +51,7 @@ export const products = pgTable('products', {
 	description: text('description'),
 	image: text('image'),
 	metadata: jsonb('metadata'),
+	defaultPriceId: text('default_price_id'),
 	planTier: planTierEnum('plan_tier')
 });
 

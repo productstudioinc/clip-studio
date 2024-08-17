@@ -19,7 +19,8 @@ const upsertProductRecord = async (product: Stripe.Product) => {
 		name: product.name,
 		description: product.description ?? null,
 		image: product.images?.[0] ?? null,
-		metadata: product.metadata
+		metadata: product.metadata,
+		defaultPriceId: typeof product.default_price === 'string' ? product.default_price : null
 	};
 
 	try {
