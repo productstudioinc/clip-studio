@@ -122,7 +122,7 @@ type State = {
 };
 
 export const useTemplateStore = create<State>((set) => ({
-	selectedTemplate: 'SplitScreen',
+	selectedTemplate: 'Reddit',
 	setSelectedTemplate: (template) => {
 		TemplateSchema.parse(template);
 		set({ selectedTemplate: template });
