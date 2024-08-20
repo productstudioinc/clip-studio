@@ -33,11 +33,6 @@ const nextConfig = {
 	async redirects() {
 		return [
 			{
-				source: '/',
-				destination: '/templates',
-				permanent: true
-			},
-			{
 				source: '/affiliate',
 				destination: 'https://clipstudio.tolt.io',
 				permanent: true
