@@ -41,6 +41,7 @@ export const RedditProps = z
 		title: z.string(),
 		text: z.string(),
 		subreddit: z.string(),
+		accountName: z.string(),
 		voiceoverUrl: z.string(),
 		voiceoverFrames: VoiceoverFrames,
 		titleEnd: z.number()
@@ -88,6 +89,7 @@ export const defaultRedditProps: z.infer<typeof RedditProps> = {
 	backgroundUrls: defaultMinecraftBackgrounds,
 	voiceoverUrl: 'https://assets.clip.studio/reddit_sample_audio.mp3',
 	voiceoverFrames: alignmentDefault,
+	accountName: 'clipstudio',
 	titleEnd: 5.596
 };
 

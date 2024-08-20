@@ -118,6 +118,24 @@ const RedditControls: React.FC = ({}) => {
 	return (
 		<>
 			<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
+				<Label htmlFor="redditAccount">Account Name</Label>
+				<Input
+					id="redditAccount"
+					type="text"
+					onChange={(e) => setRedditState({ ...redditState, accountName: e.target.value })}
+					value={redditState.accountName}
+				/>
+			</div>
+			<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
+				<Label htmlFor="redditSubreddit">Subreddit</Label>
+				<Input
+					id="redditSubreddit"
+					type="text"
+					onChange={(e) => setRedditState({ ...redditState, subreddit: e.target.value })}
+					value={redditState.subreddit}
+				/>
+			</div>
+			<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
 				<Label htmlFor="redditTitle">Title</Label>
 				<Textarea id="redditTitle" onChange={(e) => handleRedditChange(e.target.value)} />
 			</div>

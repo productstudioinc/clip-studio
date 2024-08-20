@@ -29,6 +29,7 @@ export const RedditComposition = ({
 	subreddit,
 	voiceoverUrl,
 	voiceoverFrames,
+	accountName,
 	titleEnd,
 	backgroundUrls
 }: z.infer<typeof RedditProps>) => {
@@ -122,7 +123,7 @@ export const RedditComposition = ({
 									alignItems: 'center'
 								}}
 							>
-								<RedditCard title={title} subreddit={subreddit} />
+								<RedditCard title={title} subreddit={subreddit} accountName={accountName} />
 							</AbsoluteFill>
 						</Sequence>
 					)}
