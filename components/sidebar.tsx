@@ -57,8 +57,9 @@ const NavLink: React.FC<NavLinkProps> = ({ href, icon: Icon, label, currentRoute
 export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) => {
 	const currentRoute = usePathname();
 
+	const newLocal = '/templates';
 	const navItems: NavItem[] = [
-		{ href: '/', icon: LayoutTemplateIcon, label: 'Templates' },
+		{ href: newLocal, icon: LayoutTemplateIcon, label: 'Templates' },
 		{ href: '/configure', icon: CogIcon, label: 'Configure' },
 		{ href: '/voiceover', icon: MicVocalIcon, label: 'Voiceover' },
 		{ href: '/caption', icon: CaptionsIcon, label: 'Caption' },

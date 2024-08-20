@@ -34,7 +34,7 @@ const nextConfig = {
 		return [
 			{
 				source: '/',
-				destination: '/editor',
+				destination: '/templates',
 				permanent: true
 			},
 			{
