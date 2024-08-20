@@ -1,4 +1,15 @@
-export const RedditCard: React.FC<RedditPostProps> = ({ subreddit, title, accountName }) => {
+/* eslint-disable @next/next/no-img-element */
+type RedditPostProps = {
+	subreddit: string;
+	title: string;
+	accountName: string;
+};
+
+export const RedditCard: React.FC<RedditPostProps> = ({
+	subreddit,
+	title,
+	accountName
+}: RedditPostProps) => {
 	return (
 		<div className="bg-gray-900 text-white p-4 rounded-md shadow-md transform scale-150 w-96">
 			<div className="flex items-center justify-between mb-2">
