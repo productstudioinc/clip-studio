@@ -73,6 +73,15 @@ export const generateAudioAndTimestamps = createServerAction()
 				.from(userUsage)
 				.where(eq(userUsage.userId, user.id));
 
+			if (userUsageRecord.length === 0) {
+				logger.error(errorString, { error: 'User does not have a subscription' });
+				await logger.flush();
+				throw new ZSAError(
+					'INTERNAL_SERVER_ERROR',
+					'You need an active subscription to use this feature.'
+				);
+			}
+
 			if (userUsageRecord[0].voiceoverCharactersLeft < characterCount) {
 				logger.error(errorString, { error: 'Insufficient voiceover characters' });
 				await logger.flush();
@@ -150,7 +159,12 @@ export const generateAudioAndTimestamps = createServerAction()
 				.where(eq(userUsage.userId, user.id));
 
 			logger.error(errorString, { error });
-			await logger.flush();
+
+			// rethrow zsa errors if they bubble up
+			if (error instanceof ZSAError) {
+				throw error;
+			}
+
 			throw new ZSAError(
 				'INTERNAL_SERVER_ERROR',
 				'An error occurred while generating the voiceover.'
