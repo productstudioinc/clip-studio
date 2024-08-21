@@ -251,26 +251,15 @@ const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
 		}
 
 		await db
-			.insert(userUsage)
-			.values({
-				userId: subscriptionDetails[0].userId,
-				subscriptionId: subscriptionDetails[0].subscriptionId,
-				exportSecondsLeft: subscriptionDetails[0].exportSecondsLeft,
+			.update(userUsage)
+			.set({
 				voiceoverCharactersLeft: subscriptionDetails[0].voiceoverCharacters,
+				exportSecondsLeft: subscriptionDetails[0].exportSecondsLeft,
 				transcriptionSecondsLeft: subscriptionDetails[0].transcriptionSeconds,
 				connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
 				lastResetDate: new Date()
 			})
-			.onConflictDoUpdate({
-				target: userUsage.userId,
-				set: {
-					voiceoverCharactersLeft: subscriptionDetails[0].voiceoverCharacters,
-					exportSecondsLeft: subscriptionDetails[0].exportSecondsLeft,
-					transcriptionSecondsLeft: subscriptionDetails[0].transcriptionSeconds,
-					connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
-					lastResetDate: new Date()
-				}
-			});
+			.where(eq(userUsage.userId, subscriptionDetails[0].userId));
 		console.log(`Updated usage limits for user ${subscriptionDetails[0].userId}`);
 	} catch (error) {
 		if (error instanceof Error) {
