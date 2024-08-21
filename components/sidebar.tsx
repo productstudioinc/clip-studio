@@ -7,6 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import UpgradeCard from '@/components/upgrade-card';
 import { UserAccountMenu } from '@/components/user-account-menu';
 import { cn } from '@/lib/utils';
+import { useTemplateStore } from '@/stores/templatestore';
 import { User } from '@supabase/supabase-js';
 import {
 	CaptionsIcon,
@@ -57,11 +58,18 @@ const NavLink: React.FC<NavLinkProps> = ({ href, icon: Icon, label, currentRoute
 export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) => {
 	const currentRoute = usePathname();
 
+	const { selectedTemplate } = useTemplateStore((state) => ({
+		selectedTemplate: state.selectedTemplate
+	}));
+
 	const navItems: NavItem[] = [
 		{ href: '/', icon: LayoutTemplateIcon, label: 'Templates' },
 		{ href: '/configure', icon: CogIcon, label: 'Configure' },
-		{ href: '/voiceover', icon: MicVocalIcon, label: 'Voiceover' },
-		{ href: '/caption', icon: CaptionsIcon, label: 'Caption' },
+		{
+			href: selectedTemplate === 'SplitScreen' ? '/caption' : '/voiceover',
+			icon: selectedTemplate === 'SplitScreen' ? CaptionsIcon : MicVocalIcon,
+			label: selectedTemplate === 'SplitScreen' ? 'Caption' : 'Voiceover'
+		},
 		{ href: '/export', icon: FileUpIcon, label: 'Export' }
 	];
 
