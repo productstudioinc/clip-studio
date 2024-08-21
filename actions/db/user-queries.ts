@@ -34,7 +34,6 @@ export const getProducts = unstable_cache(async () => {
 			},
 			with: {
 				prices: {
-					where: (prices, { eq }) => eq(products.defaultPriceId, prices.id),
 					columns: {
 						id: true,
 						productId: true,
