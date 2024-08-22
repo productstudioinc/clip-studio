@@ -3,6 +3,7 @@ import { getUserUsage } from '@/actions/db/user-queries';
 import Hero from '@/components/hero';
 import { Icons } from '@/components/icons';
 import { MobileSidebar } from '@/components/mobile-sidebar';
+import { PageSwitcher } from '@/components/page-switcher';
 import { Sidebar } from '@/components/sidebar';
 import { ModeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
@@ -55,10 +56,11 @@ export default async function Layout({
 						{/* <h1 className="text-lg font-semibold md:text-2xl">{getTitle(currentRoute)}</h1> */}
 					</div>
 
-					<div className="flex flex-col lg:flex-row gap-4 min-h-0 flex-grow">
-						<div className="w-full lg:w-1/2 overflow-hidden flex flex-col">
-							<div className="flex-grow overflow-auto rounded-lg border shadow-sm p-4">
-								{children}
+					<div className="flex flex-col lg:flex-row gap-3 min-h-0 flex-grow">
+						<div className="w-full lg:w0/2 overflow-hidden flex flex-col">
+							<div className="flex-grow overflow-auto rounded-lg border shadow-sm p-3 flex flex-col">
+								<div className="flex-grow overflow-auto">{children}</div>
+								<PageSwitcher />
 							</div>
 						</div>
 						<div className="w-full lg:w-1/2 flex items-center justify-center bg-muted rounded-lg">
