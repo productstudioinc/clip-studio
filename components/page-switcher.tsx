@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { useTemplateStore } from '@/stores/templatestore';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const steps = [
@@ -44,8 +45,16 @@ export const PageSwitcher = () => {
 
 	return (
 		<div className="flex justify-end space-x-2">
-			{prevStep && <Button onClick={() => (window.location.href = prevStep.href)}>Previous</Button>}
-			{nextStep && <Button onClick={() => (window.location.href = nextStep.href)}>Next</Button>}
+			{prevStep && (
+				<Button asChild>
+					<Link href={prevStep.href}>Previous</Link>
+				</Button>
+			)}
+			{nextStep && (
+				<Button asChild>
+					<Link href={nextStep.href}>Next</Link>
+				</Button>
+			)}
 		</div>
 	);
 };
