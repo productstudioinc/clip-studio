@@ -59,7 +59,7 @@ export default async function Layout({
 					<div className="flex flex-col lg:flex-row gap-3 min-h-0 flex-grow">
 						<div className="w-full lg:w0/2 overflow-hidden flex flex-col">
 							<div className="flex-grow overflow-auto rounded-lg border shadow-sm p-3 flex flex-col">
-								<div className="flex-grow overflow-auto">{children}</div>
+								{children}
 								<PageSwitcher />
 							</div>
 						</div>
