@@ -80,7 +80,7 @@ export const RedditComposition = ({
 		generateSubtitles();
 	}, [generateSubtitles]);
 
-	const titleEndFrame = Math.floor(FPS * titleEnd);
+	const titleEndFrame = Math.floor(FPS * titleEnd) + 5;
 
 	return (
 		<>
