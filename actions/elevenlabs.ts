@@ -2,7 +2,7 @@
 
 import { db } from '@/db';
 import { userUsage } from '@/db/schema';
-import { endingFunctionString, errorString, startingFunctionString } from '@/utils/logging';
+import { errorString, startingFunctionString } from '@/utils/logging';
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { eq, sql } from 'drizzle-orm';
@@ -64,7 +64,7 @@ export const generateAudioAndTimestamps = createServerAction()
 			throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.');
 		}
 
-		const fullText = `${input.title}\n\n${input.text}`;
+		const fullText = `${input.title} <break time="0.7s" /> ${input.text}`;
 		const characterCount = fullText.length;
 
 		try {
@@ -124,24 +124,32 @@ export const generateAudioAndTimestamps = createServerAction()
 				expiresIn: 3600
 			});
 
-			const normalizedText = input.text.toLowerCase();
+			const normalizedTitle = input.title.toLowerCase();
 			const normalizedCharacters = audio.normalized_alignment.characters.map((char) =>
 				char.toLowerCase()
 			);
 
-			const titleEndIndex = normalizedCharacters.findIndex(
-				(char, index) =>
-					char === normalizedText[0] &&
-					normalizedCharacters.slice(index, index + normalizedText.length).join('') ===
-						normalizedText
-			);
+			let titleEndIndex = -1;
+			for (let i = 0; i <= normalizedCharacters.length - normalizedTitle.length; i++) {
+				if (
+					normalizedCharacters.slice(i, i + normalizedTitle.length).join('') === normalizedTitle
+				) {
+					titleEndIndex = i + normalizedTitle.length - 1;
+					break;
+				}
+			}
 
 			const titleEnd =
-				titleEndIndex > 0
-					? audio.normalized_alignment.character_end_times_seconds[titleEndIndex - 1]
+				titleEndIndex >= 0
+					? audio.normalized_alignment.character_end_times_seconds[titleEndIndex]
 					: 0;
 
-			logger.info(endingFunctionString);
+			logger.info('Voiceover generated successfully', {
+				signedUrl,
+				endTimestamp: audio.normalized_alignment.character_end_times_seconds.slice(-1)[0],
+				voiceoverObject: audio.normalized_alignment,
+				titleEnd
+			});
 			await logger.flush();
 			return {
 				signedUrl,

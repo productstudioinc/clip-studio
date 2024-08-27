@@ -7,8 +7,7 @@ import {
 	delayRender,
 	OffthreadVideo,
 	Sequence,
-	Series,
-	useVideoConfig
+	Series
 } from 'remotion';
 import { z } from 'zod';
 
@@ -23,6 +22,7 @@ export type SubtitleProp = {
 };
 
 const FPS = 30;
+const BACKGROUND_VIDEO_DURATION = 60 * FPS;
 
 export const RedditComposition = ({
 	title,
@@ -33,7 +33,6 @@ export const RedditComposition = ({
 	titleEnd,
 	backgroundUrls
 }: z.infer<typeof RedditProps>) => {
-	const videoConfig = useVideoConfig();
 	const [subtitles, setSubtitles] = useState<SubtitleProp[]>([]);
 	const [handle] = useState(() => delayRender());
 
@@ -89,14 +88,11 @@ export const RedditComposition = ({
 			<AbsoluteFill>
 				<Series>
 					{backgroundUrls.map((part, index) => (
-						<Series.Sequence
-							durationInFrames={videoConfig.durationInFrames / backgroundUrls.length}
-							key={index}
-						>
+						<Series.Sequence durationInFrames={BACKGROUND_VIDEO_DURATION} key={index}>
 							<OffthreadVideo
 								src={part}
 								startFrom={0}
-								endAt={videoConfig.durationInFrames / backgroundUrls.length}
+								endAt={BACKGROUND_VIDEO_DURATION}
 								style={{
 									position: 'absolute',
 									width: '100%',
