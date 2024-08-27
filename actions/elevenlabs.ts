@@ -139,9 +139,17 @@ export const generateAudioAndTimestamps = createServerAction()
 				}
 			}
 
+			let actualTitleEndIndex = titleEndIndex;
+			while (
+				actualTitleEndIndex < normalizedCharacters.length &&
+				normalizedCharacters[actualTitleEndIndex] === ' '
+			) {
+				actualTitleEndIndex++;
+			}
+
 			const titleEnd =
-				titleEndIndex >= 0
-					? audio.normalized_alignment.character_end_times_seconds[titleEndIndex]
+				actualTitleEndIndex >= 0
+					? audio.normalized_alignment.character_end_times_seconds[actualTitleEndIndex]
 					: 0;
 
 			logger.info('Voiceover generated successfully', {
