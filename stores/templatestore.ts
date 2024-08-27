@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import { alignmentDefault } from './alignmenttext';
 import { splitScreenTranscriptionDefault } from './splitscreentranscription';
 
@@ -123,55 +124,72 @@ type State = {
 	setBackgroundUrls: (urls: string[]) => void;
 };
 
-export const useTemplateStore = create<State>((set) => ({
-	selectedTemplate: 'Reddit',
-	setSelectedTemplate: (template) => {
-		TemplateSchema.parse(template);
-		set({ selectedTemplate: template });
-	},
-	splitScreenState: defaultMyCompProps,
-	setSplitScreenState: (state) =>
-		set((prevState) => ({
-			splitScreenState: { ...prevState.splitScreenState, ...state }
-		})),
-	redditState: defaultRedditProps,
-	setRedditState: (state) =>
-		set((prevState) => ({
-			redditState: { ...prevState.redditState, ...state }
-		})),
-	twitterThreadState: defaultTwitterThreadProps,
-	setTwitterThreadState: (state) =>
-		set((prevState) => ({
-			twitterThreadState: { ...prevState.twitterThreadState, ...state }
-		})),
-	durationInFrames: 900,
-	setdurationInFrames: (length) =>
-		set((state) => ({
-			durationInFrames: length,
-			splitScreenState: { ...state.splitScreenState, durationInFrames: length },
-			redditState: { ...state.redditState, durationInFrames: length },
-			twitterThreadState: {
-				...state.twitterThreadState,
-				durationInFrames: length
-			}
-		})),
-	backgroundTheme: 'Minecraft',
-	setBackgroundTheme: (theme) =>
-		set((state) => ({
-			backgroundTheme: theme,
-			splitScreenState: { ...state.splitScreenState, backgroundTheme: theme },
-			redditState: { ...state.redditState, backgroundTheme: theme },
-			twitterThreadState: {
-				...state.twitterThreadState,
-				backgroundTheme: theme
-			}
-		})),
-	backgroundUrls: defaultMinecraftBackgrounds,
-	setBackgroundUrls: (urls) =>
-		set((state) => ({
-			backgroundUrls: urls,
-			splitScreenState: { ...state.splitScreenState, backgroundUrls: urls },
-			redditState: { ...state.redditState, backgroundUrls: urls },
-			twitterThreadState: { ...state.twitterThreadState, backgroundUrls: urls }
-		}))
-}));
+export const useTemplateStore = create<State>()(
+	persist(
+		(set) => ({
+			selectedTemplate: 'Reddit',
+			setSelectedTemplate: (template) => {
+				TemplateSchema.parse(template);
+				set({ selectedTemplate: template });
+			},
+			splitScreenState: defaultMyCompProps,
+			setSplitScreenState: (state) =>
+				set((prevState) => ({
+					splitScreenState: { ...prevState.splitScreenState, ...state }
+				})),
+			redditState: defaultRedditProps,
+			setRedditState: (state) =>
+				set((prevState) => ({
+					redditState: { ...prevState.redditState, ...state }
+				})),
+			twitterThreadState: defaultTwitterThreadProps,
+			setTwitterThreadState: (state) =>
+				set((prevState) => ({
+					twitterThreadState: { ...prevState.twitterThreadState, ...state }
+				})),
+			durationInFrames: 900,
+			setdurationInFrames: (length) =>
+				set((state) => ({
+					durationInFrames: length,
+					splitScreenState: { ...state.splitScreenState, durationInFrames: length },
+					redditState: { ...state.redditState, durationInFrames: length },
+					twitterThreadState: {
+						...state.twitterThreadState,
+						durationInFrames: length
+					}
+				})),
+			backgroundTheme: 'Minecraft',
+			setBackgroundTheme: (theme) =>
+				set((state) => ({
+					backgroundTheme: theme,
+					splitScreenState: { ...state.splitScreenState, backgroundTheme: theme },
+					redditState: { ...state.redditState, backgroundTheme: theme },
+					twitterThreadState: {
+						...state.twitterThreadState,
+						backgroundTheme: theme
+					}
+				})),
+			backgroundUrls: defaultMinecraftBackgrounds,
+			setBackgroundUrls: (urls) =>
+				set((state) => ({
+					backgroundUrls: urls,
+					splitScreenState: { ...state.splitScreenState, backgroundUrls: urls },
+					redditState: { ...state.redditState, backgroundUrls: urls },
+					twitterThreadState: { ...state.twitterThreadState, backgroundUrls: urls }
+				}))
+		}),
+		{
+			name: 'template-storage',
+			storage: createJSONStorage(() => localStorage),
+			partialize: (state) => ({
+				selectedTemplate: state.selectedTemplate,
+				splitScreenState: state.splitScreenState,
+				redditState: state.redditState,
+				twitterThreadState: state.twitterThreadState,
+				durationInFrames: state.durationInFrames,
+				backgroundTheme: state.backgroundTheme,
+				backgroundUrls: state.backgroundUrls
+			})
+		}
+	)
+);
