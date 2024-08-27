@@ -13,7 +13,6 @@ import {
 import { format } from 'date-fns';
 import { eq, sql } from 'drizzle-orm';
 import { AxiomRequest } from 'next-axiom';
-import { redirect } from 'next/navigation';
 
 export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 	RenderRequest,
@@ -36,7 +35,7 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 		const { user } = await getUser();
 		if (!user) {
 			logger.error('Unauthorized access attempt');
-			redirect('/login');
+			throw new Error('You must be logged in to use this.');
 		}
 
 		logger.info('User requested render', { email: user?.email });
