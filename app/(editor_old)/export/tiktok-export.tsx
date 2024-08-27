@@ -69,38 +69,39 @@ export function TikTokExportDialog({
 
 	const uploadPost = async (socialMediaPostId: string) => {
 		if (selectedAccount && state?.status === 'done') {
-			console.log('uploading to tiktok');
-
-			toast.promise(
-				new Promise((resolve, reject) => {
-					uploadTiktokPost({
-						accessToken: selectedAccount.accessToken,
-						caption,
-						videoUrl: state?.url,
-						parentSocialMediaPostId: socialMediaPostId,
-						tiktokAccountId: selectedAccount.id,
-						privacyLevel: visibility,
-						disableComments,
-						disableDuet,
-						disableStitch,
-						discloseVideoContent,
-						videoContentType
-					}).then(([data, error]) => {
-						if (error) {
-							reject(error);
-						} else {
-							resolve(data);
-						}
-					});
-				}),
-				{
-					loading: 'Uploading video to TikTok...',
-					success: 'Video uploaded to TikTok!',
-					error: (err) => `Upload failed: ${err.message}`
-				}
-			);
+			try {
+				await toast.promise(
+					async () => {
+						const [data, error] = await uploadTiktokPost({
+							accessToken: selectedAccount.accessToken,
+							caption,
+							videoUrl: state?.url,
+							parentSocialMediaPostId: socialMediaPostId,
+							tiktokAccountId: selectedAccount.id,
+							privacyLevel: visibility,
+							disableComments,
+							disableDuet,
+							disableStitch,
+							discloseVideoContent,
+							videoContentType
+						});
+						if (error) throw error;
+						return data;
+					},
+					{
+						loading: 'Uploading video to TikTok, please keep this window open...',
+						success: 'Video uploaded to TikTok!',
+						error: (err) => `Upload failed: ${err.message}`
+					}
+				);
+			} catch (error) {
+				console.error('Error uploading to TikTok:', error);
+			} finally {
+				setIsUploading(false);
+			}
+		} else {
+			setIsUploading(false);
 		}
-		setIsUploading(false);
 	};
 
 	return (
