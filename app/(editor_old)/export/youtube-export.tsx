@@ -156,6 +156,17 @@ export function YoutubeExportDialog({
 					</div>
 				</div>
 				<DialogFooter>
+					<div className="text-sm text-gray-500 mb-2">
+						By posting, you agree to be bound by the{' '}
+						<a
+							href="https://www.youtube.com/t/terms"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="text-blue-500 hover:underline"
+						>
+							YouTube Terms of Service
+						</a>
+					</div>
 					<Button onClick={handleUpload} disabled={!selectedChannel || !title || isUploading}>
 						{isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 						Upload
