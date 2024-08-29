@@ -26,13 +26,13 @@ export const ExportComponent: React.FC<{
 		<div className="w-full">
 			{isDownloadReady ? (
 				<a href={state.url}>
-					<Button className="w-full">
+					<Button className="w-full h-12 text-md">
 						Download
 						<Megabytes sizeInBytes={state.size} className="ml-1" />
 					</Button>
 				</a>
 			) : (
-				<Button disabled className="w-full">
+				<Button disabled className="w-full h-12 text-md">
 					Download
 				</Button>
 			)}
