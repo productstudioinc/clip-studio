@@ -8,6 +8,7 @@ import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger
@@ -21,7 +22,7 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { State } from '@/utils/helpers/use-rendering';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
@@ -38,7 +39,8 @@ export function YoutubeExportDialog({
 }) {
 	const [selectedChannel, setSelectedChannel] = useState<YoutubeChannel | null>(null);
 	const [title, setTitle] = useState('');
-	const [isPrivate, setIsPrivate] = useState(false);
+	const [description, setDescription] = useState('');
+	const [visibility, setVisibility] = useState<'public' | 'private' | 'unlisted'>('public');
 	const [isUploading, setIsUploading] = useState(false);
 
 	const handleUpload = async () => {
@@ -48,7 +50,6 @@ export function YoutubeExportDialog({
 			toast.error(err.message);
 		}
 		if (data && selectedChannel) {
-			console.log('social media post id', data);
 			await uploadPost(data);
 		} else {
 			toast.error('Please select a channel.');
@@ -57,13 +58,13 @@ export function YoutubeExportDialog({
 
 	const uploadPost = async (socialMediaPostId: string) => {
 		if (selectedChannel && state?.status === 'done') {
-			console.log('uploading to youtube');
 			const [data, err] = await postVideoToYoutube({
-				title: title,
+				title,
+				description,
 				youtubeChannelId: selectedChannel.id,
 				parentSocialMediaPostId: socialMediaPostId,
 				videoUrl: state?.url,
-				isPrivate
+				visibility
 			});
 			if (err) {
 				setIsUploading(false);
@@ -83,51 +84,83 @@ export function YoutubeExportDialog({
 					Export to Youtube
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
 					<DialogTitle>Youtube Upload</DialogTitle>
 					<DialogDescription>
 						Keep in mind the video must be under 60 seconds to be uploaded as a short
 					</DialogDescription>
 				</DialogHeader>
-				<div className="flex flex-col">
-					<Select
-						onValueChange={(value) => {
-							const channel = youtubeChannels.find((ch) => ch.id === value);
-							setSelectedChannel(channel || null);
-						}}
-					>
-						<SelectTrigger>
-							<SelectValue placeholder="Select a channel" />
-						</SelectTrigger>
-						<SelectContent>
-							{youtubeChannels.map((channel) => (
-								<SelectItem key={channel.id} value={channel.id}>
-									{channel.channelCustomUrl}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+				<div className="grid gap-4 py-4">
+					<div className="grid grid-cols-4 items-center gap-4">
+						<Label htmlFor="channel" className="text-right">
+							Channel
+						</Label>
+						<Select
+							onValueChange={(value) => {
+								const channel = youtubeChannels.find((ch) => ch.id === value);
+								setSelectedChannel(channel || null);
+							}}
+						>
+							<SelectTrigger className="col-span-3">
+								<SelectValue placeholder="Select a channel" />
+							</SelectTrigger>
+							<SelectContent>
+								{youtubeChannels.map((channel) => (
+									<SelectItem key={channel.id} value={channel.id}>
+										{channel.channelCustomUrl}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+					<div className="grid grid-cols-4 items-center gap-4">
+						<Label htmlFor="title" className="text-right">
+							Title
+						</Label>
+						<Input
+							id="title"
+							value={title}
+							onChange={(e) => setTitle(e.target.value)}
+							className="col-span-3"
+						/>
+					</div>
+					<div className="grid grid-cols-4 items-center gap-4">
+						<Label htmlFor="description" className="text-right">
+							Description
+						</Label>
+						<Textarea
+							id="description"
+							value={description}
+							onChange={(e) => setDescription(e.target.value)}
+							className="col-span-3"
+						/>
+					</div>
+					<div className="grid grid-cols-4 items-center gap-4">
+						<Label htmlFor="visibility" className="text-right">
+							Visibility
+						</Label>
+						<Select
+							value={visibility}
+							onValueChange={(value: 'public' | 'private' | 'unlisted') => setVisibility(value)}
+						>
+							<SelectTrigger className="col-span-3">
+								<SelectValue placeholder="Select visibility" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="public">Public</SelectItem>
+								<SelectItem value="private">Private</SelectItem>
+								<SelectItem value="unlisted">Unlisted</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
 				</div>
-				<Input
-					value={title}
-					onChange={(e) => setTitle(e.target.value)}
-					placeholder="Title"
-					disabled={!selectedChannel}
-				/>
-				<div className="flex items-center gap-2">
-					<Label htmlFor="is-private">Private?</Label>
-					<Switch
-						id="is-private"
-						checked={isPrivate}
-						onCheckedChange={(checked) => setIsPrivate(checked)}
-						disabled={!selectedChannel}
-					/>
-				</div>
-				<Button disabled={!selectedChannel || !title || isUploading} onClick={handleUpload}>
-					{isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-					Upload
-				</Button>
+				<DialogFooter>
+					<Button onClick={handleUpload} disabled={!selectedChannel || !title || isUploading}>
+						{isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+						Upload
+					</Button>
+				</DialogFooter>
 			</DialogContent>
 		</Dialog>
 	);

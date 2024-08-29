@@ -42,10 +42,11 @@ export const postVideoToYoutube = createServerAction()
 	.input(
 		z.object({
 			title: z.string(),
+			description: z.string(), // New field
 			videoUrl: z.string(),
 			parentSocialMediaPostId: z.string(),
 			youtubeChannelId: z.string(),
-			isPrivate: z.boolean().default(false)
+			visibility: z.enum(['public', 'private', 'unlisted']) // New field
 		})
 	)
 	.handler(async ({ input }) => {
@@ -64,7 +65,14 @@ export const postVideoToYoutube = createServerAction()
 				throw new ZSAError('NOT_AUTHORIZED', 'You are not authorized to perform this action.');
 			}
 
-			const { title, videoUrl, parentSocialMediaPostId, youtubeChannelId, isPrivate } = input;
+			const {
+				title,
+				description,
+				videoUrl,
+				parentSocialMediaPostId,
+				youtubeChannelId,
+				visibility
+			} = input;
 
 			let videoStream;
 			try {
@@ -103,8 +111,11 @@ export const postVideoToYoutube = createServerAction()
 					auth: youtubeAuthClient,
 					part: ['snippet', 'status'],
 					requestBody: {
-						snippet: { title },
-						status: { privacyStatus: isPrivate ? 'private' : 'public' }
+						snippet: {
+							title,
+							description // Add description
+						},
+						status: { privacyStatus: visibility } // Use visibility instead of isPrivate
 					},
 					media: {
 						body: videoStream,
