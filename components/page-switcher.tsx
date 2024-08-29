@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { useTemplateStore } from '@/stores/templatestore';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -44,15 +45,21 @@ export const PageSwitcher = () => {
 	const nextStep = currentIndex < adjustedSteps.length - 1 ? adjustedSteps[currentIndex + 1] : null;
 
 	return (
-		<div className="flex justify-end space-x-2">
+		<div className="flex items-center space-x-4">
 			{prevStep && (
-				<Button asChild>
-					<Link href={prevStep.href}>Previous</Link>
+				<Button size="sm" asChild>
+					<Link href={prevStep.href}>
+						<ChevronLeft className="w-4 h-4 mr-1" />
+						Previous
+					</Link>
 				</Button>
 			)}
 			{nextStep && (
-				<Button asChild>
-					<Link href={nextStep.href}>Next</Link>
+				<Button size="sm" asChild>
+					<Link href={nextStep.href}>
+						Next
+						<ChevronRight className="w-4 h-4 ml-1" />
+					</Link>
 				</Button>
 			)}
 		</div>

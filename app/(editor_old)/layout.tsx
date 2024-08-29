@@ -48,7 +48,8 @@ export default async function Layout({
 			<div className="flex flex-col h-screen">
 				<header className="flex items-center gap-4 border-b bg-muted/40 px-4 lg:px-6 min-h-14">
 					<MobileSidebar user={user} />
-					<div className="w-full flex-1"></div>
+					<PageSwitcher />
+					<div className="flex-1"></div>
 					<ModeToggle />
 				</header>
 				<main className="flex flex-col p-4 lg:p-6 flex-grow overflow-hidden">
@@ -60,7 +61,6 @@ export default async function Layout({
 						<div className="w-full lg:w0/2 overflow-hidden flex flex-col">
 							<div className="flex-grow overflow-auto rounded-lg border shadow-sm p-3 flex flex-col">
 								{children}
-								<PageSwitcher />
 							</div>
 						</div>
 						<div className="w-full lg:w-1/2 flex items-center justify-center bg-muted rounded-lg">
