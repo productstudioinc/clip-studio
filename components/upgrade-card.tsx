@@ -18,7 +18,7 @@ export default function UpgradeCard() {
 					href="/pricing"
 					className={cn(buttonVariants({ size: 'sm', variant: 'rainbow' }), 'w-full')}
 				>
-					<ZapIcon className="h-4 w-4 mr-2" />
+					<ZapIcon className="h-4 w-4 mr-2 fill-current" />
 					Upgrade
 				</Link>
 			</CardContent>
