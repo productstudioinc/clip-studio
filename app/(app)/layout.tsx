@@ -1,12 +1,9 @@
 import { getUser, getUserSubscription } from '@/actions/auth/user';
 import { getUserUsage } from '@/actions/db/user-queries';
-import Hero from '@/components/hero';
-import { Icons } from '@/components/icons';
+import HeroWrapper from '@/components/hero-wrapper';
 import { MobileSidebar } from '@/components/mobile-sidebar';
 import { Sidebar } from '@/components/sidebar';
 import { ModeToggle } from '@/components/theme-toggle';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import React from 'react';
 
 export default async function Layout({
@@ -25,20 +22,7 @@ export default async function Layout({
 			<div className="hidden border-r bg-muted/40 md:block">
 				<div className="flex h-full max-h-screen flex-col gap-2">
 					<div className="flex min-h-14 items-center border-b px-4 lg:px-6">
-						<Dialog>
-							<DialogTrigger asChild>
-								<Button
-									variant="link"
-									className="flex w-full items-center justify-start gap-2 px-2 p-0 font-semibold"
-								>
-									<Icons.logo className="w-4 h-4" />
-									<span>Clip Studio</span>
-								</Button>
-							</DialogTrigger>
-							<DialogContent>
-								<Hero />
-							</DialogContent>
-						</Dialog>
+						<HeroWrapper />
 					</div>
 					<Sidebar user={user} subscription={subscriptionData} usage={usage} />
 				</div>
