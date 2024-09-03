@@ -141,11 +141,9 @@ export const getTranscription = createServerAction()
 							data: result.data
 						};
 					} else {
-						await db
-							.update(userUsage)
-							.set({
-								transcriptionSecondsLeft: sql`transcription_seconds_left + ${input.duration}`
-							});
+						await db.update(userUsage).set({
+							transcriptionSecondsLeft: sql`transcription_seconds_left + ${input.duration}`
+						});
 						logger.error('Invalid response from Whisper', { callId: input.callId });
 						await logger.flush();
 						throw new ZSAError('OUTPUT_PARSE_ERROR', 'Invalid response returned from Whisper');
