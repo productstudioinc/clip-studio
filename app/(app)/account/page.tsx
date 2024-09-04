@@ -47,7 +47,7 @@ export default async function Account() {
 									<CardContent className="flex flex-1">
 										<form action={connectYoutubeAccount} className="w-full flex items-end">
 											<Button size="sm" className="w-full">
-												<Icons.youtube className="size-4 mr-2" />
+												<Icons.youtube className="size-9 mr-2" />
 												Connect Youtube
 											</Button>
 										</form>
@@ -92,7 +92,7 @@ export default async function Account() {
 									<CardContent className="flex flex-1">
 										<form action={connectTiktokAccount} className="w-full flex items-end">
 											<Button size="sm" className="w-full">
-												<Icons.tiktok className="size-4 mr-2" />
+												<Icons.tiktok className="size-6 mr-2" />
 												Connect TikTok
 											</Button>
 										</form>
