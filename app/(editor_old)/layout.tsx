@@ -3,6 +3,7 @@ import { getUserUsage } from '@/actions/db/user-queries';
 import HeroWrapper from '@/components/hero-wrapper';
 import { MobileSidebar } from '@/components/mobile-sidebar';
 import { PageSwitcher } from '@/components/page-switcher';
+import { ResetSettings } from '@/components/reset-settings';
 import { Sidebar } from '@/components/sidebar';
 import { ModeToggle } from '@/components/theme-toggle';
 import { VideoPreview } from '@/components/video-preview';
@@ -33,6 +34,7 @@ export default async function Layout({
 				<header className="flex items-center gap-4 border-b bg-muted/40 px-4 lg:px-6 min-h-14">
 					<MobileSidebar user={user} />
 					<PageSwitcher />
+					<ResetSettings />
 					<div className="flex-1"></div>
 					<ModeToggle />
 				</header>
