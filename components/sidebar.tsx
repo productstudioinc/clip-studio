@@ -124,7 +124,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) =
 					<UpgradeCard />
 				)}
 			</div>
-			<div className="px-2 lg:px-4">
+			<div className="px-2 lg:px-4 pb-4">
 				{user ? (
 					<UserAccountMenu user={user} />
 				) : (
