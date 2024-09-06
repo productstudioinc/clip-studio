@@ -11,15 +11,16 @@ import { useTemplateStore } from '@/stores/templatestore';
 import { User } from '@supabase/supabase-js';
 import {
 	CaptionsIcon,
-	CircleUser,
-	CogIcon,
-	FileText,
-	FileUpIcon,
-	HandCoins,
+	DollarSignIcon,
+	FileIcon,
 	LayoutTemplateIcon,
-	LucideIcon,
-	MicVocalIcon,
-	UserIcon
+	LogInIcon,
+	MicIcon,
+	Settings2Icon,
+	ShieldIcon,
+	UploadIcon,
+	UserIcon,
+	type LucideIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -64,13 +65,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) =
 
 	const navItems: NavItem[] = [
 		{ href: '/', icon: LayoutTemplateIcon, label: 'Templates' },
-		{ href: '/configure', icon: CogIcon, label: 'Configure' },
+		{ href: '/configure', icon: Settings2Icon, label: 'Configure' },
 		{
 			href: selectedTemplate === 'SplitScreen' ? '/caption' : '/voiceover',
-			icon: selectedTemplate === 'SplitScreen' ? CaptionsIcon : MicVocalIcon,
+			icon: selectedTemplate === 'SplitScreen' ? CaptionsIcon : MicIcon,
 			label: selectedTemplate === 'SplitScreen' ? 'Caption' : 'Voiceover'
 		},
-		{ href: '/export', icon: FileUpIcon, label: 'Export' }
+		{ href: '/export', icon: UploadIcon, label: 'Export' }
 	];
 
 	const profileNavItems: NavItem[] = [
@@ -82,8 +83,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) =
 	];
 
 	const bottomNavItems: NavItem[] = [
-		{ href: '/terms', icon: FileText, label: 'Terms of Service' },
-		{ href: '/privacy', icon: FileText, label: 'Privacy Policy' }
+		{ href: '/terms', icon: FileIcon, label: 'Terms of Service' },
+		{ href: '/privacy', icon: ShieldIcon, label: 'Privacy Policy' }
 	];
 
 	return (
@@ -104,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) =
 					href="/affiliate"
 					className={cn(buttonVariants({ variant: 'default' }), 'w-full gap-2 rounded-md')}
 				>
-					<HandCoins className="h-4 w-4 flex-shrink-0" />
+					<DollarSignIcon className="h-4 w-4 flex-shrink-0" />
 					<span>Earn 20% per referral</span>
 				</Link>
 			</div>
@@ -134,7 +135,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) =
 							'w-full justify-start gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:text-primary'
 						)}
 					>
-						<CircleUser className="h-4 w-4" />
+						<LogInIcon className="h-4 w-4" />
 						Login
 					</Link>
 				)}
