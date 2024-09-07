@@ -25,32 +25,27 @@ export default async function RootLayout({
 	auth: React.ReactNode;
 }>) {
 	return (
-		<>
-			<html lang="en">
-				<Script
-					src="https://cdn.tolt.io/tolt.js"
-					data-tolt="4196373f-07fe-4d9a-927b-5aa9c7952153"
-				/>
-				<AxiomWebVitals />
-				<PHProvider>
-					<body className={GeistSans.className}>
-						<Suspense fallback={<></>}>
-							<ErrorToast />
-						</Suspense>
-						<PostHogPageView />
-						<ThemeProvider
-							attribute="class"
-							defaultTheme="system"
-							enableSystem
-							disableTransitionOnChange
-						>
-							{auth}
-							{children}
-							<Toaster position="top-right" />
-						</ThemeProvider>
-					</body>
-				</PHProvider>
-			</html>
-		</>
+		<html lang="en" suppressHydrationWarning>
+			<Script src="https://cdn.tolt.io/tolt.js" data-tolt="4196373f-07fe-4d9a-927b-5aa9c7952153" />
+			<AxiomWebVitals />
+			<PHProvider>
+				<body className={GeistSans.className}>
+					<Suspense fallback={<></>}>
+						<ErrorToast />
+					</Suspense>
+					<PostHogPageView />
+					<ThemeProvider
+						attribute="class"
+						defaultTheme="system"
+						enableSystem
+						disableTransitionOnChange
+					>
+						{auth}
+						{children}
+						<Toaster position="top-right" />
+					</ThemeProvider>
+				</body>
+			</PHProvider>
+		</html>
 	);
 }
