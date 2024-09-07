@@ -1,13 +1,15 @@
 'use server';
 
-import { getUser } from '@/actions/auth/user';
+import { getUser, signOut } from '@/actions/auth/user';
 import { db } from '@/db';
 import {
+	customers,
 	planLimits,
 	prices,
 	products,
 	socialMediaPosts,
 	subscriptions,
+	users,
 	userUsage
 } from '@/db/schema';
 import { and, eq } from 'drizzle-orm';
@@ -144,5 +146,32 @@ export const createSocialMediaPost = createServerAction()
 			});
 			await logger.flush();
 			throw new ZSAError('INTERNAL_SERVER_ERROR', 'Failed to create social media post');
+		}
+	});
+
+export const deleteUser = createServerAction()
+	.input(z.void())
+	.handler(async () => {
+		const { user } = await getUser();
+		if (!user) {
+			logger.warn('Attempted to delete user for unauthenticated user');
+			await logger.flush();
+			throw new ZSAError('NOT_AUTHORIZED', 'You are not authorized to perform this action.');
+		}
+		logger.info('Deleting user', { userId: user.id });
+		try {
+			await db.delete(customers).where(eq(customers.id, user.id));
+			await db.delete(users).where(eq(users.id, user.id));
+			await signOut();
+			logger.info('User deleted successfully', { userId: user.id });
+			await logger.flush();
+		} catch (error) {
+			logger.error('Error deleting user', {
+				userId: user.id,
+				error: error instanceof Error ? error.message : String(error)
+			});
+			console.log(error);
+			await logger.flush();
+			throw new ZSAError('INTERNAL_SERVER_ERROR', 'Failed to delete user');
 		}
 	});

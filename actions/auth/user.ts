@@ -62,13 +62,22 @@ export const signOut = async () => {
 	const supabase = createClient();
 	const logger = new Logger().with({ function: 'signOut' });
 	logger.info(startingFunctionString);
-	const { error } = await supabase.auth.signOut();
-	if (error) {
-		logger.error(errorString, error);
+	try {
+		const { error } = await supabase.auth.signOut();
+		if (error) {
+			logger.error(errorString, error);
+			await logger.flush();
+			redirect('/login?message=' + error.message);
+		}
+		logger.info(endingFunctionString);
 		await logger.flush();
-		return redirect('/login?message=' + error.message);
+		redirect('/');
+	} catch (error) {
+		logger.error('Error during sign out', {
+			error: error instanceof Error ? error.message : String(error)
+		});
+		await logger.flush();
+		// Handle the error gracefully, e.g., show an error message to the user
+		// or redirect to a different page
 	}
-	logger.info(endingFunctionString);
-	await logger.flush();
-	return redirect('/');
 };

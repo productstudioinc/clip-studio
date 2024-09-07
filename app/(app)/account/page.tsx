@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { redirect } from 'next/navigation';
-import { DeleteTikTokAccount, DeleteYoutubeAccount } from './delete-account';
+import { DeleteAccount, DeleteTikTokAccount, DeleteYoutubeAccount } from './delete-account';
 
 export default async function Account() {
 	const { user } = await getUser();
@@ -23,7 +23,7 @@ export default async function Account() {
 	return (
 		<main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
 			<div className="mx-auto grid w-full max-w-6xl gap-2">
-				<h1 className="text-3xl font-semibold">Settings</h1>
+				<h1 className="text-3xl font-semibold">Account</h1>
 			</div>
 			<div className="mx-auto grid w-full max-w-6xl items-start gap-6">
 				<nav className="grid gap-4 text-sm text-muted-foreground xl:hidden">
@@ -126,6 +126,10 @@ export default async function Account() {
 									</Card>
 								))}
 							</div>
+						</div>
+						<div className="flex flex-col gap-4">
+							<h2 className="text-2xl font-semibold">Danger Zone</h2>
+							<DeleteAccount />
 						</div>
 					</div>
 				</div>
