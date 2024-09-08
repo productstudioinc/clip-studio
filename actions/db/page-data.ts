@@ -11,7 +11,11 @@ const logger = new Logger({
 const getCachedTemplates = unstable_cache(
 	async () => {
 		try {
-			const response = await db.select().from(templates).where(ne(templates.name, 'TwitterThread'));
+			const response = await db
+				.select()
+				.from(templates)
+				.where(ne(templates.value, 'TwitterThread'));
+			console.log(response);
 			return response;
 		} catch (error) {
 			logger.error('Error fetching templates', {
