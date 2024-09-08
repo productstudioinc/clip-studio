@@ -1,12 +1,17 @@
 'use client';
 
 import { generatePresignedUrl } from '@/actions/generatePresignedUrl';
+import { getRedditInfo } from '@/actions/reddit';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useTemplateStore } from '@/stores/templatestore';
 import { getVideoMetadata } from '@remotion/media-utils';
+import { Loader2 } from 'lucide-react'; // Import the loader icon
+import { useState } from 'react';
 import { toast } from 'sonner';
+import { useServerAction } from 'zsa-react';
 
 export default function ConfigureControls() {
 	const { selectedTemplate } = useTemplateStore((state) => ({
@@ -98,32 +103,61 @@ const SplitScreenControls: React.FC = ({}) => {
 	);
 };
 
-const RedditControls: React.FC = ({}) => {
+const RedditControls: React.FC = () => {
 	const { redditState, setRedditState } = useTemplateStore((state) => ({
 		redditState: state.redditState,
 		setRedditState: state.setRedditState
 	}));
-	const handleRedditChange = (value: string) => {
-		setRedditState({
-			...redditState,
-			title: value
-		});
+	const [postUrl, setPostUrl] = useState('');
+
+	const { execute, isPending } = useServerAction(getRedditInfo);
+
+	const handleFetchRedditPost = async () => {
+		try {
+			const [data, error] = await execute(postUrl);
+			if (error) {
+				toast.error(error.message);
+			} else if (data) {
+				setRedditState({
+					...redditState,
+					subreddit: data.subreddit,
+					title: data.title,
+					text: data.text
+				});
+				toast.success('Reddit post data fetched successfully');
+				setPostUrl('');
+			}
+		} catch (error) {
+			console.error('Error fetching Reddit post:', error);
+			toast.error('Error fetching Reddit post');
+		}
 	};
-	const handleRedditTextChange = (value: string) => {
-		setRedditState({
-			...redditState,
-			text: value
-		});
-	};
+
 	return (
 		<>
+			<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
+				<Label htmlFor="redditPostUrl">Reddit Post URL</Label>
+				<Input
+					id="redditPostUrl"
+					type="text"
+					value={postUrl}
+					onChange={(e) => setPostUrl(e.target.value)}
+					placeholder="https://www.reddit.com/r/subreddit/comments/..."
+					disabled={isPending}
+				/>
+				<Button onClick={handleFetchRedditPost} className="mt-2" disabled={isPending}>
+					Fetch Post Data
+					{isPending && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+				</Button>
+			</div>
 			<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
 				<Label htmlFor="redditAccount">Account Name</Label>
 				<Input
 					id="redditAccount"
 					type="text"
-					onChange={(e) => setRedditState({ ...redditState, accountName: e.target.value })}
 					value={redditState.accountName}
+					onChange={(e) => setRedditState({ ...redditState, accountName: e.target.value })}
+					disabled={isPending}
 				/>
 			</div>
 			<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
@@ -131,17 +165,28 @@ const RedditControls: React.FC = ({}) => {
 				<Input
 					id="redditSubreddit"
 					type="text"
-					onChange={(e) => setRedditState({ ...redditState, subreddit: e.target.value })}
 					value={redditState.subreddit}
+					onChange={(e) => setRedditState({ ...redditState, subreddit: e.target.value })}
+					disabled={isPending}
 				/>
 			</div>
 			<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
 				<Label htmlFor="redditTitle">Title</Label>
-				<Textarea id="redditTitle" onChange={(e) => handleRedditChange(e.target.value)} />
+				<Textarea
+					id="redditTitle"
+					value={redditState.title}
+					onChange={(e) => setRedditState({ ...redditState, title: e.target.value })}
+					disabled={isPending}
+				/>
 			</div>
 			<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
 				<Label htmlFor="redditText">Text</Label>
-				<Textarea id="redditText" onChange={(e) => handleRedditTextChange(e.target.value)} />
+				<Textarea
+					id="redditText"
+					value={redditState.text}
+					onChange={(e) => setRedditState({ ...redditState, text: e.target.value })}
+					disabled={isPending}
+				/>
 			</div>
 		</>
 	);

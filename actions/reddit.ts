@@ -1,8 +1,13 @@
 'use server';
 
+import { Logger } from 'next-axiom';
 import { z } from 'zod';
 import { createServerAction, ZSAError } from 'zsa';
 import { getUser } from './auth/user';
+
+const logger = new Logger({
+	source: 'actions/reddit'
+});
 
 const redditUrlSchema = z
 	.string()
@@ -11,13 +16,98 @@ const redditUrlSchema = z
 		message: 'Invalid Reddit post URL'
 	});
 
+async function getRedditAccessToken() {
+	const clientId = process.env.REDDIT_CLIENT_ID;
+	const clientSecret = process.env.REDDIT_CLIENT_SECRET;
+
+	if (!clientId || !clientSecret) {
+		throw new Error('Reddit API credentials are not configured');
+	}
+
+	const response = await fetch('https://www.reddit.com/api/v1/access_token', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`
+		},
+		body: 'grant_type=client_credentials'
+	});
+
+	if (!response.ok) {
+		throw new Error('Failed to obtain Reddit access token');
+	}
+
+	const data = await response.json();
+	return data.access_token;
+}
+
 export const getRedditInfo = createServerAction()
 	.input(redditUrlSchema)
 	.handler(async ({ input }) => {
-		const user = await getUser();
-		if (!user) {
-			throw new ZSAError('FORBIDDEN', 'User not found');
+		try {
+			const user = await getUser();
+			if (!user) {
+				throw new ZSAError('FORBIDDEN', 'User not found');
+			}
+
+			const match = input.match(/\/comments\/([^/]+)\//);
+			const postId = match ? match[1] : null;
+
+			console.log('postId', postId);
+
+			if (!postId) {
+				throw new ZSAError('INPUT_PARSE_ERROR', 'Invalid post ID');
+			}
+
+			const accessToken = await getRedditAccessToken();
+
+			const apiUrl = `https://oauth.reddit.com/api/info?id=t3_${postId}`;
+			const response = await fetch(apiUrl, {
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'User-Agent': 'YourAppName/1.0.0'
+				}
+			});
+
+			if (!response.ok) {
+				throw new ZSAError('INTERNAL_SERVER_ERROR', 'Failed to fetch Reddit post data');
+			}
+
+			const data = await response.json();
+			const post = data.data.children[0]?.data;
+
+			if (!post) {
+				throw new ZSAError('NOT_FOUND', 'Reddit post not found');
+			}
+
+			logger.info('Reddit post fetched successfully', {
+				userId: user.user?.id,
+				subreddit: post.subreddit,
+				postId: postId
+			});
+
+			return {
+				subreddit: post.subreddit,
+				title: post.title,
+				text: post.selftext
+			};
+		} catch (error) {
+			if (error instanceof ZSAError) {
+				logger.error('ZSAError in getRedditInfo', {
+					errorCode: error.code,
+					errorMessage: error.message,
+					input: input
+				});
+				throw error;
+			} else {
+				logger.error('Unexpected error in getRedditInfo', {
+					error: error instanceof Error ? error.message : String(error),
+					input: input
+				});
+				throw new ZSAError(
+					'INTERNAL_SERVER_ERROR',
+					error instanceof Error ? error.message : String(error)
+				);
+			}
 		}
-		const postId = input.split('/').pop()?.split('?')[0];
-		console.log(postId);
 	});
