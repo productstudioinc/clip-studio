@@ -1,5 +1,11 @@
 'use client';
 
+import { getVideoMetadata } from '@remotion/media-utils';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { useServerAction } from 'zsa-react';
+
 import { generatePresignedUrl } from '@/actions/generatePresignedUrl';
 import { getRedditInfo } from '@/actions/reddit';
 import { Button } from '@/components/ui/button';
@@ -7,73 +13,55 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useTemplateStore } from '@/stores/templatestore';
-import { getVideoMetadata } from '@remotion/media-utils';
-import { Loader2 } from 'lucide-react'; // Import the loader icon
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { useServerAction } from 'zsa-react';
 
 export default function ConfigureControls() {
 	const { selectedTemplate } = useTemplateStore((state) => ({
 		selectedTemplate: state.selectedTemplate
 	}));
+
 	return (
-		<>
-			<h2 className="text-2xl font-semibold leading-none tracking-tight pt-2 pb-6">
-				Modify Template
-			</h2>
+		<div className="space-y-6">
+			<h2 className="text-2xl font-semibold leading-none tracking-tight">Modify Template</h2>
 			{selectedTemplate === 'SplitScreen' && <SplitScreenControls />}
 			{selectedTemplate === 'Reddit' && <RedditControls />}
 			{selectedTemplate === 'TwitterThread' && <TwitterThreadControls />}
-			<div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4"></div>
-		</>
+		</div>
 	);
 }
 
-const SplitScreenControls: React.FC = ({}) => {
+const SplitScreenControls: React.FC = () => {
 	const { splitScreenState, setSplitScreenState } = useTemplateStore((state) => ({
 		splitScreenState: state.splitScreenState,
 		setSplitScreenState: state.setSplitScreenState
 	}));
 
 	const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		if (event.target.files === null) {
-			return;
-		}
+		if (event.target.files === null) return;
 
 		const file = event.target.files[0];
-
 		const MAX_FILE_SIZE = 200 * 1024 * 1024;
+
 		if (file.size > MAX_FILE_SIZE) {
-			toast.error('File size exceeds 200mb');
+			toast.error('File size exceeds 200MB');
 			return;
 		}
 
 		const blobUrl = URL.createObjectURL(file);
-
 		const contentType = file.type || 'application/octet-stream';
 		const arrayBuffer = await file.arrayBuffer();
 		const contentLength = arrayBuffer.byteLength;
 
-		const [data, err] = await generatePresignedUrl({
-			contentType: contentType,
-			contentLength: contentLength
-		});
+		const [data, err] = await generatePresignedUrl({ contentType, contentLength });
+
 		if (err) {
 			toast.error(err.message);
 		} else {
-			setSplitScreenState({
-				...splitScreenState,
-				type: 'blob',
-				videoUrl: blobUrl
-			});
+			setSplitScreenState({ ...splitScreenState, type: 'blob', videoUrl: blobUrl });
 
 			await fetch(data?.presignedUrl, {
 				method: 'PUT',
 				body: arrayBuffer,
-				headers: {
-					'Content-Type': contentType
-				}
+				headers: { 'Content-Type': contentType }
 			});
 
 			const { durationInSeconds } = await getVideoMetadata(data?.readUrl);
@@ -84,10 +72,7 @@ const SplitScreenControls: React.FC = ({}) => {
 				videoUrl: data?.readUrl,
 				durationInFrames: Math.floor(durationInSeconds * 30),
 				transcriptionId: '',
-				transcription: {
-					text: '',
-					chunks: []
-				}
+				transcription: { text: '', chunks: [] }
 			});
 
 			URL.revokeObjectURL(blobUrl);
@@ -95,9 +80,8 @@ const SplitScreenControls: React.FC = ({}) => {
 	};
 
 	return (
-		<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
-			<Label htmlFor="video">Your Video</Label>
-			<p className="text-sm text-muted-foreground">Max 200mb</p>
+		<div className="space-y-2">
+			<Label htmlFor="video">Your Video (Max 200MB)</Label>
 			<Input id="video" type="file" accept="video/*" onChange={handleFileChange} />
 		</div>
 	);
@@ -109,7 +93,6 @@ const RedditControls: React.FC = () => {
 		setRedditState: state.setRedditState
 	}));
 	const [postUrl, setPostUrl] = useState('');
-
 	const { execute, isPending } = useServerAction(getRedditInfo);
 
 	const handleFetchRedditPost = async () => {
@@ -134,8 +117,8 @@ const RedditControls: React.FC = () => {
 	};
 
 	return (
-		<>
-			<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
+		<div className="space-y-4">
+			<div className="space-y-2">
 				<Label htmlFor="redditPostUrl">Reddit Post URL</Label>
 				<Input
 					id="redditPostUrl"
@@ -145,12 +128,18 @@ const RedditControls: React.FC = () => {
 					placeholder="https://www.reddit.com/r/subreddit/comments/..."
 					disabled={isPending}
 				/>
-				<Button onClick={handleFetchRedditPost} className="mt-2" disabled={isPending}>
-					Fetch Post Data
-					{isPending && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+				<Button onClick={handleFetchRedditPost} className="w-full" disabled={isPending}>
+					{isPending ? (
+						<>
+							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+							Fetching...
+						</>
+					) : (
+						'Fetch Post Data'
+					)}
 				</Button>
 			</div>
-			<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
+			<div className="space-y-2">
 				<Label htmlFor="redditAccount">Account Name</Label>
 				<Input
 					id="redditAccount"
@@ -160,7 +149,7 @@ const RedditControls: React.FC = () => {
 					disabled={isPending}
 				/>
 			</div>
-			<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
+			<div className="space-y-2">
 				<Label htmlFor="redditSubreddit">Subreddit</Label>
 				<Input
 					id="redditSubreddit"
@@ -170,7 +159,7 @@ const RedditControls: React.FC = () => {
 					disabled={isPending}
 				/>
 			</div>
-			<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
+			<div className="space-y-2">
 				<Label htmlFor="redditTitle">Title</Label>
 				<Textarea
 					id="redditTitle"
@@ -179,7 +168,7 @@ const RedditControls: React.FC = () => {
 					disabled={isPending}
 				/>
 			</div>
-			<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
+			<div className="space-y-2">
 				<Label htmlFor="redditText">Text</Label>
 				<Textarea
 					id="redditText"
@@ -188,15 +177,16 @@ const RedditControls: React.FC = () => {
 					disabled={isPending}
 				/>
 			</div>
-		</>
+		</div>
 	);
 };
 
-const TwitterThreadControls: React.FC = ({}) => {
+const TwitterThreadControls: React.FC = () => {
 	const { twitterThreadState, setTwitterThreadState } = useTemplateStore((state) => ({
 		twitterThreadState: state.twitterThreadState,
 		setTwitterThreadState: state.setTwitterThreadState
 	}));
+
 	const handleTweetIdsChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
 		const input = event.target.value;
 		const tweetUrls = input.split(/[\n,]+/).map((url) => url.trim());
@@ -212,12 +202,27 @@ const TwitterThreadControls: React.FC = ({}) => {
 	};
 
 	return (
-		<div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
-			<Label htmlFor="tweetUrls">Tweet URLs</Label>
-			{twitterThreadState.tweetIds.map((tweetId) => (
-				<div key={tweetId}>{tweetId}</div>
-			))}
-			<Textarea id="tweetUrls" onChange={handleTweetIdsChange} />
+		<div className="space-y-4">
+			<div className="space-y-2">
+				<Label htmlFor="tweetUrls">Tweet URLs</Label>
+				<Textarea
+					id="tweetUrls"
+					onChange={handleTweetIdsChange}
+					placeholder="Enter tweet URLs, one per line"
+				/>
+			</div>
+			{twitterThreadState.tweetIds.length > 0 && (
+				<div className="space-y-2">
+					<Label>Extracted Tweet IDs</Label>
+					<div className="bg-muted p-2 rounded-md">
+						{twitterThreadState.tweetIds.map((tweetId) => (
+							<div key={tweetId} className="text-sm">
+								{tweetId}
+							</div>
+						))}
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };
