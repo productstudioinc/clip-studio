@@ -1,5 +1,6 @@
 import { db } from '@/db';
 import { templates } from '@/db/schema';
+import { ne } from 'drizzle-orm';
 import { Logger } from 'next-axiom';
 import { unstable_cache } from 'next/cache';
 
@@ -10,7 +11,7 @@ const logger = new Logger({
 const getCachedTemplates = unstable_cache(
 	async () => {
 		try {
-			const response = await db.select().from(templates);
+			const response = await db.select().from(templates).where(ne(templates.name, 'TwitterThread'));
 			return response;
 		} catch (error) {
 			logger.error('Error fetching templates', {
