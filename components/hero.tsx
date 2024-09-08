@@ -139,7 +139,7 @@ export default function Hero() {
 	return (
 		<main className="container mx-auto gap-4 flex flex-col w-full">
 			<section id="hero">
-				<div className="flex w-full flex-col items-center justify-start px-4 sm:px-6 sm:pt-16 lg:px-8">
+				<div className="flex w-full flex-col items-center justify-start px-4 sm:px-6 sm:pt-8 lg:px-8">
 					<HeroPill />
 					<HeroTitles />
 					<HeroCTA />
