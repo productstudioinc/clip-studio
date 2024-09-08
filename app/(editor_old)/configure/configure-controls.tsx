@@ -4,6 +4,7 @@ import { getVideoMetadata } from '@remotion/media-utils';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { z } from 'zod';
 import { useServerAction } from 'zsa-react';
 
 import { generatePresignedUrl } from '@/actions/generatePresignedUrl';
@@ -93,10 +94,21 @@ const RedditControls: React.FC = () => {
 		setRedditState: state.setRedditState
 	}));
 	const [postUrl, setPostUrl] = useState('');
+	const [urlError, setUrlError] = useState<string | null>(null);
 	const { execute, isPending } = useServerAction(getRedditInfo);
+
+	const redditUrlSchema = z
+		.string()
+		.url()
+		.refine((url) => url.includes('reddit.com/r/') && url.includes('/comments/'), {
+			message: 'Invalid Reddit post URL'
+		});
 
 	const handleFetchRedditPost = async () => {
 		try {
+			redditUrlSchema.parse(postUrl);
+			setUrlError(null);
+
 			const [data, error] = await execute(postUrl);
 			if (error) {
 				toast.error(error.message);
@@ -111,8 +123,12 @@ const RedditControls: React.FC = () => {
 				setPostUrl('');
 			}
 		} catch (error) {
-			console.error('Error fetching Reddit post:', error);
-			toast.error('Error fetching Reddit post');
+			if (error instanceof z.ZodError) {
+				setUrlError(error.errors[0].message);
+			} else {
+				console.error('Error fetching Reddit post:', error);
+				toast.error('Error fetching Reddit post');
+			}
 		}
 	};
 
@@ -124,11 +140,15 @@ const RedditControls: React.FC = () => {
 					id="redditPostUrl"
 					type="text"
 					value={postUrl}
-					onChange={(e) => setPostUrl(e.target.value)}
+					onChange={(e) => {
+						setPostUrl(e.target.value);
+						setUrlError(null);
+					}}
 					placeholder="https://www.reddit.com/r/subreddit/comments/..."
 					disabled={isPending}
 				/>
-				<Button onClick={handleFetchRedditPost} className="w-full" disabled={isPending}>
+				{urlError && <p className="text-sm text-red-500">{urlError}</p>}
+				<Button onClick={handleFetchRedditPost} className="w-full" disabled={isPending || !postUrl}>
 					{isPending ? (
 						<>
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
