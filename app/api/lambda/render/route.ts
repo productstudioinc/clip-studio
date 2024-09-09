@@ -14,6 +14,12 @@ import { format } from 'date-fns';
 import { eq, sql } from 'drizzle-orm';
 import { AxiomRequest } from 'next-axiom';
 
+const templateNameMap = {
+	SplitScreen: 'Splitscreen',
+	TwitterThread: 'Twitter Thread',
+	Reddit: 'Reddit Story'
+};
+
 export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 	RenderRequest,
 	async (req: AxiomRequest, body) => {
@@ -96,7 +102,8 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 				customData: {
 					durationInFrames: body.inputProps.durationInFrames,
 					userId: user.id,
-					userEmail: user.email
+					userEmail: user.email,
+					templateName: templateNameMap[body.id as keyof typeof templateNameMap] || body.id
 				}
 			}
 		});

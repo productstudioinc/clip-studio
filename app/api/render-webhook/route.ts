@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { userUsage } from '@/db/schema';
+import { pastRenders, userUsage } from '@/db/schema';
 import { validateWebhookSignature, WebhookPayload } from '@remotion/lambda/client';
 import { eq, sql } from 'drizzle-orm';
 import { withAxiom } from 'next-axiom';
@@ -58,6 +58,12 @@ export const POST = withAxiom(async (req) => {
 				outputUrl: payload.outputUrl,
 				timeToFinish: payload.timeToFinish,
 				estimatedCost: payload.costs.estimatedCost
+			});
+			await db.insert(pastRenders).values({
+				userId: payload.customData?.userId as string,
+				templateName: payload.customData?.templateName as string,
+				videoUrl: payload.outputUrl,
+				createdAt: new Date()
 			});
 			break;
 		case 'timeout':
