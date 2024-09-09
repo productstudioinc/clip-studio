@@ -21,7 +21,7 @@ export default async function Account() {
 	const { youtubeChannels, tiktokAccounts } = await fetchUserConnectSocialMediaAccounts(user.id);
 
 	return (
-		<main>
+		<>
 			<div className="mx-auto grid w-full max-w-6xl gap-2">
 				<h1 className="text-3xl font-semibold">Account</h1>
 			</div>
@@ -134,6 +134,6 @@ export default async function Account() {
 					</div>
 				</div>
 			</div>
-		</main>
+		</>
 	);
 }
