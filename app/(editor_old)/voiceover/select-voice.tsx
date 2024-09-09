@@ -3,16 +3,14 @@
 import { ElevenlabsVoice, generateAudioAndTimestamps } from '@/actions/elevenlabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { useTemplateStore } from '@/stores/templatestore';
 import { Loader2, Pause, Play } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useServerAction } from 'zsa-react';
 
-export const SelectVoice: React.FC<{
-	voices: ElevenlabsVoice[];
-}> = ({ voices }) => {
+export const SelectVoice: React.FC<{ voices: ElevenlabsVoice[] }> = ({ voices }) => {
 	const {
 		selectedTemplate,
 		redditState,
@@ -74,53 +72,72 @@ export const SelectVoice: React.FC<{
 				voiceoverFrames: data.voiceoverObject
 			});
 		} else if (selectedTemplate === 'TwitterThread') {
+			// Handle Twitter thread generation
 		} else {
 			toast.error('Voiceover generation not supported for this template.');
 		}
-		// need to handle twitter thread too
 	};
 
 	return (
 		<div className="space-y-4">
-			<div className="flex items-center justify-between bg-secondary p-4 rounded-lg">
-				<p className="text-lg font-semibold">
-					{selectedVoice ? `Selected Voice: ${selectedVoice.name}` : 'No voice selected'}
-				</p>
-				<Button onClick={handleGenerate} disabled={!selectedVoice || isPending}>
-					{isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-					Generate
-				</Button>
-			</div>
-			<div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+			<Card className="bg-secondary">
+				<CardContent className="py-3 px-4">
+					<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+						<div>
+							<h2 className="text-lg font-semibold">Selected Voice</h2>
+							<p className="text-sm text-muted-foreground">
+								{selectedVoice ? selectedVoice.name : 'No voice selected'}
+							</p>
+						</div>
+						<Button
+							onClick={handleGenerate}
+							disabled={!selectedVoice || isPending}
+							className="w-full sm:w-auto"
+						>
+							{isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+							Generate Voiceover
+						</Button>
+					</div>
+				</CardContent>
+			</Card>
+
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 				{voices.map((voice) => (
 					<Card
 						key={voice.voice_id}
-						className={`flex flex-row h-full cursor-pointer transition-all ${
-							selectedVoice?.voice_id === voice.voice_id ? 'ring-2 ring-primary' : ''
+						className={`cursor-pointer transition-all hover:outline hover:outline-2 hover:outline-primary ${
+							selectedVoice?.voice_id === voice.voice_id ? 'outline outline-2 outline-primary' : ''
 						}`}
 						onClick={() => handleSelectVoice(voice)}
 					>
-						<CardHeader className="p-4 justify-center items-center">
-							<Button
-								size="icon"
-								onClick={(e: React.MouseEvent) => {
-									e.stopPropagation();
-									handlePlayPause(voice.preview_url, voice.voice_id);
-								}}
-							>
-								{playingAudio === voice.voice_id ? (
-									<Pause className="h-4 w-4" />
-								) : (
-									<Play className="h-4 w-4" />
-								)}
-							</Button>
-						</CardHeader>
-						<CardContent className="flex-grow flex flex-col gap-2 p-2">
-							<CardTitle className="text-sm truncate">{voice.name || 'Unnamed Voice'}</CardTitle>
+						<CardContent className="p-4 flex flex-col gap-3">
+							<div className="flex items-center justify-between">
+								<h3 className="font-semibold truncate flex-1 mr-2">
+									{voice.name || 'Unnamed Voice'}
+								</h3>
+								<Button
+									size="sm"
+									variant="outline"
+									className="shrink-0"
+									onClick={(e: React.MouseEvent) => {
+										e.stopPropagation();
+										handlePlayPause(voice.preview_url, voice.voice_id);
+									}}
+									aria-label={
+										playingAudio === voice.voice_id ? 'Pause voice preview' : 'Play voice preview'
+									}
+								>
+									{playingAudio === voice.voice_id ? (
+										<Pause className="h-4 w-4" />
+									) : (
+										<Play className="h-4 w-4" />
+									)}
+								</Button>
+							</div>
 							{voice.labels && Object.keys(voice.labels).length > 0 && (
 								<div className="flex flex-wrap gap-1">
 									{Object.entries(voice.labels).map(([key, value]) => (
-										<Badge key={key} variant="secondary" className="text-[10px] font-normal">
+										<Badge key={key} variant="secondary" className="text-xs font-normal">
 											{value}
 										</Badge>
 									))}
