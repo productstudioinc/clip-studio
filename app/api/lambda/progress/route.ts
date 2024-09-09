@@ -51,7 +51,6 @@ export const POST = executeApi<ProgressResponse, typeof ProgressRequest>(
 				outputFile: outputFile,
 				outputSize: renderProgress.outputSizeInBytes
 			});
-			console.log(outputFile);
 			return {
 				type: 'done',
 				url: outputFile,
