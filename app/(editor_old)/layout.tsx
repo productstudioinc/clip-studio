@@ -7,6 +7,7 @@ import { ResetSettings } from '@/components/reset-settings';
 import { Sidebar } from '@/components/sidebar';
 import { ModeToggle } from '@/components/theme-toggle';
 import { VideoPreview } from '@/components/video-preview';
+import Link from 'next/link';
 import React from 'react';
 
 export default async function Layout({
@@ -56,6 +57,27 @@ export default async function Layout({
 						</div>
 					</div>
 				</main>
+				<footer className="px-4 mx-auto border-t py-2 grid md:grid-cols-2 justify-between w-full grid-cols-1 gap-1">
+					<span className="text-sm tracking-tight text-foreground">
+						Copyright © {new Date().getFullYear()}{' '}
+						<Link href="/" className="cursor-pointer">
+							Clip Studio
+						</Link>{' '}
+						- AI Generated Videos
+					</span>
+					<ul className="flex justify-start md:justify-end text-sm tracking-tight text-foreground">
+						<li className="mr-3 md:mx-4">
+							<Link href="/privacy" target="_blank" rel="noopener noreferrer">
+								Privacy Policy
+							</Link>
+						</li>
+						<li className="mr-3 md:mx-4">
+							<Link href="/terms" target="_blank" rel="noopener noreferrer">
+								Terms of Service
+							</Link>
+						</li>
+					</ul>
+				</footer>
 			</div>
 		</div>
 	);

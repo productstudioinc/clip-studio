@@ -102,6 +102,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) =
 				</nav>
 			</div>
 			<div className="px-2 lg:px-4">
+				{subscription && usage && user ? (
+					<SubscriptionCard subscriptionName={subscription} usage={usage} userId={user?.id} />
+				) : (
+					<UpgradeCard />
+				)}
+			</div>
+			<div className="px-2 lg:px-4">
 				<Link
 					href="/affiliate"
 					className={cn(buttonVariants({ variant: 'default' }), 'w-full gap-2 rounded-md')}
@@ -123,20 +130,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) =
 					Submit Feedback
 				</Link>
 			</div>
-			<div className="px-2 lg:px-4">
-				{subscription && usage && user ? (
-					<SubscriptionCard subscriptionName={subscription} usage={usage} userId={user?.id} />
-				) : (
-					<UpgradeCard />
-				)}
-			</div>
-			<div className="px-2 lg:px-4">
+			{/* <div className="px-2 lg:px-4">
 				<nav className="grid items-start text-sm font-medium">
 					{bottomNavItems.map((item) => (
 						<NavLink key={item.href} {...item} currentRoute={currentRoute} />
 					))}
 				</nav>
-			</div>
+			</div> */}
 			<div className="px-2 lg:px-4 pb-4">
 				{user ? (
 					<UserAccountMenu user={user} />
