@@ -95,7 +95,6 @@ export const getUserUsage = async () => {
 			.limit(1);
 
 		if (result.length === 0) {
-			logger.warn('No active subscription found for user', { userId: user.id });
 			await logger.flush();
 			return null;
 		}
