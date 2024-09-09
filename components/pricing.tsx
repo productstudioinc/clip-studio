@@ -82,103 +82,144 @@ export default function Pricing({
 				</div>
 
 				<div className="flex w-full items-center justify-center space-x-2">
+					<span className="text-sm text-black dark:text-white">Monthly</span>
 					<Switch
 						id="interval"
 						onCheckedChange={(checked) => {
 							setInterval(checked ? 'year' : 'month');
 						}}
 					/>
-					<span>Annual</span>
+					<span className="text-sm text-black dark:text-white">Annual</span>
+					<span className="inline-block whitespace-nowrap rounded-full bg-green-600 px-2.5 py-1 text-[11px] font-semibold uppercase leading-5 tracking-wide text-white">
+						4 MONTHS FREE ✨
+					</span>
 				</div>
 
 				<div className="mx-auto grid w-full justify-center gap-8 sm:grid-cols-1 lg:grid-cols-3">
-					{products.map((product, idx) => {
-						const monthlyPrice = product.prices.find((p) => p.interval === 'month');
-						const yearlyPrice = product.prices.find((p) => p.interval === 'year');
-						const currentPrice = interval === 'month' ? monthlyPrice : yearlyPrice;
+					{products
+						.sort((a, b) => {
+							// Sort by product.metadata.order if it exists
+							const orderA = (a.metadata as any)?.order
+								? Number((a.metadata as any).order)
+								: Infinity;
+							const orderB = (b.metadata as any)?.order
+								? Number((b.metadata as any).order)
+								: Infinity;
+							return orderA - orderB;
+						})
+						.map((product, idx) => {
+							const monthlyPrice = product.prices.find((p) => p.interval === 'month');
+							const yearlyPrice = product.prices.find(
+								(p) => p.interval === 'year' && product.defaultPriceId === p.id
+							);
+							const currentPrice = interval === 'month' ? monthlyPrice : yearlyPrice;
 
-						return (
-							<div
-								key={product.id}
-								className={cn(
-									'relative flex w-full max-w-[400px] flex-col gap-4 overflow-hidden rounded-2xl border p-4 text-black dark:text-white',
-									{
-										'border-2 border-neutral-700 shadow-lg shadow-neutral-500 dark:border-neutral-400 dark:shadow-neutral-600':
-											product.metadata && (product.metadata as any).isMostPopular === 'true'
-									}
-								)}
-							>
-								<div className="flex items-center">
-									<div className="ml-4">
-										<h2 className="text-base font-semibold leading-7">{product.name}</h2>
-										<p className="h-16 text-sm leading-5 text-black/70 dark:text-white">
-											{product.description}
-										</p>
-									</div>
-								</div>
-
-								<motion.div
-									key={`${product.id}-${interval}`}
-									initial="initial"
-									animate="animate"
-									variants={{
-										initial: {
-											opacity: 0,
-											y: 12
-										},
-										animate: {
-											opacity: 1,
-											y: 0
-										}
-									}}
-									transition={{
-										duration: 0.4,
-										delay: 0.1 + idx * 0.05,
-										ease: [0.21, 0.47, 0.32, 0.98]
-									}}
-									className="flex flex-row gap-1"
-								>
-									<span className="text-4xl font-bold text-black dark:text-white">
-										${currentPrice ? toHumanPrice(currentPrice.unitAmount, 0) : 'N/A'}
-										<span className="text-xs"> / {interval}</span>
-									</span>
-								</motion.div>
-
-								<Button
+							return (
+								<div
+									key={product.id}
 									className={cn(
-										'group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter',
-										'transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2'
+										'relative flex w-full max-w-[400px] flex-col gap-4 overflow-hidden rounded-2xl border p-4 text-black dark:text-white',
+										{
+											'border-2 border-green-600 shadow-lg':
+												product.metadata && (product.metadata as any).isMostPopular === 'true'
+										}
 									)}
-									disabled={isLoading || !currentPrice}
-									onClick={() => currentPrice && onSubscribeClick(currentPrice.id)}
 								>
-									<span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 transform-gpu bg-white opacity-10 transition-all duration-1000 ease-out group-hover:-translate-x-96 dark:bg-black" />
-									{(!isLoading || (isLoading && id !== currentPrice?.id)) && <p>Subscribe</p>}
-									{isLoading && id === currentPrice?.id && <p>Subscribing</p>}
-									{isLoading && id === currentPrice?.id && (
-										<Loader className="mr-2 h-4 w-4 animate-spin" />
+									{product.metadata && (product.metadata as any).isMostPopular === 'true' && (
+										<div className="absolute top-0 right-0 bg-green-600 py-0.5 px-2 rounded-bl-xl rounded-tr-xl flex items-center">
+											<span className="text-white ml-1 font-sans font-semibold text-sm">
+												Recommended
+											</span>
+										</div>
 									)}
-								</Button>
 
-								<hr className="m-0 h-px w-full border-none bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0" />
-								{(product.metadata as any) && (
-									<ul className="flex flex-col gap-2 font-normal">
-										{Object.entries(product.metadata as any).map(([_key, feature], idx) => (
-											<li
-												key={idx}
-												className="flex items-center gap-3 text-xs font-medium text-black dark:text-white"
-											>
-												<CheckIcon className="h-5 w-5 shrink-0 rounded-full bg-green-400 p-[2px] text-black dark:text-white" />
-												<span className="flex">
-													{typeof feature === 'string' ? feature : String(feature)}
-												</span>
-											</li>
-										))}
-									</ul>
-								)}
-							</div>
-						);
-					})}
+									<div className="flex items-center">
+										<div className="ml-4">
+											<h2 className="text-base font-semibold leading-7">{product.name}</h2>
+											<p className="h-10 text-sm leading-5 text-black/70 dark:text-white">
+												{product.description}
+											</p>
+										</div>
+									</div>
+
+									<motion.div
+										key={`${product.id}-${interval}`}
+										initial="initial"
+										animate="animate"
+										variants={{
+											initial: {
+												opacity: 0,
+												y: 12
+											},
+											animate: {
+												opacity: 1,
+												y: 0
+											}
+										}}
+										transition={{
+											duration: 0.4,
+											delay: 0.1 + idx * 0.05,
+											ease: [0.21, 0.47, 0.32, 0.98]
+										}}
+										className="flex flex-col gap-1 h-16"
+									>
+										<span className="text-4xl font-bold text-black dark:text-white">
+											$
+											{currentPrice
+												? toHumanPrice(
+														interval === 'year'
+															? (currentPrice.unitAmount || 0) / 12
+															: currentPrice.unitAmount,
+														0
+													)
+												: 'N/A'}
+											<span className="ml-2 text-sm font-normal text-gray-500">/ month</span>
+										</span>
+										<span className="block mt-1 text-sm font-normal text-gray-500">
+											{interval === 'year' && (
+												<>
+													${currentPrice ? toHumanPrice(currentPrice.unitAmount, 0) : 'N/A'} billed
+													annually
+												</>
+											)}
+										</span>
+									</motion.div>
+
+									<Button
+										className={cn(
+											'group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter',
+											'transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2'
+										)}
+										disabled={isLoading || !currentPrice}
+										onClick={() => currentPrice && onSubscribeClick(currentPrice.id)}
+									>
+										<span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 transform-gpu bg-white opacity-10 transition-all duration-1000 ease-out group-hover:-translate-x-96 dark:bg-black" />
+										{(!isLoading || (isLoading && id !== currentPrice?.id)) && <p>Upgrade</p>}
+										{isLoading && id === currentPrice?.id && <p>Upgrading...</p>}
+										{isLoading && id === currentPrice?.id && (
+											<Loader className="mr-2 h-4 w-4 animate-spin" />
+										)}
+									</Button>
+
+									<hr className="m-0 h-px w-full border-none bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0" />
+									{(product.metadata as any) && (
+										<ul className="flex flex-col gap-2 font-normal">
+											{product.marketingFeatures?.map((feature, idx) => (
+												<li
+													key={idx}
+													className="flex items-center gap-3 text-xs font-medium text-black dark:text-white"
+												>
+													<CheckIcon className="h-5 w-5 shrink-0 rounded-full bg-green-600 p-[2px] text-black dark:text-white" />
+													<span className="flex">
+														{typeof feature === 'string' ? feature : String(feature)}
+													</span>
+												</li>
+											))}
+										</ul>
+									)}
+								</div>
+							);
+						})}
 				</div>
 			</div>
 		</section>
