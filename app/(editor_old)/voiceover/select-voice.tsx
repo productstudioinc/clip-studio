@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTemplateStore } from '@/stores/templatestore';
-import { Pause, Play } from 'lucide-react';
+import { Loader2, Pause, Play } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useServerAction } from 'zsa-react';
@@ -87,6 +87,7 @@ export const SelectVoice: React.FC<{
 					{selectedVoice ? `Selected Voice: ${selectedVoice.name}` : 'No voice selected'}
 				</p>
 				<Button onClick={handleGenerate} disabled={!selectedVoice || isPending}>
+					{isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
 					Generate
 				</Button>
 			</div>
