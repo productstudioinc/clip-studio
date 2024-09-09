@@ -35,6 +35,21 @@ export const users = pgTable('users', {
 	paymentMethod: jsonb('payment_method')
 });
 
+export const feedback = pgTable('feedback', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	userId: uuid('user_id')
+		.notNull()
+		.references(() => users.id),
+	feedbackType: text('feedback_type').notNull(),
+	rating: integer('rating'),
+	comment: text('comment'),
+	createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
+export const usersRelations = relations(users, ({ many }) => ({
+	feedbacks: many(feedback)
+}));
+
 export const customers = pgTable('customers', {
 	id: uuid('id')
 		.primaryKey()

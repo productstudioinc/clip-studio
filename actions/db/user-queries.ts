@@ -4,6 +4,7 @@ import { getUser, signOut } from '@/actions/auth/user';
 import { db } from '@/db';
 import {
 	customers,
+	feedback,
 	planLimits,
 	prices,
 	products,
@@ -171,8 +172,43 @@ export const deleteUser = createServerAction()
 				userId: user.id,
 				error: error instanceof Error ? error.message : String(error)
 			});
-			console.log(error);
 			await logger.flush();
 			throw new ZSAError('INTERNAL_SERVER_ERROR', 'Failed to delete user');
+		}
+	});
+
+export const submitFeedback = createServerAction()
+	.input(
+		z.object({
+			feedbackType: z.string(),
+			rating: z.number(),
+			comment: z.string()
+		})
+	)
+	.handler(async ({ input: { feedbackType, rating, comment } }) => {
+		const { user } = await getUser();
+		if (!user) {
+			logger.warn('Attempted to submit feedback for unauthenticated user');
+			await logger.flush();
+			throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to submit feedback.');
+		}
+		logger.info('Submitting feedback', { userId: user.id });
+		try {
+			const result = await db.insert(feedback).values({
+				userId: user.id,
+				feedbackType,
+				rating,
+				comment
+			});
+			logger.info('Feedback submitted successfully', { userId: user.id });
+			await logger.flush();
+			return result;
+		} catch (error) {
+			logger.error('Error submitting feedback', {
+				userId: user.id,
+				error: error instanceof Error ? error.message : String(error)
+			});
+			await logger.flush();
+			throw new ZSAError('INTERNAL_SERVER_ERROR', 'Failed to submit feedback');
 		}
 	});

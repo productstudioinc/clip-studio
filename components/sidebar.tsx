@@ -15,6 +15,7 @@ import {
 	FileIcon,
 	LayoutTemplateIcon,
 	LogInIcon,
+	MessageSquareIcon,
 	MicIcon,
 	Settings2Icon,
 	ShieldIcon,
@@ -109,20 +110,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) =
 					<span>Earn 20% per referral</span>
 				</Link>
 			</div>
-			<div className="px-2 lg:px-4">
-				<nav className="grid items-start text-sm font-medium">
-					{bottomNavItems.map((item) => (
-						<NavLink key={item.href} {...item} currentRoute={currentRoute} />
-					))}
-				</nav>
-			</div>
 
+			<div className="px-2 lg:px-4">
+				<Link
+					href="/feedback"
+					className={cn(
+						buttonVariants({ variant: 'ghost' }),
+						'w-full justify-start gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:text-primary'
+					)}
+				>
+					<MessageSquareIcon className="h-4 w-4 flex-shrink-0" />
+					Submit Feedback
+				</Link>
+			</div>
 			<div className="px-2 lg:px-4">
 				{subscription && usage && user ? (
 					<SubscriptionCard subscriptionName={subscription} usage={usage} userId={user?.id} />
 				) : (
 					<UpgradeCard />
 				)}
+			</div>
+			<div className="px-2 lg:px-4">
+				<nav className="grid items-start text-sm font-medium">
+					{bottomNavItems.map((item) => (
+						<NavLink key={item.href} {...item} currentRoute={currentRoute} />
+					))}
+				</nav>
 			</div>
 			<div className="px-2 lg:px-4 pb-4">
 				{user ? (
