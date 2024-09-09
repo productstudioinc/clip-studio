@@ -47,7 +47,8 @@ export const feedback = pgTable('feedback', {
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
-	feedbacks: many(feedback)
+	feedbacks: many(feedback),
+	pastRenders: many(pastRenders)
 }));
 
 export const customers = pgTable('customers', {
@@ -289,3 +290,22 @@ export type SelectBackgroundParts = typeof backgroundParts.$inferSelect;
 export type SelectBackgroundWithParts = SelectBackgrounds & {
 	backgroundParts: SelectBackgroundParts[];
 };
+
+export const pastRenders = pgTable('past_renders', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	userId: uuid('user_id')
+		.notNull()
+		.references(() => users.id),
+	videoUrl: text('video_url'),
+	templateName: text('template_name').notNull(),
+	createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
+export const pastRendersRelations = relations(pastRenders, ({ one }) => ({
+	user: one(users, {
+		fields: [pastRenders.userId],
+		references: [users.id]
+	})
+}));
+
+export type SelectPastRenders = typeof pastRenders.$inferSelect;
