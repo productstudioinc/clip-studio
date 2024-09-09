@@ -204,12 +204,12 @@ export default function Pricing({
 									<hr className="m-0 h-px w-full border-none bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0" />
 									{(product.metadata as any) && (
 										<ul className="flex flex-col gap-2 font-normal">
-											{product.marketingFeatures?.map((feature, idx) => (
+											{Object.entries(product.marketingFeatures as any).map(([_, feature], idx) => (
 												<li
 													key={idx}
 													className="flex items-center gap-3 text-xs font-medium text-black dark:text-white"
 												>
-													<CheckIcon className="h-5 w-5 shrink-0 rounded-full bg-green-600 p-[2px] text-black dark:text-white" />
+													<CheckIcon className="h-5 w-5 shrink-0 rounded-full bg-green-600 p-[2px] text-white dark:text-white" />
 													<span className="flex">
 														{typeof feature === 'string' ? feature : String(feature)}
 													</span>
