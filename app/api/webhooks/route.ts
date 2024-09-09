@@ -23,6 +23,48 @@ const relevantEvents = new Set([
 	'customer.subscription.deleted'
 ]);
 
+async function sendDiscordWebhook(subscription: Stripe.Subscription) {
+	const webhookUrl = process.env.DISCORD_SUB_WEBHOOK;
+	if (!webhookUrl) {
+		throw new Error('Discord webhook URL not found');
+	}
+
+	const message = {
+		content: `New subscription created!`,
+		embeds: [
+			{
+				title: 'Subscription Details',
+				fields: [
+					{ name: 'Subscription ID', value: subscription.id },
+					{ name: 'Customer ID', value: subscription.customer as string },
+					{ name: 'Status', value: subscription.status },
+					{
+						name: 'Plan',
+						value: (subscription.items.data[0].price.product as Stripe.Product).name
+					},
+					{
+						name: 'Amount',
+						value: `${(subscription.items.data[0].price.unit_amount ?? 0) / 100} ${subscription.currency}`
+					}
+				],
+				color: 5814783
+			}
+		]
+	};
+
+	const response = await fetch(webhookUrl, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(message)
+	});
+
+	if (!response.ok) {
+		throw new Error(`Failed to send Discord webhook: ${response.statusText}`);
+	}
+}
+
 export const POST = withAxiom(async (req: AxiomRequest) => {
 	const logger = req.log.with({
 		path: '/api/webhooks/route',
@@ -90,10 +132,11 @@ export const POST = withAxiom(async (req: AxiomRequest) => {
 					await manageSubscriptionStatusChange(
 						subscription.id,
 						subscription.customer as string,
-						event.type === 'customer.subscription.created'
+						true
 					);
 					await updateUserUsageLimits(subscription);
-					logger.info(`Subscription status changed`, {
+					await sendDiscordWebhook(subscription);
+					logger.info(`Subscription created and Discord webhook sent`, {
 						eventType: event.type,
 						subscriptionId: subscription.id,
 						customerId: subscription.customer as string,

@@ -1,4 +1,5 @@
 import posthog from '@/lib/posthog';
+import axios from 'axios';
 import { withAxiom } from 'next-axiom';
 
 export const POST = withAxiom(async (req) => {
@@ -21,6 +22,26 @@ export const POST = withAxiom(async (req) => {
 					email: newUser.email
 				}
 			});
+
+			// Send Discord webhook
+			const discordWebhookUrl = process.env.DISCORD_SIGNUP_WEBHOOK;
+			if (discordWebhookUrl) {
+				const message = {
+					content: 'New user signed up!',
+					embeds: [
+						{
+							title: 'User Details',
+							fields: [
+								{ name: 'User ID', value: newUser.id },
+								{ name: 'Email', value: newUser.email },
+								{ name: 'Signup Date', value: new Date().toISOString() }
+							],
+							color: 5814783
+						}
+					]
+				};
+				await axios.post(discordWebhookUrl, message);
+			}
 
 			logger.info('New user created and usage record initialized', { userId: newUser.id });
 			return new Response(JSON.stringify({ success: true }), {
