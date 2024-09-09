@@ -10,6 +10,8 @@ export const POST = withAxiom(async (req) => {
 	try {
 		const payload = await req.json();
 
+		console.log('payload', payload);
+
 		if (payload.type === 'INSERT' && payload.table === 'auth.users') {
 			const newUser = payload.record;
 
