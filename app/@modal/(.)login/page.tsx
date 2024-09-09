@@ -1,6 +1,6 @@
 'use client';
 
-import LoginComponent from '@/app/(app_external)/login/LoginComponent';
+import LoginComponent from '@/components/login-form';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useRouter } from 'next/navigation';
 
