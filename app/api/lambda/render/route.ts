@@ -52,12 +52,21 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 			serveUrl: SITE_NAME
 		});
 
-		const secondsLeft = await db
+		const userUsageRecord = await db
 			.select({ exportSecondsLeft: userUsage.exportSecondsLeft })
 			.from(userUsage)
-			.where(eq(userUsage.userId, user.id));
+			.where(eq(userUsage.userId, user.id))
+			.limit(1);
 
-		if (secondsLeft[0].exportSecondsLeft < Math.floor(body.inputProps.durationInFrames / 30)) {
+		if (!userUsageRecord.length) {
+			logger.error('User does not have an active subscription', { email: user?.email });
+			await logger.flush();
+			throw new Error('You need an active subscription to use this feature.');
+		}
+
+		const secondsLeft = userUsageRecord[0].exportSecondsLeft;
+
+		if (secondsLeft < Math.floor(body.inputProps.durationInFrames / 30)) {
 			logger.error('Not enough seconds left to render', { email: user?.email });
 			await logger.flush();
 			throw new Error("You don't have enough seconds left to render this video.");
