@@ -59,10 +59,14 @@ export const POST = withAxiom(async (req) => {
 				timeToFinish: payload.timeToFinish,
 				estimatedCost: payload.costs.estimatedCost
 			});
+			const modifiedOutputUrl = payload.outputUrl?.replace(
+				'https://s3.us-east-1.amazonaws.com/videogen-renders',
+				'https://renders.clip.studio'
+			);
 			await db.insert(pastRenders).values({
 				userId: payload.customData?.userId as string,
 				templateName: payload.customData?.templateName as string,
-				videoUrl: payload.outputUrl,
+				videoUrl: modifiedOutputUrl,
 				createdAt: new Date()
 			});
 			break;
