@@ -27,7 +27,7 @@ export const getBillingPortal = createServerAction()
 		});
 		const session = await stripe.billingPortal.sessions.create({
 			customer: customerId as string,
-			return_url: getURL('/account')
+			return_url: getURL('/confirmation')
 		});
 		return { url: session.url };
 	});
@@ -36,7 +36,7 @@ export const checkoutWithStripe = createServerAction()
 	.input(
 		z.object({
 			priceId: z.string(),
-			redirectPath: z.string().default('/account'),
+			redirectPath: z.string().default('/confirmation'),
 			referralId: z.string().optional()
 		})
 	)
