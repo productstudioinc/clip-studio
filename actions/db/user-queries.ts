@@ -32,7 +32,8 @@ export const getProducts = unstable_cache(async () => {
 				name: true,
 				description: true,
 				metadata: true,
-				defaultPriceId: true
+				defaultPriceId: true,
+				marketingFeatures: true
 			},
 			with: {
 				prices: {

@@ -19,10 +19,10 @@ export const metadata: Metadata = constructMetadata({});
 
 export default async function RootLayout({
 	children,
-	auth
+	modal
 }: Readonly<{
 	children: React.ReactNode;
-	auth: React.ReactNode;
+	modal: React.ReactNode;
 }>) {
 	return (
 		<html lang="en" suppressHydrationWarning>
@@ -40,7 +40,7 @@ export default async function RootLayout({
 						enableSystem
 						disableTransitionOnChange
 					>
-						{auth}
+						{modal}
 						{children}
 						<Toaster position="top-right" />
 					</ThemeProvider>
