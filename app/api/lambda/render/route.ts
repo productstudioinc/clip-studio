@@ -79,10 +79,10 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 			overwrite: true,
 			downloadBehavior: {
 				type: 'download',
-				fileName: `${body.id}-${format(new Date(), 'M-d-yy')}`
+				fileName: `${body.id}-${format(new Date(), 'yyyy-MM-dd-HH-mm-ss')}.mp4`
 			},
 			outName: {
-				key: `renders/${crypto.randomUUID()}.mp4`,
+				key: `renders/${crypto.randomUUID()}-${Date.now()}.mp4`,
 				bucketName: 'videogen-renders',
 				s3OutputProvider: {
 					endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
