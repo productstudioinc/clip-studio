@@ -23,11 +23,9 @@ export default function ConfirmationDialog({ user }: { user: User | null }) {
 			}
 		});
 
-		if (user) {
-			posthog.capture('user_upgraded', {
-				email: user.email
-			});
-		}
+		posthog.capture('user_upgraded', {
+			email: user?.email
+		});
 	}, [user]);
 
 	return (
