@@ -12,13 +12,12 @@ import { User } from '@supabase/supabase-js';
 import {
 	CaptionsIcon,
 	DollarSignIcon,
-	FileIcon,
+	FilmIcon,
 	LayoutTemplateIcon,
 	LogInIcon,
 	MessageSquareIcon,
 	MicIcon,
 	Settings2Icon,
-	ShieldIcon,
 	UploadIcon,
 	UserIcon,
 	type LucideIcon
@@ -77,15 +76,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) =
 
 	const profileNavItems: NavItem[] = [
 		{
+			href: '/projects',
+			icon: FilmIcon, // Changed from FileIcon to FilmIcon
+			label: 'My Projects'
+		},
+		{
 			href: '/account',
 			icon: UserIcon,
 			label: 'My Account'
 		}
-	];
-
-	const bottomNavItems: NavItem[] = [
-		{ href: '/terms', icon: FileIcon, label: 'Terms of Service' },
-		{ href: '/privacy', icon: ShieldIcon, label: 'Privacy Policy' }
 	];
 
 	return (

@@ -5,6 +5,7 @@ import { db } from '@/db';
 import {
 	customers,
 	feedback,
+	pastRenders,
 	planLimits,
 	prices,
 	products,
@@ -109,6 +110,27 @@ export const getUserUsage = async () => {
 		});
 		await logger.flush();
 		throw error;
+	}
+};
+
+export const getVideoRenderHistory = async () => {
+	const { user } = await getUser();
+	if (!user) {
+		logger.warn('Attempted to get video render history for unauthenticated user');
+		await logger.flush();
+		return null;
+	}
+	logger.info('Fetching video render history', { userId: user.id });
+	try {
+		const result = await db.select().from(pastRenders).where(eq(pastRenders.userId, user.id));
+		logger.info('Video render history fetched successfully', { userId: user.id });
+		await logger.flush();
+		return result;
+	} catch (error) {
+		logger.error('Error fetching video render history', {
+			userId: user.id,
+			error: error instanceof Error ? error.message : String(error)
+		});
 	}
 };
 
