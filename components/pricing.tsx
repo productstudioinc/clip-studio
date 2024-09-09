@@ -118,7 +118,7 @@ export default function Pricing({
 								<div
 									key={product.id}
 									className={cn(
-										'relative flex w-full max-w-[400px] flex-col gap-4 overflow-hidden rounded-2xl border p-4 text-black dark:text-white',
+										'relative flex w-full max-w-[400px] flex-col overflow-hidden rounded-2xl border p-6 text-black dark:text-white',
 										{
 											'border-2 border-green-600 shadow-lg':
 												product.metadata && (product.metadata as any).isMostPopular === 'true'
@@ -133,13 +133,11 @@ export default function Pricing({
 										</div>
 									)}
 
-									<div className="flex items-center">
-										<div className="ml-4">
-											<h2 className="text-base font-semibold leading-7">{product.name}</h2>
-											<p className="h-10 text-sm leading-5 text-black/70 dark:text-white">
-												{product.description}
-											</p>
-										</div>
+									<div className="flex flex-col items-start mb-4">
+										<h2 className="text-xl font-semibold leading-7">{product.name}</h2>
+										<p className="mt-2 h-12 text-sm leading-5 text-black/70 dark:text-white/70">
+											{product.description}
+										</p>
 									</div>
 
 									<motion.div
@@ -161,7 +159,7 @@ export default function Pricing({
 											delay: 0.1 + idx * 0.05,
 											ease: [0.21, 0.47, 0.32, 0.98]
 										}}
-										className="flex flex-col gap-1 h-16"
+										className="flex flex-col gap-1 mb-6"
 									>
 										<span className="text-4xl font-bold text-black dark:text-white">
 											$
@@ -175,7 +173,7 @@ export default function Pricing({
 												: 'N/A'}
 											<span className="ml-2 text-sm font-normal text-gray-500">/ month</span>
 										</span>
-										<span className="block mt-1 text-sm font-normal text-gray-500">
+										<span className="block h-5 mt-1 text-sm font-normal text-gray-500">
 											{interval === 'year' && (
 												<>
 													${currentPrice ? toHumanPrice(currentPrice.unitAmount, 0) : 'N/A'} billed
@@ -187,7 +185,7 @@ export default function Pricing({
 
 									<Button
 										className={cn(
-											'group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter',
+											'group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter mb-6',
 											'transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2'
 										)}
 										disabled={isLoading || !currentPrice}
@@ -201,13 +199,14 @@ export default function Pricing({
 										)}
 									</Button>
 
-									<hr className="m-0 h-px w-full border-none bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0" />
+									<hr className="m-0 h-px w-full border-none bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0 mb-6" />
+
 									{(product.metadata as any) && (
 										<ul className="flex flex-col gap-2 font-normal">
 											{Object.entries(product.marketingFeatures || {}).map(([_, feature], idx) => (
 												<li
 													key={idx}
-													className="flex items-center gap-3 text-xs font-medium text-black dark:text-white"
+													className="flex items-center gap-3 text-sm font-medium text-black dark:text-white"
 												>
 													<CheckIcon className="h-5 w-5 shrink-0 rounded-full bg-green-600 p-[2px] text-white dark:text-white" />
 													<span className="flex">

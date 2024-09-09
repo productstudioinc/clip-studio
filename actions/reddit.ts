@@ -53,8 +53,6 @@ export const getRedditInfo = createServerAction()
 			const match = input.match(/\/comments\/([^/]+)\//);
 			const postId = match ? match[1] : null;
 
-			console.log('postId', postId);
-
 			if (!postId) {
 				throw new ZSAError('INPUT_PARSE_ERROR', 'Invalid post ID');
 			}

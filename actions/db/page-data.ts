@@ -15,7 +15,6 @@ const getCachedTemplates = unstable_cache(
 				.select()
 				.from(templates)
 				.where(ne(templates.value, 'TwitterThread'));
-			console.log(response);
 			return response;
 		} catch (error) {
 			logger.error('Error fetching templates', {
