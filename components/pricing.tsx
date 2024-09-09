@@ -118,7 +118,7 @@ export default function Pricing({
 								<div
 									key={product.id}
 									className={cn(
-										'relative flex w-full max-w-[400px] flex-col overflow-hidden rounded-2xl border p-6 text-black dark:text-white',
+										'relative flex w-full max-w-[400px] flex-col overflow-hidden rounded-2xl border p-6 text-black dark:text-white mx-auto',
 										{
 											'border-2 border-green-600 shadow-lg':
 												product.metadata && (product.metadata as any).isMostPopular === 'true'
@@ -133,9 +133,9 @@ export default function Pricing({
 										</div>
 									)}
 
-									<div className="flex flex-col items-start mb-4">
+									<div className="flex flex-col items-start mb-2">
 										<h2 className="text-xl font-semibold leading-7">{product.name}</h2>
-										<p className="mt-2 h-12 text-sm leading-5 text-black/70 dark:text-white/70">
+										<p className="mt-1 h-10 text-sm leading-5 text-black/70 dark:text-white/70">
 											{product.description}
 										</p>
 									</div>
@@ -159,7 +159,7 @@ export default function Pricing({
 											delay: 0.1 + idx * 0.05,
 											ease: [0.21, 0.47, 0.32, 0.98]
 										}}
-										className="flex flex-col gap-1 mb-6"
+										className="flex flex-col gap-1 mb-4"
 									>
 										<span className="text-4xl font-bold text-black dark:text-white">
 											$
@@ -173,7 +173,7 @@ export default function Pricing({
 												: 'N/A'}
 											<span className="ml-2 text-sm font-normal text-gray-500">/ month</span>
 										</span>
-										<span className="block h-5 mt-1 text-sm font-normal text-gray-500">
+										<span className="block h-5 text-sm font-normal text-gray-500">
 											{interval === 'year' && (
 												<>
 													${currentPrice ? toHumanPrice(currentPrice.unitAmount, 0) : 'N/A'} billed
@@ -185,7 +185,7 @@ export default function Pricing({
 
 									<Button
 										className={cn(
-											'group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter mb-6',
+											'group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter mb-4',
 											'transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2'
 										)}
 										disabled={isLoading || !currentPrice}
@@ -199,7 +199,7 @@ export default function Pricing({
 										)}
 									</Button>
 
-									<hr className="m-0 h-px w-full border-none bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0 mb-6" />
+									<hr className="m-0 h-px w-full border-none bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0 mb-4" />
 
 									{(product.metadata as any) && (
 										<ul className="flex flex-col gap-2 font-normal">
