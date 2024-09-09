@@ -1,7 +1,14 @@
+import { getUser } from '@/actions/auth/user';
 import { getVideoRenderHistory } from '@/actions/db/user-queries';
 import { VideoRenderHistoryDataTable } from '@/components/video-render-history-data-table';
+import { redirect } from 'next/navigation';
 
 export default async function ProjectsPage() {
+	const { user } = await getUser();
+
+	if (!user) {
+		redirect('/');
+	}
 	const videoRenderHistory = await getVideoRenderHistory();
 	return (
 		<main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
