@@ -11,6 +11,8 @@ export const POST = withAxiom(async (req) => {
 	try {
 		const payload = await req.json();
 
+		logger.info('Received supabase payload', { payload });
+
 		if (payload.type === 'INSERT' && payload.table === 'auth.users') {
 			const newUser = payload.record;
 
@@ -24,20 +26,17 @@ export const POST = withAxiom(async (req) => {
 			});
 
 			const message = {
-				content: 'New user signed up!',
 				embeds: [
 					{
-						title: 'User Details',
+						title: 'User Signup',
 						fields: [
 							{ name: 'User ID', value: newUser.id },
-							{ name: 'Email', value: newUser.email },
-							{ name: 'Signup Date', value: new Date().toISOString() }
+							{ name: 'Email', value: newUser.email }
 						],
 						color: 5814783
 					}
 				]
 			};
-			logger.info('Sending Discord webhook', { message });
 			await axios.post(process.env.DISCORD_SIGNUP_WEBHOOK!, message);
 
 			logger.info('New user created and usage record initialized', { userId: newUser.id });
