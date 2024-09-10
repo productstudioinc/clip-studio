@@ -23,26 +23,22 @@ export const POST = withAxiom(async (req) => {
 				}
 			});
 
-			// Send Discord webhook
-			const discordWebhookUrl = process.env.DISCORD_SIGNUP_WEBHOOK;
-			if (discordWebhookUrl) {
-				const message = {
-					content: 'New user signed up!',
-					embeds: [
-						{
-							title: 'User Details',
-							fields: [
-								{ name: 'User ID', value: newUser.id },
-								{ name: 'Email', value: newUser.email },
-								{ name: 'Signup Date', value: new Date().toISOString() }
-							],
-							color: 5814783
-						}
-					]
-				};
-				logger.info('Sending Discord webhook', { message });
-				await axios.post(discordWebhookUrl, message);
-			}
+			const message = {
+				content: 'New user signed up!',
+				embeds: [
+					{
+						title: 'User Details',
+						fields: [
+							{ name: 'User ID', value: newUser.id },
+							{ name: 'Email', value: newUser.email },
+							{ name: 'Signup Date', value: new Date().toISOString() }
+						],
+						color: 5814783
+					}
+				]
+			};
+			logger.info('Sending Discord webhook', { message });
+			await axios.post(process.env.DISCORD_SIGNUP_WEBHOOK!, message);
 
 			logger.info('New user created and usage record initialized', { userId: newUser.id });
 			return new Response(JSON.stringify({ success: true }), {
