@@ -7,8 +7,9 @@ export default async function ProjectsPage() {
 	const { user } = await getUser();
 
 	if (!user) {
-		redirect('/login');
+		redirect('/');
 	}
+
 	const videoRenderHistory = await getVideoRenderHistory();
 	return (
 		<>
