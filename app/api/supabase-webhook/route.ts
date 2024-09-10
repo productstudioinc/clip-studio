@@ -40,6 +40,7 @@ export const POST = withAxiom(async (req) => {
 						}
 					]
 				};
+				logger.info('Sending Discord webhook', { message });
 				await axios.post(discordWebhookUrl, message);
 			}
 
