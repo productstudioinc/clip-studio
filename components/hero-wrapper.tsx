@@ -24,7 +24,7 @@ export default function HeroWrapper() {
 					variant="link"
 					className="flex w-full items-center justify-start gap-2 px-2 p-0 font-semibold"
 				>
-					<Icons.logo className="w-4 h-4" />
+					<Icons.logo className="w-6 h-6" />
 					<span>Clip Studio</span>
 				</Button>
 			</DialogTrigger>
