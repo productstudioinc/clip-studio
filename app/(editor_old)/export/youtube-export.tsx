@@ -79,7 +79,11 @@ export function YoutubeExportDialog({
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button variant="outline" className="w-full text-md h-14 space-x-4" disabled={disabled}>
+				<Button
+					variant="outline"
+					className="w-full text-md h-14 space-x-4 disabled:opacity-90"
+					disabled={disabled}
+				>
 					<YoutubeIcon className="mr-2 h-8 w-8 dark:invert" />
 					Export to Youtube
 				</Button>
