@@ -90,7 +90,7 @@ export const defaultRedditProps: z.infer<typeof RedditProps> = {
 	voiceoverUrl: 'https://assets.clip.studio/reddit_voiceover_sample.mp3',
 	voiceoverFrames: alignmentDefault,
 	accountName: 'clipstudio',
-	titleEnd: 4.168
+	titleEnd: 5.097
 };
 
 export const defaultTwitterThreadProps: z.infer<typeof TwitterThreadProps> = {
