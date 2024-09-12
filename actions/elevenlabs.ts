@@ -142,6 +142,13 @@ export const generateAudioAndTimestamps = createServerAction()
 			let actualTitleEndIndex = titleEndIndex;
 			while (
 				actualTitleEndIndex < normalizedCharacters.length &&
+				normalizedCharacters[actualTitleEndIndex] !== ' '
+			) {
+				actualTitleEndIndex++;
+			}
+
+			while (
+				actualTitleEndIndex < normalizedCharacters.length &&
 				normalizedCharacters[actualTitleEndIndex] === ' '
 			) {
 				actualTitleEndIndex++;

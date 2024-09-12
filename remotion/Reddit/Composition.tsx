@@ -48,19 +48,17 @@ export const RedditComposition = ({
 			for (let i = 0; i < characters.length; i++) {
 				if (characters[i] === ' ' || i === characters.length - 1) {
 					if (currentWord) {
-						const startFrame = Math.max(
-							titleEndFrame,
-							Math.floor(character_start_times_seconds[wordStartIndex] * FPS)
-						);
-						const endFrame = Math.max(
-							startFrame + 1,
-							Math.floor(character_end_times_seconds[i] * FPS)
-						);
-						subtitlesData.push({
-							startFrame,
-							endFrame,
-							text: currentWord.trim()
-						});
+						const startFrame = Math.floor(character_start_times_seconds[wordStartIndex] * FPS);
+						const endFrame = Math.floor(character_end_times_seconds[i] * FPS);
+
+						if (startFrame > titleEndFrame) {
+							subtitlesData.push({
+								startFrame,
+								endFrame,
+								text: currentWord.trim()
+							});
+						}
+
 						currentWord = '';
 						wordStartIndex = i + 1;
 					}
@@ -80,7 +78,7 @@ export const RedditComposition = ({
 		generateSubtitles();
 	}, [generateSubtitles]);
 
-	const titleEndFrame = Math.floor(FPS * titleEnd) + 5;
+	const titleEndFrame = Math.floor(titleEnd * FPS);
 
 	return (
 		<>
@@ -111,18 +109,16 @@ export const RedditComposition = ({
 						fontSize: 100
 					}}
 				>
-					{titleEndFrame > 0 && (
-						<Sequence durationInFrames={titleEndFrame}>
-							<AbsoluteFill
-								style={{
-									justifyContent: 'center',
-									alignItems: 'center'
-								}}
-							>
-								<RedditCard title={title} subreddit={subreddit} accountName={accountName} />
-							</AbsoluteFill>
-						</Sequence>
-					)}
+					<Sequence durationInFrames={titleEndFrame}>
+						<AbsoluteFill
+							style={{
+								justifyContent: 'center',
+								alignItems: 'center'
+							}}
+						>
+							<RedditCard title={title} subreddit={subreddit} accountName={accountName} />
+						</AbsoluteFill>
+					</Sequence>
 					{subtitles.map((subtitle, index) =>
 						subtitle.startFrame < subtitle.endFrame ? (
 							<Sequence
