@@ -2,7 +2,7 @@ import { makeTransform, scale, translateY } from '@remotion/animation-utils';
 import { loadFont } from '@remotion/google-fonts/Montserrat';
 import { fitText } from '@remotion/layout-utils';
 import React from 'react';
-import { AbsoluteFill, interpolate, useVideoConfig } from 'remotion';
+import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 
 const { fontFamily } = loadFont('normal', {
 	weights: ['700']
@@ -13,7 +13,8 @@ export const Word: React.FC<{
 	text: string;
 	stroke: boolean;
 }> = ({ enterProgress, text, stroke }) => {
-	const { width } = useVideoConfig();
+	const { width, fps } = useVideoConfig();
+	const frame = useCurrentFrame();
 	const desiredFontSize = 64;
 
 	const splitText = (text: string, maxWordsPerLine: number) => {
@@ -38,6 +39,17 @@ export const Word: React.FC<{
 
 	const minFontSize = Math.min(desiredFontSize, ...fontSizes);
 
+	const growAnimation = spring({
+		frame,
+		fps,
+		config: {
+			damping: 100,
+			stiffness: 200,
+			mass: 0.5
+		},
+		durationInFrames: 5
+	});
+
 	return (
 		<AbsoluteFill
 			style={{
@@ -58,9 +70,10 @@ export const Word: React.FC<{
 						color: 'white',
 						WebkitTextStroke: stroke ? '10px black' : undefined,
 						transform: makeTransform([
-							scale(interpolate(enterProgress, [0, 1], [0.8, 1])),
-							translateY(interpolate(enterProgress, [0, 1], [50, 0]))
+							scale(interpolate(enterProgress * growAnimation, [0, 1], [0.95, 1])),
+							translateY(interpolate(enterProgress, [0, 1], [20, 0]))
 						]),
+						opacity: interpolate(enterProgress, [0, 1], [0, 1]),
 						fontFamily,
 						textTransform: 'uppercase',
 						textAlign: 'center',
