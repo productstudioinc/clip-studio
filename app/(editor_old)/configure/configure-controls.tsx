@@ -181,7 +181,7 @@ const RedditControls: React.FC = () => {
 			</div>
 			<div className="space-y-2">
 				<Label htmlFor="redditTitle">Title</Label>
-				<Textarea
+				<Input
 					id="redditTitle"
 					value={redditState.title}
 					onChange={(e) => setRedditState({ ...redditState, title: e.target.value })}
