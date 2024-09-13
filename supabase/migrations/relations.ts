@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { users, tiktokAccounts, backgrounds, backgroundParts, socialMediaPosts, tiktokPosts, customers, products, prices, subscriptions, feedback, youtubeChannels, youtubePosts, planLimits, userUsage } from "./schema";
+import { users, tiktokAccounts, backgrounds, backgroundParts, socialMediaPosts, tiktokPosts, customers, products, prices, subscriptions, feedback, pastRenders, youtubeChannels, youtubePosts, planLimits, userUsage } from "./schema";
 
 export const tiktokAccountsRelations = relations(tiktokAccounts, ({one, many}) => ({
 	user: one(users, {
@@ -15,6 +15,7 @@ export const usersRelations = relations(users, ({many}) => ({
 	customers: many(customers),
 	subscriptions: many(subscriptions),
 	feedbacks: many(feedback),
+	pastRenders: many(pastRenders),
 	socialMediaPosts: many(socialMediaPosts),
 	youtubeChannels: many(youtubeChannels),
 	youtubePosts: many(youtubePosts),
@@ -91,6 +92,13 @@ export const subscriptionsRelations = relations(subscriptions, ({one, many}) => 
 export const feedbackRelations = relations(feedback, ({one}) => ({
 	user: one(users, {
 		fields: [feedback.userId],
+		references: [users.id]
+	}),
+}));
+
+export const pastRendersRelations = relations(pastRenders, ({one}) => ({
+	user: one(users, {
+		fields: [pastRenders.userId],
 		references: [users.id]
 	}),
 }));

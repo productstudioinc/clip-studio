@@ -116,6 +116,14 @@ export const feedback = pgTable("feedback", {
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 });
 
+export const pastRenders = pgTable("past_renders", {
+	id: uuid("id").defaultRandom().primaryKey().notNull(),
+	userId: uuid("user_id").notNull().references(() => users.id),
+	videoUrl: text("video_url").notNull(),
+	templateName: text("template_name").notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+});
+
 export const socialMediaPosts = pgTable("social_media_posts", {
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 	id: uuid("id").defaultRandom().primaryKey().notNull(),
