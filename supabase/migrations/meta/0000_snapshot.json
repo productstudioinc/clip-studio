@@ -1,74 +1,11 @@
 {
-  "id": "00000000-0000-0000-0000-000000000000",
-  "prevId": "",
+  "id": "5cde3d1a-88b4-4ca6-809a-ded6964a117a",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.tiktok_accounts": {
-      "name": "tiktok_accounts",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "access_token": {
-          "name": "access_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "refresh_token": {
-          "name": "refresh_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "tiktok_accounts_user_id_users_id_fk": {
-          "name": "tiktok_accounts_user_id_users_id_fk",
-          "tableFrom": "tiktok_accounts",
-          "tableTo": "users",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.templates": {
-      "name": "templates",
+    "public.background_parts": {
+      "name": "background_parts",
       "schema": "",
       "columns": {
         "id": {
@@ -77,27 +14,35 @@
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
-          "type": "text",
+        "background_id": {
+          "name": "background_id",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "preview_url": {
-          "name": "preview_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "value": {
-          "name": "value",
+        "part_url": {
+          "name": "part_url",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "background_parts_background_id_backgrounds_id_fk": {
+          "name": "background_parts_background_id_backgrounds_id_fk",
+          "tableFrom": "background_parts",
+          "tableTo": "backgrounds",
+          "columnsFrom": [
+            "background_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -129,222 +74,6 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.background_parts": {
-      "name": "background_parts",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "background_id": {
-          "name": "background_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "part_url": {
-          "name": "part_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "background_parts_background_id_backgrounds_id_fk": {
-          "name": "background_parts_background_id_backgrounds_id_fk",
-          "tableFrom": "background_parts",
-          "tableTo": "backgrounds",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "background_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.tiktok_posts": {
-      "name": "tiktok_posts",
-      "schema": "",
-      "columns": {
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "tiktok_account_id": {
-          "name": "tiktok_account_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "parent_social_media_post_id": {
-          "name": "parent_social_media_post_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "caption": {
-          "name": "caption",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "disable_comment": {
-          "name": "disable_comment",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "disable_duet": {
-          "name": "disable_duet",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "disable_stitch": {
-          "name": "disable_stitch",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "privacy_level": {
-          "name": "privacy_level",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "publicaly_available_post_id": {
-          "name": "publicaly_available_post_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "publish_id": {
-          "name": "publish_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "video_cover_timestamp_ms": {
-          "name": "video_cover_timestamp_ms",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "tiktok_posts_parent_social_media_post_id_social_media_posts_id_": {
-          "name": "tiktok_posts_parent_social_media_post_id_social_media_posts_id_",
-          "tableFrom": "tiktok_posts",
-          "tableTo": "social_media_posts",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "parent_social_media_post_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "tiktok_posts_tiktok_account_id_tiktok_accounts_id_fk": {
-          "name": "tiktok_posts_tiktok_account_id_tiktok_accounts_id_fk",
-          "tableFrom": "tiktok_posts",
-          "tableTo": "tiktok_accounts",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "tiktok_account_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "tiktok_posts_user_id_users_id_fk": {
-          "name": "tiktok_posts_user_id_users_id_fk",
-          "tableFrom": "tiktok_posts",
-          "tableTo": "users",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.users": {
-      "name": "users",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "full_name": {
-          "name": "full_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "avatar_url": {
-          "name": "avatar_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "billing_address": {
-          "name": "billing_address",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "payment_method": {
-          "name": "payment_method",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "public.customers": {
       "name": "customers",
       "schema": "",
@@ -368,7 +97,6 @@
           "name": "customers_id_users_id_fk",
           "tableFrom": "customers",
           "tableTo": "users",
-          "schemaTo": "public",
           "columnsFrom": [
             "id"
           ],
@@ -382,68 +110,182 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.products": {
-      "name": "products",
+    "public.feedback": {
+      "name": "feedback",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
           "notNull": true
         },
-        "active": {
-          "name": "active",
-          "type": "boolean",
+        "feedback_type": {
+          "name": "feedback_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rating": {
+          "name": "rating",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "name": {
-          "name": "name",
+        "comment": {
+          "name": "comment",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "description": {
-          "name": "description",
-          "type": "text",
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
-        },
-        "image": {
-          "name": "image",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "metadata": {
-          "name": "metadata",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "plan_tier": {
-          "name": "plan_tier",
-          "type": "plan_tier",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "default_price_id": {
-          "name": "default_price_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "marketing_features": {
-          "name": "marketing_features",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "feedback_user_id_users_id_fk": {
+          "name": "feedback_user_id_users_id_fk",
+          "tableFrom": "feedback",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.past_renders": {
+      "name": "past_renders",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "video_url": {
+          "name": "video_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "template_name": {
+          "name": "template_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "past_renders_user_id_users_id_fk": {
+          "name": "past_renders_user_id_users_id_fk",
+          "tableFrom": "past_renders",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.plan_limits": {
+      "name": "plan_limits",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "export_seconds": {
+          "name": "export_seconds",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "voiceover_characters": {
+          "name": "voiceover_characters",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transcription_seconds": {
+          "name": "transcription_seconds",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "connected_accounts": {
+          "name": "connected_accounts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "plan_limits_product_id_products_id_fk": {
+          "name": "plan_limits_product_id_products_id_fk",
+          "tableFrom": "plan_limits",
+          "tableTo": "products",
+          "columnsFrom": [
+            "product_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -520,9 +362,117 @@
           "name": "prices_product_id_products_id_fk",
           "tableFrom": "prices",
           "tableTo": "products",
-          "schemaTo": "public",
           "columnsFrom": [
             "product_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.products": {
+      "name": "products",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "marketing_features": {
+          "name": "marketing_features",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "default_price_id": {
+          "name": "default_price_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "plan_tier": {
+          "name": "plan_tier",
+          "type": "plan_tier",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.social_media_posts": {
+      "name": "social_media_posts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "social_media_posts_user_id_users_id_fk": {
+          "name": "social_media_posts_user_id_users_id_fk",
+          "tableFrom": "social_media_posts",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
           ],
           "columnsTo": [
             "id"
@@ -626,11 +576,23 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "subscriptions_user_id_users_id_fk": {
+          "name": "subscriptions_user_id_users_id_fk",
+          "tableFrom": "subscriptions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "subscriptions_price_id_prices_id_fk": {
           "name": "subscriptions_price_id_prices_id_fk",
           "tableFrom": "subscriptions",
           "tableTo": "prices",
-          "schemaTo": "public",
           "columnsFrom": [
             "price_id"
           ],
@@ -639,139 +601,69 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
-        },
-        "subscriptions_user_id_users_id_fk": {
-          "name": "subscriptions_user_id_users_id_fk",
-          "tableFrom": "subscriptions",
-          "tableTo": "users",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.feedback": {
-      "name": "feedback",
+    "public.templates": {
+      "name": "templates",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "feedback_type": {
-          "name": "feedback_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "rating": {
-          "name": "rating",
           "type": "integer",
-          "primaryKey": false,
-          "notNull": false
+          "primaryKey": true,
+          "notNull": true
         },
-        "comment": {
-          "name": "comment",
+        "value": {
+          "name": "value",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
+        "name": {
+          "name": "name",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
+          "notNull": true
+        },
+        "preview_url": {
+          "name": "preview_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "feedback_user_id_users_id_fk": {
-          "name": "feedback_user_id_users_id_fk",
-          "tableFrom": "feedback",
-          "tableTo": "users",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.social_media_posts": {
-      "name": "social_media_posts",
+    "public.tiktok_accounts": {
+      "name": "tiktok_accounts",
       "schema": "",
       "columns": {
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "user_id": {
           "name": "user_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "social_media_posts_user_id_users_id_fk": {
-          "name": "social_media_posts_user_id_users_id_fk",
-          "tableFrom": "social_media_posts",
-          "tableTo": "users",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.youtube_channels": {
-      "name": "youtube_channels",
-      "schema": "",
-      "columns": {
-        "channel_custom_url": {
-          "name": "channel_custom_url",
+        },
+        "access_token": {
+          "name": "access_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "refresh_token": {
+          "name": "refresh_token",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -782,18 +674,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "credentials": {
-          "name": "credentials",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
         },
         "updated_at": {
           "name": "updated_at",
@@ -801,12 +681,333 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tiktok_accounts_user_id_users_id_fk": {
+          "name": "tiktok_accounts_user_id_users_id_fk",
+          "tableFrom": "tiktok_accounts",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.tiktok_posts": {
+      "name": "tiktok_posts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "user_id": {
           "name": "user_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
+        },
+        "tiktok_account_id": {
+          "name": "tiktok_account_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parent_social_media_post_id": {
+          "name": "parent_social_media_post_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "caption": {
+          "name": "caption",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "disable_comment": {
+          "name": "disable_comment",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "disable_duet": {
+          "name": "disable_duet",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "disable_stitch": {
+          "name": "disable_stitch",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "privacy_level": {
+          "name": "privacy_level",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "publicaly_available_post_id": {
+          "name": "publicaly_available_post_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "publish_id": {
+          "name": "publish_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "video_cover_timestamp_ms": {
+          "name": "video_cover_timestamp_ms",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tiktok_posts_user_id_users_id_fk": {
+          "name": "tiktok_posts_user_id_users_id_fk",
+          "tableFrom": "tiktok_posts",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "tiktok_posts_tiktok_account_id_tiktok_accounts_id_fk": {
+          "name": "tiktok_posts_tiktok_account_id_tiktok_accounts_id_fk",
+          "tableFrom": "tiktok_posts",
+          "tableTo": "tiktok_accounts",
+          "columnsFrom": [
+            "tiktok_account_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "tiktok_posts_parent_social_media_post_id_social_media_posts_id_fk": {
+          "name": "tiktok_posts_parent_social_media_post_id_social_media_posts_id_fk",
+          "tableFrom": "tiktok_posts",
+          "tableTo": "social_media_posts",
+          "columnsFrom": [
+            "parent_social_media_post_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.user_usage": {
+      "name": "user_usage",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subscription_id": {
+          "name": "subscription_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "export_seconds_left": {
+          "name": "export_seconds_left",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "voiceover_characters_left": {
+          "name": "voiceover_characters_left",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transcription_seconds_left": {
+          "name": "transcription_seconds_left",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "connected_accounts_left": {
+          "name": "connected_accounts_left",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_reset_date": {
+          "name": "last_reset_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_usage_user_id_users_id_fk": {
+          "name": "user_usage_user_id_users_id_fk",
+          "tableFrom": "user_usage",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "user_usage_subscription_id_subscriptions_id_fk": {
+          "name": "user_usage_subscription_id_subscriptions_id_fk",
+          "tableFrom": "user_usage",
+          "tableTo": "subscriptions",
+          "columnsFrom": [
+            "subscription_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "user_usage_user_id_unique": {
+          "name": "user_usage_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id"
+          ]
+        }
+      }
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "full_name": {
+          "name": "full_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "avatar_url": {
+          "name": "avatar_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "billing_address": {
+          "name": "billing_address",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payment_method": {
+          "name": "payment_method",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.youtube_channels": {
+      "name": "youtube_channels",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "channel_custom_url": {
+          "name": "channel_custom_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "credentials": {
+          "name": "credentials",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
@@ -815,7 +1016,6 @@
           "name": "youtube_channels_user_id_users_id_fk",
           "tableFrom": "youtube_channels",
           "tableTo": "users",
-          "schemaTo": "public",
           "columnsFrom": [
             "user_id"
           ],
@@ -873,25 +1073,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "youtube_posts_parent_social_media_post_id_social_media_posts_id": {
-          "name": "youtube_posts_parent_social_media_post_id_social_media_posts_id",
-          "tableFrom": "youtube_posts",
-          "tableTo": "social_media_posts",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "parent_social_media_post_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
         "youtube_posts_user_id_users_id_fk": {
           "name": "youtube_posts_user_id_users_id_fk",
           "tableFrom": "youtube_posts",
           "tableTo": "users",
-          "schemaTo": "public",
           "columnsFrom": [
             "user_id"
           ],
@@ -905,7 +1090,6 @@
           "name": "youtube_posts_youtube_channel_id_youtube_channels_id_fk",
           "tableFrom": "youtube_posts",
           "tableTo": "youtube_channels",
-          "schemaTo": "public",
           "columnsFrom": [
             "youtube_channel_id"
           ],
@@ -914,62 +1098,13 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.plan_limits": {
-      "name": "plan_limits",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
         },
-        "product_id": {
-          "name": "product_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "voiceover_characters": {
-          "name": "voiceover_characters",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "transcription_seconds": {
-          "name": "transcription_seconds",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "connected_accounts": {
-          "name": "connected_accounts",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "export_seconds": {
-          "name": "export_seconds",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "plan_limits_product_id_products_id_fk": {
-          "name": "plan_limits_product_id_products_id_fk",
-          "tableFrom": "plan_limits",
-          "tableTo": "products",
-          "schemaTo": "public",
+        "youtube_posts_parent_social_media_post_id_social_media_posts_id_fk": {
+          "name": "youtube_posts_parent_social_media_post_id_social_media_posts_id_fk",
+          "tableFrom": "youtube_posts",
+          "tableTo": "social_media_posts",
           "columnsFrom": [
-            "product_id"
+            "parent_social_media_post_id"
           ],
           "columnsTo": [
             "id"
@@ -980,156 +1115,56 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
-    },
-    "public.user_usage": {
-      "name": "user_usage",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "subscription_id": {
-          "name": "subscription_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "voiceover_characters_left": {
-          "name": "voiceover_characters_left",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "transcription_seconds_left": {
-          "name": "transcription_seconds_left",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "connected_accounts_left": {
-          "name": "connected_accounts_left",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "last_reset_date": {
-          "name": "last_reset_date",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "export_seconds_left": {
-          "name": "export_seconds_left",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "user_usage_subscription_id_subscriptions_id_fk": {
-          "name": "user_usage_subscription_id_subscriptions_id_fk",
-          "tableFrom": "user_usage",
-          "tableTo": "subscriptions",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "subscription_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "user_usage_user_id_users_id_fk": {
-          "name": "user_usage_user_id_users_id_fk",
-          "tableFrom": "user_usage",
-          "tableTo": "users",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "user_usage_user_id_unique": {
-          "columns": [
-            "user_id"
-          ],
-          "nullsNotDistinct": false,
-          "name": "user_usage_user_id_unique"
-        }
-      }
     }
   },
   "enums": {
     "public.plan_tier": {
       "name": "plan_tier",
+      "schema": "public",
       "values": [
         "hobby",
         "creator",
         "pro"
-      ],
-      "schema": "public"
+      ]
     },
     "public.pricing_plan_interval": {
       "name": "pricing_plan_interval",
+      "schema": "public",
       "values": [
         "day",
         "week",
         "month",
         "year"
-      ],
-      "schema": "public"
+      ]
     },
     "public.pricing_type": {
       "name": "pricing_type",
+      "schema": "public",
       "values": [
         "one_time",
         "recurring"
-      ],
-      "schema": "public"
+      ]
     },
     "public.subscription_status": {
       "name": "subscription_status",
+      "schema": "public",
       "values": [
-        "trialing",
-        "active",
-        "canceled",
         "incomplete",
         "incomplete_expired",
+        "trialing",
+        "active",
         "past_due",
+        "canceled",
         "unpaid",
         "paused"
-      ],
-      "schema": "public"
+      ]
     }
   },
   "schemas": {},
   "sequences": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "internal": {
     "tables": {}
   }
 }
