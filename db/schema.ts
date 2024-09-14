@@ -12,9 +12,14 @@ import {
 } from 'drizzle-orm/pg-core';
 
 // Enums
-const pricingTypeEnum = pgEnum('pricing_type', ['one_time', 'recurring']);
-const pricingPlanIntervalEnum = pgEnum('pricing_plan_interval', ['day', 'week', 'month', 'year']);
-const subscriptionStatusEnum = pgEnum('subscription_status', [
+export const pricingTypeEnum = pgEnum('pricing_type', ['one_time', 'recurring']);
+export const pricingPlanIntervalEnum = pgEnum('pricing_plan_interval', [
+	'day',
+	'week',
+	'month',
+	'year'
+]);
+export const subscriptionStatusEnum = pgEnum('subscription_status', [
 	'incomplete',
 	'incomplete_expired',
 	'trialing',
@@ -24,7 +29,7 @@ const subscriptionStatusEnum = pgEnum('subscription_status', [
 	'unpaid',
 	'paused'
 ]);
-const planTierEnum = pgEnum('plan_tier', ['hobby', 'creator', 'pro']);
+export const planTierEnum = pgEnum('plan_tier', ['hobby', 'creator', 'pro']);
 
 // User-related tables and relations
 export const users = pgTable('users', {
