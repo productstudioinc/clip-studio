@@ -80,8 +80,8 @@ export const products = pgTable('products', {
 export const planLimits = pgTable('plan_limits', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	productId: text('product_id').references(() => products.id),
-	totalCredits: integer('total_credits'),
-	totalConnectedAccounts: integer('total_connected_accounts')
+	totalCredits: integer('total_credits').notNull(),
+	totalConnectedAccounts: integer('total_connected_accounts').notNull()
 });
 
 export const prices = pgTable('prices', {
@@ -147,8 +147,8 @@ export const userUsage = pgTable('user_usage', {
 		.references(() => users.id)
 		.unique(),
 	subscriptionId: text('subscription_id').references(() => subscriptions.id),
-	creditsLeft: integer('credits_left'),
-	connectedAccountsLeft: integer('connected_accounts_left'),
+	creditsLeft: integer('credits_left').notNull(),
+	connectedAccountsLeft: integer('connected_accounts_left').notNull(),
 	lastResetDate: timestamp('last_reset_date').notNull().defaultNow()
 });
 
