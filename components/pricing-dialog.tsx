@@ -10,10 +10,12 @@ import { useRouter } from 'next/navigation';
 
 export default function PricingDialog({
 	products,
-	user
+	user,
+	subscription
 }: {
 	products: GetProductsResult;
 	user: User | null;
+	subscription: string | null;
 }) {
 	const router = useRouter();
 
@@ -25,7 +27,7 @@ export default function PricingDialog({
 					Choose the plan that best fits your needs.
 				</DialogDescription>
 				<ScrollArea className="max-h-[800px]">
-					<Pricing products={products} user={user} />
+					<Pricing products={products} user={user} subscription={subscription} />
 					<Faq />
 				</ScrollArea>
 			</DialogContent>
