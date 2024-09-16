@@ -23,10 +23,12 @@ export const toHumanPrice = (price: number | null, decimals: number = 2) => {
 
 export default function Pricing({
 	products,
-	user
+	user,
+	subscription
 }: {
 	products: GetProductsResult;
 	user: User | null;
+	subscription: string | null;
 }) {
 	const router = useRouter();
 	const [interval, setInterval] = useState<Interval>('month');
@@ -113,6 +115,7 @@ export default function Pricing({
 								(p) => p.interval === 'year' && product.defaultPriceId === p.id
 							);
 							const currentPrice = interval === 'month' ? monthlyPrice : yearlyPrice;
+							const isCurrentPlan = subscription === product.name;
 
 							return (
 								<div
@@ -188,14 +191,20 @@ export default function Pricing({
 											'group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter mb-4',
 											'transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2'
 										)}
-										disabled={isLoading || !currentPrice}
+										disabled={isLoading || !currentPrice || subscription !== null}
 										onClick={() => currentPrice && onSubscribeClick(currentPrice.id)}
 									>
 										<span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 transform-gpu bg-white opacity-10 transition-all duration-1000 ease-out group-hover:-translate-x-96 dark:bg-black" />
-										{(!isLoading || (isLoading && id !== currentPrice?.id)) && <p>Upgrade</p>}
-										{isLoading && id === currentPrice?.id && <p>Upgrading...</p>}
-										{isLoading && id === currentPrice?.id && (
-											<Loader className="mr-2 h-4 w-4 animate-spin" />
+										{isCurrentPlan ? (
+											<p>Your Plan</p>
+										) : (
+											<>
+												{(!isLoading || (isLoading && id !== currentPrice?.id)) && <p>Upgrade</p>}
+												{isLoading && id === currentPrice?.id && <p>Upgrading...</p>}
+												{isLoading && id === currentPrice?.id && (
+													<Loader className="mr-2 h-4 w-4 animate-spin" />
+												)}
+											</>
 										)}
 									</Button>
 
