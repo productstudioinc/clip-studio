@@ -74,16 +74,12 @@ export const getUserUsage = async () => {
 		const result = await db
 			.select({
 				currentUsage: {
-					exportSecondsLeft: userUsage.exportSecondsLeft,
-					voiceoverCharactersLeft: userUsage.voiceoverCharactersLeft,
-					transcriptionSecondsLeft: userUsage.transcriptionSecondsLeft,
+					creditsLeft: userUsage.creditsLeft,
 					connectedAccountsLeft: userUsage.connectedAccountsLeft
 				},
 				totalLimits: {
-					exportSeconds: planLimits.exportSeconds,
-					voiceoverCharacters: planLimits.voiceoverCharacters,
-					transcriptionSeconds: planLimits.transcriptionSeconds,
-					connectedAccounts: planLimits.connectedAccounts
+					credits: planLimits.totalCredits,
+					connectedAccounts: planLimits.totalConnectedAccounts
 				}
 			})
 			.from(subscriptions)

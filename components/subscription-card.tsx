@@ -11,16 +11,12 @@ import { useServerAction } from 'zsa-react';
 
 type Usage = {
 	currentUsage: {
-		exportSecondsLeft: number;
-		voiceoverCharactersLeft: number;
-		transcriptionSecondsLeft: number;
-		connectedAccountsLeft: number;
+		creditsLeft: number | null;
+		connectedAccountsLeft: number | null;
 	};
 	totalLimits: {
-		exportSeconds: number;
-		voiceoverCharacters: number;
-		transcriptionSeconds: number;
-		connectedAccounts: number;
+		credits: number | null;
+		connectedAccounts: number | null;
 	};
 };
 
@@ -83,15 +79,7 @@ const UsageDisplay = ({ usage: initialUsage, userId }: { usage: Usage; userId: s
 					setRealtimeUsage((prevUsage) => ({
 						...prevUsage,
 						currentUsage: {
-							...prevUsage.currentUsage,
-							exportSecondsLeft:
-								newUsage.export_seconds_left ?? prevUsage.currentUsage.exportSecondsLeft,
-							voiceoverCharactersLeft:
-								newUsage.voiceover_characters_left ??
-								prevUsage.currentUsage.voiceoverCharactersLeft,
-							transcriptionSecondsLeft:
-								newUsage.transcription_seconds_left ??
-								prevUsage.currentUsage.transcriptionSecondsLeft,
+							creditsLeft: newUsage.credits_left ?? prevUsage.currentUsage.creditsLeft,
 							connectedAccountsLeft:
 								newUsage.connected_accounts_left ?? prevUsage.currentUsage.connectedAccountsLeft
 						}
@@ -107,47 +95,24 @@ const UsageDisplay = ({ usage: initialUsage, userId }: { usage: Usage; userId: s
 
 	const { currentUsage, totalLimits } = realtimeUsage;
 
-	const calculateUsed = (total: number, left: number) => total - left;
-	const calculatePercentage = (used: number, total: number) => (used / total) * 100;
-	const secondsToMinutes = (seconds: number) => (seconds / 60).toFixed(2);
+	const calculateUsed = (total: number | null, left: number | null) =>
+		total !== null && left !== null ? total - left : null;
+	const calculatePercentage = (used: number | null, total: number | null) =>
+		used !== null && total !== null && total !== 0 ? (used / total) * 100 : 0;
 
 	const usageItems = [
 		{
-			label: 'Export Minutes',
-			current: secondsToMinutes(
-				calculateUsed(totalLimits.exportSeconds, currentUsage.exportSecondsLeft)
-			),
-			total: secondsToMinutes(totalLimits.exportSeconds),
-			unit: 'minutes',
+			label: 'Credits Used',
+			current: calculateUsed(totalLimits.credits, currentUsage.creditsLeft),
+			total: totalLimits.credits,
+			unit: '',
 			percentage: calculatePercentage(
-				calculateUsed(totalLimits.exportSeconds, currentUsage.exportSecondsLeft),
-				totalLimits.exportSeconds
+				calculateUsed(totalLimits.credits, currentUsage.creditsLeft),
+				totalLimits.credits
 			)
 		},
 		{
-			label: 'Voiceover Characters',
-			current: calculateUsed(totalLimits.voiceoverCharacters, currentUsage.voiceoverCharactersLeft),
-			total: totalLimits.voiceoverCharacters,
-			unit: 'characters',
-			percentage: calculatePercentage(
-				calculateUsed(totalLimits.voiceoverCharacters, currentUsage.voiceoverCharactersLeft),
-				totalLimits.voiceoverCharacters
-			)
-		},
-		{
-			label: 'Transcribe Minutes',
-			current: secondsToMinutes(
-				calculateUsed(totalLimits.transcriptionSeconds, currentUsage.transcriptionSecondsLeft)
-			),
-			total: secondsToMinutes(totalLimits.transcriptionSeconds),
-			unit: 'minutes',
-			percentage: calculatePercentage(
-				calculateUsed(totalLimits.transcriptionSeconds, currentUsage.transcriptionSecondsLeft),
-				totalLimits.transcriptionSeconds
-			)
-		},
-		{
-			label: 'Connected Accounts',
+			label: 'Connected Accounts Used',
 			current: calculateUsed(totalLimits.connectedAccounts, currentUsage.connectedAccountsLeft),
 			total: totalLimits.connectedAccounts,
 			unit: '',
@@ -172,7 +137,7 @@ const UsageDisplay = ({ usage: initialUsage, userId }: { usage: Usage; userId: s
 									</Button>
 								</TooltipTrigger>
 								<TooltipContent>
-									<p>{`${item.current} / ${item.total} ${item.unit}`}</p>
+									<p>{`${item.current ?? 'N/A'} / ${item.total ?? 'N/A'} ${item.unit}`}</p>
 								</TooltipContent>
 							</Tooltip>
 						</div>

@@ -80,10 +80,8 @@ export const products = pgTable('products', {
 export const planLimits = pgTable('plan_limits', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	productId: text('product_id').references(() => products.id),
-	exportSeconds: integer('export_seconds').notNull(),
-	voiceoverCharacters: integer('voiceover_characters').notNull(),
-	transcriptionSeconds: integer('transcription_seconds').notNull(),
-	connectedAccounts: integer('connected_accounts').notNull()
+	totalCredits: integer('total_credits'),
+	totalConnectedAccounts: integer('total_connected_accounts')
 });
 
 export const prices = pgTable('prices', {
@@ -149,10 +147,8 @@ export const userUsage = pgTable('user_usage', {
 		.references(() => users.id)
 		.unique(),
 	subscriptionId: text('subscription_id').references(() => subscriptions.id),
-	exportSecondsLeft: integer('export_seconds_left').notNull(),
-	voiceoverCharactersLeft: integer('voiceover_characters_left').notNull(),
-	transcriptionSecondsLeft: integer('transcription_seconds_left').notNull(),
-	connectedAccountsLeft: integer('connected_accounts_left').notNull(),
+	creditsLeft: integer('credits_left'),
+	connectedAccountsLeft: integer('connected_accounts_left'),
 	lastResetDate: timestamp('last_reset_date').notNull().defaultNow()
 });
 
@@ -263,6 +259,13 @@ export const tiktokPosts = pgTable('tiktok_posts', {
 	publishId: text('publish_id').notNull(),
 	videoCoverTimestampMs: bigint('video_cover_timestamp_ms', { mode: 'number' }).notNull(),
 	createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
+export const creditEquivalence = pgTable('credit_equivalence', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	exportSeconds: integer('export_seconds').notNull(),
+	voiceoverCharacters: integer('voiceover_characters').notNull(),
+	transcribeMinutes: integer('transcribe_minutes').notNull()
 });
 
 export const tiktokAccountsRelations = relations(tiktokAccounts, ({ one }) => ({
