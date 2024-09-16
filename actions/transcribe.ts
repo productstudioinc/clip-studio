@@ -4,6 +4,7 @@ import { getUser } from '@/actions/auth/user';
 import { db } from '@/db';
 import { userUsage } from '@/db/schema';
 import { Transcription } from '@/stores/templatestore';
+import { CREDIT_CONVERSIONS } from '@/utils/constants';
 import { eq, sql } from 'drizzle-orm';
 import { Logger } from 'next-axiom';
 import { z } from 'zod';
@@ -41,30 +42,37 @@ export const getTranscriptionId = createServerAction()
 			}
 
 			const { duration } = await videoLength.json();
+			const requiredCredits = Math.ceil(duration / CREDIT_CONVERSIONS.TRANSCRIBE_SECONDS);
 
 			await db.transaction(async (tx) => {
 				const userUsageRecord = await tx
-					.select({ transcriptionSecondsLeft: userUsage.transcriptionSecondsLeft })
+					.select({ creditsLeft: userUsage.creditsLeft })
 					.from(userUsage)
 					.where(eq(userUsage.userId, user.id));
 
-				if (userUsageRecord[0].transcriptionSecondsLeft < duration) {
-					logger.error('Insufficient transcription seconds', {
+				if (!userUsageRecord[0]?.creditsLeft) {
+					logger.error('User usage record not found', { userId: user.id });
+					await logger.flush();
+					throw new ZSAError('INTERNAL_SERVER_ERROR', 'User usage record not found');
+				}
+
+				if (userUsageRecord[0].creditsLeft < requiredCredits) {
+					logger.error('Insufficient credits', {
 						userId: user.id,
-						requiredSeconds: duration,
-						availableSeconds: userUsageRecord[0].transcriptionSecondsLeft
+						requiredCredits,
+						availableCredits: userUsageRecord[0].creditsLeft
 					});
 					await logger.flush();
 					throw new ZSAError(
 						'INSUFFICIENT_CREDITS',
-						"You don't have enough seconds left to transcribe this video."
+						"You don't have enough credits to transcribe this video."
 					);
 				}
 
 				await tx
 					.update(userUsage)
 					.set({
-						transcriptionSecondsLeft: sql`transcription_seconds_left - ${duration}`
+						creditsLeft: sql`credits_left - ${requiredCredits}`
 					})
 					.where(eq(userUsage.userId, user.id));
 			});
@@ -107,6 +115,8 @@ export const getTranscription = createServerAction()
 		})
 	)
 	.handler(async ({ input }) => {
+		const requiredCredits = Math.ceil(input.duration / CREDIT_CONVERSIONS.TRANSCRIBE_SECONDS);
+
 		try {
 			const response = await fetch(
 				`${process.env.WHISPER_MODAL_URL}/call_id?call_id=${input.callId}`,
@@ -116,9 +126,7 @@ export const getTranscription = createServerAction()
 			);
 
 			if (response.status === 500) {
-				await db
-					.update(userUsage)
-					.set({ transcriptionSecondsLeft: sql`transcription_seconds_left + ${input.duration}` });
+				await db.update(userUsage).set({ creditsLeft: sql`credits_left + ${requiredCredits}` });
 				logger.error('Error fetching transcription', { callId: input.callId });
 				await logger.flush();
 				throw new ZSAError('INTERNAL_SERVER_ERROR', 'ID not found');
@@ -142,25 +150,21 @@ export const getTranscription = createServerAction()
 						};
 					} else {
 						await db.update(userUsage).set({
-							transcriptionSecondsLeft: sql`transcription_seconds_left + ${input.duration}`
+							creditsLeft: sql`credits_left + ${requiredCredits}`
 						});
 						logger.error('Invalid response from Whisper', { callId: input.callId });
 						await logger.flush();
 						throw new ZSAError('OUTPUT_PARSE_ERROR', 'Invalid response returned from Whisper');
 					}
 				} else {
-					await db
-						.update(userUsage)
-						.set({ transcriptionSecondsLeft: sql`transcription_seconds_left + ${input.duration}` });
+					await db.update(userUsage).set({ creditsLeft: sql`credits_left + ${requiredCredits}` });
 					logger.error('Unexpected response format from Whisper', { callId: input.callId });
 					await logger.flush();
 					throw new ZSAError('OUTPUT_PARSE_ERROR', 'Invalid response returned from Whisper');
 				}
 			}
 
-			await db
-				.update(userUsage)
-				.set({ transcriptionSecondsLeft: sql`transcription_seconds_left + ${input.duration}` });
+			await db.update(userUsage).set({ creditsLeft: sql`credits_left + ${requiredCredits}` });
 			logger.error('Unexpected response status from Whisper', {
 				callId: input.callId,
 				status: response.status

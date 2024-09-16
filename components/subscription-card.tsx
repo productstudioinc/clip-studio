@@ -112,7 +112,7 @@ const UsageDisplay = ({ usage: initialUsage, userId }: { usage: Usage; userId: s
 			)
 		},
 		{
-			label: 'Connected Accounts Used',
+			label: 'Connected Accounts',
 			current: calculateUsed(totalLimits.connectedAccounts, currentUsage.connectedAccountsLeft),
 			total: totalLimits.connectedAccounts,
 			unit: '',
