@@ -261,13 +261,6 @@ export const tiktokPosts = pgTable('tiktok_posts', {
 	createdAt: timestamp('created_at').notNull().defaultNow()
 });
 
-export const creditEquivalence = pgTable('credit_equivalence', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	exportSeconds: integer('export_seconds').notNull(),
-	voiceoverCharacters: integer('voiceover_characters').notNull(),
-	transcribeMinutes: integer('transcribe_minutes').notNull()
-});
-
 export const tiktokAccountsRelations = relations(tiktokAccounts, ({ one }) => ({
 	user: one(users, {
 		fields: [tiktokAccounts.userId],
