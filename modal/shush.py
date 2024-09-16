@@ -89,7 +89,12 @@ class WhisperV3:
         import time
         start = time.time()
         output = self.pipe(
-            audio_file, chunk_length_s=10, batch_size=4, return_timestamps="word", stride_length_s=1
+            audio_file,
+            chunk_length_s=10,
+            batch_size=4,
+            return_timestamps="word",
+            stride_length_s=1,
+            generate_kwargs={"language": "en", "task": "transcribe"}
         )
         elapsed = time.time() - start
         return output, elapsed
@@ -149,7 +154,15 @@ async def get_completion(request: Request):
         return responses.JSONResponse(
             content="Result did not finish processing.", status_code=202
         )
-    return result
+    
+    transcription = result[0]
+    
+    formatted_result = {
+        "text": transcription["text"],
+        "chunks": transcription["chunks"]
+    }
+    
+    return formatted_result
 
 @app.function(allow_concurrent_inputs=4, image=image)
 @asgi_app()
