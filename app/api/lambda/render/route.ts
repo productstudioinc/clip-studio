@@ -4,6 +4,7 @@ import { db } from '@/db';
 import { userUsage } from '@/db/schema';
 import { executeApi } from '@/helpers/api-response';
 import { RenderRequest } from '@/types/schema';
+import { CREDIT_CONVERSIONS } from '@/utils/constants';
 import {
 	AwsRegion,
 	renderMediaOnLambda,
@@ -53,29 +54,37 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 		});
 
 		const userUsageRecord = await db
-			.select({ exportSecondsLeft: userUsage.exportSecondsLeft })
+			.select({ creditsLeft: userUsage.creditsLeft })
 			.from(userUsage)
 			.where(eq(userUsage.userId, user.id))
 			.limit(1);
 
-		if (!userUsageRecord.length) {
+		if (!userUsageRecord[0].creditsLeft) {
 			logger.error('User does not have an active subscription', { email: user?.email });
 			await logger.flush();
 			throw new Error('You need an active subscription to use this feature.');
 		}
 
-		const secondsLeft = userUsageRecord[0].exportSecondsLeft;
+		const creditsLeft = userUsageRecord[0].creditsLeft;
 
-		if (secondsLeft < Math.floor(body.inputProps.durationInFrames / 30)) {
-			logger.error('Not enough seconds left to render', { email: user?.email });
+		const requiredCredits = Math.ceil(
+			body.inputProps.durationInFrames / 30 / CREDIT_CONVERSIONS.EXPORT_SECONDS
+		);
+
+		if (creditsLeft < requiredCredits) {
+			logger.error('Not enough credits left to render', {
+				email: user?.email,
+				creditsLeft,
+				requiredCredits
+			});
 			await logger.flush();
-			throw new Error("You don't have enough seconds left to render this video.");
+			throw new Error("You don't have enough credits to render this video.");
 		}
 
 		await db
 			.update(userUsage)
 			.set({
-				exportSecondsLeft: sql`export_seconds_left - ${Math.floor(body.inputProps.durationInFrames / 30)}`
+				creditsLeft: sql`credits_left - ${requiredCredits}`
 			})
 			.where(eq(userUsage.userId, user.id));
 

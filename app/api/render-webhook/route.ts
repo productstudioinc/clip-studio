@@ -1,5 +1,6 @@
 import { db } from '@/db';
 import { pastRenders, userUsage } from '@/db/schema';
+import { CREDIT_CONVERSIONS } from '@/utils/constants';
 import { validateWebhookSignature, WebhookPayload } from '@remotion/lambda/client';
 import { eq, sql } from 'drizzle-orm';
 import { withAxiom } from 'next-axiom';
@@ -43,11 +44,14 @@ export const POST = withAxiom(async (req) => {
 				renderId: payload.renderId,
 				errors: payload.errors
 			});
+			const requiredCredits = Math.ceil(
+				//@ts-ignore
+				payload.customData.durationInFrames / 30 / CREDIT_CONVERSIONS.EXPORT_SECONDS
+			);
 			await db
 				.update(userUsage)
 				.set({
-					//@ts-ignore
-					exportSecondsLeft: sql`export_seconds_left + ${Math.floor(payload.customData.durationInFrames / 30)}`
+					creditsLeft: sql`credits_left + ${requiredCredits}`
 				})
 				//@ts-ignore
 				.where(eq(userUsage.userId, payload.customData.userId));

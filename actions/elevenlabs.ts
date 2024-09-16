@@ -2,6 +2,7 @@
 
 import { db } from '@/db';
 import { userUsage } from '@/db/schema';
+import { CREDIT_CONVERSIONS } from '@/utils/constants';
 import { errorString, startingFunctionString } from '@/utils/logging';
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -66,14 +67,15 @@ export const generateAudioAndTimestamps = createServerAction()
 
 		const fullText = `${input.title} <break time="0.7s" /> ${input.text}`;
 		const characterCount = fullText.length;
+		const requiredCredits = Math.ceil(characterCount / CREDIT_CONVERSIONS.VOICEOVER_CHARACTERS);
 
 		try {
 			const userUsageRecord = await db
-				.select({ voiceoverCharactersLeft: userUsage.voiceoverCharactersLeft })
+				.select({ creditsLeft: userUsage.creditsLeft })
 				.from(userUsage)
 				.where(eq(userUsage.userId, user.id));
 
-			if (userUsageRecord.length === 0) {
+			if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
 				logger.error(errorString, { error: 'User does not have a subscription' });
 				await logger.flush();
 				throw new ZSAError(
@@ -82,20 +84,20 @@ export const generateAudioAndTimestamps = createServerAction()
 				);
 			}
 
-			if (userUsageRecord[0].voiceoverCharactersLeft < characterCount) {
-				logger.error(errorString, { error: 'Insufficient voiceover characters' });
+			if (userUsageRecord[0].creditsLeft < requiredCredits) {
+				logger.error(errorString, { error: 'Insufficient credits' });
 				await logger.flush();
 				throw new ZSAError(
 					'INSUFFICIENT_CREDITS',
-					`You don't have enough characters left to generate this voiceover.`
+					`You don't have enough credits to generate this voiceover.`
 				);
 			}
 
-			// Deduct the characters
+			// Deduct the credits
 			await db
 				.update(userUsage)
 				.set({
-					voiceoverCharactersLeft: sql`${userUsage.voiceoverCharactersLeft} - ${characterCount}`
+					creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
 				})
 				.where(eq(userUsage.userId, user.id));
 
@@ -173,11 +175,11 @@ export const generateAudioAndTimestamps = createServerAction()
 				titleEnd
 			};
 		} catch (error) {
-			// If an error occurred, refund the characters
+			// If an error occurred, refund the credits
 			await db
 				.update(userUsage)
 				.set({
-					voiceoverCharactersLeft: sql`${userUsage.voiceoverCharactersLeft} + ${characterCount}`
+					creditsLeft: sql`${userUsage.creditsLeft} + ${requiredCredits}`
 				})
 				.where(eq(userUsage.userId, user.id));
 

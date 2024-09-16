@@ -236,10 +236,8 @@ const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
 			.select({
 				userId: subscriptions.userId,
 				subscriptionId: subscriptions.id,
-				exportSecondsLeft: planLimits.exportSeconds,
-				voiceoverCharacters: planLimits.voiceoverCharacters,
-				transcriptionSeconds: planLimits.transcriptionSeconds,
-				connectedAccounts: planLimits.connectedAccounts
+				creditsLeft: planLimits.totalCredits,
+				connectedAccounts: planLimits.totalConnectedAccounts
 			})
 			.from(subscriptions)
 			.innerJoin(prices, eq(subscriptions.priceId, prices.id))
@@ -256,18 +254,14 @@ const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
 			.values({
 				userId: subscriptionDetails[0].userId,
 				subscriptionId: subscriptionDetails[0].subscriptionId,
-				exportSecondsLeft: subscriptionDetails[0].exportSecondsLeft,
-				voiceoverCharactersLeft: subscriptionDetails[0].voiceoverCharacters,
-				transcriptionSecondsLeft: subscriptionDetails[0].transcriptionSeconds,
+				creditsLeft: subscriptionDetails[0].creditsLeft,
 				connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
 				lastResetDate: new Date()
 			})
 			.onConflictDoUpdate({
 				target: userUsage.userId,
 				set: {
-					voiceoverCharactersLeft: subscriptionDetails[0].voiceoverCharacters,
-					exportSecondsLeft: subscriptionDetails[0].exportSecondsLeft,
-					transcriptionSecondsLeft: subscriptionDetails[0].transcriptionSeconds,
+					creditsLeft: subscriptionDetails[0].creditsLeft,
 					connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
 					lastResetDate: new Date()
 				}
