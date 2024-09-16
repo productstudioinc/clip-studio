@@ -43,10 +43,7 @@ export default function TranscribeControls() {
 			});
 
 			const checkTranscription = async () => {
-				const [transcription, transcriptionErr] = await getTranscription(
-					transcriptionData.callId,
-					transcriptionData.duration
-				);
+				const [transcription, transcriptionErr] = await getTranscription(transcriptionData);
 
 				if (transcriptionErr) {
 					toast.error(transcriptionErr.message);
