@@ -116,6 +116,11 @@ export const getTranscription = createServerAction()
 	)
 	.handler(async ({ input }) => {
 		const requiredCredits = Math.ceil(input.duration / CREDIT_CONVERSIONS.TRANSCRIBE_SECONDS);
+		const { user } = await getUser();
+
+		if (!user) {
+			throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.');
+		}
 
 		try {
 			const response = await fetch(
@@ -125,46 +130,37 @@ export const getTranscription = createServerAction()
 				}
 			);
 
-			if (response.status === 500) {
-				await db.update(userUsage).set({ creditsLeft: sql`credits_left + ${requiredCredits}` });
-				logger.error('Error fetching transcription', { callId: input.callId });
-				await logger.flush();
-				throw new ZSAError('INTERNAL_SERVER_ERROR', 'ID not found');
-			}
-
 			if (response.status === 202) {
-				return {
-					status: 'processing'
-				};
+				return { status: 'processing' };
 			}
 
 			if (response.status === 200) {
-				const data = await response.json();
-				if (Array.isArray(data) && data.length === 2) {
-					const [transcriptionData, _number] = data;
-					const result = Transcription.safeParse(transcriptionData);
-					if (result.success) {
-						return {
-							status: 'done',
-							data: result.data
-						};
-					} else {
-						await db.update(userUsage).set({
-							creditsLeft: sql`credits_left + ${requiredCredits}`
-						});
-						logger.error('Invalid response from Whisper', { callId: input.callId });
-						await logger.flush();
-						throw new ZSAError('OUTPUT_PARSE_ERROR', 'Invalid response returned from Whisper');
-					}
+				const rawData = await response.text();
+				let data;
+				try {
+					data = JSON.parse(rawData);
+				} catch (parseError) {
+					await refundCredits(user.id, requiredCredits);
+					logger.error('Failed to parse response as JSON', { callId: input.callId, rawData });
+					await logger.flush();
+					throw new ZSAError('OUTPUT_PARSE_ERROR', 'Invalid JSON response from Whisper');
+				}
+
+				const result = Transcription.safeParse(data);
+				if (result.success) {
+					return {
+						status: 'done',
+						data: result.data
+					};
 				} else {
-					await db.update(userUsage).set({ creditsLeft: sql`credits_left + ${requiredCredits}` });
-					logger.error('Unexpected response format from Whisper', { callId: input.callId });
+					await refundCredits(user.id, requiredCredits);
+					logger.error('Invalid response from Whisper', { callId: input.callId, data });
 					await logger.flush();
 					throw new ZSAError('OUTPUT_PARSE_ERROR', 'Invalid response returned from Whisper');
 				}
 			}
 
-			await db.update(userUsage).set({ creditsLeft: sql`credits_left + ${requiredCredits}` });
+			await refundCredits(user.id, requiredCredits);
 			logger.error('Unexpected response status from Whisper', {
 				callId: input.callId,
 				status: response.status
@@ -172,6 +168,7 @@ export const getTranscription = createServerAction()
 			await logger.flush();
 			throw new ZSAError('INTERNAL_SERVER_ERROR', 'Unexpected response status');
 		} catch (error) {
+			await refundCredits(user.id, requiredCredits);
 			logger.error('Unexpected error in getTranscription', {
 				error: error instanceof Error ? error.message : String(error),
 				callId: input.callId
@@ -180,3 +177,15 @@ export const getTranscription = createServerAction()
 			throw error;
 		}
 	});
+
+async function refundCredits(userId: string, credits: number) {
+	try {
+		await db
+			.update(userUsage)
+			.set({ creditsLeft: sql`credits_left + ${credits}` })
+			.where(eq(userUsage.userId, userId));
+	} catch (error) {
+		logger.error('Failed to refund credits', { userId, credits, error });
+		await logger.flush();
+	}
+}
