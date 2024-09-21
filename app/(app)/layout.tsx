@@ -17,46 +17,32 @@ export default async function Layout({
 		getUserSubscription(),
 		getUserUsage()
 	]);
-
 	return (
-		<div className="grid min-h-screen w-full md:grid-cols-[220px_1fr]">
-			<div className="hidden border-r bg-muted/40 md:block">
-				<div className="flex h-full max-h-screen flex-col gap-2">
-					<div className="flex min-h-14 items-center border-b px-4 lg:px-6">
-						<HeroWrapper />
-					</div>
-					<Sidebar user={user} subscription={subscriptionData} usage={usage} />
+		<div className="flex min-h-screen">
+			<aside className="hidden md:flex md:w-64 flex-col border-r bg-muted/40 sticky top-0 h-screen">
+				<div className="p-4 border-b">
+					<HeroWrapper />
 				</div>
-			</div>
-			<div className="flex flex-col h-screen">
-				<header className="flex items-center gap-4 border-b bg-muted/40 px-4 lg:px-6 min-h-14">
+				<Sidebar user={user} subscription={subscriptionData} usage={usage} />
+			</aside>
+			<div className="flex flex-col flex-1">
+				<header className="flex items-center justify-between p-2 border-b sticky top-0 z-10 bg-background">
 					<MobileSidebar user={user} />
-					<div className="w-full flex-1"></div>
 					<ModeToggle />
 				</header>
-				<main className="flex flex-col overflow-scroll flex-1 bg-muted/40 p-4 md:p-10">
-					{children}
-				</main>
-				<footer className="px-4 mx-auto border-t py-2 grid md:grid-cols-2 justify-between w-full grid-cols-1 gap-1">
-					<span className="text-sm tracking-tight text-foreground">
-						Copyright © {new Date().getFullYear()}{' '}
-						<Link href="/" className="cursor-pointer">
-							Clip Studio
-						</Link>{' '}
-						- AI Generated Videos
-					</span>
-					<ul className="flex justify-start md:justify-end text-sm tracking-tight text-foreground">
-						<li className="mr-3 md:mx-4">
-							<Link href="/privacy" target="_blank" rel="noopener noreferrer">
+				<main className="flex-1 bg-muted/40 relative">{children}</main>
+				<footer className="border-t p-4 text-sm">
+					<div className="flex flex-col md:flex-row justify-between items-center">
+						<span>
+							© {new Date().getFullYear()} <Link href="/">Clip Studio</Link> - AI Generated Videos
+						</span>
+						<nav className="mt-2 md:mt-0">
+							<Link href="/privacy" className="mr-4">
 								Privacy Policy
 							</Link>
-						</li>
-						<li className="mr-3 md:mx-4">
-							<Link href="/terms" target="_blank" rel="noopener noreferrer">
-								Terms of Service
-							</Link>
-						</li>
-					</ul>
+							<Link href="/terms">Terms of Service</Link>
+						</nav>
+					</div>
 				</footer>
 			</div>
 		</div>

@@ -1,5 +1,5 @@
-ALTER TABLE "plan_limits" ADD COLUMN "total_credits" integer;--> statement-breakpoint
-ALTER TABLE "user_usage" ADD COLUMN "credits_left" integer;--> statement-breakpoint
+ALTER TABLE "plan_limits" ADD COLUMN IF NOT EXISTS "total_credits" integer;--> statement-breakpoint
+ALTER TABLE "user_usage" ADD COLUMN IF NOT EXISTS "credits_left" integer;--> statement-breakpoint
 ALTER TABLE "plan_limits" DROP COLUMN IF EXISTS "export_seconds";--> statement-breakpoint
 ALTER TABLE "plan_limits" DROP COLUMN IF EXISTS "voiceover_characters";--> statement-breakpoint
 ALTER TABLE "plan_limits" DROP COLUMN IF EXISTS "transcription_seconds";--> statement-breakpoint

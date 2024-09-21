@@ -36,6 +36,13 @@
       "when": 1726449563173,
       "tag": "0004_powerful_landau",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1726874860896,
+      "tag": "0005_volatile_talos",
+      "breakpoints": true
     }
   ]
 }

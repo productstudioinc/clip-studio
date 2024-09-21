@@ -6,7 +6,7 @@ import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 import { useEffect, useState } from 'react';
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
 	posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
 		api_host: '/ingest',
 		ui_host: 'https://us.posthog.com',
@@ -17,6 +17,9 @@ if (typeof window !== 'undefined') {
 }
 
 export function PHProvider({ children }: { children: React.ReactNode }) {
+	if (process.env.NODE_ENV !== 'production') {
+		return <>{children}</>;
+	}
 	return (
 		<PostHogProvider client={posthog}>
 			<PostHogAuthWrapper>{children}</PostHogAuthWrapper>
@@ -28,21 +31,25 @@ function PostHogAuthWrapper({ children }: { children: React.ReactNode }) {
 	const [user, setUser] = useState<User | null>(null);
 
 	useEffect(() => {
-		const fetchUser = async () => {
-			const { user } = await getUser();
-			setUser(user);
-		};
-		fetchUser();
+		if (process.env.NODE_ENV === 'production') {
+			const fetchUser = async () => {
+				const { user } = await getUser();
+				setUser(user);
+			};
+			fetchUser();
+		}
 	}, []);
 
 	useEffect(() => {
-		if (user) {
-			posthog.identify(user.id, {
-				email: user.email,
-				name: user.app_metadata.full_name
-			});
-		} else {
-			posthog.reset();
+		if (process.env.NODE_ENV === 'production') {
+			if (user) {
+				posthog.identify(user.id, {
+					email: user.email,
+					name: user.app_metadata.full_name
+				});
+			} else {
+				posthog.reset();
+			}
 		}
 	}, [user]);
 

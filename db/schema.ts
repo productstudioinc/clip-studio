@@ -165,6 +165,7 @@ export const templates = pgTable('templates', {
 	id: integer('id').primaryKey(),
 	value: text('value').notNull(),
 	name: text('name').notNull(),
+	active: boolean('active').notNull().default(false),
 	previewUrl: text('preview_url').notNull()
 });
 

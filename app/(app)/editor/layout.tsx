@@ -1,4 +1,3 @@
-import { VideoPreview } from '@/components/video-preview';
 import React from 'react';
 
 export default async function Layout({
@@ -18,7 +17,7 @@ export default async function Layout({
 				</div>
 				<div className="w-full lg:w-1/2 flex items-center justify-center bg-muted rounded-lg">
 					<div className="w-full h-full max-h-[calc(50vw*16/9)] lg:max-h-[calc((100vh-60px-2rem)*0.9)] aspect-[9/16]">
-						<VideoPreview />
+						{/* <VideoPreview /> */}
 					</div>
 				</div>
 			</div>

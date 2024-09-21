@@ -6,7 +6,7 @@ import { PageSwitcher } from '@/components/page-switcher';
 import { ResetSettings } from '@/components/reset-settings';
 import { Sidebar } from '@/components/sidebar';
 import { ModeToggle } from '@/components/theme-toggle';
-import { VideoPreview } from '@/components/video-preview';
+import { VideoPreview } from '@/components/video-preview-old';
 import Link from 'next/link';
 import React from 'react';
 

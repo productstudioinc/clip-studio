@@ -2,8 +2,7 @@ import { getUser } from '@/actions/auth/user';
 import { getTemplates } from '@/actions/db/page-data';
 import { fetchUserConnectSocialMediaAccounts } from '@/actions/db/social-media-queries';
 import { getVoices } from '@/actions/elevenlabs';
-import TextForm from '@/app/(app)/editor/text-form';
-import { TemplateSelect } from '@/components/template-select';
+import VideoCreatorForm from '@/components/forms/video-creator-form';
 
 export default async function Page() {
 	const { user } = await getUser();
@@ -15,12 +14,11 @@ export default async function Page() {
 		: { youtubeChannels: [], tiktokAccounts: [] };
 
 	return (
-		<>
-			<TemplateSelect templates={templates} />
-
-			{/* <VideoCreatorForm /> */}
-
-			<TextForm youtubeChannels={youtubeChannels} tiktokAccounts={tiktokAccounts} voices={voices} />
-		</>
+		<VideoCreatorForm
+			voices={voices}
+			templates={templates}
+			youtubeChannels={youtubeChannels}
+			tiktokAccounts={tiktokAccounts}
+		/>
 	);
 }
