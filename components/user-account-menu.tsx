@@ -1,6 +1,7 @@
 'use client';
 
 import { signOut } from '@/actions/auth/user';
+import { Icons } from '@/components/icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
 	DropdownMenu,
@@ -12,7 +13,8 @@ import {
 	DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { User } from '@supabase/supabase-js';
-import { ChevronsUpDown, LogOut, User as UserIcon } from 'lucide-react';
+import { ChevronsUpDown, LogOut, MoonIcon, SunIcon, User as UserIcon } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -22,6 +24,7 @@ interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function UserAccountMenu({ user }: UserAccountNavProps) {
 	const router = useRouter();
+	const { theme, setTheme } = useTheme();
 
 	return (
 		<DropdownMenu>
@@ -70,6 +73,33 @@ export function UserAccountMenu({ user }: UserAccountNavProps) {
 						<Link href="/account" className="flex items-center gap-2">
 							<UserIcon className="h-4 w-4 text-muted-foreground" />
 							Account Settings
+						</Link>
+					</DropdownMenuItem>
+				</DropdownMenuGroup>
+				<DropdownMenuSeparator />
+				<DropdownMenuGroup>
+					<DropdownMenuItem onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+						<div className="flex gap-2 items-center">
+							{theme === 'dark' ? (
+								<SunIcon className="h-4 w-4" />
+							) : (
+								<MoonIcon className="h-4 w-4" />
+							)}
+							<span>{theme === 'dark' ? 'Light' : 'Dark'} Mode</span>
+						</div>
+					</DropdownMenuItem>
+				</DropdownMenuGroup>
+				<DropdownMenuSeparator />
+				<DropdownMenuGroup>
+					<DropdownMenuItem asChild>
+						<Link
+							href="https://discord.gg/AVRVrVHTwQ"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="flex items-center gap-2"
+						>
+							<Icons.discord className="h-4 w-4 text-muted-foreground" />
+							Join Discord
 						</Link>
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
