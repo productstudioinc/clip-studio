@@ -5,30 +5,27 @@ import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/f
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import React from 'react';
+import { SelectBackgroundWithParts } from '@/db/schema';
+import { VideoProps } from '@/stores/templatestore';
+import type { FC } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
-type TemplateSelectProps = {
-	form: UseFormReturn<any>;
-	templates: Array<{
-		id: string | number; // Allow both string and number
-		name: string;
-		previewUrl: string;
-		value: string;
-	}>;
+type BackgroundSelectStepProps = {
+	form: UseFormReturn<VideoProps>;
+	backgrounds: SelectBackgroundWithParts[];
 };
 
-export const TemplateSelect: React.FC<TemplateSelectProps> = ({ form, templates }) => {
+export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({ form, backgrounds }) => {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Choose a Template</CardTitle>
+				<CardTitle>Choose a Background</CardTitle>
 			</CardHeader>
 			<CardContent>
 				<ScrollArea className="w-full whitespace-nowrap pb-4">
 					<FormField
 						control={form.control}
-						name="template"
+						name="backgroundTheme"
 						render={({ field }) => (
 							<FormItem>
 								<FormControl>
@@ -37,23 +34,22 @@ export const TemplateSelect: React.FC<TemplateSelectProps> = ({ form, templates 
 										defaultValue={field.value}
 										className="flex space-x-4"
 									>
-										{templates.map((template) => (
+										{backgrounds.map((background) => (
 											<Label
-												key={template.id.toString()} // Convert id to string
+												key={background.id}
 												className="relative flex-shrink-0 flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
 											>
-												<RadioGroupItem value={template.value} className="sr-only" />
+												<RadioGroupItem value={background.name} className="sr-only" />
 												<video
-													src={template.previewUrl}
+													src={background.previewUrl}
 													width={200}
-													height={300}
+													height={150}
+													className="w-[200px] h-[150px] object-cover rounded-t-md"
 													autoPlay
 													loop
-													playsInline
 													muted
-													className="w-[200px] h-[300px] object-cover rounded-t-md"
 												/>
-												<span className="w-full p-2 text-center">{template.name}</span>
+												<span className="w-full p-2 text-center">{background.name}</span>
 											</Label>
 										))}
 									</RadioGroup>

@@ -9,10 +9,9 @@ import {
 	Sequence,
 	Series
 } from 'remotion';
-import { z } from 'zod';
 
 import { RedditCard } from '../../components/reddit-card';
-import { RedditProps } from '../../stores/templatestore';
+import { RedditVideoProps } from '../../stores/templatestore';
 import Subtitle from '../Shared/Subtitle';
 
 export type SubtitleProp = {
@@ -27,12 +26,14 @@ const BACKGROUND_VIDEO_DURATION = 60 * FPS;
 export const RedditComposition = ({
 	title,
 	subreddit,
+	likes,
+	comments,
 	voiceoverUrl,
 	voiceoverFrames,
 	accountName,
 	titleEnd,
 	backgroundUrls
-}: z.infer<typeof RedditProps>) => {
+}: RedditVideoProps) => {
 	const [subtitles, setSubtitles] = useState<SubtitleProp[]>([]);
 	const [handle] = useState(() => delayRender());
 
@@ -79,11 +80,10 @@ export const RedditComposition = ({
 	}, [generateSubtitles]);
 
 	const titleEndFrame = Math.floor(titleEnd * FPS);
-
 	return (
 		<>
 			<Audio src={voiceoverUrl} pauseWhenBuffering />
-			<AbsoluteFill>
+			<AbsoluteFill className="w-full h-full">
 				<Series>
 					{backgroundUrls.map((part, index) => (
 						<Series.Sequence durationInFrames={BACKGROUND_VIDEO_DURATION} key={index}>
@@ -91,32 +91,22 @@ export const RedditComposition = ({
 								src={part}
 								startFrom={0}
 								endAt={BACKGROUND_VIDEO_DURATION}
-								style={{
-									position: 'absolute',
-									width: '100%',
-									height: '100%',
-									objectFit: 'cover'
-								}}
+								className="absolute w-full h-full object-cover"
 								muted
 							/>
 						</Series.Sequence>
 					))}
 				</Series>
-				<AbsoluteFill
-					style={{
-						justifyContent: 'center',
-						alignItems: 'center',
-						fontSize: 100
-					}}
-				>
+				<AbsoluteFill className="flex justify-center items-center">
 					<Sequence durationInFrames={titleEndFrame}>
-						<AbsoluteFill
-							style={{
-								justifyContent: 'center',
-								alignItems: 'center'
-							}}
-						>
-							<RedditCard title={title} subreddit={subreddit} accountName={accountName} />
+						<AbsoluteFill className="flex justify-center items-center">
+							<RedditCard
+								title={title}
+								subreddit={subreddit}
+								accountName={accountName}
+								likes={likes}
+								comments={comments}
+							/>
 						</AbsoluteFill>
 					</Sequence>
 					{subtitles.map((subtitle, index) =>

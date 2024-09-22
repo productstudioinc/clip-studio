@@ -207,39 +207,28 @@ const TwitterThreadControls: React.FC = () => {
 		setTwitterThreadState: state.setTwitterThreadState
 	}));
 
-	const handleTweetIdsChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-		const input = event.target.value;
-		const tweetUrls = input.split(/[\n,]+/).map((url) => url.trim());
-		const tweetIds = new Set(
-			tweetUrls
-				.map((url) => {
-					const match = url.match(/\/status\/(\d+)/);
-					return match ? match[1] : null;
-				})
-				.filter((id) => id !== null) as string[]
-		);
-		setTwitterThreadState({ tweetIds: Array.from(tweetIds) });
+	const handleTweetIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const input = event.target.value.trim();
+		const tweetId = input.match(/\/status\/(\d+)/) ? input.match(/\/status\/(\d+)/)![1] : input;
+		setTwitterThreadState({ tweetId });
 	};
 
 	return (
 		<div className="space-y-4">
 			<div className="space-y-2">
-				<Label htmlFor="tweetUrls">Tweet URLs</Label>
-				<Textarea
-					id="tweetUrls"
-					onChange={handleTweetIdsChange}
-					placeholder="Enter tweet URLs, one per line"
+				<Label htmlFor="tweetUrl">Tweet URL or ID</Label>
+				<Input
+					id="tweetUrl"
+					onChange={handleTweetIdChange}
+					placeholder="Enter tweet URL or ID"
+					value={twitterThreadState.tweetId}
 				/>
 			</div>
-			{twitterThreadState.tweetIds.length > 0 && (
+			{twitterThreadState.tweetId && (
 				<div className="space-y-2">
-					<Label>Extracted Tweet IDs</Label>
+					<Label>Extracted Tweet ID</Label>
 					<div className="bg-muted p-2 rounded-md">
-						{twitterThreadState.tweetIds.map((tweetId) => (
-							<div key={tweetId} className="text-sm">
-								{tweetId}
-							</div>
-						))}
+						<div className="text-sm">{twitterThreadState.tweetId}</div>
 					</div>
 				</div>
 			)}

@@ -2,7 +2,7 @@
 'use client';
 import { Card, CardContent } from '@/components/ui/card';
 import { SelectBackgroundWithParts } from '@/db/schema';
-import { useTemplateStore } from '@/stores/templatestore';
+import { BackgroundTheme, useTemplateStore } from '@/stores/templatestore';
 import type { FC } from 'react';
 
 type BackgroundSelectProps = {
@@ -17,7 +17,7 @@ export const BackgroundSelect: FC<BackgroundSelectProps> = ({ backgrounds }) => 
 	}));
 
 	const handleSelect = (background: SelectBackgroundWithParts) => {
-		setBackgroundTheme(background.name as 'Minecraft' | 'GTA' | 'Satisfying');
+		setBackgroundTheme(background.name as BackgroundTheme);
 		setBackgroundUrls(background.backgroundParts.map((part) => part.partUrl));
 	};
 

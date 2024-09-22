@@ -13,8 +13,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
-	defaultMyCompProps,
+	BackgroundTheme,
 	defaultRedditProps,
+	defaultSplitScreenProps,
 	defaultTwitterThreadProps,
 	useTemplateStore
 } from '@/stores/templatestore';
@@ -26,7 +27,7 @@ export const ResetSettings = () => {
 		setSplitScreenState: state.setSplitScreenState,
 		setRedditState: state.setRedditState,
 		setTwitterThreadState: state.setTwitterThreadState,
-		setdurationInFrames: state.setdurationInFrames,
+		setdurationInFrames: state.setDurationInFrames,
 		setBackgroundTheme: state.setBackgroundTheme,
 		setBackgroundUrls: state.setBackgroundUrls
 	}));
@@ -34,12 +35,12 @@ export const ResetSettings = () => {
 	const handleReset = () => {
 		useTemplateStore.persist.clearStorage();
 		resetStore.setSelectedTemplate('Reddit');
-		resetStore.setSplitScreenState(defaultMyCompProps);
+		resetStore.setSplitScreenState(defaultSplitScreenProps);
 		resetStore.setRedditState(defaultRedditProps);
 		resetStore.setTwitterThreadState(defaultTwitterThreadProps);
 		resetStore.setdurationInFrames(900);
-		resetStore.setBackgroundTheme('Minecraft');
-		resetStore.setBackgroundUrls(defaultMyCompProps.backgroundUrls);
+		resetStore.setBackgroundTheme(BackgroundTheme.Minecraft);
+		resetStore.setBackgroundUrls(defaultSplitScreenProps.backgroundUrls);
 	};
 
 	return (

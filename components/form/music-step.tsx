@@ -1,6 +1,5 @@
 'use client';
 
-import { musicOptions } from '@/components/forms/video-creator-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -8,12 +7,13 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Slider } from '@/components/ui/slider';
+import { musicOptions, VideoProps } from '@/stores/templatestore';
 import { Pause, Play, VolumeX } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
 type MusicStepProps = {
-	form: UseFormReturn<any>;
+	form: UseFormReturn<VideoProps>;
 };
 
 export const MusicStep: React.FC<MusicStepProps> = ({ form }) => {

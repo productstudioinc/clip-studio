@@ -1,7 +1,15 @@
 import { getVideoMetadata } from '@remotion/media-utils';
 import React from 'react';
 import { Composition } from 'remotion';
-import { VIDEO_FPS, VIDEO_HEIGHT, VIDEO_WIDTH, useTemplateStore } from '../stores/templatestore';
+import {
+	RedditVideoSchema,
+	SplitScreenVideoSchema,
+	TwitterVideoSchema,
+	VIDEO_FPS,
+	VIDEO_HEIGHT,
+	VIDEO_WIDTH,
+	useTemplateStore
+} from '../stores/templatestore';
 import { RedditComposition } from './Reddit/Composition';
 import { SplitScreenComposition } from './SplitScreen/Composition';
 import { TwitterThreadComposition } from './TwitterThread/Composition';
@@ -46,6 +54,7 @@ export const RemotionRoot: React.FC = () => {
 					fps={VIDEO_FPS}
 					width={VIDEO_WIDTH}
 					height={VIDEO_HEIGHT}
+					schema={SplitScreenVideoSchema}
 					defaultProps={defaultProps as any}
 					calculateMetadata={async ({ props }) => {
 						const data = await getVideoMetadata(props.videoUrl);
@@ -63,6 +72,7 @@ export const RemotionRoot: React.FC = () => {
 					fps={VIDEO_FPS}
 					width={VIDEO_WIDTH}
 					height={VIDEO_HEIGHT}
+					schema={RedditVideoSchema}
 					defaultProps={defaultProps as any}
 					calculateMetadata={async ({ props }) => {
 						return {
@@ -80,6 +90,7 @@ export const RemotionRoot: React.FC = () => {
 					id="TwitterThread"
 					component={TwitterThreadComposition}
 					durationInFrames={videoDuration}
+					schema={TwitterVideoSchema}
 					fps={VIDEO_FPS}
 					width={VIDEO_WIDTH}
 					height={VIDEO_HEIGHT}

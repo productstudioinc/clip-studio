@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { VideoProps } from '@/stores/templatestore';
 import { Loader2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -13,7 +15,7 @@ import { z } from 'zod';
 import { useServerAction } from 'zsa-react';
 
 type RedditUrlStepProps = {
-	form: UseFormReturn<any>;
+	form: UseFormReturn<VideoProps>;
 };
 
 export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
@@ -37,9 +39,12 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
 			if (error) {
 				toast.error(error.message);
 			} else if (data) {
-				form.setValue('subreddit', data.subreddit);
 				form.setValue('title', data.title);
+				form.setValue('subreddit', data.subreddit);
+				form.setValue('accountName', data.accountName);
 				form.setValue('text', data.text);
+				form.setValue('likes', data.likes);
+				form.setValue('comments', data.comments);
 				toast.success('Reddit post data fetched successfully');
 				setPostUrl('');
 			}
@@ -89,6 +94,40 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
 							'Fetch Post Data'
 						)}
 					</Button>
+					<div className="grid grid-cols-[auto,1fr] gap-4 items-center">
+						<Label htmlFor="redditSubreddit">Subreddit</Label>
+						<Input
+							id="redditSubreddit"
+							type="text"
+							{...form.register('subreddit')}
+							disabled={isPending}
+						/>
+						<Label htmlFor="redditAccountName">Account Name</Label>
+						<Input
+							id="redditAccountName"
+							type="text"
+							{...form.register('accountName')}
+							disabled={isPending}
+						/>
+						<Label htmlFor="redditTitle">Title</Label>
+						<Input id="redditTitle" {...form.register('title')} disabled={isPending} />
+						<Label htmlFor="redditText">Text</Label>
+						<Textarea id="redditText" {...form.register('text')} disabled={isPending} />
+						<Label htmlFor="redditLikes">Likes</Label>
+						<Input
+							id="redditLikes"
+							type="number"
+							{...form.register('likes', { valueAsNumber: true })}
+							disabled={isPending}
+						/>
+						<Label htmlFor="redditComments">Comments</Label>
+						<Input
+							id="redditComments"
+							type="number"
+							{...form.register('comments', { valueAsNumber: true })}
+							disabled={isPending}
+						/>
+					</div>
 				</div>
 			</CardContent>
 		</Card>

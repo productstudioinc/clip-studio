@@ -1,27 +1,29 @@
 'use client';
 
-import { FormValues } from '@/components/forms/video-creator-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import useTemplateConfig from '@/stores/templateConfig';
+import { VideoProps } from '@/stores/templatestore';
 import { Player } from '@remotion/player';
 import React from 'react';
-import { UseFormWatch } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 
 interface VideoPreviewProps {
-	watch: UseFormWatch<FormValues>;
-	selectedTemplate: string;
+	form: UseFormReturn<VideoProps>;
 }
 
-export const VideoPreview: React.FC<VideoPreviewProps> = ({ watch, selectedTemplate }) => {
+export const VideoPreview: React.FC<VideoPreviewProps> = ({ form }) => {
 	const {
 		component: CompositionComponent,
 		state: inputProps,
 		durationInFrames
 	} = useTemplateConfig();
 
+	const { watch } = form;
+
 	const width = watch('width');
 	const height = watch('height');
 	const fps = watch('fps');
+
 	const aspectRatioClass = React.useMemo(() => {
 		const ratio = width / height;
 		if (ratio === 9 / 16) {
@@ -44,10 +46,10 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ watch, selectedTempl
 				<div className={`w-full h-full flex items-center justify-center ${aspectRatioClass}`}>
 					<Player
 						component={CompositionComponent as any}
-						className="rounded-md"
-						style={{ width: '100%', height: '100%' }}
 						inputProps={inputProps}
 						durationInFrames={durationInFrames}
+						className="rounded-md"
+						style={{ width: '100%', height: '100%' }}
 						fps={fps}
 						compositionHeight={height}
 						compositionWidth={width}
@@ -60,22 +62,6 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ watch, selectedTempl
 				<div className="mt-4">
 					<table className="w-full">
 						<tbody>
-							{selectedTemplate && (
-								<tr>
-									<td>
-										<strong>Template:</strong>
-									</td>
-									<td>{selectedTemplate}</td>
-								</tr>
-							)}
-							{watch('prompt') && (
-								<tr>
-									<td>
-										<strong>Prompt:</strong>
-									</td>
-									<td>{watch('prompt')}</td>
-								</tr>
-							)}
 							{watch('language') && (
 								<tr>
 									<td>
@@ -112,14 +98,6 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ watch, selectedTempl
 								</td>
 								<td>{watch('musicVolume')}%</td>
 							</tr>
-							{watch('visualStyle') && (
-								<tr>
-									<td>
-										<strong>Visual Style:</strong>
-									</td>
-									<td>{watch('visualStyle')}</td>
-								</tr>
-							)}
 							<tr>
 								<td>
 									<strong>Aspect Ratio:</strong>

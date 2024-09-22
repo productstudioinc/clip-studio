@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { VideoProps } from '@/stores/templatestore';
 import { Loader2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -11,7 +12,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 type TwitterUrlStepProps = {
-	form: UseFormReturn<any>;
+	form: UseFormReturn<VideoProps>;
 };
 
 export const TwitterUrlStep: React.FC<TwitterUrlStepProps> = ({ form }) => {
@@ -42,7 +43,7 @@ export const TwitterUrlStep: React.FC<TwitterUrlStepProps> = ({ form }) => {
 				throw new Error('Could not extract tweet ID from URL');
 			}
 
-			form.setValue('tweetId', [tweetId]);
+			form.setValue('tweetId', tweetId);
 			toast.success('Tweet ID extracted successfully');
 			setTweetUrl('');
 		} catch (error) {

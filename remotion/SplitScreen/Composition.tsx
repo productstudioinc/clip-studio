@@ -9,8 +9,7 @@ import {
 	Series,
 	useVideoConfig
 } from 'remotion';
-import { z } from 'zod';
-import { SplitScreenProps } from '../../stores/templatestore';
+import { SplitScreenVideoProps } from '../../stores/templatestore';
 import Subtitle from '../Shared/Subtitle';
 
 export type SubtitleProp = {
@@ -26,7 +25,7 @@ export const SplitScreenComposition = ({
 	type,
 	backgroundUrls,
 	transcription
-}: z.infer<typeof SplitScreenProps>) => {
+}: SplitScreenVideoProps) => {
 	const videoConfig = useVideoConfig();
 	const [subtitles, setSubtitles] = useState<SubtitleProp[]>([]);
 	const [handle] = useState(() => delayRender());

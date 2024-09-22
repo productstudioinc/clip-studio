@@ -1,7 +1,6 @@
 'use client';
 
 import { ElevenlabsVoice } from '@/actions/elevenlabs';
-import { Language } from '@/components/forms/video-creator-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -26,13 +25,14 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
+import { Language, VideoProps } from '@/stores/templatestore';
 import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons';
 import { Pause, Play } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
 type VoiceStepProps = {
-	form: UseFormReturn<any>;
+	form: UseFormReturn<VideoProps>;
 	voices: ElevenlabsVoice[];
 };
 

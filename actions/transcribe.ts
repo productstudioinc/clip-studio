@@ -3,7 +3,7 @@
 import { getUser } from '@/actions/auth/user';
 import { db } from '@/db';
 import { userUsage } from '@/db/schema';
-import { Transcription } from '@/stores/templatestore';
+import { TranscriptionSchema } from '@/stores/templatestore';
 import { CREDIT_CONVERSIONS } from '@/utils/constants';
 import { eq, sql } from 'drizzle-orm';
 import { Logger } from 'next-axiom';
@@ -111,7 +111,7 @@ export const getTranscription = createServerAction()
 	.output(
 		z.object({
 			status: z.enum(['done', 'processing']),
-			data: Transcription.optional()
+			data: TranscriptionSchema.optional()
 		})
 	)
 	.handler(async ({ input }) => {
@@ -146,7 +146,7 @@ export const getTranscription = createServerAction()
 					throw new ZSAError('OUTPUT_PARSE_ERROR', 'Invalid JSON response from Whisper');
 				}
 
-				const result = Transcription.safeParse(data);
+				const result = TranscriptionSchema.safeParse(data);
 				if (result.success) {
 					return {
 						status: 'done',

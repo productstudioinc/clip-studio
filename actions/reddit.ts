@@ -43,6 +43,16 @@ async function getRedditAccessToken() {
 
 export const getRedditInfo = createServerAction()
 	.input(redditUrlSchema)
+	.output(
+		z.object({
+			title: z.string(),
+			subreddit: z.string(),
+			accountName: z.string(),
+			text: z.string(),
+			likes: z.number(),
+			comments: z.number()
+		})
+	)
 	.handler(async ({ input }) => {
 		try {
 			const user = await getUser();
@@ -87,7 +97,10 @@ export const getRedditInfo = createServerAction()
 			return {
 				subreddit: post.subreddit,
 				title: post.title,
-				text: post.selftext
+				accountName: post.author,
+				text: post.selftext,
+				likes: post.score,
+				comments: post.num_comments
 			};
 		} catch (error) {
 			if (error instanceof ZSAError) {

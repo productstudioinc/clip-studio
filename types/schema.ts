@@ -1,11 +1,9 @@
-import { RedditProps, SplitScreenProps, TwitterThreadProps } from '@/stores/templatestore';
+import { VideoSchema } from '@/stores/templatestore';
 import { z } from 'zod';
-
-export const CompositionProps = z.union([SplitScreenProps, RedditProps, TwitterThreadProps]);
 
 export const RenderRequest = z.object({
 	id: z.string(),
-	inputProps: CompositionProps
+	inputProps: VideoSchema
 });
 
 export const ProgressRequest = z.object({

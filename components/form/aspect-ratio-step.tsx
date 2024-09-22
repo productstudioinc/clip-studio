@@ -1,26 +1,26 @@
 'use client';
 
-import { AspectRatio, AspectRatioDescriptions } from '@/components/forms/video-creator-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { AspectRatio, AspectRatioMap, VideoProps } from '@/stores/templatestore';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
 type AspectRatioStepProps = {
-	form: UseFormReturn<any>;
+	form: UseFormReturn<VideoProps>;
 };
 
 export const AspectRatioStep: React.FC<AspectRatioStepProps> = ({ form }) => {
-	const aspectRatios = Object.entries(AspectRatioDescriptions).map(([key, value]) => ({
+	const aspectRatios = Object.entries(AspectRatioMap).map(([key, value]) => ({
 		value: key,
 		label: key,
 		...value
 	}));
 
 	const onAspectRatioChange = (aspectRatio: AspectRatio) => {
-		const { width, height } = AspectRatioDescriptions[aspectRatio];
+		const { width, height } = AspectRatioMap[aspectRatio];
 		form.setValue('width', width);
 		form.setValue('height', height);
 	};

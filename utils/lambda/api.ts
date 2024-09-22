@@ -1,4 +1,4 @@
-import { CompositionProps } from '@/stores/templatestore';
+import { VideoProps, VideoSchema } from '@/stores/templatestore';
 import { ProgressRequest, ProgressResponse, RenderRequest } from '@/types/schema';
 import type { RenderMediaOnLambdaOutput } from '@remotion/lambda/client';
 import { z } from 'zod';
@@ -20,14 +20,8 @@ const makeRequest = async <Res>(endpoint: string, body: unknown): Promise<Res> =
 	return json.data;
 };
 
-export const renderVideo = async ({
-	id,
-	inputProps
-}: {
-	id: string;
-	inputProps: z.infer<typeof CompositionProps>;
-}) => {
-	CompositionProps.parse(inputProps);
+export const renderVideo = async ({ id, inputProps }: { id: string; inputProps: VideoProps }) => {
+	VideoSchema.parse(inputProps);
 
 	const body: z.infer<typeof RenderRequest> = {
 		id,

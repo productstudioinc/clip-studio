@@ -5,12 +5,13 @@ import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/f
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { VideoProps } from '@/stores/templatestore';
 import Image from 'next/image';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
 type VisualStyleStepProps = {
-	form: UseFormReturn<any>;
+	form: UseFormReturn<VideoProps>;
 };
 
 const visualStyles = [
