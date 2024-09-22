@@ -1,5 +1,6 @@
 'use client';
 
+import Marquee from '@/components/magicui/marquee';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -134,16 +135,74 @@ const HeroCTA = () => (
 // 		/>
 // 	</motion.div>
 // );
+const allShowcases: ShowcaseCardProps[] = [
+	{
+		title: 'Splitscreen',
+		videoSrc: 'https://assets.clip.studio/splitscreen_preview.webm'
+	},
+	{
+		title: 'Twitter Thread',
+		videoSrc: 'https://assets.clip.studio/twitter_preview.webm'
+	},
+	{
+		title: 'Reddit Story',
+		videoSrc: 'https://assets.clip.studio/reddit_preview.webm'
+	}
+];
+
+export interface ShowcaseCardProps {
+	title: string;
+	videoSrc: string;
+}
+
+export function ShowcaseCard({ title, videoSrc }: ShowcaseCardProps) {
+	return (
+		<div className="relative flex-shrink-0 flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary">
+			<video
+				src={videoSrc}
+				width={200}
+				height={300}
+				autoPlay
+				loop
+				playsInline
+				muted
+				className="w-[200px] h-[300px] object-cover rounded-t-md"
+			/>
+			<div className="w-full p-2 text-center">
+				<div className="inline-flex cursor-pointer items-center justify-center gap-1 duration-200 hover:text-neutral-700 dark:hover:text-neutral-200 text-xl font-semibold text-neutral-700 dark:text-neutral-300">
+					{title}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+export function Showcase() {
+	return (
+		<section id="showcase" className="container py-14">
+			<div className="relative flex flex-col">
+				<Marquee className="max-w-screen [--duration:40s]">
+					{allShowcases.map((showcase, idx) => (
+						<ShowcaseCard key={idx} {...showcase} />
+					))}
+				</Marquee>
+				<div className="pointer-events-none absolute inset-y-0 left-0 h-full w-1/12 bg-gradient-to-r from-background"></div>
+				<div className="pointer-events-none absolute inset-y-0 right-0 h-full  w-1/12 bg-gradient-to-l from-background"></div>
+			</div>
+		</section>
+	);
+}
 
 export default function Hero() {
 	return (
-		<main className="container mx-auto gap-4 flex flex-col w-full">
+		<main className="relative container mx-auto gap-4 flex flex-col w-full overflow-hidden pt-8">
 			<section id="hero">
-				<div className="flex w-full flex-col items-center justify-start px-4 sm:px-6 sm:pt-8 lg:px-8">
+				<div className="flex w-full flex-col items-center justify-start">
 					<HeroPill />
 					<HeroTitles />
 					<HeroCTA />
 					{/* <HeroImage /> */}
+					<Showcase />
 				</div>
 			</section>
 			<footer>
