@@ -1,4 +1,5 @@
 import { ErrorToast } from '@/components/error-toast';
+import { LocalStorageTools } from '@/components/local-storage-tools';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { constructMetadata } from '@/lib/seo-utils';
@@ -34,6 +35,7 @@ export default async function RootLayout({
 						<ErrorToast />
 					</Suspense>
 					<PostHogPageView />
+					<LocalStorageTools />
 					<ThemeProvider
 						attribute="class"
 						defaultTheme="system"
