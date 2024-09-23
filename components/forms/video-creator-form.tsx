@@ -2,7 +2,6 @@
 
 import { TikTokAccount, YoutubeChannel } from '@/actions/db/social-media-queries';
 import { ElevenlabsVoice } from '@/actions/elevenlabs';
-import { RenderControls } from '@/app/(editor_old)/export/render-component';
 import { TemplateSelect } from '@/components/form/template-select';
 import { RedditForm } from '@/components/forms/reddit-form';
 import { SplitScreenForm } from '@/components/forms/split-screen-form';
@@ -56,7 +55,7 @@ export default function VideoCreatorForm({
 	};
 
 	const renderForm = () => {
-		const props = { onSubmit, voices, backgrounds };
+		const props = { onSubmit, voices, backgrounds, youtubeChannels, tiktokAccounts };
 		switch (selectedTemplate) {
 			case TemplateSchema.Enum.Reddit:
 				return <RedditForm {...props} />;
@@ -73,9 +72,6 @@ export default function VideoCreatorForm({
 		<div className="w-full max-w-7xl mx-auto p-4 space-y-8">
 			<TemplateSelect templates={templates} />
 			{renderForm()}
-
-			{/* TODO: Have to clean up this component */}
-			<RenderControls youtubeChannels={youtubeChannels} tiktokAccounts={tiktokAccounts} />
 		</div>
 	);
 }

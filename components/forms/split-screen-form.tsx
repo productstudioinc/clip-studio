@@ -1,13 +1,13 @@
 'use client';
 
+import { TikTokAccount, YoutubeChannel } from '@/actions/db/social-media-queries';
 import { ElevenlabsVoice } from '@/actions/elevenlabs';
 import { AspectRatioStep } from '@/components/form/aspect-ratio-step';
 import { BackgroundSelectStep } from '@/components/form/background-select-step';
-import { FormSubmit } from '@/components/form/form-errors';
-import { FormErrors } from '@/components/form/form-submit';
+import { FormErrors } from '@/components/form/form-errors';
+import { FormSubmit } from '@/components/form/form-submit';
 import { VideoPreview } from '@/components/form/video-preview';
 import { VoiceStep } from '@/components/form/voice-step';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { SelectBackgroundWithParts } from '@/db/schema';
@@ -19,7 +19,6 @@ import {
 	VideoProps
 } from '@/stores/templatestore';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Upload } from 'lucide-react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -27,19 +26,23 @@ interface SplitScreenFormProps {
 	onSubmit: (values: VideoProps) => void;
 	voices: ElevenlabsVoice[];
 	backgrounds: SelectBackgroundWithParts[];
+	youtubeChannels: YoutubeChannel[];
+	tiktokAccounts: TikTokAccount[];
 }
 
 export const SplitScreenForm: React.FC<SplitScreenFormProps> = ({
 	onSubmit,
 	voices,
-	backgrounds
+	backgrounds,
+	youtubeChannels,
+	tiktokAccounts
 }) => {
-	const setSplitScreenState = useTemplateStore((state) => state.setSplitScreenState);
-
 	const form = useForm<VideoProps>({
 		resolver: zodResolver(SplitScreenVideoSchema),
 		defaultValues: defaultSplitScreenProps
 	});
+
+	const setSplitScreenState = useTemplateStore((state) => state.setSplitScreenState);
 
 	// Add this effect to update the store when form values change
 	useEffect(() => {
@@ -59,30 +62,12 @@ export const SplitScreenForm: React.FC<SplitScreenFormProps> = ({
 						{/* <MusicStep form={form} /> */}
 						<BackgroundSelectStep form={form} backgrounds={backgrounds} />
 						<AspectRatioStep form={form} />
-						<FormSubmit form={form} />
 						<FormErrors form={form} />
-
-						<Card>
-							<CardHeader>
-								<CardTitle>Upload to Social Media</CardTitle>
-							</CardHeader>
-							<CardContent className="space-y-4">
-								<Button
-									type="button"
-									className="w-full"
-									onClick={() => console.log('Upload to TikTok')}
-								>
-									<Upload className="mr-2 h-4 w-4" /> Upload to TikTok
-								</Button>
-								<Button
-									type="button"
-									className="w-full"
-									onClick={() => console.log('Upload to YouTube')}
-								>
-									<Upload className="mr-2 h-4 w-4" /> Upload to YouTube
-								</Button>
-							</CardContent>
-						</Card>
+						<FormSubmit
+							form={form}
+							youtubeChannels={youtubeChannels}
+							tiktokAccounts={tiktokAccounts}
+						/>
 					</div>
 
 					<div className="w-full lg:w-2/5">

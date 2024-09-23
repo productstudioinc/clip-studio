@@ -1,13 +1,86 @@
 'use client';
 import { TikTokAccount, YoutubeChannel } from '@/actions/db/social-media-queries';
-import AnimatedCircularProgressBar from '@/components/magicui/animated-circular-progress-bar';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 import { useTemplateStore } from '@/stores/templatestore';
-import { useRendering } from '@/utils/helpers/use-rendering';
-import { ExportComponent } from './export-component';
-import { RenderButton } from './render-button';
+import { State, useRendering } from '@/utils/helpers/use-rendering';
+import { Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 import { TikTokExportDialog } from './tiktok-export';
 import { YoutubeExportDialog } from './youtube-export';
+
+interface RenderState {
+	status: 'init' | 'invoking' | 'rendering' | 'done' | 'error';
+	error?: { message: string };
+}
+
+export const RenderButton: React.FC<{
+	renderMedia: () => void;
+	state: RenderState;
+}> = ({ renderMedia, state }) => {
+	useEffect(() => {
+		if (state.status === 'error') {
+			toast.error(state.error?.message);
+		}
+		if (state.status === 'done') {
+			toast.success('Render completed!');
+		}
+	}, [state]);
+	const isLoading = state.status === 'invoking' || state.status === 'rendering';
+
+	return (
+		<Button
+			variant={'rainbow-outline'}
+			disabled={isLoading || state.status === 'done'}
+			onClick={renderMedia}
+			className="w-full h-12 text-md"
+		>
+			{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+			Generate Video with AI
+		</Button>
+	);
+};
+
+const Megabytes: React.FC<{
+	sizeInBytes: number;
+	className?: string;
+}> = ({ sizeInBytes, className }) => {
+	const megabytes = Intl.NumberFormat('en', {
+		notation: 'compact',
+		style: 'unit',
+		unit: 'byte',
+		unitDisplay: 'narrow'
+	}).format(sizeInBytes);
+	return <span className={cn('opacity-60', className)}>({megabytes})</span>;
+};
+
+export const ExportComponent: React.FC<{
+	state: State;
+	undo: () => void;
+}> = ({ state, undo }) => {
+	const isDownloadReady = state.status === 'done';
+
+	return (
+		<div className="w-full">
+			{isDownloadReady ? (
+				<a href={state.url}>
+					<Button className="w-full h-12 text-md">
+						Download
+						<Megabytes sizeInBytes={state.size} className="ml-1" />
+					</Button>
+				</a>
+			) : (
+				<Button disabled className="w-full h-12 text-md">
+					Download
+				</Button>
+			)}
+		</div>
+	);
+};
 
 export function RenderControls({
 	youtubeChannels,
@@ -34,35 +107,41 @@ export function RenderControls({
 
 	const { renderMedia, state, undo } = useRendering(selectedTemplate, inputProps);
 
+	const isRenderingComplete = state.status === 'done';
+
 	return (
-		<div className="flex flex-col xl:flex-row xl:h-40">
-			<div className="flex justify-center xl:justify-start mb-4 xl:mb-0">
-				<AnimatedCircularProgressBar max={100} min={0} state={state} undo={undo}>
-					<RenderButton renderMedia={renderMedia} state={state} />
-				</AnimatedCircularProgressBar>
-			</div>
-
-			<Separator orientation="horizontal" className="my-4 xl:hidden" />
-			<Separator orientation="vertical" className="mx-4 h-full hidden xl:block" />
-
-			<div className="flex flex-col w-full">
-				<ExportComponent state={state} undo={undo} />
-				<div className="flex flex-col w-full">
-					<Separator orientation="horizontal" className="mt-4 mb-4" />
-					<div className="flex flex-col gap-4">
+		<Card className="w-full">
+			<CardHeader>
+				<CardTitle>Render Controls</CardTitle>
+			</CardHeader>
+			<CardContent>
+				<RenderButton renderMedia={renderMedia} state={state} />
+				<div className="flex flex-col space-y-4">
+					{state.status === 'rendering' && (
+						<div className="space-y-2">
+							<Progress value={state.progress * 100} />
+							<p className="text-sm text-center text-muted-foreground">
+								Rendering: {Math.round(state.progress * 100)}%
+							</p>
+						</div>
+					)}
+					<Separator />
+					<ExportComponent state={state} undo={undo} />
+					<Separator />
+					<div className="flex space-x-4">
 						<YoutubeExportDialog
 							youtubeChannels={youtubeChannels}
-							disabled={state.status !== 'done'}
+							disabled={!isRenderingComplete}
 							state={state}
 						/>
 						<TikTokExportDialog
 							tiktokAccounts={tiktokAccounts}
-							disabled={state.status !== 'done'}
+							disabled={!isRenderingComplete}
 							state={state}
 						/>
 					</div>
 				</div>
-			</div>
-		</div>
+			</CardContent>
+		</Card>
 	);
 }
