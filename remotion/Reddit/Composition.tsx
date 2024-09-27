@@ -32,7 +32,9 @@ export const RedditComposition = ({
 	voiceoverFrames,
 	accountName,
 	titleEnd,
-	backgroundUrls
+	backgroundUrls,
+	voiceVolume,
+	musicVolume
 }: RedditVideoProps) => {
 	const [subtitles, setSubtitles] = useState<SubtitleProp[]>([]);
 	const [handle] = useState(() => delayRender());
@@ -82,7 +84,7 @@ export const RedditComposition = ({
 	const titleEndFrame = Math.floor(titleEnd * FPS);
 	return (
 		<>
-			<Audio src={voiceoverUrl} pauseWhenBuffering />
+			<Audio src={voiceoverUrl} pauseWhenBuffering volume={voiceVolume / 100} />
 			<AbsoluteFill className="w-full h-full">
 				<Series>
 					{backgroundUrls.map((part, index) => (

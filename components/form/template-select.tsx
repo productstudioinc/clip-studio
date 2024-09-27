@@ -37,7 +37,7 @@ export const TemplateSelect: React.FC<TemplateSelectProps> = ({ templates }) => 
 						{templates.map((template) => (
 							<Label
 								key={template.id.toString()}
-								className="relative flex-shrink-0 flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
+								className="relative flex-shrink-0 flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary hover:cursor-pointer"
 							>
 								<RadioGroupItem value={template.value} className="sr-only" />
 								<video

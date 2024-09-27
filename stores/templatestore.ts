@@ -266,7 +266,7 @@ export const defaultRedditProps: RedditVideoProps = {
 	subreddit: 'NuclearRevenge',
 	likes: 4200,
 	comments: 366,
-	durationInFrames: Math.floor(30 * 177.4),
+	durationInFrames: 30 * 30,
 	backgroundTheme: BackgroundTheme.Minecraft,
 	backgroundUrls: defaultMinecraftBackgrounds,
 	voiceoverUrl: 'https://assets.clip.studio/reddit_voiceover_sample.mp3',

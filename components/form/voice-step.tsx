@@ -289,7 +289,7 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
 										value={[field.value]}
 										onValueChange={(value) => field.onChange(value[0])}
 										max={100}
-										step={1}
+										step={5}
 									/>
 								</FormControl>
 								<FormMessage />
