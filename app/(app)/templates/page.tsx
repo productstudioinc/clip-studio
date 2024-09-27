@@ -5,9 +5,12 @@ import { getVoices } from '@/actions/elevenlabs';
 import VideoCreatorForm from '@/components/forms/video-creator-form';
 
 export default async function Page() {
-	const { user } = await getUser();
-	const voices = await getVoices();
-	const [templates, backgrounds] = await Promise.all([getTemplates(), getBackgrounds()]);
+	const [{ user }, voices, templates, backgrounds] = await Promise.all([
+		getUser(),
+		getVoices(),
+		getTemplates(),
+		getBackgrounds()
+	]);
 
 	const { youtubeChannels, tiktokAccounts } = user
 		? await fetchUserConnectSocialMediaAccounts(user.id)
