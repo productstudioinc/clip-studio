@@ -256,9 +256,9 @@ const defaultMinecraftBackgrounds = [
 ];
 
 export const defaultSplitScreenProps: SplitScreenVideoProps = {
-	videoUrl: 'https://assets.clip.studio/transcribe_test.mp4',
+	videoUrl: 'https://assets.clip.studio/transcribe_test.webm',
 	type: 'cloud',
-	durationInFrames: 3643,
+	durationInFrames: 60 * 30,
 	backgroundTheme: BackgroundTheme.Minecraft,
 	backgroundUrls: defaultMinecraftBackgrounds,
 	transcriptionId: '',

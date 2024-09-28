@@ -148,6 +148,7 @@ export const getTranscription = createServerAction()
 
 				const result = TranscriptionSchema.safeParse(data);
 				if (result.success) {
+					logger.info('Transcription fetched successfully', { result });
 					return {
 						status: 'done',
 						data: result.data
