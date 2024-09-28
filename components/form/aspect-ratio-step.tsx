@@ -48,7 +48,7 @@ export const AspectRatioStep: React.FC<AspectRatioStepProps> = ({ form }) => {
 									{aspectRatios.map((ratio) => (
 										<Label
 											key={ratio.value}
-											className="flex flex-col items-center space-y-2 rounded-md border-2 border-muted bg-popover p-2 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary justify-between"
+											className="flex flex-col items-center space-y-2 rounded-md border-2 border-muted bg-popover p-2 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary justify-between cursor-pointer"
 										>
 											<RadioGroupItem value={ratio.value} id={ratio.value} className="sr-only" />
 											<div
