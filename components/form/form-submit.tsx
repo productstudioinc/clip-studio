@@ -1,8 +1,8 @@
 'use client';
 
 import { TikTokAccount, YoutubeChannel } from '@/actions/db/social-media-queries';
-import { TikTokExportDialog } from '@/app/(editor_old)/export/tiktok-export';
-import { YoutubeExportDialog } from '@/app/(editor_old)/export/youtube-export';
+import { TikTokExportDialog } from '@/components/form/tiktok-export';
+import { YoutubeExportDialog } from '@/components/form/youtube-export';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -43,7 +43,7 @@ export const ExportComponent: React.FC<{
 		<div className="w-full">
 			{isDownloadReady ? (
 				<a href={state.url}>
-					<Button className="w-full h-12 text-md">
+					<Button className="w-full h-12 text-md" type="button">
 						Download
 						<Megabytes sizeInBytes={state.size} className="ml-1" />
 					</Button>

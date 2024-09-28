@@ -29,7 +29,6 @@ interface SplitScreenFormProps {
 }
 
 export const SplitScreenForm: React.FC<SplitScreenFormProps> = ({
-	voices,
 	backgrounds,
 	youtubeChannels,
 	tiktokAccounts

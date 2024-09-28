@@ -6,20 +6,8 @@ import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { UserAccountMenu } from '@/components/user-account-menu';
 import { cn } from '@/lib/utils';
-import { useTemplateStore } from '@/stores/templatestore';
 import { User } from '@supabase/supabase-js';
-import {
-	CaptionsIcon,
-	CircleUser,
-	CogIcon,
-	FileText,
-	FileUpIcon,
-	LayoutTemplateIcon,
-	LucideIcon,
-	Menu,
-	MicVocalIcon,
-	UserIcon
-} from 'lucide-react';
+import { CircleUser, FileText, LucideIcon, Menu, Palette, UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { ReactNode } from 'react';
@@ -54,20 +42,7 @@ const NavLink: React.FC<NavLinkProps> = ({ href, icon: Icon, label, currentRoute
 export const MobileSidebar: React.FC<MobileSidebarProps> = ({ user }) => {
 	const currentRoute = usePathname();
 
-	const { selectedTemplate } = useTemplateStore((state) => ({
-		selectedTemplate: state.selectedTemplate
-	}));
-
-	const navItems: NavItem[] = [
-		{ href: '/', icon: LayoutTemplateIcon, label: 'Templates' },
-		{ href: '/configure', icon: CogIcon, label: 'Configure' },
-		{
-			href: selectedTemplate === 'SplitScreen' ? '/caption' : '/voiceover',
-			icon: selectedTemplate === 'SplitScreen' ? CaptionsIcon : MicVocalIcon,
-			label: selectedTemplate === 'SplitScreen' ? 'Caption' : 'Voiceover'
-		},
-		{ href: '/export', icon: FileUpIcon, label: 'Export' }
-	];
+	const navItems: NavItem[] = [{ href: '/', icon: Palette, label: 'Create' }];
 
 	const profileNavItem: NavItem = {
 		href: '/account',

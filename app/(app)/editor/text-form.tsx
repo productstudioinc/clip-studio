@@ -2,8 +2,8 @@
 
 import { TikTokAccount, YoutubeChannel } from '@/actions/db/social-media-queries';
 import { ElevenlabsVoice } from '@/actions/elevenlabs';
-import { TikTokExportDialog } from '@/app/(editor_old)/export/tiktok-export';
-import { YoutubeExportDialog } from '@/app/(editor_old)/export/youtube-export';
+import { TikTokExportDialog } from '@/components/form/tiktok-export';
+import { YoutubeExportDialog } from '@/components/form/youtube-export';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';

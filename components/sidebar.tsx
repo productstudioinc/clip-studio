@@ -8,18 +8,13 @@ import { Separator } from '@/components/ui/separator';
 import UpgradeCard from '@/components/upgrade-card';
 import { UserAccountMenu } from '@/components/user-account-menu';
 import { cn } from '@/lib/utils';
-import { useTemplateStore } from '@/stores/templatestore';
 import { User } from '@supabase/supabase-js';
 import {
-	CaptionsIcon,
 	DollarSignIcon,
 	FilmIcon,
-	LayoutTemplateIcon,
 	LogInIcon,
 	MessageSquareIcon,
-	MicIcon,
-	Settings2Icon,
-	UploadIcon,
+	Palette,
 	UserIcon,
 	type LucideIcon
 } from 'lucide-react';
@@ -60,25 +55,12 @@ const NavLink: React.FC<NavLinkProps> = ({ href, icon: Icon, label, currentRoute
 export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) => {
 	const currentRoute = usePathname();
 
-	const { selectedTemplate } = useTemplateStore((state) => ({
-		selectedTemplate: state.selectedTemplate
-	}));
-
-	const navItems: NavItem[] = [
-		{ href: '/', icon: LayoutTemplateIcon, label: 'Templates' },
-		{ href: '/configure', icon: Settings2Icon, label: 'Configure' },
-		{
-			href: selectedTemplate === 'SplitScreen' ? '/caption' : '/voiceover',
-			icon: selectedTemplate === 'SplitScreen' ? CaptionsIcon : MicIcon,
-			label: selectedTemplate === 'SplitScreen' ? 'Caption' : 'Voiceover'
-		},
-		{ href: '/export', icon: UploadIcon, label: 'Export' }
-	];
+	const navItems: NavItem[] = [{ href: '/', icon: Palette, label: 'Create' }];
 
 	const profileNavItems: NavItem[] = [
 		{
 			href: '/projects',
-			icon: FilmIcon, // Changed from FileIcon to FilmIcon
+			icon: FilmIcon,
 			label: 'My Projects'
 		},
 		{
