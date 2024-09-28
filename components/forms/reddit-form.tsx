@@ -6,7 +6,6 @@ import { AspectRatioStep } from '@/components/form/aspect-ratio-step';
 import { BackgroundSelectStep } from '@/components/form/background-select-step';
 import { FormErrors } from '@/components/form/form-errors';
 import { FormSubmit } from '@/components/form/form-submit';
-import { MusicStep } from '@/components/form/music-step';
 import { RedditUrlStep } from '@/components/form/reddit-url-step';
 import { VideoPreview } from '@/components/form/video-preview';
 import { VoiceStep } from '@/components/form/voice-step';
@@ -61,7 +60,7 @@ export const RedditForm: React.FC<RedditFormProps> = ({
 					<div className="w-full lg:w-3/5 space-y-6">
 						<RedditUrlStep form={form} />
 						<VoiceStep form={form} voices={voices} />
-						<MusicStep form={form} />
+						{/* <MusicStep form={form} /> */}
 						<BackgroundSelectStep form={form} backgrounds={backgrounds} />
 						<AspectRatioStep form={form} />
 						<FormErrors form={form} />
