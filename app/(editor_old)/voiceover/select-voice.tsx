@@ -59,7 +59,8 @@ export const SelectVoice: React.FC<{ voices: ElevenlabsVoice[] }> = ({ voices })
 			const [data, err] = await execute({
 				title: redditState.title,
 				voiceId: selectedVoice.voice_id,
-				text: redditState.text
+				text: redditState.text,
+				language: redditState.language
 			});
 			if (err) {
 				toast.error(err.message);
