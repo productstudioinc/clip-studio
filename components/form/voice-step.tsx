@@ -1,6 +1,6 @@
 'use client';
 
-import { ElevenlabsVoice } from '@/actions/elevenlabs';
+import { ElevenlabsVoice, generateAudioAndTimestamps } from '@/actions/elevenlabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -27,9 +27,11 @@ import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import { Language, VideoProps } from '@/stores/templatestore';
 import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons';
-import { Pause, Play } from 'lucide-react';
+import { Loader2, Pause, Play } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { toast } from 'sonner';
+import { useServerAction } from 'zsa-react';
 
 type VoiceStepProps = {
 	form: UseFormReturn<VideoProps>;
@@ -136,6 +138,37 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
 	}, []);
 
 	const getAudioElementId = (id: string) => id + '-audio';
+
+	const { isPending, execute } = useServerAction(generateAudioAndTimestamps);
+
+	const handleGenerate = async () => {
+		const selectedVoice = form.getValues('voice');
+		const language = form.getValues('language');
+		const text = form.getValues('text');
+		const title = form.getValues('title');
+
+		if (!selectedVoice || !text || !title) {
+			toast.error('Please select a voice, enter a title, and provide text for the voiceover.');
+			return;
+		}
+
+		const [data, err] = await execute({
+			title: title,
+			voiceId: selectedVoice,
+			text: text
+		});
+
+		if (err) {
+			toast.error(err.message);
+			return;
+		}
+
+		form.setValue('durationInFrames', Math.floor(data.endTimestamp * 30));
+		form.setValue('voiceoverUrl', data.signedUrl);
+		form.setValue('voiceoverFrames', data.voiceoverObject);
+
+		toast.success('Voiceover generated successfully!');
+	};
 
 	return (
 		<Card>
@@ -296,6 +329,16 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
 							</FormItem>
 						)}
 					/>
+				</div>
+				<div className="mt-6">
+					<Button
+						onClick={handleGenerate}
+						disabled={isPending || !form.getValues('voice')}
+						className="w-full"
+					>
+						{isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+						Generate Voiceover
+					</Button>
 				</div>
 			</CardContent>
 		</Card>
