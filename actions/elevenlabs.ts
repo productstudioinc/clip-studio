@@ -48,7 +48,8 @@ export const generateAudioAndTimestamps = createServerAction()
 		z.object({
 			title: z.string(),
 			text: z.string(),
-			voiceId: z.string()
+			voiceId: z.string(),
+			language: z.string()
 		})
 	)
 	.handler(async ({ input }) => {
@@ -101,8 +102,10 @@ export const generateAudioAndTimestamps = createServerAction()
 				})
 				.where(eq(userUsage.userId, user.id));
 
-			const audio = (await elevenLabsClient.textToSpeech.convertWithTimstamps(input.voiceId, {
-				text: fullText
+			const audio = (await elevenLabsClient.textToSpeech.convertWithTimestamps(input.voiceId, {
+				model_id: 'eleven_turbo_v2_5',
+				text: fullText,
+				language_code: input.language
 			})) as AudioResponse;
 
 			const audioBuffer = Buffer.from(audio.audio_base64, 'base64');

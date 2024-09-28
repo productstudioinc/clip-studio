@@ -56,7 +56,7 @@
 		"cmdk": "1.0.0",
 		"date-fns": "^3.6.0",
 		"drizzle-orm": "^0.32.1",
-		"elevenlabs": "^0.9.1",
+		"elevenlabs": "^0.16.0",
 		"esbuild": "^0.23.1",
 		"eslint-plugin-unused-imports": "^4.0.1",
 		"framer-motion": "^11.3.21",

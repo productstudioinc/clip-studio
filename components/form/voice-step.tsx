@@ -155,7 +155,8 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
 		const [data, err] = await execute({
 			title: title,
 			voiceId: selectedVoice,
-			text: text
+			text: text,
+			language: language
 		});
 
 		if (err) {
