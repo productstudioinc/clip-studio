@@ -7,7 +7,6 @@ import { BackgroundSelectStep } from '@/components/form/background-select-step';
 import { FormErrors } from '@/components/form/form-errors';
 import { FormSubmit } from '@/components/form/form-submit';
 import { VideoPreview } from '@/components/form/video-preview';
-import { VoiceStep } from '@/components/form/voice-step';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { SelectBackgroundWithParts } from '@/db/schema';
@@ -56,7 +55,7 @@ export const SplitScreenForm: React.FC<SplitScreenFormProps> = ({
 				<div className="flex flex-col lg:flex-row gap-8">
 					<div className="w-full lg:w-3/5 space-y-6">
 						{/* <VideoUploadStep form={form} /> */}
-						<VoiceStep form={form} voices={voices} />
+						{/* <VoiceStep form={form} voices={voices} /> */}
 						{/* <MusicStep form={form} /> */}
 						<BackgroundSelectStep form={form} backgrounds={backgrounds} />
 						<AspectRatioStep form={form} />
