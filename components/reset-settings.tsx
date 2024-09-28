@@ -19,7 +19,7 @@ import {
 	defaultTwitterThreadProps,
 	useTemplateStore
 } from '@/stores/templatestore';
-import { RotateCcw } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 
 export const ResetSettings = () => {
 	const resetStore = useTemplateStore((state) => ({
@@ -46,21 +46,23 @@ export const ResetSettings = () => {
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
-				<Button variant="destructive">
-					<RotateCcw className="w-4 h-4 mr-1" />
-					Reset
+				<Button variant="outline">
+					<Trash2 className="w-4 h-4 mr-1" />
+					Clear Settings
 				</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>Are you sure you want to reset?</AlertDialogTitle>
+					<AlertDialogTitle>Are you sure you want to clear your settings?</AlertDialogTitle>
 					<AlertDialogDescription>
-						This action cannot be undone. This will reset all your settings to their default values.
+						This action cannot be undone. Clearing your local settings will reset all options to
+						their default values and remove any unsaved transcriptions, voiceovers, and other
+						temporary data.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Cancel</AlertDialogCancel>
-					<AlertDialogAction onClick={handleReset}>Reset</AlertDialogAction>
+					<AlertDialogAction onClick={handleReset}>Clear Settings</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>

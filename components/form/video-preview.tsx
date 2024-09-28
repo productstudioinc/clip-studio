@@ -6,6 +6,7 @@ import { VideoProps } from '@/stores/templatestore';
 import { Player } from '@remotion/player';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { ResetSettings } from '../reset-settings';
 
 interface VideoPreviewProps {
 	form: UseFormReturn<VideoProps>;
@@ -39,8 +40,9 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ form }) => {
 
 	return (
 		<Card>
-			<CardHeader>
+			<CardHeader className="flex flex-row items-center justify-between">
 				<CardTitle>Preview</CardTitle>
+				<ResetSettings />
 			</CardHeader>
 			<CardContent>
 				<div className={`w-full h-full flex items-center justify-center ${aspectRatioClass}`}>
@@ -59,7 +61,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ form }) => {
 						initiallyMuted
 					/>
 				</div>
-				<div className="mt-4">
+				{/* <div className="mt-4">
 					<table className="w-full">
 						<tbody>
 							{watch('language') && (
@@ -138,7 +140,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ form }) => {
 							)}
 						</tbody>
 					</table>
-				</div>
+				</div> */}
 			</CardContent>
 		</Card>
 	);

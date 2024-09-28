@@ -7,7 +7,6 @@ import { BackgroundSelectStep } from '@/components/form/background-select-step';
 import { FormErrors } from '@/components/form/form-errors';
 import { FormSubmit } from '@/components/form/form-submit';
 import { VideoPreview } from '@/components/form/video-preview';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { SelectBackgroundWithParts } from '@/db/schema';
 import {
@@ -20,6 +19,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { TranscribeStep } from '../form/transcribe-step';
 
 interface SplitScreenFormProps {
 	voices: ElevenlabsVoice[];
@@ -57,6 +57,7 @@ export const SplitScreenForm: React.FC<SplitScreenFormProps> = ({
 						{/* <VideoUploadStep form={form} /> */}
 						{/* <VoiceStep form={form} voices={voices} /> */}
 						{/* <MusicStep form={form} /> */}
+						<TranscribeStep form={form} />
 						<BackgroundSelectStep form={form} backgrounds={backgrounds} />
 						<AspectRatioStep form={form} />
 						<FormErrors form={form} />
@@ -70,7 +71,7 @@ export const SplitScreenForm: React.FC<SplitScreenFormProps> = ({
 					<div className="w-full lg:w-2/5">
 						<div className="sticky top-20 space-y-6 max-h-[calc(100vh-2rem)] overflow-y-auto">
 							<VideoPreview form={form} />
-							<Card>
+							{/* <Card>
 								<CardHeader>
 									<CardTitle>Additional Information</CardTitle>
 								</CardHeader>
@@ -81,7 +82,7 @@ export const SplitScreenForm: React.FC<SplitScreenFormProps> = ({
 										helpful for the user during the video creation process.
 									</p>
 								</CardContent>
-							</Card>
+							</Card> */}
 						</div>
 					</div>
 				</div>

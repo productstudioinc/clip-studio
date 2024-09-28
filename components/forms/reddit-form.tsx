@@ -9,7 +9,6 @@ import { FormSubmit } from '@/components/form/form-submit';
 import { RedditUrlStep } from '@/components/form/reddit-url-step';
 import { VideoPreview } from '@/components/form/video-preview';
 import { VoiceStep } from '@/components/form/voice-step';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { SelectBackgroundWithParts } from '@/db/schema';
 import {
@@ -72,7 +71,7 @@ export const RedditForm: React.FC<RedditFormProps> = ({
 					<div className="w-full lg:w-2/5">
 						<div className="sticky top-20 space-y-6 max-h-[calc(100vh-2rem)] overflow-y-auto">
 							<VideoPreview form={form} />
-							<Card>
+							{/* <Card>
 								<CardHeader>
 									<CardTitle>Additional Information</CardTitle>
 								</CardHeader>
@@ -83,7 +82,7 @@ export const RedditForm: React.FC<RedditFormProps> = ({
 										for the user during the video creation process.
 									</p>
 								</CardContent>
-							</Card>
+							</Card> */}
 						</div>
 					</div>
 				</div>
