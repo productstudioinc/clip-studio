@@ -117,7 +117,7 @@ export function FormSubmit({ youtubeChannels, tiktokAccounts, form }: FormSubmit
 				</Button>
 				<div className="flex flex-col space-y-4">
 					{state.status === 'rendering' && (
-						<div className="space-y-2">
+						<div className="space-y-2 pt-4">
 							<Progress value={state.progress * 100} />
 							<p className="text-sm text-center text-muted-foreground">
 								Rendering: {Math.round(state.progress * 100)}%
