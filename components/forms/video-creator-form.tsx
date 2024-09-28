@@ -6,8 +6,7 @@ import { TemplateSelect } from '@/components/form/template-select';
 import { RedditForm } from '@/components/forms/reddit-form';
 import { SplitScreenForm } from '@/components/forms/split-screen-form';
 import { SelectBackgroundWithParts, SelectTemplates } from '@/db/schema';
-import { TemplateSchema, useTemplateStore, VideoProps } from '@/stores/templatestore';
-import { toast } from 'sonner';
+import { TemplateSchema, useTemplateStore } from '@/stores/templatestore';
 
 interface VideoCreatorFormProps {
 	voices: ElevenlabsVoice[];
@@ -26,36 +25,8 @@ export default function VideoCreatorForm({
 }: VideoCreatorFormProps) {
 	const { selectedTemplate } = useTemplateStore();
 
-	const onSubmit = async (values: VideoProps) => {
-		console.log('Form submitted:', { ...values });
-		try {
-			if (process.env.NODE_ENV === 'development') {
-				toast.info('Form Inputs (Development Mode)', {
-					description: (
-						<pre className="max-h-80 overflow-auto">{JSON.stringify(values, null, 2)}</pre>
-					),
-					duration: 0
-				});
-			} else {
-				// In production mode, call the API to start video generation
-				toast.success('Video generation started', {
-					description: 'Your video is being generated. This may take a few minutes.',
-					duration: 10000
-				});
-			}
-
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 2000));
-		} catch (error) {
-			console.error('Error submitting form:', error);
-			toast.error('Failed to start video generation', {
-				description: 'An error occurred. Please try again.'
-			});
-		}
-	};
-
 	const renderForm = () => {
-		const props = { onSubmit, voices, backgrounds, youtubeChannels, tiktokAccounts };
+		const props = { voices, backgrounds, youtubeChannels, tiktokAccounts };
 		switch (selectedTemplate) {
 			case TemplateSchema.Enum.Reddit:
 				return <RedditForm {...props} />;

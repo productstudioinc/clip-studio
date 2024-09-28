@@ -23,7 +23,6 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface SplitScreenFormProps {
-	onSubmit: (values: VideoProps) => void;
 	voices: ElevenlabsVoice[];
 	backgrounds: SelectBackgroundWithParts[];
 	youtubeChannels: YoutubeChannel[];
@@ -31,7 +30,6 @@ interface SplitScreenFormProps {
 }
 
 export const SplitScreenForm: React.FC<SplitScreenFormProps> = ({
-	onSubmit,
 	voices,
 	backgrounds,
 	youtubeChannels,
@@ -54,7 +52,7 @@ export const SplitScreenForm: React.FC<SplitScreenFormProps> = ({
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
+			<form className="w-full space-y-6">
 				<div className="flex flex-col lg:flex-row gap-8">
 					<div className="w-full lg:w-3/5 space-y-6">
 						{/* <VideoUploadStep form={form} /> */}

@@ -24,7 +24,6 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface RedditFormProps {
-	onSubmit: (values: VideoProps) => void;
 	voices: ElevenlabsVoice[];
 	backgrounds: SelectBackgroundWithParts[];
 	youtubeChannels: YoutubeChannel[];
@@ -32,7 +31,6 @@ interface RedditFormProps {
 }
 
 export const RedditForm: React.FC<RedditFormProps> = ({
-	onSubmit,
 	voices,
 	backgrounds,
 	youtubeChannels,
@@ -55,7 +53,7 @@ export const RedditForm: React.FC<RedditFormProps> = ({
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
+			<form className="w-full space-y-6">
 				<div className="flex flex-col lg:flex-row gap-8">
 					<div className="w-full lg:w-3/5 space-y-6">
 						<RedditUrlStep form={form} />
