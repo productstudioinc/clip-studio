@@ -20,6 +20,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { TranscribeStep } from '../form/transcribe-step';
+import { UploadStep } from '../form/upload-step';
 
 interface SplitScreenFormProps {
 	voices: ElevenlabsVoice[];
@@ -48,14 +49,16 @@ export const SplitScreenForm: React.FC<SplitScreenFormProps> = ({
 		return () => subscription.unsubscribe();
 	}, [form, setSplitScreenState]);
 
+	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+	};
+
 	return (
 		<Form {...form}>
-			<form className="w-full space-y-6">
+			<form className="w-full space-y-6" onSubmit={handleSubmit}>
 				<div className="flex flex-col lg:flex-row gap-8">
 					<div className="w-full lg:w-3/5 space-y-6">
-						{/* <VideoUploadStep form={form} /> */}
-						{/* <VoiceStep form={form} voices={voices} /> */}
-						{/* <MusicStep form={form} /> */}
+						<UploadStep form={form} />
 						<TranscribeStep form={form} />
 						<BackgroundSelectStep form={form} backgrounds={backgrounds} />
 						<AspectRatioStep form={form} />
