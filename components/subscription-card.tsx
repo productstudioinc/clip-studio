@@ -50,7 +50,7 @@ export default function SubscriptionCard({
 				{subscriptionName && (
 					<Button
 						size={'sm'}
-						className="w-full mt-6"
+						className="w-full mt-4"
 						onClick={manageSubscription}
 						disabled={isPending}
 					>
@@ -147,9 +147,9 @@ const UsageDisplay = ({
 
 	return (
 		<TooltipProvider>
-			<div className="flex flex-col gap-3 pb-6">
+			<div className={`flex flex-col gap-3 ${showConnectedAccounts ? 'pb-0' : 'pb-2'}`}>
 				{usageItems.map((item, index) => (
-					<div key={index} className="flex flex-col gap-1">
+					<div key={index} className={`flex flex-col gap-1 ${index === 0 ? 'pb-2' : ''}`}>
 						<div className="flex justify-between items-center text-xs">
 							<span className="flex-grow">{item.label}</span>
 							<Tooltip>
