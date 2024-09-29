@@ -85,11 +85,12 @@ export const GET = withAxiom(async (request: AxiomRequest) => {
 					return;
 				}
 
+				const remainingAccounts = userUsageData[0].connectedAccountsLeft;
 				logger.info('Checking remaining connected accounts', {
-					remaining: userUsageData[0].connectedAccountsLeft
+					remaining: remainingAccounts
 				});
 
-				if (userUsageData[0].connectedAccountsLeft < 1) {
+				if (remainingAccounts === null || remainingAccounts < 1) {
 					canConnect = false;
 					return;
 				}
