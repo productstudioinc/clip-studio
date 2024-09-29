@@ -97,7 +97,65 @@ export default function Pricing({
 					</span>
 				</div>
 
-				<div className="mx-auto grid w-full justify-center gap-8 sm:grid-cols-1 lg:grid-cols-3">
+				<div className="mx-auto grid w-full justify-center gap-8 sm:grid-cols-1 lg:grid-cols-4">
+					{/* Free Plan Card */}
+					<div className="relative flex w-full max-w-[400px] flex-col overflow-hidden rounded-2xl border p-6 text-black dark:text-white mx-auto">
+						<div className="flex flex-col items-start mb-2">
+							<h2 className="text-xl font-semibold leading-7">Free Plan</h2>
+							<p className="mt-1 h-10 text-sm leading-5 text-black/70 dark:text-white/70">
+								Get started with basic features
+							</p>
+						</div>
+
+						<motion.div
+							key="free-plan"
+							initial="initial"
+							animate="animate"
+							variants={{
+								initial: { opacity: 0, y: 12 },
+								animate: { opacity: 1, y: 0 }
+							}}
+							transition={{
+								duration: 0.4,
+								delay: 0.1,
+								ease: [0.21, 0.47, 0.32, 0.98]
+							}}
+							className="flex flex-col gap-1 mb-4"
+						>
+							<span className="text-4xl font-bold text-black dark:text-white">
+								$0
+								<span className="ml-2 text-sm font-normal text-gray-500">/ month</span>
+							</span>
+							<span className="block h-5 text-sm font-normal text-gray-500">Free forever</span>
+						</motion.div>
+
+						<Button
+							className={cn(
+								'group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter mb-4',
+								'transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2'
+							)}
+							onClick={() => router.push('/login')}
+						>
+							<span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 transform-gpu bg-white opacity-10 transition-all duration-1000 ease-out group-hover:-translate-x-96 dark:bg-black" />
+							<p>Upgrade</p>
+						</Button>
+
+						<hr className="m-0 h-px w-full border-none bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0 mb-4" />
+
+						<ul className="flex flex-col gap-2 font-normal">
+							<li className="flex items-center gap-3 text-sm font-medium text-black dark:text-white">
+								<CheckIcon className="h-5 w-5 shrink-0 rounded-full bg-green-600 p-[2px] text-white dark:text-white" />
+								<span className="flex">50 credits</span>
+							</li>
+							<li className="flex items-center gap-3 text-sm font-medium text-black dark:text-white">
+								<div className="h-5 w-5 shrink-0 rounded-full bg-red-600 p-[2px] flex items-center justify-center">
+									<span className="text-white font-bold">×</span>
+								</div>
+								<span className="flex">No connected accounts</span>
+							</li>
+						</ul>
+					</div>
+
 					{products
 						.sort((a, b) => {
 							// Sort by product.metadata.order if it exists
