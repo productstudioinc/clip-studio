@@ -148,6 +148,11 @@ export const getTranscription = createServerAction()
 
 				const result = TranscriptionSchema.safeParse(data);
 				if (result.success) {
+					// clean up text in each chunk
+					result.data.chunks = result.data.chunks.map((chunk) => ({
+						...chunk,
+						text: chunk.text.trim().replace(/^[^\w\s]|[^\w\s]$/g, '')
+					}));
 					logger.info('Transcription fetched successfully', { result });
 					return {
 						status: 'done',
