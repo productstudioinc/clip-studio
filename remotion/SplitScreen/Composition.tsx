@@ -24,7 +24,8 @@ export const SplitScreenComposition = ({
 	videoUrl,
 	type,
 	backgroundUrls,
-	transcription
+	transcription,
+	captionStyle
 }: SplitScreenVideoProps) => {
 	const videoConfig = useVideoConfig();
 	const [subtitles, setSubtitles] = useState<SubtitleProp[]>([]);
@@ -121,7 +122,7 @@ export const SplitScreenComposition = ({
 						key={index}
 					>
 						<div style={subtitleStyle}>
-							<Subtitle text={subtitle.text} />
+							<Subtitle text={subtitle.text} captionStyle={captionStyle} />
 						</div>
 					</Sequence>
 				) : null

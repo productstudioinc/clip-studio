@@ -34,7 +34,7 @@ export const RedditComposition = ({
 	titleEnd,
 	backgroundUrls,
 	voiceVolume,
-	musicVolume
+	captionStyle
 }: RedditVideoProps) => {
 	const [subtitles, setSubtitles] = useState<SubtitleProp[]>([]);
 	const [handle] = useState(() => delayRender());
@@ -118,7 +118,7 @@ export const RedditComposition = ({
 								durationInFrames={subtitle.endFrame - subtitle.startFrame}
 								key={index}
 							>
-								<Subtitle text={subtitle.text} />
+								<Subtitle text={subtitle.text} captionStyle={captionStyle} />
 							</Sequence>
 						) : null
 					)}

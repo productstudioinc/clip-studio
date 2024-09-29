@@ -96,6 +96,10 @@ const config = {
 				marquee: 'marquee var(--duration) infinite linear',
 				'marquee-vertical': 'marquee-vertical var(--duration) linear infinite'
 			}
+		},
+		fontFamily: {
+			montserrat: 'var(--font-montserrat)',
+			komika: 'var(--font-komika)'
 		}
 	},
 	plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')]

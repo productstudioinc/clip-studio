@@ -19,6 +19,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { CaptionStyleStep } from '../form/caption-style-step';
 import { TranscribeStep } from '../form/transcribe-step';
 import { UploadStep } from '../form/upload-step';
 
@@ -61,6 +62,7 @@ export const SplitScreenForm: React.FC<SplitScreenFormProps> = ({
 						<UploadStep form={form} />
 						<TranscribeStep form={form} />
 						<BackgroundSelectStep form={form} backgrounds={backgrounds} />
+						<CaptionStyleStep form={form} />
 						<AspectRatioStep form={form} />
 						<FormErrors form={form} />
 						<FormSubmit

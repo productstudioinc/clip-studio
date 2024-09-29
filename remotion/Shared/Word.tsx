@@ -1,21 +1,29 @@
+import { CaptionStyle } from '@/stores/templatestore';
 import { makeTransform, scale, translateY } from '@remotion/animation-utils';
-import { loadFont } from '@remotion/google-fonts/Montserrat';
+import { loadFont as loadMontserratFont } from '@remotion/google-fonts/Montserrat';
 import { fitText } from '@remotion/layout-utils';
 import React from 'react';
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
+import './font.css';
 
-const { fontFamily } = loadFont('normal', {
+const montserratFont = loadMontserratFont('normal', {
 	weights: ['700']
 });
+
+const komikaFontFamily = 'Komika Axis';
 
 export const Word: React.FC<{
 	enterProgress: number;
 	text: string;
 	stroke: boolean;
-}> = ({ enterProgress, text, stroke }) => {
+	captionStyle: CaptionStyle;
+}> = ({ enterProgress, text, stroke, captionStyle }) => {
 	const { width, fps } = useVideoConfig();
 	const frame = useCurrentFrame();
 	const desiredFontSize = 64;
+
+	const fontFamily =
+		captionStyle === CaptionStyle.KomikaAxis ? komikaFontFamily : montserratFont.fontFamily;
 
 	const splitText = (text: string, maxWordsPerLine: number) => {
 		const words = text.split(' ');
@@ -67,13 +75,16 @@ export const Word: React.FC<{
 					key={index}
 					style={{
 						fontSize: minFontSize,
-						color: 'white',
+						color: captionStyle === CaptionStyle.KomikaAxis ? 'yellow' : 'white',
 						WebkitTextStroke: stroke ? '10px black' : undefined,
 						transform: makeTransform([
 							scale(interpolate(enterProgress * growAnimation, [0, 1], [0.95, 1])),
 							translateY(interpolate(enterProgress, [0, 1], [20, 0]))
 						]),
-						opacity: interpolate(enterProgress, [0, 1], [0, 1]),
+						opacity: interpolate(enterProgress, [0, 0.3], [1, 1], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp'
+						}),
 						fontFamily,
 						textTransform: 'uppercase',
 						textAlign: 'center',

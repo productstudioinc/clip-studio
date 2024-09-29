@@ -147,6 +147,11 @@ export enum BackgroundTheme {
 	Satisfying = 'Satisfying'
 }
 
+export enum CaptionStyle {
+	Default = 'default',
+	KomikaAxis = 'komikaAxis'
+}
+
 // Constants
 export const AspectRatioMap: Record<
 	AspectRatio,
@@ -186,7 +191,8 @@ const BaseVideoSchema = z.object({
 	fps: z.number().min(1).default(VIDEO_FPS),
 	durationInFrames: z.number().min(1).default(DEFAULT_DURATION_IN_FRAMES),
 	backgroundTheme: z.nativeEnum(BackgroundTheme),
-	backgroundUrls: z.array(z.string()).default([])
+	backgroundUrls: z.array(z.string()).default([]),
+	captionStyle: z.nativeEnum(CaptionStyle).default(CaptionStyle.Default)
 });
 
 const VoiceoverFramesSchema = z.object({
@@ -269,7 +275,8 @@ export const defaultSplitScreenProps: SplitScreenVideoProps = {
 	aspectRatio: AspectRatio.Vertical,
 	width: VIDEO_WIDTH,
 	height: VIDEO_HEIGHT,
-	fps: VIDEO_FPS
+	fps: VIDEO_FPS,
+	captionStyle: CaptionStyle.Default
 };
 
 export const defaultRedditProps: RedditVideoProps = {
@@ -291,7 +298,8 @@ export const defaultRedditProps: RedditVideoProps = {
 	aspectRatio: AspectRatio.Vertical,
 	width: VIDEO_WIDTH,
 	height: VIDEO_HEIGHT,
-	fps: VIDEO_FPS
+	fps: VIDEO_FPS,
+	captionStyle: CaptionStyle.Default
 };
 
 export const defaultTwitterThreadProps: TwitterVideoProps = {
@@ -305,7 +313,8 @@ export const defaultTwitterThreadProps: TwitterVideoProps = {
 	aspectRatio: AspectRatio.Vertical,
 	width: VIDEO_WIDTH,
 	height: VIDEO_HEIGHT,
-	fps: VIDEO_FPS
+	fps: VIDEO_FPS,
+	captionStyle: CaptionStyle.Default
 };
 
 // Zustand Store
@@ -324,6 +333,8 @@ type State = {
 	setBackgroundTheme: (theme: BackgroundTheme) => void;
 	backgroundUrls: string[];
 	setBackgroundUrls: (urls: string[]) => void;
+	captionStyle: CaptionStyle;
+	setCaptionStyle: (style: CaptionStyle) => void;
 };
 
 export const useTemplateStore = create<State>()(
@@ -369,6 +380,14 @@ export const useTemplateStore = create<State>()(
 					splitScreenState: { ...state.splitScreenState, backgroundUrls: urls },
 					redditState: { ...state.redditState, backgroundUrls: urls },
 					twitterThreadState: { ...state.twitterThreadState, backgroundUrls: urls }
+				})),
+			captionStyle: CaptionStyle.Default,
+			setCaptionStyle: (style) =>
+				set((state) => ({
+					captionStyle: style,
+					splitScreenState: { ...state.splitScreenState, captionStyle: style },
+					redditState: { ...state.redditState, captionStyle: style },
+					twitterThreadState: { ...state.twitterThreadState, captionStyle: style }
 				}))
 		}),
 		{
@@ -381,7 +400,8 @@ export const useTemplateStore = create<State>()(
 				twitterThreadState: state.twitterThreadState,
 				durationInFrames: state.durationInFrames,
 				backgroundTheme: state.backgroundTheme,
-				backgroundUrls: state.backgroundUrls
+				backgroundUrls: state.backgroundUrls,
+				captionStyle: state.captionStyle
 			})
 		}
 	)
