@@ -1,9 +1,9 @@
-import { CaptionStyle } from '@/stores/templatestore';
 import { makeTransform, scale, translateY } from '@remotion/animation-utils';
 import { loadFont as loadMontserratFont } from '@remotion/google-fonts/Montserrat';
 import { fitText } from '@remotion/layout-utils';
 import React from 'react';
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
+import { CaptionStyle } from '../../stores/templatestore';
 import './font.css';
 
 const montserratFont = loadMontserratFont('normal', {

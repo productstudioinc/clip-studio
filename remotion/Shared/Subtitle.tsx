@@ -1,6 +1,6 @@
-import { CaptionStyle } from '@/stores/templatestore';
 import React from 'react';
 import { AbsoluteFill, spring, useCurrentFrame, useVideoConfig } from 'remotion';
+import { CaptionStyle } from '../../stores/templatestore';
 import { Word } from './Word';
 
 const Subtitle: React.FC<{ text: string; captionStyle: CaptionStyle }> = ({
