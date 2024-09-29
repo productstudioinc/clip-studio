@@ -340,7 +340,7 @@ type State = {
 export const useTemplateStore = create<State>()(
 	persist(
 		(set) => ({
-			selectedTemplate: 'Reddit',
+			selectedTemplate: 'SplitScreen',
 			setSelectedTemplate: (template) => set({ selectedTemplate: template }),
 			splitScreenState: defaultSplitScreenProps,
 			setSplitScreenState: (state) =>
