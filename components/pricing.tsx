@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 
 type Interval = 'month' | 'year';
 
-export const toHumanPrice = (price: number | null, decimals: number = 2) => {
+const toHumanPrice = (price: number | null, decimals: number = 2) => {
 	if (price === null) return 'N/A';
 	return Number(price / 100).toFixed(decimals);
 };
@@ -70,7 +70,7 @@ export default function Pricing({
 	};
 
 	return (
-		<section id="pricing">
+		<section id="pricing" aria-labelledby="pricing-heading">
 			<div className="mx-auto flex max-w-screen-lg flex-col gap-8 px-4 py-14 md:px-8">
 				<div className="mx-auto max-w-5xl text-center">
 					<h4 className="text-xl font-bold tracking-tight text-black dark:text-white">Pricing</h4>
@@ -111,9 +111,7 @@ export default function Pricing({
 						})
 						.map((product, idx) => {
 							const monthlyPrice = product.prices.find((p) => p.interval === 'month');
-							const yearlyPrice = product.prices.find(
-								(p) => p.interval === 'year' && product.defaultPriceId === p.id
-							);
+							const yearlyPrice = product.prices.find((p) => p.interval === 'year');
 							const currentPrice = interval === 'month' ? monthlyPrice : yearlyPrice;
 							const isCurrentPlan = subscription === product.name;
 
@@ -177,11 +175,8 @@ export default function Pricing({
 											<span className="ml-2 text-sm font-normal text-gray-500">/ month</span>
 										</span>
 										<span className="block h-5 text-sm font-normal text-gray-500">
-											{interval === 'year' && (
-												<>
-													${currentPrice ? toHumanPrice(currentPrice.unitAmount, 0) : 'N/A'} billed
-													annually
-												</>
+											{interval === 'year' && currentPrice && (
+												<>${toHumanPrice(currentPrice.unitAmount, 0)} billed annually</>
 											)}
 										</span>
 									</motion.div>
