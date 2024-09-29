@@ -1,3 +1,4 @@
+/* eslint-disable unused-imports/no-unused-vars */
 import { z } from 'zod';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -340,7 +341,7 @@ type State = {
 export const useTemplateStore = create<State>()(
 	persist(
 		(set) => ({
-			selectedTemplate: 'SplitScreen',
+			selectedTemplate: 'Reddit',
 			setSelectedTemplate: (template) => set({ selectedTemplate: template }),
 			splitScreenState: defaultSplitScreenProps,
 			setSplitScreenState: (state) =>
