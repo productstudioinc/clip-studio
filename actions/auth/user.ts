@@ -30,7 +30,11 @@ export const getUserSubscription = cache(async () => {
 
 	try {
 		const response = await db.query.subscriptions.findFirst({
-			where: (subscriptions, { inArray }) => inArray(subscriptions.status, ['trialing', 'active']),
+			where: (subscriptions, { and, inArray, eq }) =>
+				and(
+					inArray(subscriptions.status, ['trialing', 'active']),
+					eq(subscriptions.userId, user.id)
+				),
 			with: {
 				price: {
 					with: {

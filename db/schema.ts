@@ -146,9 +146,8 @@ export const userUsage = pgTable('user_usage', {
 		.notNull()
 		.references(() => users.id)
 		.unique(),
-	subscriptionId: text('subscription_id').references(() => subscriptions.id),
 	creditsLeft: integer('credits_left').notNull(),
-	connectedAccountsLeft: integer('connected_accounts_left').notNull(),
+	connectedAccountsLeft: integer('connected_accounts_left'),
 	lastResetDate: timestamp('last_reset_date').notNull().defaultNow()
 });
 

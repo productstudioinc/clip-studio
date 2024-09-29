@@ -25,7 +25,7 @@ export default function SubscriptionCard({
 	usage,
 	userId
 }: {
-	subscriptionName: string;
+	subscriptionName: string | null;
 	usage: Usage;
 	userId: string;
 }) {
@@ -43,24 +43,39 @@ export default function SubscriptionCard({
 		<Card>
 			<CardHeader className="p-2 pt-0 md:p-4">
 				<CardTitle>Your Usage</CardTitle>
-				<CardDescription>{subscriptionName}</CardDescription>
+				<CardDescription>{subscriptionName || 'Free Plan'}</CardDescription>
 			</CardHeader>
-			<CardContent className="p-2 pt-0 md:p-4 md:pt-0">
-				<UsageDisplay usage={usage} userId={userId} />
-				<Button size={'sm'} className="w-full" onClick={manageSubscription} disabled={isPending}>
-					{isPending ? (
-						<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-					) : (
-						<Settings className="h-4 w-4 mr-2" />
-					)}
-					Manage
-				</Button>
+			<CardContent className={`p-2 pt-0 md:p-4 md:pt-0 ${!subscriptionName ? 'pb-0 md:pb-0' : ''}`}>
+				<UsageDisplay usage={usage} userId={userId} showConnectedAccounts={!!subscriptionName} />
+				{subscriptionName && (
+					<Button
+						size={'sm'}
+						className="w-full mt-6"
+						onClick={manageSubscription}
+						disabled={isPending}
+					>
+						{isPending ? (
+							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+						) : (
+							<Settings className="h-4 w-4 mr-2" />
+						)}
+						Manage
+					</Button>
+				)}
 			</CardContent>
 		</Card>
 	);
 }
 
-const UsageDisplay = ({ usage: initialUsage, userId }: { usage: Usage; userId: string }) => {
+const UsageDisplay = ({
+	usage: initialUsage,
+	userId,
+	showConnectedAccounts
+}: {
+	usage: Usage;
+	userId: string;
+	showConnectedAccounts: boolean;
+}) => {
 	const [realtimeUsage, setRealtimeUsage] = useState<Usage>(initialUsage);
 	const supabase = createClient();
 
@@ -111,16 +126,23 @@ const UsageDisplay = ({ usage: initialUsage, userId }: { usage: Usage; userId: s
 				totalLimits.credits
 			)
 		},
-		{
-			label: 'Connected Accounts',
-			current: calculateUsed(totalLimits.connectedAccounts, currentUsage.connectedAccountsLeft),
-			total: totalLimits.connectedAccounts,
-			unit: '',
-			percentage: calculatePercentage(
-				calculateUsed(totalLimits.connectedAccounts, currentUsage.connectedAccountsLeft),
-				totalLimits.connectedAccounts
-			)
-		}
+		...(showConnectedAccounts
+			? [
+					{
+						label: 'Connected Accounts',
+						current: calculateUsed(
+							totalLimits.connectedAccounts,
+							currentUsage.connectedAccountsLeft
+						),
+						total: totalLimits.connectedAccounts,
+						unit: '',
+						percentage: calculatePercentage(
+							calculateUsed(totalLimits.connectedAccounts, currentUsage.connectedAccountsLeft),
+							totalLimits.connectedAccounts
+						)
+					}
+				]
+			: [])
 	];
 
 	return (

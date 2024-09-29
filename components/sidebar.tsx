@@ -83,9 +83,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) =
 					))}
 				</nav>
 			</div>
-			<div className="px-2 lg:px-4">
-				{subscription && usage && user ? (
-					<SubscriptionCard subscriptionName={subscription} usage={usage} userId={user?.id} />
+			<div className="px-2 lg:px-4 space-y-2">
+				{user ? (
+					subscription ? (
+						usage && (
+							<SubscriptionCard subscriptionName={subscription} usage={usage} userId={user.id} />
+						)
+					) : (
+						<>
+							<UpgradeCard />
+							{usage && <SubscriptionCard subscriptionName={null} usage={usage} userId={user.id} />}
+						</>
+					)
 				) : (
 					<UpgradeCard />
 				)}

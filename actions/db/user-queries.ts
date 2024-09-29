@@ -14,7 +14,7 @@ import {
 	users,
 	userUsage
 } from '@/db/schema';
-import { and, eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { Logger } from 'next-axiom';
 import { unstable_cache } from 'next/cache';
 import { z } from 'zod';
@@ -78,16 +78,18 @@ export const getUserUsage = async () => {
 					connectedAccountsLeft: userUsage.connectedAccountsLeft
 				},
 				totalLimits: {
-					credits: planLimits.totalCredits,
-					connectedAccounts: planLimits.totalConnectedAccounts
+					credits: sql<number>`COALESCE(${planLimits.totalCredits}, 50)`.as('credits'),
+					connectedAccounts: sql<
+						number | null
+					>`COALESCE(${planLimits.totalConnectedAccounts}, NULL)`.as('connectedAccounts')
 				}
 			})
-			.from(subscriptions)
-			.innerJoin(userUsage, eq(subscriptions.userId, userUsage.userId))
-			.innerJoin(prices, eq(subscriptions.priceId, prices.id))
-			.innerJoin(products, eq(prices.productId, products.id))
-			.innerJoin(planLimits, eq(products.id, planLimits.productId))
-			.where(and(eq(subscriptions.userId, user.id), eq(subscriptions.status, 'active')))
+			.from(userUsage)
+			.leftJoin(subscriptions, eq(subscriptions.userId, userUsage.userId))
+			.leftJoin(prices, eq(subscriptions.priceId, prices.id))
+			.leftJoin(products, eq(prices.productId, products.id))
+			.leftJoin(planLimits, eq(products.id, planLimits.productId))
+			.where(eq(userUsage.userId, user.id))
 			.limit(1);
 
 		if (result.length === 0) {

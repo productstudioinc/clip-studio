@@ -253,7 +253,6 @@ const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
 			.insert(userUsage)
 			.values({
 				userId: subscriptionDetails[0].userId,
-				subscriptionId: subscriptionDetails[0].subscriptionId,
 				creditsLeft: subscriptionDetails[0].creditsLeft,
 				connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
 				lastResetDate: new Date()
