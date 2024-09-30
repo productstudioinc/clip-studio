@@ -1,6 +1,7 @@
 'use client';
 
 import { GetProductsResult } from '@/actions/db/user-queries';
+import { CreditCalculator } from '@/components/credit-calculator-simple';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
@@ -282,6 +283,8 @@ export default function Pricing({
 							);
 						})}
 				</div>
+
+				<CreditCalculator />
 			</div>
 		</section>
 	);
