@@ -21,7 +21,7 @@ export default function PricingDialog({
 
 	return (
 		<Dialog open={true} onOpenChange={(open) => !open && router.back()}>
-			<DialogContent className="p-0 border-0 max-w-screen-lg">
+			<DialogContent className="p-0 border-0 max-w-screen-xl">
 				<DialogTitle className="hidden">Pricing</DialogTitle>
 				<DialogDescription className="hidden">
 					Choose the plan that best fits your needs.

@@ -71,7 +71,7 @@ export default function Pricing({
 
 	return (
 		<section id="pricing" aria-labelledby="pricing-heading">
-			<div className="mx-auto flex max-w-screen-lg flex-col gap-8 px-4 py-14 md:px-8">
+			<div className="mx-auto flex max-w-screen-xl flex-col gap-8 px-4 py-14 md:px-8">
 				<div className="mx-auto max-w-5xl text-center">
 					<h4 className="text-xl font-bold tracking-tight text-black dark:text-white">Pricing</h4>
 					<h2 className="text-5xl font-bold tracking-tight text-black dark:text-white sm:text-6xl">
