@@ -30,7 +30,7 @@ export default async function Layout({
 				<header className="md:hidden flex items-center justify-between p-2 border-b sticky top-0 z-10 bg-background">
 					<MobileSidebar user={user} />
 				</header>
-				<main className="flex-1 bg-muted/40 relative">{children}</main>
+				<main className="flex-1 bg-muted/25 relative">{children}</main>
 				<footer className="border-t p-4 text-sm">
 					<div className="flex flex-col md:flex-row justify-between items-center">
 						<span>
