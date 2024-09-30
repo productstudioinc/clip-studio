@@ -1,23 +1,23 @@
 DO $$ BEGIN
- CREATE TYPE "public"."plan_tier" AS ENUM('hobby', 'creator', 'pro');
+ CREATE TYPE IF NOT EXISTS "public"."plan_tier" AS ENUM('hobby', 'creator', 'pro');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "public"."pricing_plan_interval" AS ENUM('day', 'week', 'month', 'year');
+ CREATE TYPE IF NOT EXISTS "public"."pricing_plan_interval" AS ENUM('day', 'week', 'month', 'year');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "public"."pricing_type" AS ENUM('one_time', 'recurring');
+ CREATE TYPE IF NOT EXISTS "public"."pricing_type" AS ENUM('one_time', 'recurring');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "public"."subscription_status" AS ENUM('incomplete', 'incomplete_expired', 'trialing', 'active', 'past_due', 'canceled', 'unpaid', 'paused');
+ CREATE TYPE IF NOT EXISTS "public"."subscription_status" AS ENUM('incomplete', 'incomplete_expired', 'trialing', 'active', 'past_due', 'canceled', 'unpaid', 'paused');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

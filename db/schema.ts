@@ -174,6 +174,15 @@ export const backgrounds = pgTable('backgrounds', {
 	previewUrl: text('preview_url').notNull()
 });
 
+export const music = pgTable('music', {
+	id: integer('id').primaryKey(),
+	name: text('name').notNull(),
+	description: text('description'),
+	audioUrl: text('audio_url').notNull(),
+	createdAt: timestamp('created_at').notNull().defaultNow(),
+	updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
 export const backgroundParts = pgTable('background_parts', {
 	id: integer('id').primaryKey(),
 	backgroundId: integer('background_id')
