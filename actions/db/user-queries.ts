@@ -78,7 +78,7 @@ export const getUserUsage = async () => {
 					connectedAccountsLeft: userUsage.connectedAccountsLeft
 				},
 				totalLimits: {
-					credits: sql<number>`COALESCE(${planLimits.totalCredits}, 50)`.as('credits'),
+					credits: sql<number>`COALESCE(${planLimits.totalCredits}, 15)`.as('credits'),
 					connectedAccounts: sql<
 						number | null
 					>`COALESCE(${planLimits.totalConnectedAccounts}, NULL)`.as('connectedAccounts')
