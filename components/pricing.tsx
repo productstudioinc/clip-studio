@@ -137,7 +137,7 @@ export default function Pricing({
 							onClick={() => router.push('/login')}
 						>
 							<span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 transform-gpu bg-white opacity-10 transition-all duration-1000 ease-out group-hover:-translate-x-96 dark:bg-black" />
-							<p>Upgrade</p>
+							<p>Register</p>
 						</Button>
 
 						<hr className="m-0 h-px w-full border-none bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0 mb-4" />
