@@ -219,7 +219,7 @@ export const MusicStep: React.FC<MusicStepProps> = ({ form, music }) => {
                       value={[field.value]}
                       onValueChange={(value) => field.onChange(value[0])}
                       max={100}
-                      step={1}
+                      step={10}
                       disabled={form.watch('music') === 'none'}
                       className="flex-grow"
                     />

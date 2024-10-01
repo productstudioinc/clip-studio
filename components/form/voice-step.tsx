@@ -59,7 +59,11 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
   const startTimeRef = useRef<number | null>(null)
   const [audioDurations, setAudioDurations] = useState<Record<string, number>>(
     {}
+<<<<<<< HEAD
   )
+=======
+  );
+>>>>>>> f15b841 (start)
 
   useEffect(() => {
     const fetchDurations = async () => {
@@ -122,7 +126,11 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
       }
     },
     [playingAudio, audioDurations]
+<<<<<<< HEAD
   )
+=======
+  );
+>>>>>>> f15b841 (start)
 
   const simulateProgress = useCallback((duration: number) => {
     if (progressInterval.current) {
@@ -160,9 +168,15 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
 
     if (!selectedVoice || !text || !title) {
       toast.error(
+<<<<<<< HEAD
         'Please select a voice, enter a title, and provide text for the voiceover.'
       )
       return
+=======
+        "Please select a voice, enter a title, and provide text for the voiceover."
+      );
+      return;
+>>>>>>> f15b841 (start)
     }
 
     const [data, err] = await execute({
@@ -203,8 +217,13 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
                       variant="outline"
                       role="combobox"
                       className={cn(
+<<<<<<< HEAD
                         'w-[200px] justify-between',
                         !field.value && 'text-muted-foreground'
+=======
+                        "w-[200px] justify-between",
+                        !field.value && "text-muted-foreground"
+>>>>>>> f15b841 (start)
                       )}
                     >
                       {field.value
@@ -238,8 +257,13 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
                               className={cn(
                                 'ml-auto h-4 w-4',
                                 language.value === field.value
+<<<<<<< HEAD
                                   ? 'opacity-100'
                                   : 'opacity-0'
+=======
+                                  ? "opacity-100"
+                                  : "opacity-0"
+>>>>>>> f15b841 (start)
                               )}
                             />
                           </CommandItem>
@@ -294,8 +318,16 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
                             className="rounded-full"
                             size="icon"
                             onClick={(e) => {
+<<<<<<< HEAD
                               e.preventDefault()
                               handlePlayPause(voice.preview_url, voice.voice_id)
+=======
+                              e.preventDefault();
+                              handlePlayPause(
+                                voice.preview_url,
+                                voice.voice_id
+                              );
+>>>>>>> f15b841 (start)
                             }}
                           >
                             {playingAudio === voice.voice_id ? (
@@ -351,7 +383,7 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
                       value={[field.value]}
                       onValueChange={(value) => field.onChange(value[0])}
                       max={100}
-                      step={5}
+                      step={10}
                       className="flex-grow"
                     />
                     <span className="text-sm text-muted-foreground w-10 text-right">

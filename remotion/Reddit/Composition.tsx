@@ -126,7 +126,11 @@ export const RedditComposition = ({
                 durationInFrames={subtitle.endFrame - subtitle.startFrame}
                 key={index}
               >
-                <Subtitle text={subtitle.text} captionStyle={captionStyle} />
+                <Subtitle
+                  text={subtitle.text}
+                  captionStyle={captionStyle}
+                  style={{ top: '50%' }}
+                />
               </Sequence>
             ) : null
           )}

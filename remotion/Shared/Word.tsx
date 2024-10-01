@@ -1,61 +1,30 @@
 import React from 'react'
 import { makeTransform, scale, translateY } from '@remotion/animation-utils'
-import { loadFont as loadMontserratFont } from '@remotion/google-fonts/Montserrat'
-import { fitText } from '@remotion/layout-utils'
-import {
-  AbsoluteFill,
-  interpolate,
-  spring,
-  useCurrentFrame,
-  useVideoConfig
-} from 'remotion'
+import { loadFont as loadPermanentMarkerFont } from '@remotion/google-fonts/PermanentMarker'
+import { loadFont as loadRobotoFont } from '@remotion/google-fonts/Roboto'
+import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion'
 
 import { CaptionStyle } from '../../stores/templatestore'
 
 import './font.css'
 
-const montserratFont = loadMontserratFont('normal', {
+const robotoFont = loadRobotoFont('normal', {
   weights: ['700']
 })
+
+const permanentMarkerFont = loadPermanentMarkerFont()
 
 const komikaFontFamily = 'Komika Axis'
 
 export const Word: React.FC<{
   enterProgress: number
   text: string
-  stroke: boolean
+  stroke?: boolean
   captionStyle: CaptionStyle
-}> = ({ enterProgress, text, stroke, captionStyle }) => {
-  const { width, fps } = useVideoConfig()
+}> = ({ enterProgress, text, stroke = false, captionStyle }) => {
+  const { fps } = useVideoConfig()
   const frame = useCurrentFrame()
-  const desiredFontSize = 64
-
-  const fontFamily =
-    captionStyle === CaptionStyle.KomikaAxis
-      ? komikaFontFamily
-      : montserratFont.fontFamily
-
-  const splitText = (text: string, maxWordsPerLine: number) => {
-    const words = text.split(' ')
-    const lines = []
-    for (let i = 0; i < words.length; i += maxWordsPerLine) {
-      lines.push(words.slice(i, i + maxWordsPerLine).join(' '))
-    }
-    return lines
-  }
-
-  const textLines = splitText(text, 5)
-
-  const fontSizes = textLines.map(
-    (line) =>
-      fitText({
-        fontFamily,
-        text: line,
-        withinWidth: width * 0.7
-      }).fontSize
-  )
-
-  const minFontSize = Math.min(desiredFontSize, ...fontSizes)
+  const desiredFontSize = 52
 
   const growAnimation = spring({
     frame,
@@ -68,45 +37,72 @@ export const Word: React.FC<{
     durationInFrames: 5
   })
 
+  const getStyleProperties = (style: CaptionStyle) => {
+    switch (style) {
+      case CaptionStyle.KomikaAxis:
+        return {
+          fontFamily: komikaFontFamily,
+          color: 'yellow',
+          textTransform: 'uppercase' as const
+        }
+      case CaptionStyle.Montserrat:
+        return {
+          fontFamily: montserratFont.fontFamily,
+          color: 'white',
+          textTransform: 'uppercase' as const
+        }
+      case CaptionStyle.Handwritten:
+        return {
+          fontFamily: permanentMarkerFont.fontFamily,
+          color: 'white',
+          textTransform: 'none' as const
+        }
+      case CaptionStyle.Futuristic:
+        return {
+          fontFamily: robotoFont.fontFamily,
+          color: '#00ffff',
+          textTransform: 'uppercase' as const
+        }
+      default:
+        return {
+          fontFamily: montserratFont.fontFamily,
+          color: 'white',
+          textTransform: 'uppercase' as const
+        }
+    }
+  }
+
+  const styleProperties = getStyleProperties(captionStyle)
+
   return (
-    <AbsoluteFill
-      style={{
-        justifyContent: 'center',
-        alignItems: 'center',
-        top: undefined,
-        bottom: 350,
-        height: 150,
-        display: 'flex',
-        flexDirection: 'column'
-      }}
-    >
-      {textLines.map((line, index) => (
-        <div
-          key={index}
-          style={{
-            fontSize: minFontSize,
-            color:
-              captionStyle === CaptionStyle.KomikaAxis ? 'yellow' : 'white',
-            WebkitTextStroke: stroke ? '10px black' : undefined,
-            transform: makeTransform([
-              scale(
-                interpolate(enterProgress * growAnimation, [0, 1], [0.95, 1])
-              ),
-              translateY(interpolate(enterProgress, [0, 1], [20, 0]))
-            ]),
-            opacity: interpolate(enterProgress, [0, 0.3], [1, 1], {
-              extrapolateLeft: 'clamp',
-              extrapolateRight: 'clamp'
-            }),
-            fontFamily,
-            textTransform: 'uppercase',
-            textAlign: 'center',
-            marginBottom: 10
-          }}
-        >
-          {line}
-        </div>
-      ))}
-    </AbsoluteFill>
+    <span className="relative w-full flex justify-center items-center">
+      <span
+        style={{
+          position: 'absolute',
+          width: '100%',
+          fontSize: desiredFontSize,
+          color: styleProperties.color,
+          WebkitTextStroke: stroke ? '10px black' : undefined,
+          transform: makeTransform([
+            scale(
+              interpolate(enterProgress * growAnimation, [0, 1], [0.95, 1])
+            ),
+            translateY(interpolate(enterProgress, [0, 1], [20, 0]))
+          ]),
+          opacity: interpolate(enterProgress, [0, 0.3], [1, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp'
+          }),
+          fontFamily: styleProperties.fontFamily,
+          textTransform: styleProperties.textTransform,
+          textAlign: 'center',
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+          lineHeight: '1em'
+        }}
+      >
+        {text}
+      </span>
+    </span>
   )
 }

@@ -1,8 +1,10 @@
 import React from 'react'
+import { ClipsComposition } from '@/remotion/Clips/Composition'
 import { getVideoMetadata } from '@remotion/media-utils'
 import { Composition } from 'remotion'
 
 import {
+  ClipsVideoSchema,
   RedditVideoSchema,
   SplitScreenVideoSchema,
   TwitterVideoSchema,
@@ -15,94 +17,69 @@ import { RedditComposition } from './Reddit/Composition'
 import { SplitScreenComposition } from './SplitScreen/Composition'
 import { TwitterThreadComposition } from './TwitterThread/Composition'
 
-// super ugly code but i couldnt figure out how to do it a cleaner way
-
 export const RemotionRoot: React.FC = () => {
-  const {
-    selectedTemplate,
-    splitScreenState,
-    redditState,
-    twitterThreadState
-  } = useTemplateStore((state) => ({
-    selectedTemplate: state.selectedTemplate,
-    splitScreenState: state.splitScreenState,
-    redditState: state.redditState,
-    twitterThreadState: state.twitterThreadState
-  }))
-
-  const defaultProps =
-    selectedTemplate === 'SplitScreen'
-      ? splitScreenState
-      : selectedTemplate === 'Reddit'
-        ? redditState
-        : twitterThreadState
-
-  const videoDuration =
-    selectedTemplate === 'SplitScreen'
-      ? splitScreenState.durationInFrames
-      : selectedTemplate === 'Reddit'
-        ? redditState.durationInFrames
-        : twitterThreadState.durationInFrames
+  const { splitScreenState, redditState, twitterThreadState, clipsState } =
+    useTemplateStore((state) => ({
+      selectedTemplate: state.selectedTemplate,
+      splitScreenState: state.splitScreenState,
+      redditState: state.redditState,
+      twitterThreadState: state.twitterThreadState,
+      clipsState: state.clipsState
+    }))
 
   return (
     <>
-      <div
-        style={{
-          display: selectedTemplate === 'SplitScreen' ? 'block' : 'none'
+      <Composition
+        id="SplitScreen"
+        component={SplitScreenComposition}
+        durationInFrames={splitScreenState.durationInFrames}
+        fps={VIDEO_FPS}
+        width={VIDEO_WIDTH}
+        height={VIDEO_HEIGHT}
+        schema={SplitScreenVideoSchema}
+        defaultProps={splitScreenState as any}
+        calculateMetadata={async ({ props }) => {
+          const data = await getVideoMetadata(props.videoUrl)
+          return {
+            durationInFrames: Math.floor(data.durationInSeconds * 30)
+          }
         }}
-      >
-        <Composition
-          id="SplitScreen"
-          component={SplitScreenComposition}
-          durationInFrames={videoDuration}
-          fps={VIDEO_FPS}
-          width={VIDEO_WIDTH}
-          height={VIDEO_HEIGHT}
-          schema={SplitScreenVideoSchema}
-          defaultProps={defaultProps as any}
-          calculateMetadata={async ({ props }) => {
-            const data = await getVideoMetadata(props.videoUrl)
-            return {
-              durationInFrames: Math.floor(data.durationInSeconds * 30)
-            }
-          }}
-        />
-      </div>
-      <div
-        style={{ display: selectedTemplate === 'Reddit' ? 'block' : 'none' }}
-      >
-        <Composition
-          id="Reddit"
-          component={RedditComposition}
-          durationInFrames={videoDuration}
-          fps={VIDEO_FPS}
-          width={VIDEO_WIDTH}
-          height={VIDEO_HEIGHT}
-          schema={RedditVideoSchema}
-          defaultProps={defaultProps as any}
-          calculateMetadata={async ({ props }) => {
-            return {
-              durationInFrames: props.durationInFrames
-            }
-          }}
-        />
-      </div>
-      <div
-        style={{
-          display: selectedTemplate === 'TwitterThread' ? 'block' : 'none'
+      />
+      <Composition
+        id="Reddit"
+        component={RedditComposition}
+        durationInFrames={redditState.durationInFrames}
+        fps={VIDEO_FPS}
+        width={VIDEO_WIDTH}
+        height={VIDEO_HEIGHT}
+        schema={RedditVideoSchema}
+        defaultProps={redditState as any}
+        calculateMetadata={async ({ props }) => {
+          return {
+            durationInFrames: props.durationInFrames
+          }
         }}
-      >
-        <Composition
-          id="TwitterThread"
-          component={TwitterThreadComposition}
-          durationInFrames={videoDuration}
-          schema={TwitterVideoSchema}
-          fps={VIDEO_FPS}
-          width={VIDEO_WIDTH}
-          height={VIDEO_HEIGHT}
-          defaultProps={defaultProps as any}
-        />
-      </div>
+      />
+      <Composition
+        id="TwitterThread"
+        component={TwitterThreadComposition}
+        durationInFrames={twitterThreadState.durationInFrames}
+        schema={TwitterVideoSchema}
+        fps={VIDEO_FPS}
+        width={VIDEO_WIDTH}
+        height={VIDEO_HEIGHT}
+        defaultProps={twitterThreadState as any}
+      />
+      <Composition
+        id="Clips"
+        component={ClipsComposition}
+        durationInFrames={clipsState.durationInFrames}
+        fps={VIDEO_FPS}
+        width={VIDEO_WIDTH}
+        height={VIDEO_HEIGHT}
+        schema={ClipsVideoSchema}
+        defaultProps={clipsState as any}
+      />
     </>
   )
 }

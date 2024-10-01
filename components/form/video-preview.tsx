@@ -41,14 +41,14 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ form }) => {
   }, [width, height])
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
         <CardTitle className="text-md font-medium">Preview</CardTitle>
         <ResetSettings />
       </CardHeader>
       <CardContent>
         <div
-          className={`w-full h-full flex items-center justify-center ${aspectRatioClass}`}
+          className={`w-full h-full mx-auto flex items-center justify-center ${aspectRatioClass}`}
         >
           <Player
             component={CompositionComponent as any}

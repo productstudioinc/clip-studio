@@ -64,16 +64,6 @@ export const SplitScreenComposition = ({
     objectFit: 'cover'
   }
 
-  const subtitleStyle: CSSProperties = {
-    position: 'absolute',
-    bottom: '10%',
-    width: '100%',
-    textAlign: 'center',
-    fontSize: '24px',
-    color: 'white',
-    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)'
-  }
-
   const overlayStyle: CSSProperties = {
     position: 'absolute',
     top: 0,
@@ -130,9 +120,11 @@ export const SplitScreenComposition = ({
             durationInFrames={subtitle.endFrame - subtitle.startFrame}
             key={index}
           >
-            <div style={subtitleStyle}>
-              <Subtitle text={subtitle.text} captionStyle={captionStyle} />
-            </div>
+            <Subtitle
+              text={subtitle.text}
+              captionStyle={captionStyle}
+              style={{ top: '50%' }}
+            />
           </Sequence>
         ) : null
       )}
