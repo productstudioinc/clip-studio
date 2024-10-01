@@ -40,8 +40,8 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ form }) => {
 
 	return (
 		<Card>
-			<CardHeader className="flex flex-row items-center justify-between">
-				<CardTitle>Preview</CardTitle>
+			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
+				<CardTitle className="text-md font-medium">Preview</CardTitle>
 				<ResetSettings />
 			</CardHeader>
 			<CardContent>
