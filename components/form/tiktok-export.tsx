@@ -54,7 +54,7 @@ export function TikTokExportDialog({
 	const [videoContentType, setVideoContentType] = useState<
 		'yourBrand' | 'brandedContent' | undefined
 	>(undefined);
-	const [isAiGenerated, setIsAiGenerated] = useState(false);
+	const [isAiGenerated, setIsAiGenerated] = useState(true);
 	const [isUploading, setIsUploading] = useState(false);
 
 	const handleupload = async () => {
