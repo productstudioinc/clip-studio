@@ -73,20 +73,22 @@ export const SplitScreenForm: React.FC<SplitScreenFormProps> = ({
 					</div>
 
 					<div className="w-full lg:w-2/5">
-						<div className="sticky top-20 space-y-6 max-h-[calc(100vh-2rem)] overflow-y-auto">
-							<VideoPreview form={form} />
-							{/* <Card>
+						<div className="sticky top-0 px-8 h-screen flex items-center justify-center p-4">
+							<div className="w-full max-w-md overflow-y-auto">
+								<VideoPreview form={form} />
+								{/* <Card>
 								<CardHeader>
-									<CardTitle>Additional Information</CardTitle>
+								<CardTitle>Additional Information</CardTitle>
 								</CardHeader>
 								<CardContent>
 									<p className="text-sm text-muted-foreground">
 										This section can include more details about the selected options, tips for
 										creating split-screen videos, or any other relevant information that might be
 										helpful for the user during the video creation process.
-									</p>
-								</CardContent>
-							</Card> */}
+										</p>
+										</CardContent>
+										</Card> */}
+							</div>
 						</div>
 					</div>
 				</div>
