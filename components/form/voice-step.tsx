@@ -319,12 +319,18 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
 							<FormItem>
 								<FormLabel>Voice Volume</FormLabel>
 								<FormControl>
-									<Slider
-										value={[field.value]}
-										onValueChange={(value) => field.onChange(value[0])}
-										max={100}
-										step={5}
-									/>
+									<div className="flex items-center space-x-2">
+										<Slider
+											value={[field.value]}
+											onValueChange={(value) => field.onChange(value[0])}
+											max={100}
+											step={5}
+											className="flex-grow"
+										/>
+										<span className="text-sm text-muted-foreground w-10 text-right">
+											{field.value}%
+										</span>
+									</div>
 								</FormControl>
 								<FormMessage />
 							</FormItem>

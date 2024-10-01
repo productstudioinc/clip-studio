@@ -10,7 +10,7 @@ import { RedditUrlStep } from '@/components/form/reddit-url-step';
 import { VideoPreview } from '@/components/form/video-preview';
 import { VoiceStep } from '@/components/form/voice-step';
 import { Form } from '@/components/ui/form';
-import { SelectBackgroundWithParts } from '@/db/schema';
+import { SelectBackgroundWithParts, SelectMusic } from '@/db/schema';
 import {
 	defaultRedditProps,
 	RedditVideoProps,
@@ -28,13 +28,15 @@ interface RedditFormProps {
 	backgrounds: SelectBackgroundWithParts[];
 	youtubeChannels: YoutubeChannel[];
 	tiktokAccounts: TikTokAccount[];
+	music: SelectMusic[];
 }
 
 export const RedditForm: React.FC<RedditFormProps> = ({
 	voices,
 	backgrounds,
 	youtubeChannels,
-	tiktokAccounts
+	tiktokAccounts,
+	music
 }) => {
 	const form = useForm<VideoProps>({
 		resolver: zodResolver(RedditVideoSchema),
@@ -58,7 +60,7 @@ export const RedditForm: React.FC<RedditFormProps> = ({
 					<div className="w-full lg:w-3/5 space-y-6">
 						<RedditUrlStep form={form} />
 						<VoiceStep form={form} voices={voices} />
-						{/* <MusicStep form={form} /> */}
+						{/* <MusicStep form={form} music={music} /> */}
 						<BackgroundSelectStep form={form} backgrounds={backgrounds} />
 						<CaptionStyleStep form={form} />
 						<AspectRatioStep form={form} />

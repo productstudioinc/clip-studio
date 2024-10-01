@@ -2,13 +2,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { SelectBackgroundWithParts } from '@/db/schema';
 import { BackgroundTheme, VideoProps } from '@/stores/templatestore';
 import type { FC } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { Label } from '../ui/label';
 
 type BackgroundSelectStepProps = {
 	form: UseFormReturn<VideoProps>;

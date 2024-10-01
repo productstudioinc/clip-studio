@@ -7,23 +7,28 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Slider } from '@/components/ui/slider';
-import { musicOptions, VideoProps } from '@/stores/templatestore';
+import { SelectMusic } from '@/db/schema';
+import { VideoProps } from '@/stores/templatestore';
 import { Pause, Play, VolumeX } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
 type MusicStepProps = {
 	form: UseFormReturn<VideoProps>;
+	music: SelectMusic[];
 };
 
-export const MusicStep: React.FC<MusicStepProps> = ({ form }) => {
+const DEFAULT_MUSIC_VOLUME = 30;
+
+export const MusicStep: React.FC<MusicStepProps> = ({ form, music }) => {
 	const [playing, setPlaying] = useState<string | null>(null);
 	const [progress, setProgress] = useState<Record<string, number>>({});
+	const [durations, setDurations] = useState<Record<string, number>>({});
 	const progressInterval = useRef<NodeJS.Timeout | null>(null);
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 
 	const handleAudioPlay = useCallback(
-		(id: string, duration: number) => {
+		(id: string) => {
 			if (playing === id) {
 				audioRef.current?.pause();
 				setPlaying(null);
@@ -34,30 +39,51 @@ export const MusicStep: React.FC<MusicStepProps> = ({ form }) => {
 
 				setPlaying(id);
 				setProgress((prev) => ({ ...prev, [id]: 0 }));
-				const audio = new Audio(musicOptions.find((m) => m.id === id)?.audio || '');
-				audio.volume = 0.4;
+
+				const selectedMusic = music.find((m) => m.id.toString() === id);
+				if (!selectedMusic || !selectedMusic.audioUrl) {
+					console.error('Selected music not found or missing audioUrl');
+					return;
+				}
+
+				const audio = new Audio(selectedMusic.audioUrl);
+				const volume = form.getValues('musicVolume')
+					? form.getValues('musicVolume') / 100
+					: DEFAULT_MUSIC_VOLUME / 100;
+				audio.volume = volume;
 				audioRef.current = audio;
 
-				audio.play().catch((error) => {
-					console.error('Could not play audio:', error);
-					setPlaying(null);
+				audio.addEventListener('loadedmetadata', () => {
+					setDurations((prev) => ({ ...prev, [id]: audio.duration }));
+					audio.play().catch((error) => {
+						console.error('Could not play audio:', error);
+						setPlaying(null);
+					});
+
+					progressInterval.current = setInterval(() => {
+						if (audio.duration) {
+							const currentProgress = (audio.currentTime / audio.duration) * 100;
+							setProgress((prev) => ({
+								...prev,
+								[id]: currentProgress
+							}));
+
+							if (audio.currentTime >= audio.duration) {
+								clearInterval(progressInterval.current!);
+								setPlaying(null);
+								setProgress((prev) => ({ ...prev, [id]: 0 }));
+							}
+						}
+					}, 50);
 				});
 
-				progressInterval.current = setInterval(() => {
-					setProgress((prev) => ({
-						...prev,
-						[id]: (audio.currentTime / duration) * 100
-					}));
-
-					if (audio.currentTime >= duration) {
-						clearInterval(progressInterval.current!);
-						setPlaying(null);
-						setProgress((prev) => ({ ...prev, [id]: 0 }));
-					}
-				}, 50);
+				audio.addEventListener('error', (error) => {
+					console.error('Error loading audio metadata:', error);
+					setPlaying(null);
+				});
 			}
 		},
-		[playing]
+		[playing, music, form]
 	);
 
 	useEffect(() => {
@@ -66,6 +92,14 @@ export const MusicStep: React.FC<MusicStepProps> = ({ form }) => {
 			clearInterval(progressInterval.current!);
 		};
 	}, []);
+
+	const musicVolume = form.watch('musicVolume');
+
+	useEffect(() => {
+		if (audioRef.current) {
+			audioRef.current.volume = musicVolume / 100;
+		}
+	}, [musicVolume]);
 
 	const formatTime = useCallback((seconds: number) => {
 		const mins = Math.floor(seconds / 60);
@@ -88,40 +122,44 @@ export const MusicStep: React.FC<MusicStepProps> = ({ form }) => {
 								<FormControl>
 									<RadioGroup
 										onValueChange={field.onChange}
-										defaultValue={field.value}
+										value={field.value}
 										className="space-y-1"
 									>
-										{musicOptions.map((music) => (
+										{music.map((m) => (
 											<Label
-												key={music.id}
-												htmlFor={music.id}
+												key={m.id}
+												htmlFor={m.id.toString()}
 												className="flex items-center gap-4 cursor-pointer relative rounded-md border p-2 [&:has([data-state=checked])]:border-primary overflow-hidden"
 											>
-												<RadioGroupItem value={music.id} id={music.id} className="sr-only" />
+												<RadioGroupItem
+													value={m.id.toString()}
+													id={m.id.toString()}
+													className="sr-only"
+												/>
 												<div className="absolute inset-0 w-full h-full bg-secondary/40 pointer-events-none">
 													<div
 														className="h-full bg-secondary transition-all duration-100 ease-in-out"
 														style={{
-															width: `${playing === music.id ? progress[music.id] || 0 : 0}%`
+															width: `${playing === m.id.toString() ? progress[m.id.toString()] || 0 : 0}%`
 														}}
 													/>
 												</div>
 												<div className="flex-shrink-0 relative z-10">
-													{music.audio ? (
+													{m.audioUrl ? (
 														<Button
 															type="button"
 															variant="outline"
 															className="rounded-full"
 															size="icon"
-															onClick={() => handleAudioPlay(music.id, music.duration)}
+															onClick={() => handleAudioPlay(m.id.toString())}
 														>
-															{playing === music.id ? (
+															{playing === m.id.toString() ? (
 																<Pause className="h-4 w-4" />
 															) : (
 																<Play className="h-4 w-4" />
 															)}
 															<span className="sr-only">
-																{playing === music.id ? 'Pause' : 'Play'} {music.name}
+																{playing === m.id.toString() ? 'Pause' : 'Play'} {m.name}
 															</span>
 														</Button>
 													) : (
@@ -129,19 +167,23 @@ export const MusicStep: React.FC<MusicStepProps> = ({ form }) => {
 													)}
 												</div>
 												<div className="flex-grow relative z-10">
-													<span className="font-semibold">{music.name}</span>
+													<span className="font-semibold">{m.name}</span>
 													<span className="text-sm text-muted-foreground block">
-														{music.description}
+														{m.description}
 													</span>
 												</div>
 												<div className="flex flex-col items-end relative z-10">
 													<span className="text-sm text-muted-foreground">
-														{playing === music.id
-															? `${formatTime(Math.floor((progress[music.id] * music.duration) / 100))} / ${formatTime(music.duration)}`
-															: formatTime(music.duration)}
+														{playing === m.id.toString()
+															? durations[m.id.toString()]
+																? `${formatTime(Math.floor(audioRef.current?.currentTime || 0))} / ${formatTime(durations[m.id.toString()])}`
+																: 'Loading...'
+															: durations[m.id.toString()]
+																? formatTime(durations[m.id.toString()])
+																: '0:00'}
 													</span>
 												</div>
-												{music.audio && <audio id={`audio-${music.id}`} src={music.audio} />}
+												{m.audioUrl && <audio id={`audio-${m.id.toString()}`} src={m.audioUrl} />}
 											</Label>
 										))}
 									</RadioGroup>
@@ -159,13 +201,19 @@ export const MusicStep: React.FC<MusicStepProps> = ({ form }) => {
 							<FormItem>
 								<FormLabel>Music Volume</FormLabel>
 								<FormControl>
-									<Slider
-										value={[field.value]}
-										onValueChange={(value) => field.onChange(value[0])}
-										max={100}
-										step={1}
-										disabled={form.watch('music') === 'none'}
-									/>
+									<div className="flex items-center space-x-2">
+										<Slider
+											value={[field.value]}
+											onValueChange={(value) => field.onChange(value[0])}
+											max={100}
+											step={1}
+											disabled={form.watch('music') === 'none'}
+											className="flex-grow"
+										/>
+										<span className="text-sm text-muted-foreground w-10 text-right">
+											{field.value}%
+										</span>
+									</div>
 								</FormControl>
 								<FormMessage />
 							</FormItem>

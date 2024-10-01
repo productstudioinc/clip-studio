@@ -296,7 +296,7 @@ export const tiktokPostsRelations = relations(tiktokPosts, ({ one }) => ({
 export type SelectTemplates = typeof templates.$inferSelect;
 export type SelectBackgrounds = typeof backgrounds.$inferSelect;
 export type SelectBackgroundParts = typeof backgroundParts.$inferSelect;
-
+export type SelectMusic = typeof music.$inferSelect;
 export type SelectBackgroundWithParts = SelectBackgrounds & {
 	backgroundParts: SelectBackgroundParts[];
 };

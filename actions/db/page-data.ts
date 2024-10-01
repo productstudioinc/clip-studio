@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { templates } from '@/db/schema';
+import { music, templates } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { Logger } from 'next-axiom';
 import { unstable_cache } from 'next/cache';
@@ -22,6 +22,23 @@ const getCachedTemplates = unstable_cache(
 		}
 	},
 	['templates'],
+	{ revalidate: 86400 }
+);
+
+const getCachedMusic = unstable_cache(
+	async () => {
+		try {
+			const response = await db.select().from(music);
+			return response;
+		} catch (error) {
+			logger.error('Error fetching music', {
+				error: error instanceof Error ? error.message : String(error)
+			});
+			await logger.flush();
+			throw error;
+		}
+	},
+	['music'],
 	{ revalidate: 86400 }
 );
 
@@ -49,3 +66,5 @@ const getCachedBackgrounds = unstable_cache(
 export const getTemplates = getCachedTemplates;
 
 export const getBackgrounds = getCachedBackgrounds;
+
+export const getMusic = getCachedMusic;
