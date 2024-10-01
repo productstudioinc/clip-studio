@@ -1,18 +1,35 @@
+import { getUser } from '@/actions/auth/user';
 import { DISK, RAM, REGION, TIMEOUT } from '@/config.mjs';
+import { db } from '@/db';
+import { userUsage } from '@/db/schema';
 import { executeApi } from '@/helpers/api-response';
 import { ProgressRequest, ProgressResponse } from '@/types/schema';
+import { CREDIT_CONVERSIONS } from '@/utils/constants';
 import { AwsRegion, getRenderProgress, speculateFunctionName } from '@remotion/lambda/client';
+import crypto from 'crypto';
+import { eq, sql } from 'drizzle-orm';
 import { AxiomRequest } from 'next-axiom';
 
 export const POST = executeApi<ProgressResponse, typeof ProgressRequest>(
 	ProgressRequest,
 	async (req: AxiomRequest, body) => {
 		const logger = req.log;
+		const { user } = await getUser();
+		if (!user) {
+			throw new Error('You must be logged in to use this.');
+		}
+
+		// Decrypt the renderId
+		const decryptedData = decryptData(body.id, process.env.RENDER_ENCRYPTION_KEY!);
+		const [renderId, durationInFrames] = decryptedData.split(':');
+
 		logger.info('Initiating getRenderProgress', {
 			bucketName: body.bucketName,
-			renderId: body.id,
-			region: REGION
+			renderId: renderId,
+			region: REGION,
+			durationInFrames: durationInFrames
 		});
+
 		const renderProgress = await getRenderProgress({
 			bucketName: body.bucketName,
 			functionName: speculateFunctionName({
@@ -21,19 +38,29 @@ export const POST = executeApi<ProgressResponse, typeof ProgressRequest>(
 				timeoutInSeconds: TIMEOUT
 			}),
 			region: REGION as AwsRegion,
-			renderId: body.id,
+			renderId: renderId,
 			s3OutputProvider: {
 				endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
 				accessKeyId: process.env.CLOUDFLARE_ACCESS_KEY_ID!,
 				secretAccessKey: process.env.CLOUDFLARE_SECRET_ACCESS_KEY!
 			}
 		});
+
 		if (renderProgress.fatalErrorEncountered) {
 			logger.error('Fatal error encountered in render progress', {
 				error: renderProgress.errors[0].message,
 				renderId: body.id
 			});
 			await logger.flush();
+			const requiredCredits = Math.ceil(
+				Number(durationInFrames) / 30 / CREDIT_CONVERSIONS.EXPORT_SECONDS
+			);
+			await db
+				.update(userUsage)
+				.set({
+					creditsLeft: sql`credits_left + ${requiredCredits}`
+				})
+				.where(eq(userUsage.userId, user.id));
 			return {
 				type: 'error',
 				message: renderProgress.errors[0].message
@@ -68,3 +95,13 @@ export const POST = executeApi<ProgressResponse, typeof ProgressRequest>(
 		};
 	}
 );
+
+function decryptData(encryptedData: string, key: string): string {
+	const [ivHex, encryptedHex] = encryptedData.split(':');
+	const iv = Buffer.from(ivHex, 'hex');
+	const encrypted = Buffer.from(encryptedHex, 'hex');
+	const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key, 'hex'), iv);
+	let decrypted = decipher.update(encrypted);
+	decrypted = Buffer.concat([decrypted, decipher.final()]);
+	return decrypted.toString('utf8');
+}

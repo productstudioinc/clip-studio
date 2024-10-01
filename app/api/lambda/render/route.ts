@@ -41,7 +41,6 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 
 		const { user } = await getUser();
 		if (!user) {
-			logger.error('Unauthorized access attempt');
 			throw new Error('You must be logged in to use this.');
 		}
 
@@ -131,8 +130,26 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
 			bucketName: result.bucketName
 		});
 
+		// encrypt renderId with durationInFrames
+		const dataToEncrypt = `${result.renderId}:${body.inputProps.durationInFrames}`;
+		const encryptedData = encryptData(dataToEncrypt, process.env.RENDER_ENCRYPTION_KEY!);
+
+		const modifiedResult = {
+			...result,
+			renderId: encryptedData
+		};
+
 		await logger.flush();
 
-		return result;
+		return modifiedResult;
 	}
 );
+
+function encryptData(data: string, key: string): string {
+	const crypto = require('crypto');
+	const iv = crypto.randomBytes(16);
+	const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key, 'hex'), iv);
+	let encrypted = cipher.update(data, 'utf8', 'hex');
+	encrypted += cipher.final('hex');
+	return iv.toString('hex') + ':' + encrypted;
+}
