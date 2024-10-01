@@ -17,7 +17,9 @@ const PostHogPageView = dynamic(() => import('./_analytics/PostHogPageView'), {
 	ssr: false
 });
 
-export const metadata: Metadata = constructMetadata({});
+export const metadata: Metadata = constructMetadata({
+	title: 'Clip Studio | Create viral short-form videos with AI'
+});
 
 const monserrat = Montserrat({
 	subsets: ['latin'],
