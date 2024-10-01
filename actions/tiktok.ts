@@ -340,7 +340,8 @@ export const uploadTiktokPost = createServerAction()
 			disableStitch: z.boolean().default(false),
 			disableComments: z.boolean().default(false),
 			discloseVideoContent: z.boolean().default(false),
-			videoContentType: z.enum(['yourBrand', 'brandedContent']).optional()
+			videoContentType: z.enum(['yourBrand', 'brandedContent']).optional(),
+			isAiGenerated: z.boolean().default(false)
 		})
 	)
 	.handler(async ({ input }) => {
@@ -361,7 +362,8 @@ export const uploadTiktokPost = createServerAction()
 				disable_comment: input.disableComments,
 				video_cover_timestamp_ms: input.videoCoverTimestampMs,
 				brand_organic_toggle: input.videoContentType === 'yourBrand' ? true : false,
-				brand_content_toggle: input.videoContentType === 'brandedContent' ? true : false
+				brand_content_toggle: input.videoContentType === 'brandedContent' ? true : false,
+				is_aigc: input.isAiGenerated
 			},
 			source_info: {
 				source: 'PULL_FROM_URL',

@@ -54,6 +54,7 @@ export function TikTokExportDialog({
 	const [videoContentType, setVideoContentType] = useState<
 		'yourBrand' | 'brandedContent' | undefined
 	>(undefined);
+	const [isAiGenerated, setIsAiGenerated] = useState(false);
 	const [isUploading, setIsUploading] = useState(false);
 
 	const handleupload = async () => {
@@ -83,7 +84,8 @@ export function TikTokExportDialog({
 							disableDuet,
 							disableStitch,
 							discloseVideoContent,
-							videoContentType
+							videoContentType,
+							isAiGenerated
 						});
 						if (error) throw error;
 						return data;
@@ -110,7 +112,7 @@ export function TikTokExportDialog({
 				<Button
 					variant="outline"
 					className="w-full h-14 space-x-4 text-md disabled:opacity-90"
-					disabled={disabled}
+					disabled={!disabled}
 				>
 					<TikTokIcon className="mr-2 h-8 w-8 dark:invert" />
 					Export to TikTok
@@ -216,6 +218,14 @@ export function TikTokExportDialog({
 										id="disclose-video-content"
 										checked={discloseVideoContent}
 										onCheckedChange={setDiscloseVideoContent}
+									/>
+								</div>
+								<div className="flex items-center justify-between">
+									<Label htmlFor="is-ai-generated">Label as AI Generated</Label>
+									<Switch
+										id="is-ai-generated"
+										checked={isAiGenerated}
+										onCheckedChange={setIsAiGenerated}
 									/>
 								</div>
 								{discloseVideoContent && (

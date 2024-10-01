@@ -22,6 +22,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { CaptionStyleStep } from '../form/caption-style-step';
+import { MusicStep } from '../form/music-step';
 
 interface RedditFormProps {
 	voices: ElevenlabsVoice[];
@@ -60,7 +61,7 @@ export const RedditForm: React.FC<RedditFormProps> = ({
 					<div className="w-full lg:w-3/5 space-y-6">
 						<RedditUrlStep form={form} />
 						<VoiceStep form={form} voices={voices} />
-						{/* <MusicStep form={form} music={music} /> */}
+						<MusicStep form={form} music={music} />
 						<BackgroundSelectStep form={form} backgrounds={backgrounds} />
 						<CaptionStyleStep form={form} />
 						<AspectRatioStep form={form} />
