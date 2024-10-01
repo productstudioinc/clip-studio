@@ -5,10 +5,9 @@ import { Slider } from '@/components/ui/slider';
 import { useState } from 'react';
 
 export function CreditCalculator() {
-	const [credits, setCredits] = useState<number>(0);
+	const [credits, setCredits] = useState<number>(500);
 	const maxCredits = 2000;
 	const creditStep = 50;
-
 	const videoSeconds = credits * 5;
 	const voiceoverCharacters = credits * 100;
 	const transcriptionSeconds = credits * 10;
@@ -18,10 +17,14 @@ export function CreditCalculator() {
 		const minutes = Math.ceil((totalSeconds % 3600) / 60);
 
 		if (hours > 0) {
-			return `${hours}h ${minutes}m`;
+			return `${formatNumber(hours)}h ${formatNumber(minutes)}m`;
 		} else {
-			return `${minutes}m`;
+			return `${formatNumber(minutes)}m`;
 		}
+	};
+
+	const formatNumber = (num: number) => {
+		return new Intl.NumberFormat(navigator.language).format(num);
 	};
 
 	return (
@@ -59,9 +62,10 @@ export function CreditCalculator() {
 				</div>
 				<div className="text-center space-y-2">
 					<p className="text-3xl font-bold text-primary">
-						{credits}
+						{formatNumber(credits)}
 						<span className="ml-2 text-2xl">credits</span>
 					</p>
+					<p className="text-sm text-muted-foreground">Approximately equivalent to:</p>
 				</div>
 				<div className="space-y-4">
 					<div className="flex justify-between items-center">
@@ -71,7 +75,7 @@ export function CreditCalculator() {
 					<div className="flex justify-between items-center">
 						<span className="text-sm font-medium">Voiceover:</span>
 						<span className="font-semibold">
-							{voiceoverCharacters}
+							{formatNumber(voiceoverCharacters)}
 							<span className="ml-1">characters</span>
 						</span>
 					</div>
