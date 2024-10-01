@@ -112,7 +112,7 @@ export function TikTokExportDialog({
 				<Button
 					variant="outline"
 					className="w-full h-14 space-x-4 text-md disabled:opacity-90"
-					disabled={!disabled}
+					disabled={disabled}
 				>
 					<TikTokIcon className="mr-2 h-8 w-8 dark:invert" />
 					Export to TikTok
