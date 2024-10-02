@@ -57,16 +57,16 @@ export const POST = withAxiom(async (req) => {
 				.where(eq(userUsage.userId, payload.customData.userId));
 			break;
 		case 'success':
-			req.log.info('Render success', {
-				renderId: payload.renderId,
-				outputUrl: payload.outputUrl,
-				timeToFinish: payload.timeToFinish,
-				estimatedCost: payload.costs.estimatedCost
-			});
 			const modifiedOutputUrl = payload.outputUrl?.replace(
 				'https://s3.us-east-1.amazonaws.com/videogen-renders',
 				'https://renders.clip.studio'
 			);
+			req.log.info('Render success', {
+				renderId: payload.renderId,
+				outputUrl: modifiedOutputUrl,
+				timeToFinish: payload.timeToFinish,
+				estimatedCost: payload.costs.estimatedCost
+			});
 			await db.insert(pastRenders).values({
 				userId: payload.customData?.userId as string,
 				templateName: payload.customData?.templateName as string,
