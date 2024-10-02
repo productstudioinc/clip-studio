@@ -55,10 +55,7 @@ export const TemplateSelect: React.FC<TemplateSelectProps> = ({ templates }) => 
 							</Label>
 						))}
 						<Link href="/feedback">
-							<Label
-								className="relative flex-shrink-0 flex flex-col items-center justify-center rounded-md border-2 border-dashed border-muted bg-popover hover:bg-accent hover:text-accent-foreground hover:cursor-pointer transition-all duration-300 ease-in-out"
-								style={{ width: '200px', height: '352px' }}
-							>
+							<Label className="relative flex-shrink-0 flex flex-col items-center justify-center rounded-md border-2 border-dashed border-muted bg-popover hover:bg-accent hover:text-accent-foreground hover:cursor-pointer transition-all duration-300 ease-in-out w-[200px] h-full">
 								<span className="text-center">Request a Template</span>
 							</Label>
 						</Link>
