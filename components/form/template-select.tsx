@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useTemplateStore } from '@/stores/templatestore';
+import Link from 'next/link';
 import React from 'react';
 
 type TemplateSelectProps = {
@@ -37,7 +38,7 @@ export const TemplateSelect: React.FC<TemplateSelectProps> = ({ templates }) => 
 						{templates.map((template) => (
 							<Label
 								key={template.id.toString()}
-								className="relative flex-shrink-0 flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary hover:cursor-pointer"
+								className="relative flex-shrink-0 flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary hover:cursor-pointer transition-all duration-300 ease-in-out"
 							>
 								<RadioGroupItem value={template.value} className="sr-only" />
 								<video
@@ -53,6 +54,14 @@ export const TemplateSelect: React.FC<TemplateSelectProps> = ({ templates }) => 
 								<span className="w-full p-2 text-center">{template.name}</span>
 							</Label>
 						))}
+						<Link href="/feedback">
+							<Label
+								className="relative flex-shrink-0 flex flex-col items-center justify-center rounded-md border-2 border-dashed border-muted bg-popover hover:bg-accent hover:text-accent-foreground hover:cursor-pointer transition-all duration-300 ease-in-out"
+								style={{ width: '200px', height: '352px' }}
+							>
+								<span className="text-center">Request a Template</span>
+							</Label>
+						</Link>
 					</RadioGroup>
 					<ScrollBar orientation="horizontal" />
 				</ScrollArea>
