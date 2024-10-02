@@ -28,7 +28,8 @@ async function getRedditAccessToken() {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
-			Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`
+			Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
+			'User-Agent': 'ClipStudio/1.0.0'
 		},
 		body: 'grant_type=client_credentials'
 	});
@@ -73,7 +74,7 @@ export const getRedditInfo = createServerAction()
 			const response = await fetch(apiUrl, {
 				headers: {
 					Authorization: `Bearer ${accessToken}`,
-					'User-Agent': 'YourAppName/1.0.0'
+					'User-Agent': 'ClipStudio/1.0.0'
 				}
 			});
 
