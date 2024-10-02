@@ -41,6 +41,7 @@ export const POST = withAxiom(async (req) => {
 	switch (payload.type) {
 		case 'error':
 			req.log.error('Render error', {
+				userEmail: payload.customData?.userEmail as string,
 				renderId: payload.renderId,
 				errors: payload.errors
 			});
@@ -63,6 +64,7 @@ export const POST = withAxiom(async (req) => {
 			);
 			req.log.info('Render success', {
 				renderId: payload.renderId,
+				userEmail: payload.customData?.userEmail as string,
 				outputUrl: modifiedOutputUrl,
 				timeToFinish: payload.timeToFinish,
 				estimatedCost: payload.costs.estimatedCost
