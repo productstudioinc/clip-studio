@@ -10,7 +10,6 @@ import { UserAccountMenu } from '@/components/user-account-menu';
 import { cn } from '@/lib/utils';
 import { User } from '@supabase/supabase-js';
 import {
-	DollarSignIcon,
 	FilmIcon,
 	LogInIcon,
 	MessageSquareIcon,
@@ -99,7 +98,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) =
 					<UpgradeCard />
 				)}
 			</div>
-			<div className="px-2 lg:px-4">
+			{/* <div className="px-2 lg:px-4">
 				<Link
 					href="/affiliate"
 					className={cn(buttonVariants({ variant: 'default' }), 'w-full gap-2 rounded-md')}
@@ -107,7 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, subscription, usage }) =
 					<DollarSignIcon className="h-4 w-4 flex-shrink-0" />
 					<span>Earn 20% per referral</span>
 				</Link>
-			</div>
+			</div> */}
 
 			<div className="px-2 lg:px-4">
 				<Link
