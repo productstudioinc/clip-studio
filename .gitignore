@@ -39,7 +39,7 @@ next-env.d.ts
 .content-collections
 
 # python
-/modal/__pycache__
+/modal/**/__pycache__
 .venv
 
 codebase.md
