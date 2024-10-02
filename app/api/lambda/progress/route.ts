@@ -63,7 +63,7 @@ export const POST = executeApi<ProgressResponse, typeof ProgressRequest>(
 				.where(eq(userUsage.userId, user.id));
 			return {
 				type: 'error',
-				message: renderProgress.errors[0].message
+				message: `Your render failed and your credits have been refunded. Please try again or clear your template settings if this error persists.`
 			};
 		}
 		if (renderProgress.done) {
