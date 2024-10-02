@@ -2,6 +2,7 @@
 
 import Hero from '@/components/hero';
 import { Icons } from '@/components/icons';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { useEffect, useState } from 'react';
@@ -28,6 +29,9 @@ export default function HeroWrapper() {
 					<span>Clip Studio</span>
 				</Button>
 			</DialogTrigger>
+			<Badge variant="secondary" className="ml-2">
+				Beta
+			</Badge>
 			<DialogContent>
 				<Hero />
 			</DialogContent>
