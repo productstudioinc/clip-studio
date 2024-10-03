@@ -1,4 +1,4 @@
-import { unstable_cache } from 'next/cache'
+import { revalidateTag, unstable_cache } from 'next/cache'
 import { db } from '@/db'
 import { music, templates } from '@/db/schema'
 import { eq } from 'drizzle-orm'
@@ -71,3 +71,5 @@ export const getTemplates = getCachedTemplates
 export const getBackgrounds = getCachedBackgrounds
 
 export const getMusic = getCachedMusic
+
+export const revalidateCache = (tag: string) => revalidateTag(tag)

@@ -7,6 +7,7 @@ import {
   ClipsVideoSchema,
   RedditVideoSchema,
   SplitScreenVideoSchema,
+  TextMessageVideoSchema,
   TwitterVideoSchema,
   useTemplateStore,
   VIDEO_FPS,
@@ -15,20 +16,37 @@ import {
 } from '../stores/templatestore'
 import { RedditComposition } from './Reddit/Composition'
 import { SplitScreenComposition } from './SplitScreen/Composition'
+import { TextMessageComposition } from './TextMessage/Composition'
 import { TwitterThreadComposition } from './TwitterThread/Composition'
 
 export const RemotionRoot: React.FC = () => {
-  const { splitScreenState, redditState, twitterThreadState, clipsState } =
-    useTemplateStore((state) => ({
-      selectedTemplate: state.selectedTemplate,
-      splitScreenState: state.splitScreenState,
-      redditState: state.redditState,
-      twitterThreadState: state.twitterThreadState,
-      clipsState: state.clipsState
-    }))
+  const {
+    splitScreenState,
+    redditState,
+    twitterThreadState,
+    clipsState,
+    textMessageState
+  } = useTemplateStore((state) => ({
+    selectedTemplate: state.selectedTemplate,
+    splitScreenState: state.splitScreenState,
+    redditState: state.redditState,
+    twitterThreadState: state.twitterThreadState,
+    clipsState: state.clipsState,
+    textMessageState: state.textMessageState
+  }))
 
   return (
     <>
+      <Composition
+        id="TextMessage"
+        component={TextMessageComposition}
+        durationInFrames={textMessageState.durationInFrames}
+        fps={VIDEO_FPS}
+        width={VIDEO_WIDTH}
+        height={VIDEO_HEIGHT}
+        schema={TextMessageVideoSchema}
+        defaultProps={textMessageState as any}
+      />
       <Composition
         id="SplitScreen"
         component={SplitScreenComposition}

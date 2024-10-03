@@ -263,11 +263,46 @@ export const TemplateSchema = z.enum([
 ])
 export type TemplateProps = z.infer<typeof TemplateSchema>
 
+export const TextMessageVideoSchema = BaseVideoSchema.extend({
+  sender: z.object({
+    name: z.string(),
+    image: z.string().optional(),
+    voiceId: z.string().optional()
+  }),
+  receiver: z.object({
+    name: z.string(),
+    image: z.string().optional(),
+    voiceId: z.string().optional()
+  }),
+  messages: z.array(
+    z.object({
+      sender: z.enum(['sender', 'receiver']),
+      content: z.object({
+        type: z.enum([
+          'text',
+          'image'
+          // 'emoji', 'sticker', 'audio', 'video'
+        ]),
+        value: z.union([
+          z.string(),
+          z.object({ url: z.string() }),
+          z.object({ duration: z.number() })
+        ])
+      }),
+      reactions: z.array(z.string()).optional(),
+      replyTo: z.number().optional() // Index of the message being replied to
+    })
+  ),
+  style: z.enum(['imessage', 'whatsapp']),
+  mode: z.enum(['dark', 'light'])
+})
+
 export const VideoSchema = z.union([
   SplitScreenVideoSchema,
   RedditVideoSchema,
   TwitterVideoSchema,
-  ClipsVideoSchema
+  ClipsVideoSchema,
+  TextMessageVideoSchema
 ])
 
 export type ClipsVideoProps = z.infer<typeof ClipsVideoSchema>
@@ -283,26 +318,7 @@ export type BaseVideoProps = z.infer<typeof BaseVideoSchema>
 export type RedditVideoProps = z.infer<typeof RedditVideoSchema>
 export type TwitterVideoProps = z.infer<typeof TwitterVideoSchema>
 export type SplitScreenVideoProps = z.infer<typeof SplitScreenVideoSchema>
-
-export const defaultClipsProps: ClipsVideoProps = {
-  videoUrl: 'https://assets.clip.studio/clips_sample.webm',
-  type: 'cloud',
-  language: Language.English,
-  aspectRatio: AspectRatio.Vertical,
-  width: VIDEO_WIDTH,
-  height: VIDEO_HEIGHT,
-  fps: VIDEO_FPS,
-  durationInFrames: DEFAULT_DURATION_IN_FRAMES,
-  captionStyle: CaptionStyle.Default,
-  titlePosition: 20,
-  subtitlePosition: 80,
-  videoPosition: 50,
-  videoScale: 100,
-  title: 'Jasontheween hits 100k subscribers',
-  subtitle: 'Congrats Jason!',
-  voiceVolume: 70,
-  musicVolume: 30
-}
+export type TextMessageVideoProps = z.infer<typeof TextMessageVideoSchema>
 
 // Default Props
 const defaultMinecraftBackgrounds = [
@@ -375,6 +391,85 @@ export const defaultTwitterThreadProps: TwitterVideoProps = {
   captionStyle: CaptionStyle.Default
 }
 
+export const defaultTextMessageProps: TextMessageVideoProps = {
+  sender: {
+    name: 'me',
+    image: '',
+    voiceId: 'sender_voice_id'
+  },
+  receiver: {
+    name: 'Jessica',
+    image: '',
+    voiceId: 'receiver_voice_id'
+  },
+  messages: [
+    {
+      sender: 'sender',
+      content: {
+        type: 'text',
+        value:
+          "OMG! You won't believe who I just caught sneaking out of the principal's office! 😱🔥"
+      }
+    },
+    {
+      sender: 'receiver',
+      content: {
+        type: 'text',
+        value: 'No way! Who?? Spill the tea! ☕️👀'
+      }
+    },
+    {
+      sender: 'sender',
+      content: {
+        type: 'text',
+        value:
+          'Promise not to tell? It was... the head cheerleader with the math nerd! 🤓📚💋'
+      }
+    },
+    {
+      sender: 'receiver',
+      content: {
+        type: 'text',
+        value:
+          'WHAT?! Ashley and Kevin?! My mind is blown! 🤯 How did THAT happen?!'
+      }
+    }
+  ],
+  style: 'imessage',
+  mode: 'dark',
+  language: Language.English,
+  voiceVolume: 70,
+  musicVolume: 30,
+  aspectRatio: AspectRatio.Vertical,
+  width: VIDEO_WIDTH,
+  height: VIDEO_HEIGHT,
+  fps: VIDEO_FPS,
+  durationInFrames: 30 * 30,
+  backgroundTheme: BackgroundTheme.Minecraft,
+  backgroundUrls: defaultMinecraftBackgrounds,
+  captionStyle: CaptionStyle.Default
+}
+
+export const defaultClipsProps: ClipsVideoProps = {
+  videoUrl: 'https://assets.clip.studio/clips_sample.webm',
+  type: 'cloud',
+  language: Language.English,
+  aspectRatio: AspectRatio.Vertical,
+  width: VIDEO_WIDTH,
+  height: VIDEO_HEIGHT,
+  fps: VIDEO_FPS,
+  durationInFrames: DEFAULT_DURATION_IN_FRAMES,
+  captionStyle: CaptionStyle.Default,
+  titlePosition: 20,
+  subtitlePosition: 80,
+  videoPosition: 50,
+  videoScale: 100,
+  title: 'Jasontheween hits 100k subscribers',
+  subtitle: 'Congrats Jason!',
+  voiceVolume: 70,
+  musicVolume: 30
+}
+
 // Zustand Store
 type State = {
   selectedTemplate: TemplateProps
@@ -385,6 +480,8 @@ type State = {
   setRedditState: (state: Partial<RedditVideoProps>) => void
   twitterThreadState: TwitterVideoProps
   setTwitterThreadState: (state: Partial<TwitterVideoProps>) => void
+  textMessageState: TextMessageVideoProps
+  setTextMessageState: (state: Partial<TextMessageVideoProps>) => void
   durationInFrames: number
   setDurationInFrames: (length: number) => void
   backgroundTheme: BackgroundTheme
@@ -417,6 +514,11 @@ export const useTemplateStore = create<State>()(
         set((prevState) => ({
           twitterThreadState: { ...prevState.twitterThreadState, ...state }
         })),
+      textMessageState: defaultTextMessageProps,
+      setTextMessageState: (state) =>
+        set((prevState) => ({
+          textMessageState: { ...prevState.textMessageState, ...state }
+        })),
       durationInFrames: DEFAULT_DURATION_IN_FRAMES,
       setDurationInFrames: (length) =>
         set((state) => ({
@@ -430,7 +532,11 @@ export const useTemplateStore = create<State>()(
             ...state.twitterThreadState,
             durationInFrames: length
           },
-          clipsState: { ...state.clipsState, durationInFrames: length }
+          clipsState: { ...state.clipsState, durationInFrames: length },
+          textMessageState: {
+            ...state.textMessageState,
+            durationInFrames: length
+          }
         })),
       backgroundTheme: BackgroundTheme.Minecraft,
       setBackgroundTheme: (theme) =>
@@ -445,7 +551,11 @@ export const useTemplateStore = create<State>()(
             ...state.twitterThreadState,
             backgroundTheme: theme
           },
-          clipsState: { ...state.clipsState, backgroundTheme: theme }
+          clipsState: { ...state.clipsState, backgroundTheme: theme },
+          textMessageState: {
+            ...state.textMessageState,
+            backgroundTheme: theme
+          }
         })),
       backgroundUrls: defaultMinecraftBackgrounds,
       setBackgroundUrls: (urls) =>
@@ -457,7 +567,8 @@ export const useTemplateStore = create<State>()(
             ...state.twitterThreadState,
             backgroundUrls: urls
           },
-          clipsState: { ...state.clipsState, backgroundUrls: urls }
+          clipsState: { ...state.clipsState, backgroundUrls: urls },
+          textMessageState: { ...state.textMessageState, backgroundUrls: urls }
         })),
       captionStyle: CaptionStyle.Default,
       setCaptionStyle: (style) =>
@@ -469,7 +580,8 @@ export const useTemplateStore = create<State>()(
             ...state.twitterThreadState,
             captionStyle: style
           },
-          clipsState: { ...state.clipsState, captionStyle: style }
+          clipsState: { ...state.clipsState, captionStyle: style },
+          textMessageState: { ...state.textMessageState, captionStyle: style }
         })),
       clipsState: defaultClipsProps,
       setClipsState: (state) =>
@@ -486,6 +598,7 @@ export const useTemplateStore = create<State>()(
         redditState: state.redditState,
         twitterThreadState: state.twitterThreadState,
         clipsState: state.clipsState,
+        textMessageState: state.textMessageState,
         durationInFrames: state.durationInFrames,
         captionStyle: state.captionStyle
       })

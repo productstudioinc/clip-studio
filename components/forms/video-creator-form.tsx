@@ -15,6 +15,7 @@ import { TemplateSchema, useTemplateStore } from '@/stores/templatestore'
 import { TemplateSelect } from '@/components/form/template-select'
 import { RedditForm } from '@/components/forms/reddit-form'
 import { SplitScreenForm } from '@/components/forms/split-screen-form'
+import { TextMessageForm } from '@/components/forms/text-message-form'
 
 import { ClipsForm } from './clips-form'
 
@@ -50,6 +51,8 @@ export default function VideoCreatorForm({
         return <RedditForm {...props} />
       case TemplateSchema.Enum.SplitScreen:
         return <SplitScreenForm {...props} />
+      case TemplateSchema.Enum.TextMessage:
+        return <TextMessageForm {...props} />
       // case TemplateSchema.Enum.TwitterThread:
       //   return <TwitterForm onSubmit={handleSubmit} />;
       case TemplateSchema.Enum.Clips:
