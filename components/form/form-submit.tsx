@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { useTemplateStore, VideoProps } from '@/stores/templatestore';
+import { CREDIT_CONVERSIONS } from '@/utils/constants';
 import { State, useRendering } from '@/utils/helpers/use-rendering';
 import { Loader2 } from 'lucide-react';
 import React, { useEffect } from 'react';
@@ -114,6 +115,9 @@ export function FormSubmit({ youtubeChannels, tiktokAccounts, form }: FormSubmit
 				>
 					{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 					Generate Video
+					<span className="text-muted-foreground ml-2">
+						{` ~ ${Math.ceil(inputProps.durationInFrames / 30 / CREDIT_CONVERSIONS.EXPORT_SECONDS)} credits`}
+					</span>
 				</Button>
 				<div className="flex flex-col space-y-4">
 					{state.status === 'rendering' && (
