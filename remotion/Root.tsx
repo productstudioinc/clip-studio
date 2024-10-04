@@ -1,5 +1,4 @@
 import React from 'react'
-import { ClipsComposition } from '@/remotion/Clips/Composition'
 import { getVideoMetadata } from '@remotion/media-utils'
 import { Composition } from 'remotion'
 
@@ -13,6 +12,8 @@ import {
   VIDEO_HEIGHT,
   VIDEO_WIDTH
 } from '../stores/templatestore'
+// you cant use alias imports here for some reason
+import { ClipsComposition } from './Clips/Composition'
 import { RedditComposition } from './Reddit/Composition'
 import { SplitScreenComposition } from './SplitScreen/Composition'
 import { TwitterThreadComposition } from './TwitterThread/Composition'
@@ -79,6 +80,11 @@ export const RemotionRoot: React.FC = () => {
         height={VIDEO_HEIGHT}
         schema={ClipsVideoSchema}
         defaultProps={clipsState as any}
+        calculateMetadata={async ({ props }) => {
+          return {
+            durationInFrames: props.durationInFrames
+          }
+        }}
       />
     </>
   )
