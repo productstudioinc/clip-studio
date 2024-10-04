@@ -132,6 +132,13 @@ export const UploadStep: React.FC<UploadStepProps> = ({ form }) => {
                       onPlay={() => setIsPlaying(true)}
                       onPause={() => setIsPlaying(false)}
                     />
+                    {isUploading && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <div className="text-white text-lg font-semibold">
+                          Uploading video...
+                        </div>
+                      </div>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 opacity-0 hover:opacity-100 transition-opacity duration-300">
                       <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
                         <Button
