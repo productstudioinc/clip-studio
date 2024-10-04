@@ -1,13 +1,16 @@
 import React from 'react'
-import { AbsoluteFill, spring, useCurrentFrame, useVideoConfig } from 'remotion'
+import { spring, useCurrentFrame, useVideoConfig } from 'remotion'
 
+import { cn } from '../../lib/utils'
 import { CaptionStyle } from '../../stores/templatestore'
 import { Word } from './Word'
 
-const Subtitle: React.FC<{ text: string; captionStyle: CaptionStyle }> = ({
-  text,
-  captionStyle
-}) => {
+const Subtitle: React.FC<{
+  text: string
+  captionStyle: CaptionStyle
+  className?: string
+  style?: React.CSSProperties
+}> = ({ text, captionStyle, className, style }) => {
   const frame = useCurrentFrame()
   const { fps } = useVideoConfig()
 
@@ -21,24 +24,15 @@ const Subtitle: React.FC<{ text: string; captionStyle: CaptionStyle }> = ({
   })
 
   return (
-    <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
-      <AbsoluteFill>
-        <Word
-          stroke
-          enterProgress={enter}
-          text={text}
-          captionStyle={captionStyle}
-        />
-      </AbsoluteFill>
-      <AbsoluteFill>
-        <Word
-          enterProgress={enter}
-          text={text}
-          stroke={false}
-          captionStyle={captionStyle}
-        />
-      </AbsoluteFill>
-    </AbsoluteFill>
+    <div className={cn('w-full absolute', className)} style={style}>
+      <Word
+        stroke
+        enterProgress={enter}
+        text={text}
+        captionStyle={captionStyle}
+      />
+      <Word enterProgress={enter} text={text} captionStyle={captionStyle} />
+    </div>
   )
 }
 

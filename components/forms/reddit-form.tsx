@@ -79,22 +79,8 @@ export const RedditForm: React.FC<RedditFormProps> = ({
           </div>
 
           <div className="w-full lg:w-2/5">
-            <div className="sticky top-0 px-8 h-screen flex items-center justify-center p-4">
-              <div className="w-full max-w-md overflow-y-auto">
-                <VideoPreview form={form} />
-              </div>
-              {/* <Card>
-								<CardHeader>
-									<CardTitle>Additional Information</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<p className="text-sm text-muted-foreground">
-										This section can include more details about the selected options, tips for
-										creating better videos, or any other relevant information that might be helpful
-										for the user during the video creation process.
-									</p>
-								</CardContent>
-							</Card> */}
+            <div className="sticky top-8 flex items-center justify-center">
+              <VideoPreview form={form} />
             </div>
           </div>
         </div>

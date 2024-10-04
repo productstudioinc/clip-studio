@@ -16,6 +16,8 @@ import { TemplateSelect } from '@/components/form/template-select'
 import { RedditForm } from '@/components/forms/reddit-form'
 import { SplitScreenForm } from '@/components/forms/split-screen-form'
 
+import { ClipsForm } from './clips-form'
+
 interface VideoCreatorFormProps {
   voices: ElevenlabsVoice[]
   templates: SelectTemplates[]
@@ -50,6 +52,8 @@ export default function VideoCreatorForm({
         return <SplitScreenForm {...props} />
       // case TemplateSchema.Enum.TwitterThread:
       //   return <TwitterForm onSubmit={handleSubmit} />;
+      case TemplateSchema.Enum.Clips:
+        return <ClipsForm {...props} />
       default:
         return null
     }

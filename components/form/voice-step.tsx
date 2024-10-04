@@ -351,7 +351,7 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
                       value={[field.value]}
                       onValueChange={(value) => field.onChange(value[0])}
                       max={100}
-                      step={5}
+                      step={10}
                       className="flex-grow"
                     />
                     <span className="text-sm text-muted-foreground w-10 text-right">

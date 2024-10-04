@@ -151,7 +151,10 @@ export enum BackgroundTheme {
 
 export enum CaptionStyle {
   Default = 'default',
-  KomikaAxis = 'komikaAxis'
+  KomikaAxis = 'komikaAxis',
+  Futuristic = 'futuristic',
+  Handwritten = 'handwritten',
+  Montserrat = 'montserrat'
 }
 
 // Constants
@@ -197,8 +200,8 @@ const BaseVideoSchema = z.object({
   height: z.number().min(1).default(VIDEO_HEIGHT),
   fps: z.number().min(1).default(VIDEO_FPS),
   durationInFrames: z.number().min(1).default(DEFAULT_DURATION_IN_FRAMES),
-  backgroundTheme: z.nativeEnum(BackgroundTheme),
-  backgroundUrls: z.array(z.string()).default([]),
+  backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
+  backgroundUrls: z.array(z.string()).default([]).optional(),
   captionStyle: z.nativeEnum(CaptionStyle).default(CaptionStyle.Default)
 })
 
@@ -241,11 +244,39 @@ export const SplitScreenVideoSchema = BaseVideoSchema.extend({
   transcription: TranscriptionSchema
 })
 
+export const ClipsVideoSchema = BaseVideoSchema.extend({
+  videoUrl: z.string(),
+  type: z.enum(['blob', 'cloud']),
+  videoPosition: z.number().min(0).max(100).default(50),
+  titlePosition: z.number().min(0).max(100).default(30),
+  subtitlePosition: z.number().min(0).max(100).default(70),
+  videoScale: z.number().min(10).max(200).default(100),
+  title: z.string().optional(),
+  subtitle: z.string().optional()
+})
+
+export const TemplateSchema = z.enum([
+  'SplitScreen',
+  'Reddit',
+  'TwitterThread',
+  'Clips'
+])
+export type TemplateProps = z.infer<typeof TemplateSchema>
+
 export const VideoSchema = z.union([
   SplitScreenVideoSchema,
   RedditVideoSchema,
-  TwitterVideoSchema
+  TwitterVideoSchema,
+  ClipsVideoSchema
 ])
+
+export type ClipsVideoProps = z.infer<typeof ClipsVideoSchema>
+
+export type VideoProps =
+  | RedditVideoProps
+  | TwitterVideoProps
+  | SplitScreenVideoProps
+  | ClipsVideoProps
 
 // Types
 export type BaseVideoProps = z.infer<typeof BaseVideoSchema>
@@ -253,13 +284,25 @@ export type RedditVideoProps = z.infer<typeof RedditVideoSchema>
 export type TwitterVideoProps = z.infer<typeof TwitterVideoSchema>
 export type SplitScreenVideoProps = z.infer<typeof SplitScreenVideoSchema>
 
-export type VideoProps =
-  | RedditVideoProps
-  | TwitterVideoProps
-  | SplitScreenVideoProps
-
-export const TemplateSchema = z.enum(['SplitScreen', 'Reddit', 'TwitterThread'])
-export type TemplateProps = z.infer<typeof TemplateSchema>
+export const defaultClipsProps: ClipsVideoProps = {
+  videoUrl: 'https://assets.clip.studio/clips_sample.webm',
+  type: 'cloud',
+  language: Language.English,
+  aspectRatio: AspectRatio.Vertical,
+  width: VIDEO_WIDTH,
+  height: VIDEO_HEIGHT,
+  fps: VIDEO_FPS,
+  durationInFrames: DEFAULT_DURATION_IN_FRAMES,
+  captionStyle: CaptionStyle.Default,
+  titlePosition: 20,
+  subtitlePosition: 80,
+  videoPosition: 50,
+  videoScale: 100,
+  title: 'Jasontheween hits 100k subscribers',
+  subtitle: 'Congrats Jason!',
+  voiceVolume: 70,
+  musicVolume: 30
+}
 
 // Default Props
 const defaultMinecraftBackgrounds = [
@@ -350,6 +393,8 @@ type State = {
   setBackgroundUrls: (urls: string[]) => void
   captionStyle: CaptionStyle
   setCaptionStyle: (style: CaptionStyle) => void
+  clipsState: ClipsVideoProps
+  setClipsState: (state: Partial<ClipsVideoProps>) => void
 }
 
 export const useTemplateStore = create<State>()(
@@ -384,7 +429,8 @@ export const useTemplateStore = create<State>()(
           twitterThreadState: {
             ...state.twitterThreadState,
             durationInFrames: length
-          }
+          },
+          clipsState: { ...state.clipsState, durationInFrames: length }
         })),
       backgroundTheme: BackgroundTheme.Minecraft,
       setBackgroundTheme: (theme) =>
@@ -398,7 +444,8 @@ export const useTemplateStore = create<State>()(
           twitterThreadState: {
             ...state.twitterThreadState,
             backgroundTheme: theme
-          }
+          },
+          clipsState: { ...state.clipsState, backgroundTheme: theme }
         })),
       backgroundUrls: defaultMinecraftBackgrounds,
       setBackgroundUrls: (urls) =>
@@ -409,7 +456,8 @@ export const useTemplateStore = create<State>()(
           twitterThreadState: {
             ...state.twitterThreadState,
             backgroundUrls: urls
-          }
+          },
+          clipsState: { ...state.clipsState, backgroundUrls: urls }
         })),
       captionStyle: CaptionStyle.Default,
       setCaptionStyle: (style) =>
@@ -420,7 +468,13 @@ export const useTemplateStore = create<State>()(
           twitterThreadState: {
             ...state.twitterThreadState,
             captionStyle: style
-          }
+          },
+          clipsState: { ...state.clipsState, captionStyle: style }
+        })),
+      clipsState: defaultClipsProps,
+      setClipsState: (state) =>
+        set((prevState) => ({
+          clipsState: { ...prevState.clipsState, ...state }
         }))
     }),
     {
@@ -431,9 +485,8 @@ export const useTemplateStore = create<State>()(
         splitScreenState: state.splitScreenState,
         redditState: state.redditState,
         twitterThreadState: state.twitterThreadState,
+        clipsState: state.clipsState,
         durationInFrames: state.durationInFrames,
-        backgroundTheme: state.backgroundTheme,
-        backgroundUrls: state.backgroundUrls,
         captionStyle: state.captionStyle
       })
     }
