@@ -8,7 +8,6 @@ import { ElevenlabsVoice } from '@/actions/elevenlabs'
 import {
   SelectBackgroundWithParts,
   SelectMusic,
-<<<<<<< HEAD
   SelectTemplates
 } from '@/db/schema'
 import { TemplateSchema, useTemplateStore } from '@/stores/templatestore'
@@ -16,12 +15,8 @@ import { TemplateSchema, useTemplateStore } from '@/stores/templatestore'
 import { TemplateSelect } from '@/components/form/template-select'
 import { RedditForm } from '@/components/forms/reddit-form'
 import { SplitScreenForm } from '@/components/forms/split-screen-form'
-=======
-  SelectTemplates,
-} from "@/db/schema";
-import { TemplateSchema, useTemplateStore } from "@/stores/templatestore";
-import { ClipsForm } from "./clips-form";
->>>>>>> f15b841 (start)
+
+import { ClipsForm } from './clips-form'
 
 interface VideoCreatorFormProps {
   voices: ElevenlabsVoice[]
@@ -58,7 +53,7 @@ export default function VideoCreatorForm({
       // case TemplateSchema.Enum.TwitterThread:
       //   return <TwitterForm onSubmit={handleSubmit} />;
       case TemplateSchema.Enum.Clips:
-        return <ClipsForm {...props} />;
+        return <ClipsForm {...props} />
       default:
         return null
     }
