@@ -259,7 +259,8 @@ export const TemplateSchema = z.enum([
   'SplitScreen',
   'Reddit',
   'TwitterThread',
-  'Clips'
+  'Clips',
+  'TextMessage'
 ])
 export type TemplateProps = z.infer<typeof TemplateSchema>
 
