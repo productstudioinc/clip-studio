@@ -296,7 +296,7 @@ export const defaultClipsProps: ClipsVideoProps = {
   fps: VIDEO_FPS,
   durationInFrames: DEFAULT_DURATION_IN_FRAMES,
   captionStyle: CaptionStyle.Default,
-  titlePosition: 20,
+  titlePosition: 15,
   subtitlePosition: 80,
   videoPosition: 50,
   videoScale: 100,
