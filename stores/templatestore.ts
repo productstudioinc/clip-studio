@@ -306,20 +306,14 @@ export const VideoSchema = z.union([
   TextMessageVideoSchema
 ])
 
-export type ClipsVideoProps = z.infer<typeof ClipsVideoSchema>
-
-export type VideoProps =
-  | RedditVideoProps
-  | TwitterVideoProps
-  | SplitScreenVideoProps
-  | ClipsVideoProps
-
 // Types
+export type VideoProps = z.infer<typeof VideoSchema>
 export type BaseVideoProps = z.infer<typeof BaseVideoSchema>
 export type RedditVideoProps = z.infer<typeof RedditVideoSchema>
 export type TwitterVideoProps = z.infer<typeof TwitterVideoSchema>
 export type SplitScreenVideoProps = z.infer<typeof SplitScreenVideoSchema>
 export type TextMessageVideoProps = z.infer<typeof TextMessageVideoSchema>
+export type ClipsVideoProps = z.infer<typeof ClipsVideoSchema>
 
 // Default Props
 const defaultMinecraftBackgrounds = [
