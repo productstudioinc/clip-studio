@@ -235,7 +235,8 @@ export const RedditVideoSchema = BaseVideoSchema.extend({
 })
 
 export const TwitterVideoSchema = BaseVideoSchema.extend({
-  tweetId: z.string()
+  tweetId: z.string(),
+  backgroundUrls: z.array(z.string()).min(1)
 })
 
 export const SplitScreenVideoSchema = BaseVideoSchema.extend({
