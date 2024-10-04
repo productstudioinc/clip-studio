@@ -15,7 +15,9 @@ const robotoFont = loadRobotoFont('normal', {
 
 const permanentMarkerFont = loadPermanentMarkerFont()
 
-const montserratFont = loadMontserratFont()
+const montserratFont = loadMontserratFont('normal', {
+  weights: ['800']
+})
 
 const komikaFontFamily = 'Komika Axis'
 

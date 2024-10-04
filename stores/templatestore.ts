@@ -201,7 +201,7 @@ const BaseVideoSchema = z.object({
   fps: z.number().min(1).default(VIDEO_FPS),
   durationInFrames: z.number().min(1).default(DEFAULT_DURATION_IN_FRAMES),
   backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
-  backgroundUrls: z.array(z.string()).default([]).optional(),
+  backgroundUrls: z.array(z.string()).optional(),
   captionStyle: z.nativeEnum(CaptionStyle).default(CaptionStyle.Default)
 })
 
@@ -230,7 +230,8 @@ export const RedditVideoSchema = BaseVideoSchema.extend({
   comments: z.number(),
   voiceoverUrl: z.string(),
   voiceoverFrames: VoiceoverFramesSchema,
-  titleEnd: z.number()
+  titleEnd: z.number(),
+  backgroundUrls: z.array(z.string()).min(1)
 })
 
 export const TwitterVideoSchema = BaseVideoSchema.extend({
@@ -241,7 +242,8 @@ export const SplitScreenVideoSchema = BaseVideoSchema.extend({
   videoUrl: z.string(),
   type: z.enum(['blob', 'cloud']),
   transcriptionId: z.string(),
-  transcription: TranscriptionSchema
+  transcription: TranscriptionSchema,
+  backgroundUrls: z.array(z.string()).min(1)
 })
 
 export const ClipsVideoSchema = BaseVideoSchema.extend({
