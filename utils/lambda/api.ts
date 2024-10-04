@@ -1,41 +1,62 @@
-import { VideoProps, VideoSchema } from '@/stores/templatestore';
-import { ProgressRequest, ProgressResponse, RenderRequest } from '@/types/schema';
-import type { RenderMediaOnLambdaOutput } from '@remotion/lambda/client';
-import { z } from 'zod';
-import { ApiResponse } from '../helpers/api-response';
+import { VideoProps, VideoSchema } from '@/stores/templatestore'
+import type { RenderMediaOnLambdaOutput } from '@remotion/lambda/client'
+import { z } from 'zod'
 
-const makeRequest = async <Res>(endpoint: string, body: unknown): Promise<Res> => {
-	const result = await fetch(endpoint, {
-		method: 'post',
-		body: JSON.stringify(body),
-		headers: {
-			'content-type': 'application/json'
-		}
-	});
-	const json = (await result.json()) as ApiResponse<Res>;
-	if (json.type === 'error') {
-		throw new Error(json.message);
-	}
+import {
+  ProgressRequest,
+  ProgressResponse,
+  RenderRequest
+} from '@/types/schema'
 
-	return json.data;
-};
+import { ApiResponse } from '../helpers/api-response'
 
-export const renderVideo = async ({ id, inputProps }: { id: string; inputProps: VideoProps }) => {
-	VideoSchema.parse(inputProps);
+const makeRequest = async <Res>(
+  endpoint: string,
+  body: unknown
+): Promise<Res> => {
+  const result = await fetch(endpoint, {
+    method: 'post',
+    body: JSON.stringify(body),
+    headers: {
+      'content-type': 'application/json'
+    }
+  })
+  const json = (await result.json()) as ApiResponse<Res>
+  if (json.type === 'error') {
+    throw new Error(json.message)
+  }
 
-	const body: z.infer<typeof RenderRequest> = {
-		id,
-		inputProps
-	};
+  return json.data
+}
 
-	return makeRequest<RenderMediaOnLambdaOutput>('/api/lambda/render', body);
-};
+export const renderVideo = async ({
+  id,
+  inputProps
+}: {
+  id: string
+  inputProps: VideoProps
+}) => {
+  VideoSchema.parse(inputProps)
 
-export const getProgress = async ({ id, bucketName }: { id: string; bucketName: string }) => {
-	const body: z.infer<typeof ProgressRequest> = {
-		id,
-		bucketName
-	};
+  const body: z.infer<typeof RenderRequest> = {
+    id,
+    inputProps
+  }
 
-	return makeRequest<ProgressResponse>('/api/lambda/progress', body);
-};
+  return makeRequest<RenderMediaOnLambdaOutput>('/api/lambda/render', body)
+}
+
+export const getProgress = async ({
+  id,
+  bucketName
+}: {
+  id: string
+  bucketName: string
+}) => {
+  const body: z.infer<typeof ProgressRequest> = {
+    id,
+    bucketName
+  }
+
+  return makeRequest<ProgressResponse>('/api/lambda/progress', body)
+}

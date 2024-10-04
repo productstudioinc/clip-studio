@@ -1,5 +1,5 @@
-import FeedbackDialog from '@/components/feedback-dialog';
+import FeedbackDialog from '@/components/feedback-dialog'
 
 export default async function Page() {
-	return <FeedbackDialog />;
+  return <FeedbackDialog />
 }

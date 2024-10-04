@@ -33,12 +33,8 @@
           "name": "background_parts_background_id_backgrounds_id_fk",
           "tableFrom": "background_parts",
           "tableTo": "backgrounds",
-          "columnsFrom": [
-            "background_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["background_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -97,12 +93,8 @@
           "name": "customers_id_users_id_fk",
           "tableFrom": "customers",
           "tableTo": "users",
-          "columnsFrom": [
-            "id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -159,12 +151,8 @@
           "name": "feedback_user_id_users_id_fk",
           "tableFrom": "feedback",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -215,12 +203,8 @@
           "name": "past_renders_user_id_users_id_fk",
           "tableFrom": "past_renders",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -264,12 +248,8 @@
           "name": "plan_limits_product_id_products_id_fk",
           "tableFrom": "plan_limits",
           "tableTo": "products",
-          "columnsFrom": [
-            "product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["product_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -350,12 +330,8 @@
           "name": "prices_product_id_products_id_fk",
           "tableFrom": "prices",
           "tableTo": "products",
-          "columnsFrom": [
-            "product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["product_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -459,12 +435,8 @@
           "name": "social_media_posts_user_id_users_id_fk",
           "tableFrom": "social_media_posts",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -568,12 +540,8 @@
           "name": "subscriptions_user_id_users_id_fk",
           "tableFrom": "subscriptions",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -581,12 +549,8 @@
           "name": "subscriptions_price_id_prices_id_fk",
           "tableFrom": "subscriptions",
           "tableTo": "prices",
-          "columnsFrom": [
-            "price_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["price_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -677,12 +641,8 @@
           "name": "tiktok_accounts_user_id_users_id_fk",
           "tableFrom": "tiktok_accounts",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -781,12 +741,8 @@
           "name": "tiktok_posts_user_id_users_id_fk",
           "tableFrom": "tiktok_posts",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -794,12 +750,8 @@
           "name": "tiktok_posts_tiktok_account_id_tiktok_accounts_id_fk",
           "tableFrom": "tiktok_posts",
           "tableTo": "tiktok_accounts",
-          "columnsFrom": [
-            "tiktok_account_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tiktok_account_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -807,12 +759,8 @@
           "name": "tiktok_posts_parent_social_media_post_id_social_media_posts_id_fk",
           "tableFrom": "tiktok_posts",
           "tableTo": "social_media_posts",
-          "columnsFrom": [
-            "parent_social_media_post_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parent_social_media_post_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -869,12 +817,8 @@
           "name": "user_usage_user_id_users_id_fk",
           "tableFrom": "user_usage",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -882,12 +826,8 @@
           "name": "user_usage_subscription_id_subscriptions_id_fk",
           "tableFrom": "user_usage",
           "tableTo": "subscriptions",
-          "columnsFrom": [
-            "subscription_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["subscription_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -897,9 +837,7 @@
         "user_usage_user_id_unique": {
           "name": "user_usage_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id"
-          ]
+          "columns": ["user_id"]
         }
       }
     },
@@ -992,12 +930,8 @@
           "name": "youtube_channels_user_id_users_id_fk",
           "tableFrom": "youtube_channels",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1053,12 +987,8 @@
           "name": "youtube_posts_user_id_users_id_fk",
           "tableFrom": "youtube_posts",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1066,12 +996,8 @@
           "name": "youtube_posts_youtube_channel_id_youtube_channels_id_fk",
           "tableFrom": "youtube_posts",
           "tableTo": "youtube_channels",
-          "columnsFrom": [
-            "youtube_channel_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["youtube_channel_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1079,12 +1005,8 @@
           "name": "youtube_posts_parent_social_media_post_id_social_media_posts_id_fk",
           "tableFrom": "youtube_posts",
           "tableTo": "social_media_posts",
-          "columnsFrom": [
-            "parent_social_media_post_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parent_social_media_post_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1097,29 +1019,17 @@
     "public.plan_tier": {
       "name": "plan_tier",
       "schema": "public",
-      "values": [
-        "hobby",
-        "creator",
-        "pro"
-      ]
+      "values": ["hobby", "creator", "pro"]
     },
     "public.pricing_plan_interval": {
       "name": "pricing_plan_interval",
       "schema": "public",
-      "values": [
-        "day",
-        "week",
-        "month",
-        "year"
-      ]
+      "values": ["day", "week", "month", "year"]
     },
     "public.pricing_type": {
       "name": "pricing_type",
       "schema": "public",
-      "values": [
-        "one_time",
-        "recurring"
-      ]
+      "values": ["one_time", "recurring"]
     },
     "public.subscription_status": {
       "name": "subscription_status",

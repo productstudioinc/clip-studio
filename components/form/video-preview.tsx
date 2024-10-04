@@ -1,67 +1,71 @@
-'use client';
+'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import useTemplateConfig from '@/stores/templateConfig';
-import { VideoProps } from '@/stores/templatestore';
-import { Player } from '@remotion/player';
-import React from 'react';
-import { UseFormReturn } from 'react-hook-form';
-import { ResetSettings } from '../reset-settings';
+import React from 'react'
+import useTemplateConfig from '@/stores/templateConfig'
+import { VideoProps } from '@/stores/templatestore'
+import { Player } from '@remotion/player'
+import { UseFormReturn } from 'react-hook-form'
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
+import { ResetSettings } from '../reset-settings'
 
 interface VideoPreviewProps {
-	form: UseFormReturn<VideoProps>;
+  form: UseFormReturn<VideoProps>
 }
 
 export const VideoPreview: React.FC<VideoPreviewProps> = ({ form }) => {
-	const {
-		component: CompositionComponent,
-		state: inputProps,
-		durationInFrames
-	} = useTemplateConfig();
+  const {
+    component: CompositionComponent,
+    state: inputProps,
+    durationInFrames
+  } = useTemplateConfig()
 
-	const { watch } = form;
+  const { watch } = form
 
-	const width = watch('width');
-	const height = watch('height');
-	const fps = watch('fps');
+  const width = watch('width')
+  const height = watch('height')
+  const fps = watch('fps')
 
-	const aspectRatioClass = React.useMemo(() => {
-		const ratio = width / height;
-		if (ratio === 9 / 16) {
-			return 'max-w-[calc(100vh*9/16)] aspect-[9/16]';
-		} else if (ratio === 16 / 9) {
-			return 'max-w-[calc(100vh*16/9)] aspect-[16/9]';
-		} else if (ratio === 1) {
-			return 'max-w-[calc(100vh)] aspect-square';
-		} else {
-			return `aspect-[${width}/${height}]`;
-		}
-	}, [width, height]);
+  const aspectRatioClass = React.useMemo(() => {
+    const ratio = width / height
+    if (ratio === 9 / 16) {
+      return 'max-w-[calc(100vh*9/16)] aspect-[9/16]'
+    } else if (ratio === 16 / 9) {
+      return 'max-w-[calc(100vh*16/9)] aspect-[16/9]'
+    } else if (ratio === 1) {
+      return 'max-w-[calc(100vh)] aspect-square'
+    } else {
+      return `aspect-[${width}/${height}]`
+    }
+  }, [width, height])
 
-	return (
-		<Card>
-			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
-				<CardTitle className="text-md font-medium">Preview</CardTitle>
-				<ResetSettings />
-			</CardHeader>
-			<CardContent>
-				<div className={`w-full h-full flex items-center justify-center ${aspectRatioClass}`}>
-					<Player
-						component={CompositionComponent as any}
-						inputProps={inputProps}
-						durationInFrames={durationInFrames}
-						className="rounded-md"
-						style={{ width: '100%', height: '100%' }}
-						fps={fps}
-						compositionHeight={height}
-						compositionWidth={width}
-						controls
-						autoPlay
-						loop
-						initiallyMuted
-					/>
-				</div>
-				{/* <div className="mt-4">
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
+        <CardTitle className="text-md font-medium">Preview</CardTitle>
+        <ResetSettings />
+      </CardHeader>
+      <CardContent>
+        <div
+          className={`w-full h-full flex items-center justify-center ${aspectRatioClass}`}
+        >
+          <Player
+            component={CompositionComponent as any}
+            inputProps={inputProps}
+            durationInFrames={durationInFrames}
+            className="rounded-md"
+            style={{ width: '100%', height: '100%' }}
+            fps={fps}
+            compositionHeight={height}
+            compositionWidth={width}
+            controls
+            autoPlay
+            loop
+            initiallyMuted
+          />
+        </div>
+        {/* <div className="mt-4">
 					<table className="w-full">
 						<tbody>
 							{watch('language') && (
@@ -141,7 +145,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ form }) => {
 						</tbody>
 					</table>
 				</div> */}
-			</CardContent>
-		</Card>
-	);
-};
+      </CardContent>
+    </Card>
+  )
+}

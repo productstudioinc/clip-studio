@@ -1,84 +1,89 @@
-'use client';
+'use client'
 
-import { TikTokAccount, YoutubeChannel } from '@/actions/db/social-media-queries';
-import { ElevenlabsVoice } from '@/actions/elevenlabs';
-import { AspectRatioStep } from '@/components/form/aspect-ratio-step';
-import { BackgroundSelectStep } from '@/components/form/background-select-step';
-import { FormErrors } from '@/components/form/form-errors';
-import { FormSubmit } from '@/components/form/form-submit';
-import { RedditUrlStep } from '@/components/form/reddit-url-step';
-import { VideoPreview } from '@/components/form/video-preview';
-import { VoiceStep } from '@/components/form/voice-step';
-import { Form } from '@/components/ui/form';
-import { SelectBackgroundWithParts, SelectMusic } from '@/db/schema';
+import { useEffect } from 'react'
 import {
-	defaultRedditProps,
-	RedditVideoProps,
-	RedditVideoSchema,
-	useTemplateStore,
-	VideoProps
-} from '@/stores/templatestore';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { CaptionStyleStep } from '../form/caption-style-step';
-import { MusicStep } from '../form/music-step';
+  TikTokAccount,
+  YoutubeChannel
+} from '@/actions/db/social-media-queries'
+import { ElevenlabsVoice } from '@/actions/elevenlabs'
+import { SelectBackgroundWithParts, SelectMusic } from '@/db/schema'
+import {
+  defaultRedditProps,
+  RedditVideoProps,
+  RedditVideoSchema,
+  useTemplateStore,
+  VideoProps
+} from '@/stores/templatestore'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+
+import { Form } from '@/components/ui/form'
+import { AspectRatioStep } from '@/components/form/aspect-ratio-step'
+import { BackgroundSelectStep } from '@/components/form/background-select-step'
+import { FormErrors } from '@/components/form/form-errors'
+import { FormSubmit } from '@/components/form/form-submit'
+import { RedditUrlStep } from '@/components/form/reddit-url-step'
+import { VideoPreview } from '@/components/form/video-preview'
+import { VoiceStep } from '@/components/form/voice-step'
+
+import { CaptionStyleStep } from '../form/caption-style-step'
+import { MusicStep } from '../form/music-step'
 
 interface RedditFormProps {
-	voices: ElevenlabsVoice[];
-	backgrounds: SelectBackgroundWithParts[];
-	youtubeChannels: YoutubeChannel[];
-	tiktokAccounts: TikTokAccount[];
-	music: SelectMusic[];
+  voices: ElevenlabsVoice[]
+  backgrounds: SelectBackgroundWithParts[]
+  youtubeChannels: YoutubeChannel[]
+  tiktokAccounts: TikTokAccount[]
+  music: SelectMusic[]
 }
 
 export const RedditForm: React.FC<RedditFormProps> = ({
-	voices,
-	backgrounds,
-	youtubeChannels,
-	tiktokAccounts,
-	music
+  voices,
+  backgrounds,
+  youtubeChannels,
+  tiktokAccounts,
+  music
 }) => {
-	const form = useForm<VideoProps>({
-		resolver: zodResolver(RedditVideoSchema),
-		defaultValues: defaultRedditProps
-	});
+  const form = useForm<VideoProps>({
+    resolver: zodResolver(RedditVideoSchema),
+    defaultValues: defaultRedditProps
+  })
 
-	const setRedditState = useTemplateStore((state) => state.setRedditState);
+  const setRedditState = useTemplateStore((state) => state.setRedditState)
 
-	// Add this effect to update the store when form values change
-	useEffect(() => {
-		const subscription = form.watch((value) => {
-			setRedditState(value as Partial<RedditVideoProps>);
-		});
-		return () => subscription.unsubscribe();
-	}, [form, setRedditState]);
+  // Add this effect to update the store when form values change
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      setRedditState(value as Partial<RedditVideoProps>)
+    })
+    return () => subscription.unsubscribe()
+  }, [form, setRedditState])
 
-	return (
-		<Form {...form}>
-			<form className="w-full space-y-6">
-				<div className="flex flex-col lg:flex-row gap-8">
-					<div className="w-full lg:w-3/5 space-y-6">
-						<RedditUrlStep form={form} />
-						<VoiceStep form={form} voices={voices} />
-						<MusicStep form={form} music={music} />
-						<BackgroundSelectStep form={form} backgrounds={backgrounds} />
-						<CaptionStyleStep form={form} />
-						<AspectRatioStep form={form} />
-						<FormErrors form={form} />
-						<FormSubmit
-							form={form}
-							youtubeChannels={youtubeChannels}
-							tiktokAccounts={tiktokAccounts}
-						/>
-					</div>
+  return (
+    <Form {...form}>
+      <form className="w-full space-y-6">
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="w-full lg:w-3/5 space-y-6">
+            <RedditUrlStep form={form} />
+            <VoiceStep form={form} voices={voices} />
+            <MusicStep form={form} music={music} />
+            <BackgroundSelectStep form={form} backgrounds={backgrounds} />
+            <CaptionStyleStep form={form} />
+            <AspectRatioStep form={form} />
+            <FormErrors form={form} />
+            <FormSubmit
+              form={form}
+              youtubeChannels={youtubeChannels}
+              tiktokAccounts={tiktokAccounts}
+            />
+          </div>
 
-					<div className="w-full lg:w-2/5">
-						<div className="sticky top-0 px-8 h-screen flex items-center justify-center p-4">
-							<div className="w-full max-w-md overflow-y-auto">
-								<VideoPreview form={form} />
-							</div>
-							{/* <Card>
+          <div className="w-full lg:w-2/5">
+            <div className="sticky top-0 px-8 h-screen flex items-center justify-center p-4">
+              <div className="w-full max-w-md overflow-y-auto">
+                <VideoPreview form={form} />
+              </div>
+              {/* <Card>
 								<CardHeader>
 									<CardTitle>Additional Information</CardTitle>
 								</CardHeader>
@@ -90,10 +95,10 @@ export const RedditForm: React.FC<RedditFormProps> = ({
 									</p>
 								</CardContent>
 							</Card> */}
-						</div>
-					</div>
-				</div>
-			</form>
-		</Form>
-	);
-};
+            </div>
+          </div>
+        </div>
+      </form>
+    </Form>
+  )
+}
