@@ -299,7 +299,7 @@ export const defaultClipsProps: ClipsVideoProps = {
   videoPosition: 50,
   videoScale: 100,
   title: 'Jasontheween hits 100k subscribers',
-  subtitle: 'Congrats Jason!',
+  subtitle: '',
   voiceVolume: 70,
   musicVolume: 30
 }
