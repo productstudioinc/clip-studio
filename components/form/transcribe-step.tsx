@@ -1,77 +1,77 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { getTranscription, getTranscriptionId } from '@/actions/transcribe'
-import { VideoProps } from '@/stores/templatestore'
-import { Loader2 } from 'lucide-react'
-import { UseFormReturn } from 'react-hook-form'
-import { toast } from 'sonner'
-
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { getTranscription, getTranscriptionId } from "@/actions/transcribe";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { VideoProps } from "@/stores/templatestore";
+import { CREDIT_CONVERSIONS } from "@/utils/constants";
+import { Loader2 } from "lucide-react";
+import React, { useState } from "react";
+import { UseFormReturn } from "react-hook-form";
+import { toast } from "sonner";
 
 type TranscribeStepProps = {
-  form: UseFormReturn<VideoProps>
-}
+  form: UseFormReturn<VideoProps>;
+};
 
 export const TranscribeStep: React.FC<TranscribeStepProps> = ({ form }) => {
-  const [isTranscribing, setIsTranscribing] = useState(false)
+  const [isTranscribing, setIsTranscribing] = useState(false);
 
   const handleTranscriptionChange = (
     index: number,
     field: string,
     value: string
   ) => {
-    const newChunks = [...form.getValues('transcription.chunks')]
-    newChunks[index] = { ...newChunks[index], [field]: value }
-    form.setValue('transcription.chunks', newChunks)
-  }
+    const newChunks = [...form.getValues("transcription.chunks")];
+    newChunks[index] = { ...newChunks[index], [field]: value };
+    form.setValue("transcription.chunks", newChunks);
+  };
 
   const handleTranscribeClick = async () => {
-    setIsTranscribing(true)
-    const videoUrl = form.getValues('videoUrl')
+    setIsTranscribing(true);
+    const videoUrl = form.getValues("videoUrl");
 
     if (!videoUrl) {
-      toast.error('No video URL found. Please ensure a video is selected.')
-      setIsTranscribing(false)
-      return
+      toast.error("No video URL found. Please ensure a video is selected.");
+      setIsTranscribing(false);
+      return;
     }
 
     const [transcriptionData, transcriptionIdErr] =
-      await getTranscriptionId(videoUrl)
+      await getTranscriptionId(videoUrl);
 
     if (transcriptionIdErr) {
-      toast.error(transcriptionIdErr.message)
-      setIsTranscribing(false)
+      toast.error(transcriptionIdErr.message);
+      setIsTranscribing(false);
     } else {
-      toast.success('Extracted audio, generating transcription...')
-      form.setValue('transcriptionId', transcriptionData.callId)
+      toast.success("Extracted audio, generating transcription...");
+      form.setValue("transcriptionId", transcriptionData.callId);
 
       const checkTranscription = async () => {
         const [transcription, transcriptionErr] =
-          await getTranscription(transcriptionData)
+          await getTranscription(transcriptionData);
 
         if (transcriptionErr) {
-          toast.error(transcriptionErr.message)
-          setIsTranscribing(false)
-        } else if (transcription.status === 'processing') {
-          setTimeout(checkTranscription, 5000)
-        } else if (transcription.status === 'done') {
-          toast.success('Transcription generated!')
-          setIsTranscribing(false)
-          form.setValue('transcription', transcription.data as any)
+          toast.error(transcriptionErr.message);
+          setIsTranscribing(false);
+        } else if (transcription.status === "processing") {
+          setTimeout(checkTranscription, 5000);
+        } else if (transcription.status === "done") {
+          toast.success("Transcription generated!");
+          setIsTranscribing(false);
+          form.setValue("transcription", transcription.data as any);
         }
-      }
+      };
 
-      checkTranscription()
+      checkTranscription();
     }
-  }
+  };
 
   const renderTranscription = () => {
-    const chunks = form.getValues('transcription.chunks')
-    if (!chunks) return null
+    const chunks = form.getValues("transcription.chunks");
+    if (!chunks) return null;
 
     return (
       <ScrollArea className="h-[400px] w-full rounded-md border">
@@ -93,7 +93,7 @@ export const TranscribeStep: React.FC<TranscribeStepProps> = ({ form }) => {
                     onChange={(e) =>
                       handleTranscriptionChange(
                         index,
-                        'timestamp[0]',
+                        "timestamp[0]",
                         e.target.value
                       )
                     }
@@ -107,7 +107,7 @@ export const TranscribeStep: React.FC<TranscribeStepProps> = ({ form }) => {
                     onChange={(e) =>
                       handleTranscriptionChange(
                         index,
-                        'timestamp[1]',
+                        "timestamp[1]",
                         e.target.value
                       )
                     }
@@ -118,7 +118,7 @@ export const TranscribeStep: React.FC<TranscribeStepProps> = ({ form }) => {
                 <Input
                   value={chunk.text}
                   onChange={(e) =>
-                    handleTranscriptionChange(index, 'text', e.target.value)
+                    handleTranscriptionChange(index, "text", e.target.value)
                   }
                   className="w-full"
                   placeholder="Transcription text"
@@ -128,8 +128,8 @@ export const TranscribeStep: React.FC<TranscribeStepProps> = ({ form }) => {
           </ul>
         </div>
       </ScrollArea>
-    )
-  }
+    );
+  };
 
   return (
     <Card className="w-full max-w-3xl mx-auto">
@@ -139,14 +139,28 @@ export const TranscribeStep: React.FC<TranscribeStepProps> = ({ form }) => {
       <CardContent className="space-y-4">
         <Button
           className="w-full"
-          disabled={isTranscribing || !form.getValues('videoUrl')}
+          disabled={isTranscribing || !form.getValues("videoUrl")}
           onClick={handleTranscribeClick}
         >
           {isTranscribing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isTranscribing ? 'Transcribing...' : 'Start Transcription'}
+          {isTranscribing ? (
+            "Transcribing..."
+          ) : (
+            <>
+              Start Transcription{" "}
+              <span className="text-muted-foreground ml-1">
+                ~ {Math.ceil(
+                  form.getValues('durationInFrames') /
+                    30 /
+                    CREDIT_CONVERSIONS.TRANSCRIBE_SECONDS
+                )}{' '}
+                credits
+              </span>
+            </>
+          )}
         </Button>
         {renderTranscription()}
       </CardContent>
     </Card>
-  )
-}
+  );
+};
