@@ -295,7 +295,8 @@ export const TextMessageVideoSchema = BaseVideoSchema.extend({
     })
   ),
   style: z.enum(['imessage', 'whatsapp']),
-  mode: z.enum(['dark', 'light'])
+  mode: z.enum(['dark', 'light']),
+  backgroundUrls: z.array(z.string())
 })
 
 export const VideoSchema = z.union([

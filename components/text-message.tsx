@@ -73,15 +73,15 @@ const MessageBubble: React.FC<{
       : currentTheme.text
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-2`}>
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3`}>
       {((message.content.type === 'text' && message.content.value) ||
         (message.content.type === 'image' &&
           message.content.value &&
           typeof message.content.value === 'object' &&
           'url' in message.content.value)) && (
-        <div className="relative max-w-xs">
+        <div className="relative max-w-sm">
           <div
-            className={`rounded-[20px] py-2 px-4 relative z-10`}
+            className={`rounded-[24px] py-3 px-5 relative z-10 text-lg`}
             style={{ backgroundColor: bubbleColor, color: textColor }}
           >
             {message.content.type === 'text' &&
@@ -90,7 +90,7 @@ const MessageBubble: React.FC<{
             {message.content.type === 'image' &&
               typeof message.content.value === 'object' &&
               'url' in message.content.value && (
-                <img src={message.content.value.url} alt="Image" />
+                <img src={message.content.value.url} alt="Image" className="rounded-lg" />
               )}
           </div>
           <svg
@@ -108,7 +108,7 @@ const MessageBubble: React.FC<{
               fill={bubbleColor}
             />
             <path
-              d="M10.6315 43.9398L10.3209 44.1965L11.0271 43.8635L10.6315 43.9398ZM10.2748 31.4011V30.9982H9.87186V31.4011H10.2748ZM29.9274 31.4011H30.3303V30.9982H29.9274V31.4011ZM29.9274 59.8457V60.2487H30.3303V59.8457H29.9274ZM17.4041 55.3395L17.661 55.0291L17.4301 54.838L17.1807 55.0041L17.4041 55.3395ZM2 58.5528L1.84128 58.1825L0.610885 58.7098L1.92792 58.9492L2 58.5528ZM10.5334 43.8133L10.8592 43.5763L10.0945 42.5248L10.1306 43.8245L10.5334 43.8133ZM9.87186 40.1931C9.87186 41.5001 9.99694 42.7783 10.2359 44.0162L11.0271 43.8635C10.7979 42.6756 10.6777 41.4486 10.6777 40.1931H9.87186ZM9.87186 31.4011V40.1931H10.6777V31.4011H9.87186ZM29.9274 30.9982H10.2748V31.8041H29.9274V30.9982ZM30.3303 59.8457V31.4011H29.5245V59.8457H30.3303ZM17.1471 55.6499C20.6171 58.5221 25.0712 60.2487 29.9274 60.2487V59.4428C25.2656 59.4428 20.9918 57.7862 17.661 55.0291L17.1471 55.6499ZM1.92792 58.9492C8.62829 60.1675 14.1727 57.9764 17.6275 55.6748L17.1807 55.0041C13.8507 57.2226 8.51576 59.328 2.07208 58.1564L1.92792 58.9492ZM10.1306 43.8245C10.2568 48.3679 8.61843 51.7681 6.72782 54.1314C4.8293 56.5045 2.68461 57.821 1.84128 58.1825L2.15872 58.9232C3.1255 58.5088 5.3768 57.1101 7.35708 54.6348C9.34528 52.1495 11.0685 48.5679 10.9361 43.8021L10.1306 43.8245ZM10.9421 43.6832C10.9133 43.6483 10.8857 43.6127 10.8592 43.5763L10.2075 44.0503C10.2439 44.1003 10.2817 44.149 10.3209 44.1965L10.9421 43.6832Z"
+              d="M10.6315 43.9398L10.3209 44.1965L11.0271 43.8635L10.6315 43.9398ZM10.2748 31.4011V30.9982H9.87186V31.4011H10.2748ZM29.9274 31.4011H30.3303V30.9982H29.9274V31.4011H29.9274ZM29.9274 59.8457V60.2487H30.3303V59.8457H29.9274ZM17.4041 55.3395L17.661 55.0291L17.4301 54.838L17.1807 55.0041L17.4041 55.3395ZM2 58.5528L1.84128 58.1825L0.610885 58.7098L1.92792 58.9492L2 58.5528ZM10.5334 43.8133L10.8592 43.5763L10.0945 42.5248L10.1306 43.8245L10.5334 43.8133ZM9.87186 40.1931C9.87186 41.5001 9.99694 42.7783 10.2359 44.0162L11.0271 43.8635C10.7979 42.6756 10.6777 41.4486 10.6777 40.1931H9.87186ZM9.87186 31.4011V40.1931H10.6777V31.4011H9.87186ZM29.9274 30.9982H10.2748V31.8041H29.9274V30.9982ZM30.3303 59.8457V31.4011H29.5245V59.8457H30.3303ZM17.1471 55.6499C20.6171 58.5221 25.0712 60.2487 29.9274 60.2487V59.4428C25.2656 59.4428 20.9918 57.7862 17.661 55.0291L17.1471 55.6499ZM1.92792 58.9492C8.62829 60.1675 14.1727 57.9764 17.6275 55.6748L17.1807 55.0041C13.8507 57.2226 8.51576 59.328 2.07208 58.1564L1.92792 58.9492ZM10.1306 43.8245C10.2568 48.3679 8.61843 51.7681 6.72782 54.1314C4.8293 56.5045 2.68461 57.821 1.84128 58.1825L2.15872 58.9232C3.1255 58.5088 5.3768 57.1101 7.35708 54.6348C9.34528 52.1495 11.0685 48.5679 10.9361 43.8021L10.1306 43.8245ZM10.9421 43.6832C10.9133 43.6483 10.8857 43.6127 10.8592 43.5763L10.2075 44.0503C10.2439 44.1003 10.2817 44.149 10.3209 44.1965L10.9421 43.6832Z"
               fill={bubbleColor}
             />
           </svg>
@@ -129,25 +129,25 @@ function IMessage({
 
   return (
     <div
-      className={cn('w-full mx-auto h-fit flex flex-col rounded-lg', className)}
+      className={cn('w-full mx-auto h-fit flex flex-col rounded-xl', className)}
       style={{ backgroundColor: currentTheme.background }}
     >
       <header
         className={cn(
-          'p-4 pb-2 flex items-center flex-col w-full rounded-t-lg'
+          'p-5 pb-3 flex items-center flex-col w-full rounded-t-xl'
         )}
         style={{ backgroundColor: currentTheme.header }}
       >
         <div className="flex items-center w-full justify-between">
           <ChevronLeft
             style={{ color: currentTheme.blue }}
-            className="w-8 h-8"
+            className="w-10 h-10"
           />
           <div className="flex flex-col items-center">
             <div className="flex items-center">
               <div
                 className={cn(
-                  'rounded-full p-1 w-12 h-12 text-lg font-light flex items-center justify-center'
+                  'rounded-full p-1 w-16 h-16 text-2xl font-light flex items-center justify-center'
                 )}
                 style={{
                   backgroundColor: currentTheme.avatar,
@@ -170,20 +170,20 @@ function IMessage({
           </div>
           <Video
             style={{ color: currentTheme.blue }}
-            className="w-8 h-8 stroke-[1.5]"
+            className="w-10 h-10 stroke-[1.5]"
           />
         </div>
         <div
-          className="mt-1 font-light text-xs flex items-center"
+          className="mt-2 font-light text-base flex items-center"
           style={{ color: currentTheme.text }}
         >
           {receiver.name}{' '}
-          <ChevronRight className="w-4 h-4 stroke-px text-[#808080]" />
+          <ChevronRight className="w-5 h-5 stroke-px text-[#808080]" />
         </div>
       </header>
 
       <div
-        className="flex-grow overflow-y-auto p-4"
+        className="flex-grow overflow-y-auto p-5"
         role="log"
         aria-label="Message history"
       >
@@ -211,20 +211,20 @@ function WhatsAppMessage({
 
   return (
     <div
-      className={cn('w-full mx-auto h-fit flex flex-col rounded-lg', className)}
+      className={cn('w-full mx-auto h-fit flex flex-col rounded-xl', className)}
       style={{ backgroundColor: currentTheme.background }}
     >
       <header
-        className={cn('p-4 flex items-center w-full rounded-t-lg')}
+        className={cn('p-5 flex items-center w-full rounded-t-xl')}
         style={{ backgroundColor: currentTheme.header }}
       >
         <ChevronLeft
           style={{ color: currentTheme.blue }}
-          className="w-6 h-6 mr-2"
+          className="w-8 h-8 mr-3"
         />
         <div
           className={cn(
-            'rounded-full w-10 h-10 text-sm font-light flex items-center justify-center mr-2'
+            'rounded-full w-14 h-14 text-lg font-light flex items-center justify-center mr-3'
           )}
           style={{
             backgroundColor: currentTheme.avatar,
@@ -245,22 +245,22 @@ function WhatsAppMessage({
         </div>
         <div className="flex-grow">
           <div
-            className="font-semibold text-sm"
+            className="font-semibold text-lg"
             style={{ color: currentTheme.text }}
           >
             {receiver.name}
           </div>
-          <div className="text-xs text-[#898989]">online</div>
+          <div className="text-sm text-[#898989]">online</div>
         </div>
-        <Video style={{ color: currentTheme.blue }} className="w-6 h-6 ml-4" />
+        <Video style={{ color: currentTheme.blue }} className="w-8 h-8 ml-5" />
         <Phone
           style={{ color: currentTheme.blue }}
-          className="w-6 h-6 ml-4 mr-4"
+          className="w-8 h-8 ml-5 mr-2"
         />
       </header>
 
       <div
-        className="flex-grow overflow-y-auto p-4"
+        className="flex-grow overflow-y-auto p-5"
         role="log"
         aria-label="Message history"
       >
