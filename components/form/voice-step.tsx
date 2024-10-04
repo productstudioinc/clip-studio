@@ -40,6 +40,7 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Slider } from '@/components/ui/slider'
+import { CREDIT_CONVERSIONS } from '@/utils/constants'
 
 type VoiceStepProps = {
   form: UseFormReturn<VideoProps>
@@ -370,7 +371,7 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
             className="w-full"
           >
             {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-            Generate Voiceover
+            Generate Voiceover <span className="text-muted-foreground ml-1">~ {Math.ceil(form.getValues('text').length / CREDIT_CONVERSIONS.VOICEOVER_CHARACTERS)} credits</span>
           </Button>
         </div>
       </CardContent>
