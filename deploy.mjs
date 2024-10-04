@@ -37,7 +37,8 @@ const { functionName, alreadyExisted: functionAlreadyExisted } =
     createCloudWatchLogGroup: true,
     memorySizeInMb: RAM,
     region: REGION,
-    timeoutInSeconds: TIMEOUT
+    timeoutInSeconds: TIMEOUT,
+    runtimePreference: 'apple-emojis'
   })
 console.log(
   functionName,
