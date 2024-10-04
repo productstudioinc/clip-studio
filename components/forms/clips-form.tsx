@@ -1,36 +1,37 @@
-"use client";
+'use client'
 
+import { useEffect } from 'react'
 import {
   TikTokAccount,
-  YoutubeChannel,
-} from "@/actions/db/social-media-queries";
-import { ElevenlabsVoice } from "@/actions/elevenlabs";
-import { AspectRatioStep } from "@/components/form/aspect-ratio-step";
-import { CaptionStyleStep } from "@/components/form/caption-style-step";
-import { FormErrors } from "@/components/form/form-errors";
-import { FormSubmit } from "@/components/form/form-submit";
-import { TextStep } from "@/components/form/text-step";
-import { UploadStep } from "@/components/form/upload-step";
-import { VideoPreview } from "@/components/form/video-preview";
-import { Form } from "@/components/ui/form";
-import { SelectBackgroundWithParts, SelectMusic } from "@/db/schema";
+  YoutubeChannel
+} from '@/actions/db/social-media-queries'
+import { ElevenlabsVoice } from '@/actions/elevenlabs'
+import { SelectBackgroundWithParts, SelectMusic } from '@/db/schema'
 import {
   ClipsVideoProps,
   ClipsVideoSchema,
   defaultClipsProps,
   useTemplateStore,
-  VideoProps,
-} from "@/stores/templatestore";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+  VideoProps
+} from '@/stores/templatestore'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+
+import { Form } from '@/components/ui/form'
+import { AspectRatioStep } from '@/components/form/aspect-ratio-step'
+import { CaptionStyleStep } from '@/components/form/caption-style-step'
+import { FormErrors } from '@/components/form/form-errors'
+import { FormSubmit } from '@/components/form/form-submit'
+import { TextStep } from '@/components/form/text-step'
+import { UploadStep } from '@/components/form/upload-step'
+import { VideoPreview } from '@/components/form/video-preview'
 
 interface ClipsFormProps {
-  voices: ElevenlabsVoice[];
-  backgrounds: SelectBackgroundWithParts[];
-  youtubeChannels: YoutubeChannel[];
-  tiktokAccounts: TikTokAccount[];
-  music: SelectMusic[];
+  voices: ElevenlabsVoice[]
+  backgrounds: SelectBackgroundWithParts[]
+  youtubeChannels: YoutubeChannel[]
+  tiktokAccounts: TikTokAccount[]
+  music: SelectMusic[]
 }
 
 export const ClipsForm: React.FC<ClipsFormProps> = ({
@@ -38,22 +39,22 @@ export const ClipsForm: React.FC<ClipsFormProps> = ({
   backgrounds,
   youtubeChannels,
   tiktokAccounts,
-  music,
+  music
 }) => {
   const form = useForm<VideoProps>({
     resolver: zodResolver(ClipsVideoSchema),
-    defaultValues: defaultClipsProps,
-  });
+    defaultValues: defaultClipsProps
+  })
 
-  const setClipsState = useTemplateStore((state) => state.setClipsState);
+  const setClipsState = useTemplateStore((state) => state.setClipsState)
 
   // Add this effect to update the store when form values change
   useEffect(() => {
     const subscription = form.watch((value) => {
-      setClipsState(value as Partial<ClipsVideoProps>);
-    });
-    return () => subscription.unsubscribe();
-  }, [form, setClipsState]);
+      setClipsState(value as Partial<ClipsVideoProps>)
+    })
+    return () => subscription.unsubscribe()
+  }, [form, setClipsState])
 
   return (
     <Form {...form}>
@@ -80,5 +81,5 @@ export const ClipsForm: React.FC<ClipsFormProps> = ({
         </div>
       </form>
     </Form>
-  );
-};
+  )
+}

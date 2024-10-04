@@ -1,23 +1,24 @@
-"use client";
+'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React from 'react'
+import { VideoProps } from '@/stores/templatestore'
+import { UseFormReturn } from 'react-hook-form'
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
-import { Textarea } from "@/components/ui/textarea";
-import { VideoProps } from "@/stores/templatestore";
-import React from "react";
-import { UseFormReturn } from "react-hook-form";
+  FormMessage
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Slider } from '@/components/ui/slider'
+import { Textarea } from '@/components/ui/textarea'
 
 type TextStepProps = {
-  form: UseFormReturn<VideoProps>;
-};
+  form: UseFormReturn<VideoProps>
+}
 
 export const TextStep: React.FC<TextStepProps> = ({ form }) => {
   return (
@@ -155,5 +156,5 @@ export const TextStep: React.FC<TextStepProps> = ({ form }) => {
         </div>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
