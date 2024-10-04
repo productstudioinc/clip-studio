@@ -14,7 +14,11 @@ const getCachedTemplates = unstable_cache(
       const response = await db
         .select()
         .from(templates)
-        .where(eq(templates.active, true))
+        .where(
+          process.env.NODE_ENV === 'production'
+            ? eq(templates.active, true)
+            : undefined
+        )
       return response
     } catch (error) {
       logger.error('Error fetching templates', {
