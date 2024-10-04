@@ -250,8 +250,8 @@ export const ClipsVideoSchema = BaseVideoSchema.extend({
   videoUrl: z.string(),
   type: z.enum(['blob', 'cloud']),
   videoPosition: z.number().min(0).max(100).default(50),
-  titlePosition: z.number().min(0).max(100).default(30),
-  subtitlePosition: z.number().min(0).max(100).default(70),
+  titlePosition: z.number().min(0).max(100).default(15),
+  subtitlePosition: z.number().min(0).max(100).default(80),
   videoScale: z.number().min(10).max(200).default(100),
   title: z.string().optional(),
   subtitle: z.string().optional()
