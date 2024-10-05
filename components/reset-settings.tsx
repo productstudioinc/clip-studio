@@ -4,6 +4,7 @@ import {
   BackgroundTheme,
   defaultRedditProps,
   defaultSplitScreenProps,
+  defaultTextMessageProps,
   defaultTwitterThreadProps,
   useTemplateStore
 } from '@/stores/templatestore'
@@ -23,25 +24,10 @@ import {
 import { Button } from '@/components/ui/button'
 
 export const ResetSettings = () => {
-  const resetStore = useTemplateStore((state) => ({
-    setSelectedTemplate: state.setSelectedTemplate,
-    setSplitScreenState: state.setSplitScreenState,
-    setRedditState: state.setRedditState,
-    setTwitterThreadState: state.setTwitterThreadState,
-    setdurationInFrames: state.setDurationInFrames,
-    setBackgroundTheme: state.setBackgroundTheme,
-    setBackgroundUrls: state.setBackgroundUrls
-  }))
+  const reset = useTemplateStore((state) => state.reset)
 
   const handleReset = () => {
-    useTemplateStore.persist.clearStorage()
-    resetStore.setSelectedTemplate('Reddit')
-    resetStore.setSplitScreenState(defaultSplitScreenProps)
-    resetStore.setRedditState(defaultRedditProps)
-    resetStore.setTwitterThreadState(defaultTwitterThreadProps)
-    resetStore.setdurationInFrames(900)
-    resetStore.setBackgroundTheme(BackgroundTheme.Minecraft)
-    resetStore.setBackgroundUrls(defaultSplitScreenProps.backgroundUrls)
+    reset()
   }
 
   return (

@@ -1,5 +1,5 @@
 import React from 'react'
-import { ClipsComposition } from '@/remotion/Clips/Composition'
+import { ClipsComposition } from './Clips/Composition'
 import { getVideoMetadata } from '@remotion/media-utils'
 import { Composition } from 'remotion'
 
