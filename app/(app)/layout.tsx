@@ -33,7 +33,7 @@ export default async function Layout({
           <MobileSidebar user={user} />
         </header>
         <SiteBanner />
-        <main className="flex-1 bg-muted/25 relative">{children}</main>
+        <main className="flex-1 bg-muted/25 relative p-4">{children}</main>
         <footer className="border-t p-4 text-sm">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <span>
