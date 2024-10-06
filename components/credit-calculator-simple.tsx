@@ -25,7 +25,7 @@ export function CreditCalculator() {
   }
 
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat(navigator.language).format(num)
+    return new Intl.NumberFormat('en-US').format(num)
   }
 
   return (

@@ -66,8 +66,8 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {modal}
             {children}
+            {modal}
             <Toaster position="top-right" />
           </ThemeProvider>
         </body>
