@@ -121,7 +121,7 @@ export function TikTokExportDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-full h-14 space-x-4 text-md" disabled={disabled}>
+        <Button className="w-full space-x-4 text-md" disabled={disabled}>
           <TikTokIcon className="mr-2 h-8 w-8 invert dark:invert-0" />
           Export to TikTok
         </Button>

@@ -73,6 +73,7 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
                               autoPlay
                               loop
                               muted
+                              playsInline
                             />
                             <div className="w-full p-2 text-center">
                               {background.name}

@@ -46,13 +46,12 @@ export default async function Layout({
           <Breadcrumbs />
           {children}
         </main>
-        <footer className="border-t p-4 text-sm">
-          <div className="flex flex-col md:flex-row justify-between items-center">
+        <footer className="border-t p-4 text-xs">
+          <div className="flex flex-row justify-between items-center">
             <span>
-              © {new Date().getFullYear()} <Link href="/">Clip Studio</Link> -
-              AI Generated Videos
+              © {new Date().getFullYear()} <Link href="/">Clip Studio</Link>
             </span>
-            <nav className="mt-2 md:mt-0">
+            <nav>
               <Link href="/privacy" className="mr-4">
                 Privacy Policy
               </Link>

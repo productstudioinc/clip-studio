@@ -145,17 +145,21 @@ export function FormSubmit({
           <Separator />
           <ExportComponent state={state} undo={undo} />
           <Separator />
-          <div className="flex space-x-4">
-            <YoutubeExportDialog
-              youtubeChannels={youtubeChannels}
-              disabled={!isRenderingComplete}
-              state={state}
-            />
-            <TikTokExportDialog
-              tiktokAccounts={tiktokAccounts}
-              disabled={!isRenderingComplete}
-              state={state}
-            />
+          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+            <div className="w-full sm:w-1/2">
+              <YoutubeExportDialog
+                youtubeChannels={youtubeChannels}
+                disabled={!isRenderingComplete}
+                state={state}
+              />
+            </div>
+            <div className="w-full sm:w-1/2">
+              <TikTokExportDialog
+                tiktokAccounts={tiktokAccounts}
+                disabled={!isRenderingComplete}
+                state={state}
+              />
+            </div>
           </div>
         </div>
       </CardContent>
