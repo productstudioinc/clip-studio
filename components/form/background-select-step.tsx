@@ -134,6 +134,7 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
           onClick={handleNewSection}
           className="mt-4"
           disabled={!selectedBackground}
+          type="button"
         >
           Choose New Section
         </Button>
