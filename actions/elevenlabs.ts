@@ -290,6 +290,8 @@ export const generateTextVoiceover = createServerAction()
 
       let currentTime = 0
 
+      console.log(messages)
+
       for (const message of messages) {
         const voiceId =
           message.sender === 'sender' ? senderVoiceId : receiverVoiceId
@@ -298,7 +300,7 @@ export const generateTextVoiceover = createServerAction()
           const messageText = message.content.value as string
 
           // Add the message and a break after it
-          const fullMessageText = `${messageText} <break time="0.3s" />`
+          const fullMessageText = `${messageText} ——`
 
           const audioResponse =
             (await elevenLabsClient.textToSpeech.convertWithTimestamps(
@@ -358,12 +360,6 @@ export const generateTextVoiceover = createServerAction()
 
       logger.info('Combined voiceover generated successfully', { signedUrl })
       await logger.flush()
-
-      console.log({
-        signedUrl,
-        sections,
-        durationInFrames
-      })
 
       return {
         signedUrl,
