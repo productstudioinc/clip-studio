@@ -7,6 +7,7 @@ import { User } from '@supabase/supabase-js'
 import { Menu } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { NavigationItems } from '@/components/navigation-items'
 
@@ -31,14 +32,16 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
           <span className="sr-only">Toggle navigation menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="flex flex-col p-0 pt-8">
-        <NavigationItems
-          user={user}
-          admin={admin}
-          mobile={true}
-          subscription={subscription}
-          usage={usage}
-        />
+      <SheetContent side="left" className="px-0 pt-8">
+        <ScrollArea className="h-[calc(100vh-32px)]">
+          <NavigationItems
+            user={user}
+            admin={admin}
+            mobile={true}
+            subscription={subscription}
+            usage={usage}
+          />
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   )

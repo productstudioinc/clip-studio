@@ -17,19 +17,51 @@ import {
   ShieldIcon,
   UserIcon,
   UsersIcon,
-  YoutubeIcon
+  YoutubeIcon,
+  ZapIcon
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button, buttonVariants } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import Hero from '@/components/hero'
 import { Icons } from '@/components/icons'
 import SubscriptionCard from '@/components/subscription-card'
-import UpgradeCard from '@/components/upgrade-card'
 import { UserAccountMenu } from '@/components/user-account-menu'
+
+export function UpgradeCard() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Upgrade to Pro</CardTitle>
+        <CardDescription>
+          Unlock all features and get unlimited access to our support team.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Link
+          href="/pricing"
+          className={cn(
+            buttonVariants({ size: 'sm', variant: 'rainbow' }),
+            'w-full'
+          )}
+        >
+          <ZapIcon className="h-4 w-4 mr-2 fill-current" />
+          Upgrade
+        </Link>
+      </CardContent>
+    </Card>
+  )
+}
 
 export function HeroWrapper() {
   const [isOpen, setIsOpen] = useState(false)
@@ -135,12 +167,6 @@ const getNavItems = (admin: boolean, mobile: boolean): NavItem[] => [
         }
       ]
     : [])
-  // ...(mobile
-  //   ? [
-  //       { href: '/terms', icon: FileText, label: 'Terms of Service' },
-  //       { href: '/privacy', icon: FileText, label: 'Privacy Policy' }
-  //     ]
-  //   : [])
 ]
 
 const renderSubscriptionCard = (
@@ -172,12 +198,13 @@ export const NavigationItems: React.FC<NavigationItemsProps> = ({
   const navItems = getNavItems(admin, mobile)
 
   return (
-    <aside className="flex h-full max-h-screen flex-col sm:text-sm sm:font-medium sm:px-2">
+    <aside className="flex h-full max-h-screen flex-col sm:text-sm sm:font-medium px-4">
       <HeroWrapper />
+
       {navItems.map((item, index) =>
         item.isHeader ? (
           <React.Fragment key={`header-${index}`}>
-            <Separator />
+            <Separator className="my-2" />
             <div className="px-3 py-2 text-xs text-muted-foreground">
               {item.label}
             </div>
