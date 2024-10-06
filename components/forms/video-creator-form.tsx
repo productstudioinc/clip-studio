@@ -13,11 +13,10 @@ import {
 import { TemplateSchema, useTemplateStore } from '@/stores/templatestore'
 
 import { TemplateSelect } from '@/components/form/template-select'
+import { ClipsForm } from '@/components/forms/clips-form'
 import { RedditForm } from '@/components/forms/reddit-form'
 import { SplitScreenForm } from '@/components/forms/split-screen-form'
 import { TextMessageForm } from '@/components/forms/text-message-form'
-
-import { ClipsForm } from './clips-form'
 
 interface VideoCreatorFormProps {
   voices: ElevenlabsVoice[]
