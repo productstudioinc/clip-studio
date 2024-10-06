@@ -18,7 +18,7 @@ const logger = new Logger({
   source: 'actions/db/admin-queries'
 })
 
-const REVALIDATE_PERIOD = 60 // 1 minute in seconds
+const REVALIDATE_PERIOD = 120 // 2 minutes in seconds
 
 export const checkAdminStatus = async (userId: string): Promise<boolean> => {
   const dbUser = await db.query.users.findFirst({

@@ -41,7 +41,7 @@ import { DateRangePicker } from '@/components/date-range-picker'
 import { PerDayChart } from '@/components/per-day-chart'
 
 const CardSkeleton = ({ className }: { className?: string }) => (
-  <Card className={cn('col-span-2', className)}>
+  <Card className={cn('col-span-12 sm:col-span-6 lg:col-span-4', className)}>
     <CardHeader>
       <Skeleton className="h-6 w-1/2" />
       <Skeleton className="h-4 w-3/4" />
@@ -81,7 +81,10 @@ const CountCard = async ({
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Link href={href} className="block col-span-2">
+          <Link
+            href={href}
+            className="block col-span-12 sm:col-span-6 lg:col-span-4"
+          >
             <Card className="relative group overflow-hidden transition-all duration-300 hover:opacity-80">
               <CardHeader>
                 <CardTitle>{title}</CardTitle>
@@ -158,7 +161,7 @@ const FeedbackCountCard = async () => {
 const YoutubePostsCountCard = async () => {
   const youtubePostsCount = await getYoutubePostsCount()
   return (
-    <Card className="col-span-2 flex flex-col justify-between">
+    <Card className="col-span-12 sm:col-span-6 lg:col-span-3 flex flex-col justify-between">
       <CardHeader>
         <CardTitle>Youtube Posts</CardTitle>
         <CardDescription>Total Youtube posts of all time</CardDescription>
@@ -173,7 +176,7 @@ const YoutubePostsCountCard = async () => {
 const TikTokPostsCountCard = async () => {
   const tikTokPostsCount = await getTikTokPostsCount()
   return (
-    <Card className="col-span-2 flex flex-col justify-between">
+    <Card className="col-span-12 sm:col-span-6 lg:col-span-3 flex flex-col justify-between">
       <CardHeader>
         <CardTitle>TikTok Posts</CardTitle>
         <CardDescription>Total TikTok posts of all time</CardDescription>
@@ -188,7 +191,7 @@ const TikTokPostsCountCard = async () => {
 const YoutubeAccountsCountCard = async () => {
   const youtubeAccountsCount = await getYoutubeAccountsCount()
   return (
-    <Card className="col-span-2 flex flex-col justify-between">
+    <Card className="col-span-12 sm:col-span-6 lg:col-span-3 flex flex-col justify-between">
       <CardHeader>
         <CardTitle>Youtube Accounts</CardTitle>
         <CardDescription>Total Youtube accounts of all time</CardDescription>
@@ -203,7 +206,7 @@ const YoutubeAccountsCountCard = async () => {
 const TikTokAccountsCountCard = async () => {
   const tikTokAccountsCount = await getTikTokAccountsCount()
   return (
-    <Card className="col-span-2 flex flex-col justify-between">
+    <Card className="col-span-12 sm:col-span-6 lg:col-span-3 flex flex-col justify-between">
       <CardHeader>
         <CardTitle>TikTok Accounts</CardTitle>
         <CardDescription>Total TikTok accounts of all time</CardDescription>
@@ -218,7 +221,7 @@ const TikTokAccountsCountCard = async () => {
 const MostRecentRendersCard = async () => {
   const mostRecentRenders = await getMostRecentRenders()
   return (
-    <Card className="col-span-8">
+    <Card className="col-span-12">
       <CardHeader className="flex flex-row justify-between items-center">
         <div>
           <CardTitle>Recent Renders</CardTitle>
@@ -282,7 +285,7 @@ const RenderChart = async ({
   return (
     <PerDayChart
       data={renderChartData}
-      className="col-span-6"
+      className="col-span-12"
       title="Renders Per Day"
       description="Showing total renders for the selected period"
       label="Renders"
@@ -306,7 +309,7 @@ const FeedbackChart = async ({
   return (
     <PerDayChart
       data={feedbackChartData}
-      className="col-span-3"
+      className="col-span-12 md:col-span-6"
       title="Feedback Per Day"
       description="Showing total feedback for the selected period"
       label="Feedback"
@@ -330,7 +333,7 @@ const TikTokPostsChart = async ({
   return (
     <PerDayChart
       data={tikTokPostsChartData}
-      className="col-span-3"
+      className="col-span-12 md:col-span-6"
       title="TikTok Posts Per Day"
       description="Showing total TikTok posts for the selected period"
       label="TikTok Posts"
@@ -354,7 +357,7 @@ const YoutubePostsChart = async ({
   return (
     <PerDayChart
       data={youtubePostsChartData}
-      className="col-span-3"
+      className="col-span-12 md:col-span-6"
       title="Youtube Posts Per Day"
       description="Showing total Youtube posts for the selected period"
       label="Youtube Posts"
@@ -378,7 +381,7 @@ const UserChart = async ({
   return (
     <PerDayChart
       data={userChartData}
-      className="col-span-3"
+      className="col-span-12 md:col-span-6"
       title="Users Per Day"
       description="Showing total users for the selected period"
       label="Users"
@@ -420,7 +423,7 @@ export default async function AdminDashboard({
       <div className="flex justify-between mb-4 flex-col md:flex-row">
         <h1 className="text-4xl font-bold">All Time</h1>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-6">
+      <div className="grid grid-cols-12 gap-6 mb-6">
         <Suspense fallback={<CardSkeleton />}>
           <RenderCountCard />
         </Suspense>
@@ -431,8 +434,7 @@ export default async function AdminDashboard({
           <FeedbackCountCard />
         </Suspense>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-6 mb-6">
+      <div className="grid grid-cols-12 gap-6 mb-6">
         <Suspense fallback={<CardSkeleton />}>
           <YoutubeAccountsCountCard />
         </Suspense>
@@ -447,29 +449,39 @@ export default async function AdminDashboard({
         </Suspense>
       </div>
 
-      <Suspense fallback={<CardSkeleton />}>
-        <MostRecentRendersCard />
-      </Suspense>
-
       <div className="flex justify-between mb-4 flex-col md:flex-row">
         <h1 className="text-4xl font-bold">Selected Period</h1>
-        <DateRangePicker />
+        <div className="flex flex-col md:flex-row gap-4">
+          <DateRangePicker />
+        </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-6">
-        <Suspense fallback={<ChartSkeleton className="col-span-6" />}>
+
+      <div className="grid grid-cols-12 gap-6 mb-6">
+        <Suspense fallback={<ChartSkeleton className="col-span-12" />}>
           <RenderChart startDate={startDate} endDate={endDate} />
         </Suspense>
-        <Suspense fallback={<ChartSkeleton className="col-span-3" />}>
+        <Suspense
+          fallback={<ChartSkeleton className="col-span-12 md:col-span-6" />}
+        >
           <UserChart startDate={startDate} endDate={endDate} />
         </Suspense>
-        <Suspense fallback={<ChartSkeleton className="col-span-3" />}>
+        <Suspense
+          fallback={<ChartSkeleton className="col-span-12 md:col-span-6" />}
+        >
           <FeedbackChart startDate={startDate} endDate={endDate} />
         </Suspense>
-        <Suspense fallback={<ChartSkeleton className="col-span-3" />}>
+        <Suspense
+          fallback={<ChartSkeleton className="col-span-12 md:col-span-6" />}
+        >
           <TikTokPostsChart startDate={startDate} endDate={endDate} />
         </Suspense>
-        <Suspense fallback={<ChartSkeleton className="col-span-3" />}>
+        <Suspense
+          fallback={<ChartSkeleton className="col-span-12 md:col-span-6" />}
+        >
           <YoutubePostsChart startDate={startDate} endDate={endDate} />
+        </Suspense>
+        <Suspense fallback={<CardSkeleton className="col-span-12" />}>
+          <MostRecentRendersCard />
         </Suspense>
       </div>
     </>
