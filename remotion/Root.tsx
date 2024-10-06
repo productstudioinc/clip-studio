@@ -1,8 +1,11 @@
 import React from 'react'
+// you cant use alias imports here for some reason
+import { AIVideoComposition } from '@/remotion/AIVideo/Composition'
 import { getVideoMetadata } from '@remotion/media-utils'
 import { Composition } from 'remotion'
 
 import {
+  AIVideoSchema,
   ClipsVideoSchema,
   RedditVideoSchema,
   SplitScreenVideoSchema,
@@ -13,7 +16,6 @@ import {
   VIDEO_HEIGHT,
   VIDEO_WIDTH
 } from '../stores/templatestore'
-// you cant use alias imports here for some reason
 import { ClipsComposition } from './Clips/Composition'
 import { RedditComposition } from './Reddit/Composition'
 import { SplitScreenComposition } from './SplitScreen/Composition'
@@ -26,18 +28,37 @@ export const RemotionRoot: React.FC = () => {
     redditState,
     twitterThreadState,
     clipsState,
-    textMessageState
+    textMessageState,
+    aiVideoState
   } = useTemplateStore((state) => ({
     selectedTemplate: state.selectedTemplate,
     splitScreenState: state.splitScreenState,
     redditState: state.redditState,
     twitterThreadState: state.twitterThreadState,
     clipsState: state.clipsState,
-    textMessageState: state.textMessageState
+    textMessageState: state.textMessageState,
+    aiVideoState: state.aiVideoState
   }))
 
   return (
     <>
+      <Composition
+        id="AIVideo"
+        component={AIVideoComposition}
+        durationInFrames={aiVideoState.durationInFrames}
+        fps={VIDEO_FPS}
+        width={VIDEO_WIDTH}
+        height={VIDEO_HEIGHT}
+        schema={AIVideoSchema}
+        defaultProps={aiVideoState as any}
+        calculateMetadata={async ({ props }) => {
+          const data = await getVideoMetadata(props.videoUrl)
+          return {
+            durationInFrames: Math.floor(data.durationInSeconds * 30)
+          }
+        }}
+      />
+
       <Composition
         id="TextMessage"
         component={TextMessageComposition}

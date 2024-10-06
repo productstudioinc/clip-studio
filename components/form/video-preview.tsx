@@ -8,8 +8,6 @@ import { UseFormReturn } from 'react-hook-form'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { ResetSettings } from '../reset-settings'
-
 interface VideoPreviewProps {
   form: UseFormReturn<VideoProps>
 }

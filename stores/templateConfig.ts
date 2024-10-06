@@ -1,3 +1,4 @@
+import { AIVideoComposition } from '../remotion/AIVideo/Composition'
 import { ClipsComposition } from '../remotion/Clips/Composition'
 import { RedditComposition } from '../remotion/Reddit/Composition'
 import { SplitScreenComposition } from '../remotion/SplitScreen/Composition'
@@ -12,14 +13,16 @@ const useTemplateConfig = () => {
     redditState,
     twitterThreadState,
     clipsState,
-    textMessageState
+    textMessageState,
+    aiVideoState
   } = useTemplateStore((state) => ({
     selectedTemplate: state.selectedTemplate,
     splitScreenState: state.splitScreenState,
     redditState: state.redditState,
     twitterThreadState: state.twitterThreadState,
     clipsState: state.clipsState,
-    textMessageState: state.textMessageState
+    textMessageState: state.textMessageState,
+    aiVideoState: state.aiVideoState
   }))
 
   const templateConfig = {
@@ -47,6 +50,11 @@ const useTemplateConfig = () => {
       component: TextMessageComposition,
       state: textMessageState,
       durationInFrames: textMessageState.durationInFrames
+    },
+    AIVideo: {
+      component: AIVideoComposition,
+      state: aiVideoState,
+      durationInFrames: aiVideoState.durationInFrames
     }
   }
 

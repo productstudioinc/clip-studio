@@ -167,7 +167,8 @@ export const TemplateSchema = z.enum([
   'Reddit',
   'TwitterThread',
   'Clips',
-  'TextMessage'
+  'TextMessage',
+  'AIVideo'
 ])
 export type TemplateProps = z.infer<typeof TemplateSchema>
 
@@ -208,12 +209,21 @@ export const TextMessageVideoSchema = BaseVideoSchema.extend({
   backgroundUrls: z.array(z.string())
 })
 
+export const AIVideoSchema = BaseVideoSchema.extend({
+  prompt: z.string(),
+  videoUrl: z.string(),
+  type: z.enum(['blob', 'cloud']),
+  transcription: TranscriptionSchema,
+  backgroundUrls: z.array(z.string())
+})
+
 export const VideoSchema = z.union([
   SplitScreenVideoSchema,
   RedditVideoSchema,
   TwitterVideoSchema,
   ClipsVideoSchema,
-  TextMessageVideoSchema
+  TextMessageVideoSchema,
+  AIVideoSchema
 ])
 
 // Types
@@ -223,6 +233,7 @@ export type RedditVideoProps = z.infer<typeof RedditVideoSchema>
 export type TwitterVideoProps = z.infer<typeof TwitterVideoSchema>
 export type SplitScreenVideoProps = z.infer<typeof SplitScreenVideoSchema>
 export type TextMessageVideoProps = z.infer<typeof TextMessageVideoSchema>
+export type AIVideoProps = z.infer<typeof AIVideoSchema>
 export type ClipsVideoProps = z.infer<typeof ClipsVideoSchema>
 
 // Default Props
@@ -383,6 +394,23 @@ export const defaultClipsProps: ClipsVideoProps = {
   musicVolume: 30
 }
 
+export const defaultAIVideoProps: AIVideoProps = {
+  prompt: 'A man and woman are walking in a field of flowers',
+  videoUrl: 'https://assets.clip.studio/ai_sample.mp4',
+  type: 'cloud',
+  transcription: splitScreenTranscriptionDefault,
+  backgroundUrls: defaultMinecraftBackgrounds,
+  language: Language.English,
+  voiceVolume: 70,
+  musicVolume: 30,
+  aspectRatio: AspectRatio.Vertical,
+  width: VIDEO_WIDTH,
+  height: VIDEO_HEIGHT,
+  fps: VIDEO_FPS,
+  durationInFrames: DEFAULT_DURATION_IN_FRAMES,
+  captionStyle: CaptionStyle.Default
+}
+
 const initialState = {
   selectedTemplate: 'Reddit' as TemplateProps,
   splitScreenState: defaultSplitScreenProps,
@@ -393,7 +421,8 @@ const initialState = {
   backgroundTheme: BackgroundTheme.Minecraft,
   backgroundUrls: defaultMinecraftBackgrounds,
   captionStyle: CaptionStyle.Default,
-  clipsState: defaultClipsProps
+  clipsState: defaultClipsProps,
+  aiVideoState: defaultAIVideoProps
 }
 
 type State = {
@@ -417,6 +446,8 @@ type State = {
   setCaptionStyle: (style: CaptionStyle) => void
   clipsState: ClipsVideoProps
   setClipsState: (state: Partial<ClipsVideoProps>) => void
+  aiVideoState: AIVideoProps
+  setAIVideoState: (state: Partial<AIVideoProps>) => void
   reset: () => void
 }
 
@@ -455,7 +486,8 @@ export const useTemplateStore = create<State>()((set) => ({
       textMessageState: {
         ...state.textMessageState,
         durationInFrames: length
-      }
+      },
+      aiVideoState: { ...state.aiVideoState, durationInFrames: length }
     })),
   setBackgroundTheme: (theme) =>
     set((state) => ({
@@ -473,7 +505,8 @@ export const useTemplateStore = create<State>()((set) => ({
       textMessageState: {
         ...state.textMessageState,
         backgroundTheme: theme
-      }
+      },
+      aiVideoState: { ...state.aiVideoState, backgroundTheme: theme }
     })),
   setBackgroundUrls: (urls) =>
     set((state) => ({
@@ -485,7 +518,8 @@ export const useTemplateStore = create<State>()((set) => ({
         backgroundUrls: urls
       },
       clipsState: { ...state.clipsState, backgroundUrls: urls },
-      textMessageState: { ...state.textMessageState, backgroundUrls: urls }
+      textMessageState: { ...state.textMessageState, backgroundUrls: urls },
+      aiVideoState: { ...state.aiVideoState, backgroundUrls: urls }
     })),
   setCaptionStyle: (style) =>
     set((state) => ({
@@ -497,11 +531,16 @@ export const useTemplateStore = create<State>()((set) => ({
         captionStyle: style
       },
       clipsState: { ...state.clipsState, captionStyle: style },
-      textMessageState: { ...state.textMessageState, captionStyle: style }
+      textMessageState: { ...state.textMessageState, captionStyle: style },
+      aiVideoState: { ...state.aiVideoState, captionStyle: style }
     })),
   setClipsState: (state) =>
     set((prevState) => ({
       clipsState: { ...prevState.clipsState, ...state }
+    })),
+  setAIVideoState: (state) =>
+    set((prevState) => ({
+      aiVideoState: { ...prevState.aiVideoState, ...state }
     })),
   reset: () => set(initialState)
 }))

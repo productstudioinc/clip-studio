@@ -1,32 +1,54 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import Link from 'next/link'
-import { useTemplateStore } from '@/stores/templatestore'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { TemplateProps, useTemplateStore } from '@/stores/templatestore'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
+type Template = {
+  id: string | number
+  name: string
+  previewUrl: string
+  value: string
+}
+
 type TemplateSelectProps = {
-  templates: Array<{
-    id: string | number
-    name: string
-    previewUrl: string
-    value: string
-  }>
+  templates: Template[]
 }
 
 export const TemplateSelect: React.FC<TemplateSelectProps> = ({
   templates
 }) => {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const { selectedTemplate, setSelectedTemplate } = useTemplateStore(
     (state) => ({
       selectedTemplate: state.selectedTemplate,
       setSelectedTemplate: state.setSelectedTemplate
     })
   )
+
+  useEffect(() => {
+    const template = searchParams.get('template')
+
+    if (template) {
+      setSelectedTemplate(template as TemplateProps)
+    } else if (templates.length > 0) {
+      const defaultTemplate = templates[0].value as TemplateProps
+      setSelectedTemplate(defaultTemplate)
+      router.push(`?template=${defaultTemplate}`, { scroll: false })
+    }
+  }, [searchParams, setSelectedTemplate, templates, router])
+
+  const handleTemplateChange = (value: string) => {
+    setSelectedTemplate(value as TemplateProps)
+    router.push(`?template=${value}`, { scroll: false })
+  }
 
   return (
     <Card>
@@ -36,7 +58,7 @@ export const TemplateSelect: React.FC<TemplateSelectProps> = ({
       <CardContent>
         <ScrollArea className="w-full whitespace-nowrap pb-4">
           <RadioGroup
-            onValueChange={setSelectedTemplate}
+            onValueChange={handleTemplateChange}
             value={selectedTemplate}
             className="flex space-x-4"
           >

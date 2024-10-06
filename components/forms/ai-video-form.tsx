@@ -6,11 +6,11 @@ import {
   YoutubeChannel
 } from '@/actions/db/social-media-queries'
 import { ElevenlabsVoice } from '@/actions/elevenlabs'
-import { SelectBackgroundWithParts, SelectMusic } from '@/db/schema'
+import { SelectBackgroundWithParts } from '@/db/schema'
 import {
-  defaultRedditProps,
-  RedditVideoProps,
-  RedditVideoSchema,
+  AIVideoProps,
+  AIVideoSchema,
+  defaultAIVideoProps,
   useTemplateStore,
   VideoProps
 } from '@/stores/templatestore'
@@ -19,54 +19,53 @@ import { useForm } from 'react-hook-form'
 
 import { Form } from '@/components/ui/form'
 import { AspectRatioStep } from '@/components/form/aspect-ratio-step'
-import { BackgroundSelectStep } from '@/components/form/background-select-step'
 import { CaptionStyleStep } from '@/components/form/caption-style-step'
 import { FormErrors } from '@/components/form/form-errors'
 import { FormSubmit } from '@/components/form/form-submit'
-import { MusicStep } from '@/components/form/music-step'
-import { RedditUrlStep } from '@/components/form/reddit-url-step'
+import { PromptStep } from '@/components/form/prompt-step'
 import { VideoPreview } from '@/components/form/video-preview'
-import { VoiceStep } from '@/components/form/voice-step'
+import { VisualStyleStep } from '@/components/form/visual-style-step'
 
-interface RedditFormProps {
+interface AIVideoFormProps {
   voices: ElevenlabsVoice[]
   backgrounds: SelectBackgroundWithParts[]
   youtubeChannels: YoutubeChannel[]
   tiktokAccounts: TikTokAccount[]
-  music: SelectMusic[]
 }
 
-export const RedditForm: React.FC<RedditFormProps> = ({
-  voices,
+export const AIVideoForm: React.FC<AIVideoFormProps> = ({
   backgrounds,
   youtubeChannels,
-  tiktokAccounts,
-  music
+  tiktokAccounts
 }) => {
   const form = useForm<VideoProps>({
-    resolver: zodResolver(RedditVideoSchema),
-    defaultValues: defaultRedditProps
+    resolver: zodResolver(AIVideoSchema),
+    defaultValues: defaultAIVideoProps
   })
 
-  const setRedditState = useTemplateStore((state) => state.setRedditState)
+  const setAIVideoState = useTemplateStore((state) => state.setAIVideoState)
 
   // Add this effect to update the store when form values change
   useEffect(() => {
     const subscription = form.watch((value) => {
-      setRedditState(value as Partial<RedditVideoProps>)
+      setAIVideoState(value as Partial<AIVideoProps>)
     })
     return () => subscription.unsubscribe()
-  }, [form, setRedditState])
+  }, [form, setAIVideoState])
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+  }
 
   return (
     <Form {...form}>
-      <form className="w-full space-y-6">
+      <form className="w-full space-y-6" onSubmit={handleSubmit}>
         <div className="grid grid-cols-12 gap-8">
           <div className="col-span-12 lg:col-span-7 space-y-6">
-            <RedditUrlStep form={form} />
-            <VoiceStep form={form} voices={voices} />
-            <MusicStep form={form} music={music} />
-            <BackgroundSelectStep form={form} backgrounds={backgrounds} />
+            <PromptStep form={form} />
+            {/* <TranscribeStep form={form} /> */}
+            {/* <BackgroundSelectStep form={form} backgrounds={backgrounds} /> */}
+            <VisualStyleStep form={form} />
             <CaptionStyleStep form={form} />
             <AspectRatioStep form={form} />
             <FormErrors form={form} />

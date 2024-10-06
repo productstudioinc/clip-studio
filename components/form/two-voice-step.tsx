@@ -1,7 +1,7 @@
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ElevenlabsVoice, generateTextVoiceover } from '@/actions/elevenlabs'
 import { VideoProps } from '@/stores/templatestore'
 import { Pause, Play } from 'lucide-react'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
@@ -168,14 +168,14 @@ export const TwoVoiceStep: React.FC<TwoVoiceStepProps> = ({ form, voices }) => {
               >
                 <RadioGroup
                   onValueChange={(value) => {
-                    const scrollTop = scrollAreaRef.current?.scrollTop
+                    // const scrollTop = scrollAreaRef.current?.scrollTop
                     field.onChange(value)
-                    // Restore scroll position after state update
-                    setTimeout(() => {
-                      if (scrollAreaRef.current) {
-                        scrollAreaRef.current.scrollTop = scrollTop || 0
-                      }
-                    }, 0)
+                    // // Restore scroll position after state update
+                    // setTimeout(() => {
+                    //   if (scrollAreaRef.current) {
+                    //     scrollAreaRef.current.scrollTop = scrollTop || 0
+                    //   }
+                    // }, 0)
                   }}
                   defaultValue={field.value}
                   className="space-y-1"

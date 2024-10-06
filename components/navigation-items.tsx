@@ -174,14 +174,14 @@ export const NavigationItems: React.FC<NavigationItemsProps> = ({
   return (
     <aside className="flex h-full max-h-screen flex-col sm:text-sm sm:font-medium sm:px-2">
       <HeroWrapper />
-      {navItems.map((item) =>
+      {navItems.map((item, index) =>
         item.isHeader ? (
-          <>
+          <React.Fragment key={`header-${index}`}>
             <Separator />
             <div className="px-3 py-2 text-xs text-muted-foreground">
               {item.label}
             </div>
-          </>
+          </React.Fragment>
         ) : (
           <NavLink key={item.href} {...item} currentRoute={currentRoute} />
         )

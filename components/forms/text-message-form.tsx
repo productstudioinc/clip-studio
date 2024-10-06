@@ -23,10 +23,9 @@ import { BackgroundSelectStep } from '@/components/form/background-select-step'
 import { FormErrors } from '@/components/form/form-errors'
 import { FormSubmit } from '@/components/form/form-submit'
 import { TextMessageStep } from '@/components/form/text-message-step'
+import { TwoVoiceStep } from '@/components/form/two-voice-step'
 import { VideoPreview } from '@/components/form/video-preview'
 import { TextMessage } from '@/components/text-message'
-
-import { TwoVoiceStep } from '../form/two-voice-step'
 
 interface TextMessageFormProps {
   voices: ElevenlabsVoice[]
