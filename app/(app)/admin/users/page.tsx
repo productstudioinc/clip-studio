@@ -45,7 +45,10 @@ export default async function Page({
       <div className="flex justify-between items-center">
         <Search placeholder="Search for a user" />
       </div>
-      <Suspense key={`${query}-${currentPage}`} fallback={<CustomSkeleton />}>
+      <Suspense
+        key={`${query}-${currentPage}-${pageSize}`}
+        fallback={<CustomSkeleton />}
+      >
         <UsersTable users={users} />
       </Suspense>
       <Pagination

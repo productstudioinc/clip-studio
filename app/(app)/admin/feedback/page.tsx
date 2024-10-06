@@ -49,7 +49,10 @@ export default async function Page({
         <Search placeholder="Search for a user" />
       </div>
 
-      <Suspense key={`${query}-${currentPage}`} fallback={<CustomSkeleton />}>
+      <Suspense
+        key={`${query}-${currentPage}-${pageSize}`}
+        fallback={<CustomSkeleton />}
+      >
         <FeedbackTable feedback={feedback} />
       </Suspense>
       <Pagination

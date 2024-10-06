@@ -53,14 +53,14 @@ export default async function Page({
 
       {view === 'grid' ? (
         <Suspense
-          key={`${query}-${currentPage}-grid`}
+          key={`${query}-${currentPage}-${pageSize}-grid`}
           fallback={<CustomSkeleton />}
         >
           <RendersGrid renderHistory={renderHistory} />
         </Suspense>
       ) : (
         <Suspense
-          key={`${query}-${currentPage}-table`}
+          key={`${query}-${currentPage}-${pageSize}-table`}
           fallback={<CustomSkeleton />}
         >
           <RendersTable renderHistory={renderHistory} />

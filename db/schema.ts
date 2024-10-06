@@ -36,6 +36,7 @@ export const userRoleEnum = pgEnum('user_role', ['user', 'admin'])
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().notNull(),
   fullName: text('full_name'),
+  email: text('email'),
   avatarUrl: text('avatar_url'),
   billingAddress: jsonb('billing_address'),
   paymentMethod: jsonb('payment_method'),

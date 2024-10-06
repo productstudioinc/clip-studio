@@ -11,14 +11,14 @@ import {
   youtubeChannels,
   youtubePosts
 } from '@/db/schema'
-import { desc, eq, sql } from 'drizzle-orm'
+import { desc, eq, or, sql } from 'drizzle-orm'
 import { Logger } from 'next-axiom'
 
 const logger = new Logger({
   source: 'actions/db/admin-queries'
 })
 
-const REVALIDATE_PERIOD = 120 // 2 minutes in seconds
+const REVALIDATE_PERIOD = 1 // 2 minutes in seconds
 
 export const checkAdminStatus = async (userId: string): Promise<boolean> => {
   const dbUser = await db.query.users.findFirst({
@@ -101,6 +101,10 @@ export const getUsersForAdmin = async (
     .select({
       id: users.id,
       fullName: users.fullName,
+      email: users.email,
+      avatarUrl: users.avatarUrl,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
       role: users.role,
       usage: {
         creditsLeft: userUsage.creditsLeft,
@@ -109,12 +113,29 @@ export const getUsersForAdmin = async (
     })
     .from(users)
     .leftJoin(userUsage, eq(users.id, userUsage.userId))
+    .where(
+      filter
+        ? or(
+            sql`${users.fullName} ILIKE ${`%${filter}%`}`,
+            sql`${users.email} ILIKE ${`%${filter}%`}`
+          )
+        : undefined
+    )
+    .orderBy(desc(users.createdAt))
     .limit(pageSize)
     .offset(offset)
 
   const totalCountResult = await db
     .select({ count: sql<number>`count(*)` })
     .from(users)
+    .where(
+      filter
+        ? or(
+            sql`${users.fullName} ILIKE ${`%${filter}%`}`,
+            sql`${users.email} ILIKE ${`%${filter}%`}`
+          )
+        : undefined
+    )
 
   const totalCount = totalCountResult[0].count
 

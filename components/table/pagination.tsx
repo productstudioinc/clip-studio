@@ -63,30 +63,54 @@ export function Pagination({
         </Select>
       </div>
       <div className="space-x-2">
-        {currentPage > 1 && (
-          <Link
-            href={{
-              pathname,
-              query: { page: currentPage - 1, query, pageSize, view }
-            }}
+        <Link
+          href={{
+            pathname,
+            query: { page: 1, query, pageSize, view }
+          }}
+        >
+          <Button variant="outline" size="sm" disabled={currentPage === 1}>
+            First
+          </Button>
+        </Link>
+        <Link
+          href={{
+            pathname,
+            query: { page: currentPage - 1, query, pageSize, view }
+          }}
+        >
+          <Button variant="outline" size="sm" disabled={currentPage === 1}>
+            Previous
+          </Button>
+        </Link>
+        <Link
+          href={{
+            pathname,
+            query: { page: currentPage + 1, query, pageSize, view }
+          }}
+        >
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage === totalPages}
           >
-            <Button variant="outline" size="sm">
-              Previous
-            </Button>
-          </Link>
-        )}
-        {currentPage < totalPages && (
-          <Link
-            href={{
-              pathname,
-              query: { page: currentPage + 1, query, pageSize, view }
-            }}
+            Next
+          </Button>
+        </Link>
+        <Link
+          href={{
+            pathname,
+            query: { page: totalPages, query, pageSize, view }
+          }}
+        >
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage === totalPages}
           >
-            <Button variant="outline" size="sm">
-              Next
-            </Button>
-          </Link>
-        )}
+            Last
+          </Button>
+        </Link>
       </div>
     </div>
   )
