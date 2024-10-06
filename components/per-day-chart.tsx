@@ -49,7 +49,6 @@ export const PerDayChart: React.FC<PerDayChartProps> = ({
     [data]
   )
 
-  console.log(data)
   return (
     <Card className={className}>
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0">

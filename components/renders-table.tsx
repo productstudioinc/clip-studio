@@ -5,6 +5,7 @@ import { Download } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -20,44 +21,46 @@ interface RendersTableProps {
 
 export async function RendersTable({ renderHistory }: RendersTableProps) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Template Name</TableHead>
-          <TableHead>User</TableHead>
-          <TableHead>Created At</TableHead>
-          <TableHead>Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {renderHistory.map((render) => (
-          <TableRow key={render.id}>
-            <TableCell>{render.templateName}</TableCell>
-            <TableCell>{render.userId}</TableCell>
-            <TableCell>
-              {formatDistanceToNow(render.createdAt, {
-                addSuffix: true,
-                includeSeconds: true
-              })}
-            </TableCell>
-            <TableCell>
-              <Link
-                href={render.videoUrl || '#'}
-                target="_blank"
-                className={cn(
-                  buttonVariants({
-                    variant: 'outline',
-                    size: 'sm'
-                  }),
-                  'w-full'
-                )}
-              >
-                <Download className="mr-2 h-4 w-4" /> Download
-              </Link>
-            </TableCell>
+    <Card>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Template Name</TableHead>
+            <TableHead>User</TableHead>
+            <TableHead>Created At</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {renderHistory.map((render) => (
+            <TableRow key={render.id}>
+              <TableCell>{render.templateName}</TableCell>
+              <TableCell>{render.userId}</TableCell>
+              <TableCell>
+                {formatDistanceToNow(render.createdAt, {
+                  addSuffix: true,
+                  includeSeconds: true
+                })}
+              </TableCell>
+              <TableCell>
+                <Link
+                  href={render.videoUrl || '#'}
+                  target="_blank"
+                  className={cn(
+                    buttonVariants({
+                      variant: 'outline',
+                      size: 'sm'
+                    }),
+                    'w-full'
+                  )}
+                >
+                  <Download className="mr-2 h-4 w-4" /> Download
+                </Link>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Card>
   )
 }

@@ -1,12 +1,24 @@
+import { unstable_cache } from 'next/cache'
 import { getUser } from '@/actions/auth/user'
 import { db } from '@/db'
-import { feedback, pastRenders, users, userUsage } from '@/db/schema'
+import {
+  feedback,
+  pastRenders,
+  tiktokAccounts,
+  tiktokPosts,
+  users,
+  userUsage,
+  youtubeChannels,
+  youtubePosts
+} from '@/db/schema'
 import { desc, eq, sql } from 'drizzle-orm'
 import { Logger } from 'next-axiom'
 
 const logger = new Logger({
   source: 'actions/db/admin-queries'
 })
+
+const REVALIDATE_PERIOD = 60 // 1 minute in seconds
 
 export const checkAdminStatus = async (userId: string): Promise<boolean> => {
   const dbUser = await db.query.users.findFirst({
@@ -163,7 +175,9 @@ export type FeedbackForAdmin = Awaited<
   ReturnType<typeof getFeedbackForAdmin>
 >['feedback'][number]
 
-export const getUserCount = async () => {
+// Raw functions
+
+const getUserCountRaw = async () => {
   await authenticateAdmin()
   const userCount = await db
     .select({ count: sql<number>`count(*)` })
@@ -171,7 +185,7 @@ export const getUserCount = async () => {
   return userCount[0].count
 }
 
-export const getRenderCount = async () => {
+const getRenderCountRaw = async () => {
   await authenticateAdmin()
   const renderCount = await db
     .select({ count: sql<number>`count(*)` })
@@ -179,7 +193,7 @@ export const getRenderCount = async () => {
   return renderCount[0].count
 }
 
-export const getFeedbackCount = async () => {
+const getFeedbackCountRaw = async () => {
   await authenticateAdmin()
   const feedbackCount = await db
     .select({ count: sql<number>`count(*)` })
@@ -187,9 +201,40 @@ export const getFeedbackCount = async () => {
   return feedbackCount[0].count
 }
 
-export const getRenderCountPerDay = async (startDate: Date, endDate: Date) => {
+const getYoutubePostsCountRaw = async () => {
   await authenticateAdmin()
+  const youtubePostsCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(youtubePosts)
+  return youtubePostsCount[0].count
+}
 
+const getTikTokPostsCountRaw = async () => {
+  await authenticateAdmin()
+  const tikTokPostsCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(tiktokPosts)
+  return tikTokPostsCount[0].count
+}
+
+const getTikTokAccountsCountRaw = async () => {
+  await authenticateAdmin()
+  const tikTokAccountsCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(tiktokAccounts)
+  return tikTokAccountsCount[0].count
+}
+
+const getYoutubeAccountsCountRaw = async () => {
+  await authenticateAdmin()
+  const youtubeAccountsCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(youtubeChannels)
+  return youtubeAccountsCount[0].count
+}
+
+const getRenderCountPerDayRaw = async (startDate: Date, endDate: Date) => {
+  await authenticateAdmin()
   const renderCountPerDay = await db
     .select({
       date: sql<string>`to_char(date_series.date, 'YYYY-MM-DD')`,
@@ -204,11 +249,10 @@ export const getRenderCountPerDay = async (startDate: Date, endDate: Date) => {
     )
     .groupBy(sql`date_series.date`)
     .orderBy(sql`date_series.date`)
-
   return renderCountPerDay
 }
 
-export const getUserCountPerDay = async (startDate: Date, endDate: Date) => {
+const getUserCountPerDayRaw = async (startDate: Date, endDate: Date) => {
   await authenticateAdmin()
   const userCountPerDay = await db
     .select({
@@ -224,6 +268,150 @@ export const getUserCountPerDay = async (startDate: Date, endDate: Date) => {
     )
     .groupBy(sql`date_series.date`)
     .orderBy(sql`date_series.date`)
-
   return userCountPerDay
 }
+
+const getFeedbackCountPerDayRaw = async (startDate: Date, endDate: Date) => {
+  await authenticateAdmin()
+  const feedbackCountPerDay = await db
+    .select({
+      date: sql<string>`to_char(date_series.date, 'YYYY-MM-DD')`,
+      count: sql<number>`COALESCE(count(${feedback.id}), 0)`
+    })
+    .from(
+      sql`generate_series(${startDate.toISOString()}::date, ${endDate.toISOString()}::date, '1 day'::interval) AS date_series(date)`
+    )
+    .leftJoin(
+      feedback,
+      sql`date_trunc('day', ${feedback.createdAt}) = date_series.date`
+    )
+    .groupBy(sql`date_series.date`)
+    .orderBy(sql`date_series.date`)
+  return feedbackCountPerDay
+}
+
+const getTikTokPostsPerDayRaw = async (startDate: Date, endDate: Date) => {
+  await authenticateAdmin()
+  const tikTokPostsPerDay = await db
+    .select({
+      date: sql<string>`to_char(date_series.date, 'YYYY-MM-DD')`,
+      count: sql<number>`COALESCE(count(${tiktokPosts.id}), 0)`
+    })
+    .from(
+      sql`generate_series(${startDate.toISOString()}::date, ${endDate.toISOString()}::date, '1 day'::interval) AS date_series(date)`
+    )
+    .leftJoin(
+      tiktokPosts,
+      sql`date_trunc('day', ${tiktokPosts.createdAt}) = date_series.date`
+    )
+    .groupBy(sql`date_series.date`)
+    .orderBy(sql`date_series.date`)
+  return tikTokPostsPerDay
+}
+
+const getYoutubePostsPerDayRaw = async (startDate: Date, endDate: Date) => {
+  await authenticateAdmin()
+  const youtubePostsPerDay = await db
+    .select({
+      date: sql<string>`to_char(date_series.date, 'YYYY-MM-DD')`,
+      count: sql<number>`COALESCE(count(${youtubePosts.id}), 0)`
+    })
+    .from(
+      sql`generate_series(${startDate.toISOString()}::date, ${endDate.toISOString()}::date, '1 day'::interval) AS date_series(date)`
+    )
+    .leftJoin(
+      youtubePosts,
+      sql`date_trunc('day', ${youtubePosts.createdAt}) = date_series.date`
+    )
+    .groupBy(sql`date_series.date`)
+    .orderBy(sql`date_series.date`)
+  return youtubePostsPerDay
+}
+
+const getMostRecentRendersRaw = async () => {
+  await authenticateAdmin()
+  const mostRecentRenders = await db
+    .select()
+    .from(pastRenders)
+    .orderBy(desc(pastRenders.createdAt))
+    .limit(10)
+  return mostRecentRenders
+}
+
+export const getMostRecentRenders = unstable_cache(
+  getMostRecentRendersRaw,
+  ['most-recent-renders'],
+  { revalidate: REVALIDATE_PERIOD }
+)
+
+export const getUserCount = unstable_cache(
+  getUserCountRaw,
+  ['user-count'],
+  { revalidate: REVALIDATE_PERIOD } // 1 minute in seconds
+)
+
+export const getRenderCount = unstable_cache(
+  getRenderCountRaw,
+  ['render-count'],
+  { revalidate: REVALIDATE_PERIOD }
+)
+
+export const getFeedbackCount = unstable_cache(
+  getFeedbackCountRaw,
+  ['feedback-count'],
+  { revalidate: REVALIDATE_PERIOD }
+)
+
+export const getYoutubePostsCount = unstable_cache(
+  getYoutubePostsCountRaw,
+  ['youtube-posts-count'],
+  { revalidate: REVALIDATE_PERIOD }
+)
+
+export const getTikTokPostsCount = unstable_cache(
+  getTikTokPostsCountRaw,
+  ['tiktok-posts-count'],
+  { revalidate: REVALIDATE_PERIOD }
+)
+
+export const getTikTokAccountsCount = unstable_cache(
+  getTikTokAccountsCountRaw,
+  ['tiktok-accounts-count'],
+  { revalidate: REVALIDATE_PERIOD }
+)
+
+export const getYoutubeAccountsCount = unstable_cache(
+  getYoutubeAccountsCountRaw,
+  ['youtube-accounts-count'],
+  { revalidate: REVALIDATE_PERIOD }
+)
+
+export const getRenderCountPerDay = unstable_cache(
+  getRenderCountPerDayRaw,
+  ['render-count-per-day'],
+  { revalidate: REVALIDATE_PERIOD }
+)
+
+export const getUserCountPerDay = unstable_cache(
+  getUserCountPerDayRaw,
+  ['user-count-per-day'],
+  { revalidate: REVALIDATE_PERIOD }
+)
+
+export const getFeedbackCountPerDay = unstable_cache(
+  getFeedbackCountPerDayRaw,
+  ['feedback-count-per-day'],
+  { revalidate: REVALIDATE_PERIOD }
+)
+
+export const getTikTokPostsPerDay = unstable_cache(
+  getTikTokPostsPerDayRaw,
+  ['tiktok-posts-per-day'],
+  { revalidate: REVALIDATE_PERIOD }
+)
+
+export const getYoutubePostsPerDay = unstable_cache(
+  getYoutubePostsPerDayRaw,
+  ['youtube-posts-per-day'],
+  { revalidate: REVALIDATE_PERIOD }
+)
