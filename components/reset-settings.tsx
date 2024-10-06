@@ -1,11 +1,6 @@
 'use client'
 
 import {
-  BackgroundTheme,
-  defaultRedditProps,
-  defaultSplitScreenProps,
-  defaultTextMessageProps,
-  defaultTwitterThreadProps,
   useTemplateStore
 } from '@/stores/templatestore'
 import { Trash2 } from 'lucide-react'

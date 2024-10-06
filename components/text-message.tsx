@@ -90,7 +90,11 @@ const MessageBubble: React.FC<{
             {message.content.type === 'image' &&
               typeof message.content.value === 'object' &&
               'url' in message.content.value && (
-                <img src={message.content.value.url} alt="Image" className="rounded-lg" />
+                <img
+                  src={message.content.value.url}
+                  alt="Image"
+                  className="rounded-lg"
+                />
               )}
           </div>
           <svg
