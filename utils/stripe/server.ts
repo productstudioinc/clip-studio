@@ -28,7 +28,7 @@ export const getBillingPortal = createServerAction()
     })
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId as string,
-      return_url: getURL('/confirmation')
+      return_url: getURL('/')
     })
     return { url: session.url }
   })
