@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ElevenlabsVoice, generateTextVoiceover } from '@/actions/elevenlabs'
-import { VideoProps } from '@/stores/templatestore'
+import { Language, VideoProps } from '@/stores/templatestore'
+import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
 import { Pause, Play } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
 
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -15,13 +17,27 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from '@/components/ui/command'
+import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
 import { Label } from '@/components/ui/label'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
@@ -130,11 +146,13 @@ export const TwoVoiceStep: React.FC<TwoVoiceStepProps> = ({ form, voices }) => {
     const senderVoiceId = form.getValues('sender.voiceId')
     const receiverVoiceId = form.getValues('receiver.voiceId')
     const messages = form.getValues('messages')
+    const language = form.getValues('language')
 
     const [data, error] = await execute({
       senderVoiceId,
       receiverVoiceId,
-      messages
+      messages,
+      language
     })
 
     if (error) {
@@ -258,12 +276,83 @@ export const TwoVoiceStep: React.FC<TwoVoiceStepProps> = ({ form, voices }) => {
 
   const scrollAreaRef = useRef<HTMLDivElement>(null)
 
+  const languages = Object.entries(Language).map(([key, value]) => ({
+    value,
+    label: key
+  }))
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Choose Narrator Voices</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        <FormField
+          control={form.control}
+          name="language"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Language</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        'w-[200px] justify-between',
+                        !field.value && 'text-muted-foreground'
+                      )}
+                    >
+                      {field.value
+                        ? languages.find(
+                            (language) => language.value === field.value
+                          )?.label
+                        : 'Select language'}
+                      <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-[200px] p-0">
+                  <Command>
+                    <CommandInput
+                      placeholder="Search language..."
+                      className="h-9"
+                    />
+                    <CommandList>
+                      <CommandEmpty>No language found.</CommandEmpty>
+                      <CommandGroup>
+                        {languages.map((language) => (
+                          <CommandItem
+                            value={language.label}
+                            key={language.value}
+                            onSelect={() => {
+                              form.setValue('language', language.value)
+                            }}
+                          >
+                            {language.label}
+                            <CheckIcon
+                              className={cn(
+                                'ml-auto h-4 w-4',
+                                language.value === field.value
+                                  ? 'opacity-100'
+                                  : 'opacity-0'
+                              )}
+                            />
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              <FormDescription>
+                This is the language that will be used in the video.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <VoiceSelector person="sender" />
         <VoiceSelector person="receiver" />
       </CardContent>

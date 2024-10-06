@@ -2,7 +2,11 @@
 
 import { db } from '@/db'
 import { userUsage } from '@/db/schema'
-import { TextMessageVideoSchema, VIDEO_FPS } from '@/stores/templatestore'
+import {
+  Language,
+  TextMessageVideoSchema,
+  VIDEO_FPS
+} from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { errorString, startingFunctionString } from '@/utils/logging'
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
@@ -223,7 +227,8 @@ export const generateTextVoiceover = createServerAction()
     z.object({
       senderVoiceId: z.string(),
       receiverVoiceId: z.string(),
-      messages: TextMessageVideoSchema.shape.messages
+      messages: TextMessageVideoSchema.shape.messages,
+      language: z.nativeEnum(Language)
     })
   )
   .handler(async ({ input }) => {
@@ -240,12 +245,12 @@ export const generateTextVoiceover = createServerAction()
       throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
     }
 
-    const { senderVoiceId, receiverVoiceId, messages } = input
+    const { senderVoiceId, receiverVoiceId, messages, language } = input
 
     const fullText = messages
       .filter((message) => message.content.type === 'text')
       .map((message) => message.content.value as string)
-      .join(' <break time="0.3s" /> ')
+      .join(' ')
 
     const characterCount = fullText.length
     const requiredCredits = Math.ceil(
@@ -308,7 +313,7 @@ export const generateTextVoiceover = createServerAction()
               {
                 model_id: 'eleven_turbo_v2_5',
                 text: fullMessageText,
-                language_code: 'en'
+                language_code: language
               }
             )) as AudioResponse
 

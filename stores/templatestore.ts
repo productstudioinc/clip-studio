@@ -8,12 +8,9 @@ import { splitScreenTranscriptionDefault } from './splitscreentranscription'
 // Enums
 export enum Language {
   English = 'en',
-  Japanese = 'ja',
-  Chinese = 'zh',
   German = 'de',
   Hindi = 'hi',
   French = 'fr',
-  Korean = 'ko',
   Portuguese = 'pt',
   Italian = 'it',
   Spanish = 'es',
