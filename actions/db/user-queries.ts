@@ -15,7 +15,7 @@ import {
   users,
   userUsage
 } from '@/db/schema'
-import { eq, sql } from 'drizzle-orm'
+import { desc, eq, sql } from 'drizzle-orm'
 import { Logger } from 'next-axiom'
 import { z } from 'zod'
 import { createServerAction, ZSAError } from 'zsa'
@@ -114,7 +114,11 @@ export const getUserUsage = async () => {
   }
 }
 
-export const getVideoRenderHistory = async () => {
+export const getVideoRenderHistory = async (
+  page: number = 1,
+  pageSize: number = 10,
+  filter: string = ''
+) => {
   const { user } = await getUser()
   if (!user) {
     logger.warn(
@@ -123,22 +127,53 @@ export const getVideoRenderHistory = async () => {
     await logger.flush()
     return null
   }
-  logger.info('Fetching video render history', { userId: user.id })
+  logger.info('Fetching video render history', {
+    userId: user.id,
+    page,
+    pageSize,
+    filter
+  })
   try {
-    const result = await db
+    const offset = (page - 1) * pageSize
+
+    const renderHistory = await db
       .select()
       .from(pastRenders)
-      .where(eq(pastRenders.userId, user.id))
+      .where(
+        sql`${pastRenders.userId} = ${user.id} AND (${filter ? sql`${pastRenders.templateName} ILIKE ${`%${filter}%`}` : sql`1=1`})`
+      )
+      .orderBy(desc(pastRenders.createdAt))
+      .limit(pageSize)
+      .offset(offset)
+
+    const totalCountResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(pastRenders)
+      .where(
+        sql`${pastRenders.userId} = ${user.id} AND (${filter ? sql`${pastRenders.templateName} ILIKE ${`%${filter}%`}` : sql`1=1`})`
+      )
+
+    const totalCount = totalCountResult[0].count
+
     logger.info('Video render history fetched successfully', {
-      userId: user.id
+      userId: user.id,
+      page,
+      pageSize,
+      totalCount
     })
     await logger.flush()
-    return result
+    return {
+      renderHistory,
+      totalPages: Math.ceil(totalCount / pageSize),
+      currentPage: page
+    }
   } catch (error) {
     logger.error('Error fetching video render history', {
       userId: user.id,
       error: error instanceof Error ? error.message : String(error)
     })
+    await logger.flush()
+    throw error
   }
 }
 

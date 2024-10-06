@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { getUser } from '@/actions/auth/user'
-import { createOrRetrieveCustomer } from '@/actions/db/admin-queries'
+import { createOrRetrieveCustomer } from '@/actions/db/billing-queries'
 import Stripe from 'stripe'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'

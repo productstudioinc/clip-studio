@@ -30,6 +30,7 @@ export const subscriptionStatusEnum = pgEnum('subscription_status', [
   'paused'
 ])
 export const planTierEnum = pgEnum('plan_tier', ['hobby', 'creator', 'pro'])
+export const userRoleEnum = pgEnum('user_role', ['user', 'admin'])
 
 // User-related tables and relations
 export const users = pgTable('users', {
@@ -37,7 +38,10 @@ export const users = pgTable('users', {
   fullName: text('full_name'),
   avatarUrl: text('avatar_url'),
   billingAddress: jsonb('billing_address'),
-  paymentMethod: jsonb('payment_method')
+  paymentMethod: jsonb('payment_method'),
+  role: userRoleEnum('role').default('user').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
 })
 
 export const feedback = pgTable('feedback', {

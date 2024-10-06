@@ -1,324 +1,230 @@
+import { getUser } from '@/actions/auth/user'
 import { db } from '@/db'
-import {
-  customers,
-  planLimits,
-  prices,
-  products,
-  subscriptions,
-  users,
-  userUsage
-} from '@/db/schema'
-import { stripe } from '@/utils/stripe/config'
-import { and, eq } from 'drizzle-orm'
-import Stripe from 'stripe'
+import { feedback, pastRenders, users, userUsage } from '@/db/schema'
+import { desc, eq, sql } from 'drizzle-orm'
+import { Logger } from 'next-axiom'
 
-const upsertProductRecord = async (product: Stripe.Product) => {
-  const productData = {
-    id: product.id,
-    active: product.active,
-    name: product.name,
-    description: product.description ?? null,
-    image: product.images?.[0] ?? null,
-    metadata: product.metadata,
-    marketingFeatures: product.marketing_features?.map(
-      (feature) => feature.name ?? ''
-    ),
-    defaultPriceId:
-      typeof product.default_price === 'string' ? product.default_price : null
+const logger = new Logger({
+  source: 'actions/db/admin-queries'
+})
+
+export const checkAdminStatus = async (userId: string): Promise<boolean> => {
+  const dbUser = await db.query.users.findFirst({
+    where: (users, { eq }) => eq(users.id, userId),
+    columns: { role: true }
+  })
+
+  return dbUser?.role === 'admin'
+}
+
+export const authenticateAdmin = async (): Promise<void> => {
+  const { user } = await getUser()
+  if (!user) {
+    logger.error('Attempted to access admin function for unauthenticated user')
+    await logger.flush()
+    throw new Error('Unauthorized: User not authenticated')
   }
 
-  try {
-    await db.insert(products).values(productData).onConflictDoUpdate({
-      target: products.id,
-      set: productData
-    })
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(error.message)
-    }
+  const isAdmin = await checkAdminStatus(user.id)
+
+  if (!isAdmin) {
+    logger.error('Attempted to access admin function for non-admin user')
+    await logger.flush()
+    throw new Error('Forbidden: User is not an admin')
   }
 }
 
-const upsertPriceRecord = async (
-  price: Stripe.Price,
-  retryCount = 0,
-  maxRetries = 3
+export const getFeedback = async () => {
+  await authenticateAdmin()
+  const feedback = await db.query.feedback.findMany()
+  return feedback
+}
+
+export const getRenderHistory = async (
+  page: number = 1,
+  pageSize: number = 10,
+  filter: string = ''
 ) => {
-  const priceData = {
-    id: price.id,
-    productId: typeof price.product === 'string' ? price.product : null,
-    active: price.active,
-    currency: price.currency,
-    type: price.type,
-    unitAmount: price.unit_amount ?? null,
-    interval: price.recurring?.interval ?? null,
-    intervalCount: price.recurring?.interval_count ?? null
-  }
+  await authenticateAdmin()
+  const offset = (page - 1) * pageSize
 
-  try {
-    await db.insert(prices).values(priceData).onConflictDoUpdate({
-      target: prices.id,
-      set: priceData
-    })
-    console.log(`Price inserted/updated: ${price.id}`)
-  } catch (error) {
-    if (error instanceof Error) {
-      if (
-        error.message.includes('foreign key constraint') &&
-        retryCount < maxRetries
-      ) {
-        console.log(`Retry attempt ${retryCount + 1} for price ID: ${price.id}`)
-        await new Promise((resolve) => setTimeout(resolve, 2000))
-        return upsertPriceRecord(price, retryCount + 1, maxRetries)
-      } else if (retryCount >= maxRetries) {
-        throw new Error(
-          `Price insert/update failed after ${maxRetries} retries: ${error.message}`
-        )
-      } else {
-        throw new Error(`Price insert/update failed: ${error.message}`)
-      }
-    }
-    throw error
-  }
-}
-
-const deleteProductRecord = async (product: Stripe.Product) => {
-  try {
-    await db.delete(products).where(eq(products.id, product.id))
-    console.log(`Product deleted: ${product.id}`)
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Product deletion failed: ${error.message}`)
-    }
-  }
-}
-
-const deletePriceRecord = async (price: Stripe.Price) => {
-  try {
-    await db.delete(prices).where(eq(prices.id, price.id))
-    console.log(`Price deleted: ${price.id}`)
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Price deletion failed: ${error.message}`)
-    }
-  }
-}
-
-const upsertCustomerToDb = async (uuid: string, customerId: string) => {
-  try {
-    await db
-      .insert(customers)
-      .values({ id: uuid, stripeCustomerId: customerId })
-      .onConflictDoUpdate({
-        target: customers.id,
-        set: { stripeCustomerId: customerId }
-      })
-    return customerId
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`DB customer record creation failed: ${error.message}`)
-    }
-  }
-}
-
-const createCustomerInStripe = async (uuid: string, email: string) => {
-  const customerData = { metadata: { supabaseUUID: uuid }, email: email }
-  const newCustomer = await stripe.customers.create(customerData)
-  if (!newCustomer) throw new Error('Stripe customer creation failed.')
-  return newCustomer.id
-}
-
-const createOrRetrieveCustomer = async ({
-  email,
-  uuid
-}: {
-  email: string
-  uuid: string
-}) => {
-  try {
-    const existingCustomer = await db
-      .select()
-      .from(customers)
-      .where(eq(customers.id, uuid))
-      .limit(1)
-
-    let stripeCustomerId: string | undefined
-    if (existingCustomer[0]?.stripeCustomerId) {
-      const existingStripeCustomer = await stripe.customers.retrieve(
-        existingCustomer[0].stripeCustomerId
-      )
-      stripeCustomerId = existingStripeCustomer.id
-    } else {
-      const stripeCustomers = await stripe.customers.list({ email: email })
-      stripeCustomerId =
-        stripeCustomers.data.length > 0 ? stripeCustomers.data[0].id : undefined
-    }
-
-    const stripeIdToInsert =
-      stripeCustomerId ?? (await createCustomerInStripe(uuid, email))
-    if (!stripeIdToInsert) throw new Error('Stripe customer creation failed.')
-
-    if (existingCustomer[0] && stripeCustomerId) {
-      if (existingCustomer[0].stripeCustomerId !== stripeCustomerId) {
-        await db
-          .update(customers)
-          .set({ stripeCustomerId: stripeCustomerId })
-          .where(eq(customers.id, uuid))
-        console.warn(
-          `DB customer record mismatched Stripe ID. DB record updated.`
-        )
-      }
-      return stripeCustomerId
-    } else {
-      console.warn(`DB customer record was missing. A new record was created.`)
-      return await upsertCustomerToDb(uuid, stripeIdToInsert)
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Customer lookup/creation failed: ${error.message}`)
-    }
-  }
-}
-
-const copyBillingDetailsToCustomer = async (
-  uuid: string,
-  paymentMethod: Stripe.PaymentMethod
-) => {
-  const customer = paymentMethod.customer as string
-  const { name, phone, address } = paymentMethod.billing_details
-  if (!name || !phone || !address) return
-  //@ts-ignore
-  await stripe.customers.update(customer, { name, phone, address })
-  try {
-    await db
-      .update(users)
-      .set({
-        billingAddress: { ...address },
-        paymentMethod: { ...paymentMethod[paymentMethod.type] }
-      })
-      .where(eq(users.id, uuid))
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Customer update failed: ${error.message}`)
-    }
-  }
-}
-
-const manageSubscriptionStatusChange = async (
-  subscriptionId: string,
-  customerId: string,
-  createAction = false
-) => {
-  try {
-    const customerData = await db
-      .select({ id: customers.id })
-      .from(customers)
-      .where(eq(customers.stripeCustomerId, customerId))
-      .limit(1)
-    if (!customerData[0]) throw new Error('Customer not found')
-    const { id: uuid } = customerData[0]
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
-      expand: ['default_payment_method']
-    })
-    const subscriptionData = {
-      id: subscription.id,
-      userId: uuid,
-      metadata: JSON.stringify(subscription.metadata),
-      status: subscription.status,
-      priceId: subscription.items.data[0].price.id,
-      //@ts-ignore
-      quantity: subscription.quantity,
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      cancelAt: subscription.cancel_at
-        ? new Date(subscription.cancel_at * 1000)
-        : null,
-      canceledAt: subscription.canceled_at
-        ? new Date(subscription.canceled_at * 1000)
-        : null,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-      created: new Date(subscription.created * 1000),
-      endedAt: subscription.ended_at
-        ? new Date(subscription.ended_at * 1000)
-        : null
-    }
-    await db.insert(subscriptions).values(subscriptionData).onConflictDoUpdate({
-      target: subscriptions.id,
-      set: subscriptionData
-    })
-    console.log(
-      `Inserted/updated subscription [${subscription.id}] for user [${uuid}]`
+  const renderHistory = await db
+    .select()
+    .from(pastRenders)
+    .where(
+      filter
+        ? sql`${pastRenders.templateName} ILIKE ${`%${filter}%`}`
+        : undefined
     )
-    if (createAction && subscription.default_payment_method && uuid) {
-      await copyBillingDetailsToCustomer(
-        uuid,
-        subscription.default_payment_method as Stripe.PaymentMethod
-      )
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Subscription insert/update failed: ${error.message}`)
-    }
-    throw error // Re-throw other errors
-  }
-}
+    .orderBy(desc(pastRenders.createdAt))
+    .limit(pageSize)
+    .offset(offset)
 
-const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
-  try {
-    const subscriptionDetails = await db
-      .select({
-        userId: subscriptions.userId,
-        subscriptionId: subscriptions.id,
-        creditsLeft: planLimits.totalCredits,
-        connectedAccounts: planLimits.totalConnectedAccounts
-      })
-      .from(subscriptions)
-      .innerJoin(prices, eq(subscriptions.priceId, prices.id))
-      .innerJoin(products, eq(prices.productId, products.id))
-      .innerJoin(planLimits, eq(products.id, planLimits.productId))
-      .where(
-        and(
-          eq(subscriptions.status, 'active'),
-          eq(subscriptions.id, subscription.id)
-        )
-      )
-      .limit(1)
-    if (!subscriptionDetails[0]) {
-      throw new Error('No active subscription found')
-    }
-
-    await db
-      .insert(userUsage)
-      .values({
-        userId: subscriptionDetails[0].userId,
-        creditsLeft: subscriptionDetails[0].creditsLeft,
-        connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
-        lastResetDate: new Date()
-      })
-      .onConflictDoUpdate({
-        target: userUsage.userId,
-        set: {
-          creditsLeft: subscriptionDetails[0].creditsLeft,
-          connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
-          lastResetDate: new Date()
-        }
-      })
-    console.log(
-      `Updated usage limits for user ${subscriptionDetails[0].userId}`
+  const totalCountResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(pastRenders)
+    .where(
+      filter
+        ? sql`${pastRenders.templateName} ILIKE ${`%${filter}%`}`
+        : undefined
     )
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Subscription insert/update failed: ${error.message}`)
-    }
+
+  const totalCount = totalCountResult[0].count
+
+  return {
+    renderHistory,
+    totalPages: Math.ceil(totalCount / pageSize),
+    currentPage: page
+  }
+}
+export const getUsersForAdmin = async (
+  page: number = 1,
+  pageSize: number = 10,
+  filter: string = ''
+) => {
+  await authenticateAdmin()
+  const offset = (page - 1) * pageSize
+
+  const usersWithUsage = await db
+    .select({
+      id: users.id,
+      fullName: users.fullName,
+      role: users.role,
+      usage: {
+        creditsLeft: userUsage.creditsLeft,
+        connectedAccountsLeft: userUsage.connectedAccountsLeft
+      }
+    })
+    .from(users)
+    .leftJoin(userUsage, eq(users.id, userUsage.userId))
+    .limit(pageSize)
+    .offset(offset)
+
+  const totalCountResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(users)
+
+  const totalCount = totalCountResult[0].count
+
+  return {
+    users: usersWithUsage,
+    totalPages: Math.ceil(totalCount / pageSize),
+    currentPage: page
+  }
+}
+export const getFeedbackForAdmin = async (
+  page: number = 1,
+  pageSize: number = 10,
+  filter: string = ''
+) => {
+  await authenticateAdmin()
+  const offset = (page - 1) * pageSize
+
+  const feedbackWithUser = await db
+    .select({
+      id: feedback.id,
+      feedbackType: feedback.feedbackType,
+      rating: feedback.rating,
+      comment: feedback.comment,
+      createdAt: feedback.createdAt,
+      user: {
+        id: users.id,
+        fullName: users.fullName
+      }
+    })
+    .from(feedback)
+    .leftJoin(users, eq(feedback.userId, users.id))
+    .where(filter ? sql`${feedback.comment} ILIKE ${`%${filter}%`}` : undefined)
+    .orderBy(desc(feedback.createdAt))
+    .limit(pageSize)
+    .offset(offset)
+
+  const totalCountResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(feedback)
+    .where(filter ? sql`${feedback.comment} ILIKE ${`%${filter}%`}` : undefined)
+
+  const totalCount = totalCountResult[0].count
+
+  return {
+    feedback: feedbackWithUser,
+    totalPages: Math.ceil(totalCount / pageSize),
+    currentPage: page
   }
 }
 
-export {
-  createOrRetrieveCustomer,
-  deletePriceRecord,
-  deleteProductRecord,
-  manageSubscriptionStatusChange,
-  updateUserUsageLimits,
-  upsertPriceRecord,
-  upsertProductRecord
+export type RenderHistory = typeof pastRenders.$inferSelect
+
+export type UsersForAdmin = Awaited<
+  ReturnType<typeof getUsersForAdmin>
+>['users'][number]
+
+export type FeedbackForAdmin = Awaited<
+  ReturnType<typeof getFeedbackForAdmin>
+>['feedback'][number]
+
+export const getUserCount = async () => {
+  await authenticateAdmin()
+  const userCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(users)
+  return userCount[0].count
+}
+
+export const getRenderCount = async () => {
+  await authenticateAdmin()
+  const renderCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(pastRenders)
+  return renderCount[0].count
+}
+
+export const getFeedbackCount = async () => {
+  await authenticateAdmin()
+  const feedbackCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(feedback)
+  return feedbackCount[0].count
+}
+
+export const getRenderCountPerDay = async (startDate: Date, endDate: Date) => {
+  await authenticateAdmin()
+
+  const renderCountPerDay = await db
+    .select({
+      date: sql<string>`to_char(date_series.date, 'YYYY-MM-DD')`,
+      count: sql<number>`COALESCE(count(${pastRenders.id}), 0)`
+    })
+    .from(
+      sql`generate_series(${startDate.toISOString()}::date, ${endDate.toISOString()}::date, '1 day'::interval) AS date_series(date)`
+    )
+    .leftJoin(
+      pastRenders,
+      sql`date_trunc('day', ${pastRenders.createdAt}) = date_series.date`
+    )
+    .groupBy(sql`date_series.date`)
+    .orderBy(sql`date_series.date`)
+
+  return renderCountPerDay
+}
+
+export const getUserCountPerDay = async (startDate: Date, endDate: Date) => {
+  await authenticateAdmin()
+  const userCountPerDay = await db
+    .select({
+      date: sql<string>`to_char(date_series.date, 'YYYY-MM-DD')`,
+      count: sql<number>`COALESCE(count(${users.id}), 0)`
+    })
+    .from(
+      sql`generate_series(${startDate.toISOString()}::date, ${endDate.toISOString()}::date, '1 day'::interval) AS date_series(date)`
+    )
+    .leftJoin(
+      users,
+      sql`date_trunc('day', ${users.createdAt}) = date_series.date`
+    )
+    .groupBy(sql`date_series.date`)
+    .orderBy(sql`date_series.date`)
+
+  console.log(userCountPerDay)
+  return userCountPerDay
 }

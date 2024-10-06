@@ -5,7 +5,7 @@ import {
   updateUserUsageLimits,
   upsertPriceRecord,
   upsertProductRecord
-} from '@/actions/db/admin-queries'
+} from '@/actions/db/billing-queries'
 import { stripe } from '@/utils/stripe/config'
 import { AxiomRequest, withAxiom } from 'next-axiom'
 import Stripe from 'stripe'
