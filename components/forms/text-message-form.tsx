@@ -62,8 +62,8 @@ export const TextMessageForm: React.FC<TextMessageFormProps> = ({
   return (
     <Form {...form}>
       <form className="w-full space-y-6">
-        <div className="flex flex-col lg:flex-row gap-8">
-          <div className="w-full lg:w-3/5 space-y-6">
+        <div className="grid grid-cols-12 gap-8">
+          <div className="col-span-12 lg:col-span-7 space-y-6">
             <TextMessageStep form={form} />
             {/* <VoiceStep form={form} voices={voices} /> */}
             <TwoVoiceStep form={form} voices={voices} />
@@ -79,7 +79,7 @@ export const TextMessageForm: React.FC<TextMessageFormProps> = ({
             />
           </div>
 
-          <div className="w-full lg:w-2/5">
+          <div className="col-span-12 lg:col-span-5">
             <div className="sticky top-8 w-full py-8 flex items-center justify-center p-4 lg:p-0 flex-col">
               <div className="w-full">
                 <TextMessage {...(form.watch() as TextMessageVideoProps)} />
