@@ -234,7 +234,7 @@ export type AIVideoProps = z.infer<typeof AIVideoSchema>
 export type ClipsVideoProps = z.infer<typeof ClipsVideoSchema>
 
 // Default Props
-const defaultMinecraftBackgrounds = [
+const allMinecraftBackgrounds = [
   'https://assets.clip.studio/mc_0.mp4',
   'https://assets.clip.studio/mc_1.mp4',
   'https://assets.clip.studio/mc_2.mp4',
@@ -244,15 +244,45 @@ const defaultMinecraftBackgrounds = [
   'https://assets.clip.studio/mc_6.mp4',
   'https://assets.clip.studio/mc_7.mp4',
   'https://assets.clip.studio/mc_8.mp4',
-  'https://assets.clip.studio/mc_9.mp4'
+  'https://assets.clip.studio/mc_9.mp4',
+  'https://assets.clip.studio/mc_10.mp4',
+  'https://assets.clip.studio/mc_11.mp4',
+  'https://assets.clip.studio/mc_12.mp4',
+  'https://assets.clip.studio/mc_13.mp4',
+  'https://assets.clip.studio/mc_14.mp4',
+  'https://assets.clip.studio/mc_15.mp4',
+  'https://assets.clip.studio/mc_16.mp4',
+  'https://assets.clip.studio/mc_17.mp4',
+  'https://assets.clip.studio/mc_18.mp4',
+  'https://assets.clip.studio/mc_19.mp4',
+  'https://assets.clip.studio/mc_20.mp4',
+  'https://assets.clip.studio/mc_21.mp4',
+  'https://assets.clip.studio/mc_22.mp4',
+  'https://assets.clip.studio/mc_23.mp4',
+  'https://assets.clip.studio/mc_24.mp4',
+  'https://assets.clip.studio/mc_25.mp4',
+  'https://assets.clip.studio/mc_26.mp4',
+  'https://assets.clip.studio/mc_27.mp4',
+  'https://assets.clip.studio/mc_28.mp4',
+  'https://assets.clip.studio/mc_29.mp4'
 ]
+
+const selectRandomBackgroundWindow = (
+  backgrounds: string[],
+  windowSize: number = 10
+) => {
+  const totalParts = backgrounds.length
+  const maxStartIndex = totalParts - windowSize
+  const startIndex = Math.floor(Math.random() * (maxStartIndex + 1))
+  return backgrounds.slice(startIndex, startIndex + windowSize)
+}
 
 export const defaultSplitScreenProps: SplitScreenVideoProps = {
   videoUrl: 'https://assets.clip.studio/transcribe_test.webm',
   type: 'cloud',
   durationInFrames: 60 * 30,
   backgroundTheme: BackgroundTheme.Minecraft,
-  backgroundUrls: defaultMinecraftBackgrounds,
+  backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
   transcriptionId: '',
   transcription: splitScreenTranscriptionDefault,
   language: Language.English,
@@ -274,7 +304,7 @@ export const defaultRedditProps: RedditVideoProps = {
   comments: 366,
   durationInFrames: 30 * 30,
   backgroundTheme: BackgroundTheme.Minecraft,
-  backgroundUrls: defaultMinecraftBackgrounds,
+  backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
   voiceoverUrl: 'https://assets.clip.studio/reddit_voiceover_sample.mp3',
   voiceoverFrames: alignmentDefault,
   accountName: 'clipstudio',
@@ -293,7 +323,7 @@ export const defaultTwitterThreadProps: TwitterVideoProps = {
   tweetId: '1803609101110550977',
   durationInFrames: 900,
   backgroundTheme: BackgroundTheme.Minecraft,
-  backgroundUrls: defaultMinecraftBackgrounds,
+  backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
   language: Language.English,
   voiceVolume: 70,
   musicVolume: 30,
@@ -366,7 +396,7 @@ export const defaultTextMessageProps: TextMessageVideoProps = {
   fps: VIDEO_FPS,
   durationInFrames: 521,
   backgroundTheme: BackgroundTheme.Minecraft,
-  backgroundUrls: defaultMinecraftBackgrounds,
+  backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
   captionStyle: CaptionStyle.Default,
   voiceoverUrl: 'https://assets.clip.studio/messages_voiceover_sample.mp3'
 }
@@ -396,7 +426,7 @@ export const defaultAIVideoProps: AIVideoProps = {
   videoUrl: 'https://assets.clip.studio/ai_sample.mp4',
   type: 'cloud',
   transcription: splitScreenTranscriptionDefault,
-  backgroundUrls: defaultMinecraftBackgrounds,
+  backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
   language: Language.English,
   voiceVolume: 70,
   musicVolume: 30,
@@ -416,7 +446,7 @@ const initialState = {
   textMessageState: defaultTextMessageProps,
   durationInFrames: DEFAULT_DURATION_IN_FRAMES,
   backgroundTheme: BackgroundTheme.Minecraft,
-  backgroundUrls: defaultMinecraftBackgrounds,
+  backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
   captionStyle: CaptionStyle.Default,
   clipsState: defaultClipsProps,
   aiVideoState: defaultAIVideoProps

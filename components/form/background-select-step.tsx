@@ -1,10 +1,12 @@
 'use client'
 
 import type { FC } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { SelectBackgroundWithParts } from '@/db/schema'
 import { BackgroundTheme, VideoProps } from '@/stores/templatestore'
 import { UseFormReturn } from 'react-hook-form'
 
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   FormControl,
@@ -25,13 +27,51 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
   form,
   backgrounds
 }) => {
-  const handleSelect = (background: SelectBackgroundWithParts) => {
-    form.setValue('backgroundTheme', background.name as BackgroundTheme)
-    form.setValue(
-      'backgroundUrls',
-      background.backgroundParts.map((part) => part.partUrl)
-    )
-  }
+  const [selectedBackground, setSelectedBackground] =
+    useState<SelectBackgroundWithParts | null>(null)
+
+  useEffect(() => {
+    const defaultTheme = form.getValues('backgroundTheme')
+    const defaultBackground = backgrounds.find((bg) => bg.name === defaultTheme)
+    if (defaultBackground) {
+      setSelectedBackground(defaultBackground)
+    }
+  }, [form, backgrounds])
+
+  const selectBackgroundSection = useCallback(
+    (background: SelectBackgroundWithParts) => {
+      const totalParts = background.backgroundParts.length
+      const partsNeeded = 10
+      const maxStartIndex = totalParts - partsNeeded
+      const startIndex = Math.floor(Math.random() * (maxStartIndex + 1))
+
+      const selectedParts = background.backgroundParts.slice(
+        startIndex,
+        startIndex + partsNeeded
+      )
+
+      form.setValue(
+        'backgroundUrls',
+        selectedParts.map((part) => part.partUrl)
+      )
+    },
+    [form]
+  )
+
+  const handleSelect = useCallback(
+    (background: SelectBackgroundWithParts) => {
+      form.setValue('backgroundTheme', background.name as BackgroundTheme)
+      setSelectedBackground(background)
+      selectBackgroundSection(background)
+    },
+    [form, selectBackgroundSection]
+  )
+
+  const handleNewSection = useCallback(() => {
+    if (selectedBackground) {
+      selectBackgroundSection(selectedBackground)
+    }
+  }, [selectedBackground, selectBackgroundSection])
 
   return (
     <Card>
@@ -90,6 +130,13 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
           />
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
+        <Button
+          onClick={handleNewSection}
+          className="mt-4"
+          disabled={!selectedBackground}
+        >
+          Choose New Section
+        </Button>
       </CardContent>
     </Card>
   )
