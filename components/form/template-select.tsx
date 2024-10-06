@@ -59,7 +59,7 @@ export const TemplateSelect: React.FC<TemplateSelectProps> = ({
                 <span className="w-full p-2 text-center">{template.name}</span>
               </Label>
             ))}
-            <Link href="/feedback">
+            <Link href="/feedback?type=template_request">
               <Label className="relative flex-shrink-0 flex flex-col items-center justify-center rounded-md border-2 border-dashed border-muted bg-popover hover:bg-accent hover:text-accent-foreground hover:cursor-pointer transition-all duration-300 ease-in-out w-[200px] h-full">
                 <span className="text-center">Request a Template</span>
               </Label>

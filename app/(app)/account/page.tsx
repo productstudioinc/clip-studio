@@ -14,7 +14,7 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { ProfileForm } from '@/components/forms/profile'
+import { ProfileForm } from '@/components/forms/profile-form'
 import { Icons } from '@/components/icons'
 
 import {
