@@ -292,6 +292,8 @@ export const TextMessageVideoSchema = BaseVideoSchema.extend({
           z.object({ duration: z.number() })
         ])
       }),
+      from: z.number(),
+      duration: z.number(),
       reactions: z.array(z.string()).optional(),
       replyTo: z.number().optional() // Index of the message being replied to
     })
@@ -393,12 +395,12 @@ export const defaultTwitterThreadProps: TwitterVideoProps = {
 export const defaultTextMessageProps: TextMessageVideoProps = {
   sender: {
     name: 'me',
-    voiceId: 'sender_voice_id'
+    voiceId: '9BWtsMINqrJLrRacOk9x'
   },
   receiver: {
     name: 'Jessica',
     image: '',
-    voiceId: 'receiver_voice_id'
+    voiceId: 'EXAVITQu4vr4xnSDxMaL'
   },
   messages: [
     {
@@ -407,14 +409,18 @@ export const defaultTextMessageProps: TextMessageVideoProps = {
         type: 'text',
         value:
           "OMG! You won't believe who I just caught sneaking out of the principal's office! 😱🔥"
-      }
+      },
+      from: 0,
+      duration: 4.505
     },
     {
       sender: 'receiver',
       content: {
         type: 'text',
         value: 'No way! Who?? Spill the tea! ☕️👀'
-      }
+      },
+      from: 4.505,
+      duration: 2.461
     },
     {
       sender: 'sender',
@@ -422,7 +428,9 @@ export const defaultTextMessageProps: TextMessageVideoProps = {
         type: 'text',
         value:
           'Promise not to tell? It was... the head cheerleader with the math nerd! 🤓📚💋'
-      }
+      },
+      from: 6.966,
+      duration: 5.294
     },
     {
       sender: 'receiver',
@@ -430,7 +438,9 @@ export const defaultTextMessageProps: TextMessageVideoProps = {
         type: 'text',
         value:
           'WHAT?! Ashley and Kevin?! My mind is blown! 🤯 How did THAT happen?!'
-      }
+      },
+      from: 12.26,
+      duration: 5.108
     }
   ],
   style: 'imessage',
@@ -442,11 +452,11 @@ export const defaultTextMessageProps: TextMessageVideoProps = {
   width: VIDEO_WIDTH,
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
-  durationInFrames: 30 * 30,
+  durationInFrames: 521,
   backgroundTheme: BackgroundTheme.Minecraft,
   backgroundUrls: defaultMinecraftBackgrounds,
   captionStyle: CaptionStyle.Default,
-  voiceoverUrl: 'https://assets.clip.studio/reddit_voiceover_sample.mp3'
+  voiceoverUrl: 'https://assets.clip.studio/messages_voiceover_sample.mp3'
 }
 
 export const defaultClipsProps: ClipsVideoProps = {

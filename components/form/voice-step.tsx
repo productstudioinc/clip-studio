@@ -1,10 +1,7 @@
 'use client'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import {
-  ElevenlabsVoice,
-  generateAudioAndTimestamps
-} from '@/actions/elevenlabs'
+import { ElevenlabsVoice, generateRedditVoiceover } from '@/actions/elevenlabs'
 import { Language, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
@@ -150,7 +147,7 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
 
   const getAudioElementId = (id: string) => id + '-audio'
 
-  const { isPending, execute } = useServerAction(generateAudioAndTimestamps)
+  const { isPending, execute } = useServerAction(generateRedditVoiceover)
 
   const handleGenerate = async () => {
     const selectedVoice = form.getValues('voice')

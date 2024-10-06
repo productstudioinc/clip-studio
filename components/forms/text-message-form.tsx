@@ -25,6 +25,8 @@ import { FormSubmit } from '@/components/form/form-submit'
 import { TextMessageStep } from '@/components/form/text-message-step'
 import { VideoPreview } from '@/components/form/video-preview'
 
+import { TwoVoiceStep } from '../form/two-voice-step'
+
 interface TextMessageFormProps {
   voices: ElevenlabsVoice[]
   backgrounds: SelectBackgroundWithParts[]
@@ -63,6 +65,7 @@ export const TextMessageForm: React.FC<TextMessageFormProps> = ({
           <div className="w-full lg:w-3/5 space-y-6">
             <TextMessageStep form={form} />
             {/* <VoiceStep form={form} voices={voices} /> */}
+            <TwoVoiceStep form={form} voices={voices} />
             {/* <MusicStep form={form} music={music} /> */}
             <BackgroundSelectStep form={form} backgrounds={backgrounds} />
             {/* <CaptionStyleStep form={form} /> */}

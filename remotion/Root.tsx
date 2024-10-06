@@ -47,6 +47,11 @@ export const RemotionRoot: React.FC = () => {
         height={VIDEO_HEIGHT}
         schema={TextMessageVideoSchema}
         defaultProps={textMessageState as any}
+        calculateMetadata={async ({ props }) => {
+          return {
+            durationInFrames: props.durationInFrames
+          }
+        }}
       />
       <Composition
         id="SplitScreen"

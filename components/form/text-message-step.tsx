@@ -143,7 +143,7 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
                                   </SelectItem>
                                 </SelectContent>
                               </Select>
-                              <Select
+                              {/* <Select
                                 onValueChange={(value) =>
                                   form.setValue(
                                     `messages.${index}.content.type`,
@@ -161,7 +161,7 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
                                   <SelectItem value="text">Text</SelectItem>
                                   <SelectItem value="image">Image</SelectItem>
                                 </SelectContent>
-                              </Select>
+                              </Select> */}
                               {form.watch(`messages.${index}.content.type`) ===
                               'text' ? (
                                 <Input
@@ -237,7 +237,7 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
               <PlusCircle className="mr-2 h-4 w-4" />
               Add Message
             </Button>
-            <Button
+            {/* <Button
               type="button"
               variant="outline"
               size="sm"
@@ -246,7 +246,7 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
             >
               <PlusCircle className="mr-2 h-4 w-4" />
               Generate Fake Texts
-            </Button>
+            </Button> */}
           </div>
         </div>
       </CardContent>

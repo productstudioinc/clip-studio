@@ -2,6 +2,7 @@
 
 import { db } from '@/db'
 import { userUsage } from '@/db/schema'
+import { TextMessageVideoSchema, VIDEO_FPS } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { errorString, startingFunctionString } from '@/utils/logging'
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
@@ -44,7 +45,7 @@ export const getVoices = async () => {
   }
 }
 
-export const generateAudioAndTimestamps = createServerAction()
+export const generateRedditVoiceover = createServerAction()
   .input(
     z.object({
       title: z.string(),
@@ -55,7 +56,7 @@ export const generateAudioAndTimestamps = createServerAction()
   )
   .handler(async ({ input }) => {
     const logger = new Logger().with({
-      function: 'generateAudioAndTimestamps',
+      function: 'generateRedditVoiceover',
       ...input
     })
     logger.info(startingFunctionString)
@@ -209,6 +210,176 @@ export const generateAudioAndTimestamps = createServerAction()
       if (error instanceof ZSAError) {
         throw error
       }
+
+      throw new ZSAError(
+        'INTERNAL_SERVER_ERROR',
+        'An error occurred while generating the voiceover.'
+      )
+    }
+  })
+
+export const generateTextVoiceover = createServerAction()
+  .input(
+    z.object({
+      senderVoiceId: z.string(),
+      receiverVoiceId: z.string(),
+      messages: TextMessageVideoSchema.shape.messages
+    })
+  )
+  .handler(async ({ input }) => {
+    const logger = new Logger().with({
+      function: 'generateTextVoiceover',
+      ...input
+    })
+    logger.info(startingFunctionString)
+
+    const { user } = await getUser()
+    if (!user) {
+      logger.error(errorString, { error: 'User not authorized' })
+      await logger.flush()
+      throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
+    }
+
+    const { senderVoiceId, receiverVoiceId, messages } = input
+
+    const fullText = messages
+      .filter((message) => message.content.type === 'text')
+      .map((message) => message.content.value as string)
+      .join(' <break time="0.3s" /> ')
+
+    const characterCount = fullText.length
+    const requiredCredits = Math.ceil(
+      characterCount / CREDIT_CONVERSIONS.VOICEOVER_CHARACTERS
+    )
+
+    try {
+      const userUsageRecord = await db
+        .select({ creditsLeft: userUsage.creditsLeft })
+        .from(userUsage)
+        .where(eq(userUsage.userId, user.id))
+
+      if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
+        logger.error(errorString, {
+          error: 'User does not have a subscription'
+        })
+        await logger.flush()
+        throw new ZSAError(
+          'INTERNAL_SERVER_ERROR',
+          'You need an active subscription to use this feature.'
+        )
+      }
+
+      if (userUsageRecord[0].creditsLeft < requiredCredits) {
+        logger.error(errorString, { error: 'Insufficient credits' })
+        await logger.flush()
+        throw new ZSAError(
+          'INSUFFICIENT_CREDITS',
+          `You don't have enough credits to generate this voiceover.`
+        )
+      }
+
+      await db
+        .update(userUsage)
+        .set({
+          creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
+        })
+        .where(eq(userUsage.userId, user.id))
+
+      const audioBuffers: Buffer[] = []
+      const sections: Array<{ from: number; duration: number }> = []
+
+      let currentTime = 0
+
+      for (const message of messages) {
+        const voiceId =
+          message.sender === 'sender' ? senderVoiceId : receiverVoiceId
+
+        if (message.content.type === 'text') {
+          const messageText = message.content.value as string
+
+          // Add the message and a break after it
+          const fullMessageText = `${messageText} <break time="0.3s" />`
+
+          const audioResponse =
+            (await elevenLabsClient.textToSpeech.convertWithTimestamps(
+              voiceId,
+              {
+                model_id: 'eleven_turbo_v2_5',
+                text: fullMessageText,
+                language_code: 'en'
+              }
+            )) as AudioResponse
+
+          const audioBuffer = Buffer.from(audioResponse.audio_base64, 'base64')
+          audioBuffers.push(audioBuffer)
+
+          // Get the actual duration of the message (use the last timestamp for duration)
+          const endTimestamp =
+            audioResponse.normalized_alignment.character_end_times_seconds.slice(
+              -1
+            )[0]
+          const duration = endTimestamp // Duration of the message is directly the end timestamp
+
+          sections.push({ from: currentTime, duration })
+
+          // Update the current time to the end of this message for the next message
+          currentTime += duration
+        }
+      }
+
+      // Calculate the total duration by summing up all durations from the sections
+      const totalDuration = sections.reduce(
+        (sum, section) => sum + section.duration,
+        0
+      )
+
+      const durationInFrames = Math.floor(totalDuration * VIDEO_FPS)
+
+      const combinedAudioBuffer = Buffer.concat(audioBuffers)
+
+      const s3Key = `voiceovers/combined/${crypto.randomUUID()}.mp3`
+      const putObjectCommand = new PutObjectCommand({
+        Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+        Key: s3Key,
+        Body: combinedAudioBuffer,
+        ContentType: 'audio/mpeg'
+      })
+
+      await R2.send(putObjectCommand)
+
+      const getObjectCommand = new GetObjectCommand({
+        Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+        Key: s3Key
+      })
+
+      const signedUrl = await getSignedUrl(R2, getObjectCommand, {
+        expiresIn: 3600
+      })
+
+      logger.info('Combined voiceover generated successfully', { signedUrl })
+      await logger.flush()
+
+      console.log({
+        signedUrl,
+        sections,
+        durationInFrames
+      })
+
+      return {
+        signedUrl,
+        sections,
+        durationInFrames
+      }
+    } catch (error) {
+      await db
+        .update(userUsage)
+        .set({
+          creditsLeft: sql`${userUsage.creditsLeft} + ${requiredCredits}`
+        })
+        .where(eq(userUsage.userId, user.id))
+
+      logger.error(errorString, { error })
+      await logger.flush()
 
       throw new ZSAError(
         'INTERNAL_SERVER_ERROR',
