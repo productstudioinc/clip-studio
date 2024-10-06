@@ -41,7 +41,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="px-0 pt-8">
-        <ScrollArea className="h-[calc(100vh-32px)]">
+        <ScrollArea className="max-h-[calc(100vh-32px)] h-full">
           <NavigationItems
             user={user}
             admin={admin}
