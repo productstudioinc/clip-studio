@@ -1,6 +1,5 @@
 import React from 'react'
 // you cant use alias imports here for some reason
-import { AIVideoComposition } from '@/remotion/AIVideo/Composition'
 import { getVideoMetadata } from '@remotion/media-utils'
 import { Composition } from 'remotion'
 
@@ -16,6 +15,7 @@ import {
   VIDEO_HEIGHT,
   VIDEO_WIDTH
 } from '../stores/templatestore'
+import { AIVideoComposition } from './AIVideo/Composition'
 import { ClipsComposition } from './Clips/Composition'
 import { RedditComposition } from './Reddit/Composition'
 import { SplitScreenComposition } from './SplitScreen/Composition'
