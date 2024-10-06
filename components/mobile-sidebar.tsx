@@ -1,6 +1,7 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { GetUserSubscriptionResult } from '@/actions/auth/user'
 import { GetUserUsageResult } from '@/actions/db/user-queries'
 import { User } from '@supabase/supabase-js'
@@ -24,8 +25,15 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
   subscription,
   usage
 }) => {
+  const [open, setOpen] = useState(false)
+  const pathname = usePathname()
+
+  useEffect(() => {
+    setOpen(false)
+  }, [pathname])
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="outline" size="icon" className="shrink-0 md:hidden">
           <Menu className="h-5 w-5" />
