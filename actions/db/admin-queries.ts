@@ -225,6 +225,5 @@ export const getUserCountPerDay = async (startDate: Date, endDate: Date) => {
     .groupBy(sql`date_series.date`)
     .orderBy(sql`date_series.date`)
 
-  console.log(userCountPerDay)
   return userCountPerDay
 }
