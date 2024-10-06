@@ -3,8 +3,6 @@ import { redirect } from 'next/navigation'
 import { getUser } from '@/actions/auth/user'
 import { isAdmin } from '@/actions/db/admin-queries'
 
-import { Breadcrumbs } from '@/components/breadcrumbs'
-
 export default async function AdminLayout({
   children
 }: {
@@ -22,10 +20,5 @@ export default async function AdminLayout({
     redirect('/')
   }
 
-  return (
-    <>
-      <Breadcrumbs />
-      <div className="max-w-5xl mx-auto">{children}</div>
-    </>
-  )
+  return <div className="max-w-5xl mx-auto">{children}</div>
 }
