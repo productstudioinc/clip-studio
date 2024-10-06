@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { submitFeedback } from '@/actions/db/user-queries'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  ArrowUpCircle,
   Bug,
   HelpCircle,
   Lightbulb,
@@ -44,11 +43,11 @@ const feedbackTypes = [
   },
   { value: 'bug', label: 'Bug Report', icon: Bug },
   { value: 'feature', label: 'Feature Request', icon: Lightbulb },
-  {
-    value: 'improvement',
-    label: 'Improvement Suggestion',
-    icon: ArrowUpCircle
-  },
+  // {
+  //   value: 'improvement',
+  //   label: 'Improvement Suggestion',
+  //   icon: ArrowUpCircle
+  // },
   { value: 'other', label: 'Other', icon: HelpCircle }
 ] as const
 
