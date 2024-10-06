@@ -22,7 +22,12 @@ export const Icons = {
       />
     </svg>
   ),
-  discord: DiscordLogoIcon,
+  discord: (props: IconProps) => (
+    <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <title>Discord</title>
+      <DiscordLogoIcon />
+    </svg>
+  ),
   youtube: (props: IconProps) => (
     <svg
       width="32px"

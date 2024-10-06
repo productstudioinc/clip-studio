@@ -1,7 +1,5 @@
 import { Suspense } from 'react'
-import { redirect } from 'next/navigation'
-import { getUser } from '@/actions/auth/user'
-import { checkAdminStatus, getUsersForAdmin } from '@/actions/db/admin-queries'
+import { getUsersForAdmin } from '@/actions/db/admin-queries'
 
 import { Pagination } from '@/components/table/pagination'
 import Search from '@/components/table/search'
@@ -20,18 +18,6 @@ export default async function Page({
   const query = searchParams?.query || ''
   const currentPage = Number(searchParams?.page) || 1
   const pageSize = Number(searchParams?.pageSize) || 10
-
-  const { user } = await getUser()
-
-  if (!user) {
-    redirect('/')
-  }
-
-  const isAdmin = await checkAdminStatus(user.id)
-
-  if (!isAdmin) {
-    redirect('/')
-  }
 
   const { users, totalPages } = await getUsersForAdmin(
     currentPage,

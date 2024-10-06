@@ -20,14 +20,18 @@ const logger = new Logger({
 
 const REVALIDATE_PERIOD = 1 // 2 minutes in seconds
 
-export const checkAdminStatus = async (userId: string): Promise<boolean> => {
-  const dbUser = await db.query.users.findFirst({
-    where: (users, { eq }) => eq(users.id, userId),
-    columns: { role: true }
-  })
+export const isAdmin = unstable_cache(
+  async (userId: string): Promise<boolean> => {
+    const dbUser = await db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.id, userId),
+      columns: { role: true }
+    })
 
-  return dbUser?.role === 'admin'
-}
+    return dbUser?.role === 'admin'
+  },
+  ['isAdmin'],
+  { revalidate: 60 * 60 * 24 } // Cache for 1 day (24 hours)
+)
 
 export const authenticateAdmin = async (): Promise<void> => {
   const { user } = await getUser()
@@ -37,9 +41,9 @@ export const authenticateAdmin = async (): Promise<void> => {
     throw new Error('Unauthorized: User not authenticated')
   }
 
-  const isAdmin = await checkAdminStatus(user.id)
+  const admin = await isAdmin(user.id)
 
-  if (!isAdmin) {
+  if (!admin) {
     logger.error('Attempted to access admin function for non-admin user')
     await logger.flush()
     throw new Error('Forbidden: User is not an admin')
@@ -162,7 +166,8 @@ export const getFeedbackForAdmin = async (
       createdAt: feedback.createdAt,
       user: {
         id: users.id,
-        fullName: users.fullName
+        fullName: users.fullName,
+        avatarUrl: users.avatarUrl
       }
     })
     .from(feedback)

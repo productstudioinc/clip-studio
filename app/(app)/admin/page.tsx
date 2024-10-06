@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getUser } from '@/actions/auth/user'
 import {
-  checkAdminStatus,
   getFeedbackCount,
   getFeedbackCountPerDay,
   getMostRecentRenders,
@@ -16,7 +15,8 @@ import {
   getUserCountPerDay,
   getYoutubeAccountsCount,
   getYoutubePostsCount,
-  getYoutubePostsPerDay
+  getYoutubePostsPerDay,
+  isAdmin
 } from '@/actions/db/admin-queries'
 import { formatDistanceToNow } from 'date-fns'
 
@@ -405,9 +405,9 @@ export default async function AdminDashboard({
     redirect('/')
   }
 
-  const isAdmin = await checkAdminStatus(user.id)
+  const admin = await isAdmin(user.id)
 
-  if (!isAdmin) {
+  if (!admin) {
     redirect('/')
   }
 

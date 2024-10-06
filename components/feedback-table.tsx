@@ -1,20 +1,12 @@
 'use client'
 
-import * as React from 'react'
+import Link from 'next/link'
 import { FeedbackForAdmin } from '@/actions/db/admin-queries'
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable
-} from '@tanstack/react-table'
 import { formatDistanceToNow } from 'date-fns'
-import { ArrowUpDown } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
   Table,
@@ -25,129 +17,63 @@ import {
   TableRow
 } from '@/components/ui/table'
 
-const columns: ColumnDef<FeedbackForAdmin>[] = [
-  {
-    accessorKey: 'user.fullName',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className="w-full justify-start px-0 hover:bg-transparent"
-        >
-          User
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => (
-      <div className="px-0">{row.original.user?.fullName || 'Anonymous'}</div>
-    )
-  },
-  {
-    accessorKey: 'feedbackType',
-    header: 'Type',
-    cell: ({ row }) => (
-      <div className="px-0">{row.getValue('feedbackType')}</div>
-    )
-  },
-  {
-    accessorKey: 'rating',
-    header: 'Rating',
-    cell: ({ row }) => (
-      <div className="px-0">{row.getValue('rating') || 'N/A'}</div>
-    )
-  },
-  {
-    accessorKey: 'comment',
-    header: 'Comment',
-    cell: ({ row }) => (
-      <div className="px-0">{row.getValue('comment') || 'No comment'}</div>
-    )
-  },
-  {
-    accessorKey: 'createdAt',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className="w-full justify-start px-0 hover:bg-transparent"
-        >
-          Date
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => (
-      <div className="px-0">
-        {formatDistanceToNow(new Date(row.getValue('createdAt')), {
-          addSuffix: true
-        })}
-      </div>
-    )
-  }
-]
-
 interface FeedbackTableProps {
   feedback: FeedbackForAdmin[]
 }
 
 export function FeedbackTable({ feedback }: FeedbackTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-
-  const table = useReactTable({
-    data: feedback,
-    columns,
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    state: {
-      sorting
-    }
-  })
-
   return (
     <Card>
       <Table>
         <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="px-4">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
+          <TableRow>
+            <TableHead>User</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Rating</TableHead>
+            <TableHead>Comment</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="px-4">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No feedback available.
+          {feedback.map((item) => (
+            <TableRow key={item.id}>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <Avatar>
+                    <AvatarImage src={item.user?.avatarUrl ?? ''} />
+                    <AvatarFallback>
+                      {item.user?.fullName?.charAt(0) || 'A'}
+                    </AvatarFallback>
+                  </Avatar>
+                  {item.user?.fullName || 'Anonymous'}
+                </div>
+              </TableCell>
+              <TableCell>{item.feedbackType}</TableCell>
+              <TableCell>{item.rating || 'N/A'}</TableCell>
+              <TableCell>{item.comment || 'No comment'}</TableCell>
+              <TableCell>
+                {formatDistanceToNow(new Date(item.createdAt), {
+                  addSuffix: true,
+                  includeSeconds: true
+                })}
+              </TableCell>
+              <TableCell>
+                <Link
+                  href={`/admin/feedback/${item.id}`}
+                  className={cn(
+                    buttonVariants({
+                      variant: 'outline',
+                      size: 'sm'
+                    }),
+                    'w-full'
+                  )}
+                >
+                  View Details
+                </Link>
               </TableCell>
             </TableRow>
-          )}
+          ))}
         </TableBody>
       </Table>
     </Card>

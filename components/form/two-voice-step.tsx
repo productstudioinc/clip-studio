@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ElevenlabsVoice, generateTextVoiceover } from '@/actions/elevenlabs'
 import { VideoProps } from '@/stores/templatestore'
 import { Pause, Play } from 'lucide-react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
@@ -79,7 +79,9 @@ export const TwoVoiceStep: React.FC<TwoVoiceStepProps> = ({ form, voices }) => {
         clearInterval(progressInterval.current!)
         setProgress(0)
       } else {
-        audioRef.current?.pause()
+        if (audioRef.current) {
+          audioRef.current.pause()
+        }
         clearInterval(progressInterval.current!)
 
         setPlayingAudio(voiceId)

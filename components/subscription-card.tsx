@@ -53,13 +53,11 @@ export default function SubscriptionCard({
 
   return (
     <Card>
-      <CardHeader className="p-2 pt-0 md:p-4">
+      <CardHeader>
         <CardTitle>Your Usage</CardTitle>
         <CardDescription>{subscriptionName || 'Free Plan'}</CardDescription>
       </CardHeader>
-      <CardContent
-        className={`p-2 pt-0 md:p-4 md:pt-0 ${!subscriptionName ? 'pb-0 md:pb-0' : ''}`}
-      >
+      <CardContent>
         <UsageDisplay
           usage={usage}
           userId={userId}

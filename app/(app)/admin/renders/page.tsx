@@ -1,7 +1,5 @@
 import { Suspense } from 'react'
-import { redirect } from 'next/navigation'
-import { getUser } from '@/actions/auth/user'
-import { checkAdminStatus, getRenderHistory } from '@/actions/db/admin-queries'
+import { getRenderHistory } from '@/actions/db/admin-queries'
 
 import { RendersGrid } from '@/components/renders-grid'
 import { RendersTable } from '@/components/renders-table'
@@ -24,18 +22,6 @@ export default async function Page({
   const currentPage = Number(searchParams?.page) || 1
   const pageSize = Number(searchParams?.pageSize) || 10
   const view = searchParams?.view || 'grid'
-
-  const { user } = await getUser()
-
-  if (!user) {
-    redirect('/')
-  }
-
-  const isAdmin = await checkAdminStatus(user.id)
-
-  if (!isAdmin) {
-    redirect('/')
-  }
 
   const { renderHistory, totalPages } = await getRenderHistory(
     currentPage,

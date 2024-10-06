@@ -1,11 +1,12 @@
 import React from 'react'
 import Link from 'next/link'
 import { getUser, getUserSubscription } from '@/actions/auth/user'
+import { isAdmin } from '@/actions/db/admin-queries'
 import { getUserUsage } from '@/actions/db/user-queries'
 
-import HeroWrapper from '@/components/hero-wrapper'
+import { Breadcrumbs } from '@/components/breadcrumbs'
 import { MobileSidebar } from '@/components/mobile-sidebar'
-import { Sidebar } from '@/components/sidebar'
+import { NavigationItems } from '@/components/navigation-items'
 import { SiteBanner } from '@/components/site-banner'
 
 export default async function Layout({
@@ -13,27 +14,38 @@ export default async function Layout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const [{ user }, subscriptionData, usage] = await Promise.all([
+  const [{ user }, subscription, usage] = await Promise.all([
     getUser(),
     getUserSubscription(),
     getUserUsage()
   ])
+
+  const admin = await isAdmin(user?.id || '')
+
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block sticky top-0 h-screen">
-        <div className="flex h-full max-h-screen flex-col gap-2">
-          <div className="flex min-h-14 items-center border-b px-4 lg:px-6">
-            <HeroWrapper />
-          </div>
-          <Sidebar user={user} subscription={subscriptionData} usage={usage} />
-        </div>
+        <NavigationItems
+          user={user}
+          admin={admin}
+          subscription={subscription}
+          usage={usage}
+        />
       </div>
       <div className="flex flex-col flex-1">
         <header className="md:hidden flex items-center justify-between p-2 border-b sticky top-0 z-10 bg-background">
-          <MobileSidebar user={user} />
+          <MobileSidebar
+            user={user}
+            subscription={subscription}
+            usage={usage}
+            admin={admin}
+          />
         </header>
         <SiteBanner />
-        <main className="flex-1 bg-muted/25 relative p-4">{children}</main>
+        <main className="flex-1 bg-muted/25 relative p-4">
+          <Breadcrumbs />
+          {children}
+        </main>
         <footer className="border-t p-4 text-sm">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <span>
