@@ -53,11 +53,11 @@ export default function SubscriptionCard({
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="p-4">
         <CardTitle>Your Usage</CardTitle>
         <CardDescription>{subscriptionName || 'Free Plan'}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4">
         <UsageDisplay
           usage={usage}
           userId={userId}
