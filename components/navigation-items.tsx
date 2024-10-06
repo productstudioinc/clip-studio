@@ -43,9 +43,7 @@ export function UpgradeCard() {
     <Card>
       <CardHeader>
         <CardTitle>Upgrade to Pro</CardTitle>
-        <CardDescription>
-          Unlock all features and get unlimited access to our support team.
-        </CardDescription>
+        <CardDescription>Create even more videos with AI</CardDescription>
       </CardHeader>
       <CardContent>
         <Link
