@@ -2,14 +2,30 @@
 
 import React from 'react'
 import { TextMessageVideoProps, VideoProps } from '@/stores/templatestore'
-import { GripVertical, PlusCircle, Trash2 } from 'lucide-react'
+import {
+  GripVertical,
+  MessageSquareIcon,
+  PlusCircle,
+  Trash2
+} from 'lucide-react'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import { useFieldArray, UseFormReturn } from 'react-hook-form'
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Select,
   SelectContent,
@@ -17,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 
 type TextMessageStepProps = {
@@ -25,14 +42,23 @@ type TextMessageStepProps = {
 
 // TODO: Implement AI-based fake text generation
 const fakeTexts = [
-  { sender: 'sender', content: { type: 'text', value: 'Hey, how are you?' } },
+  {
+    sender: 'sender',
+    content: { type: 'text', value: 'Hey, how are you?' },
+    duration: 1,
+    from: 0
+  },
   {
     sender: 'receiver',
-    content: { type: 'text', value: "I'm good, thanks! How about you?" }
+    content: { type: 'text', value: "I'm good, thanks! How about you?" },
+    duration: 2.461,
+    from: 1
   },
   {
     sender: 'sender',
-    content: { type: 'text', value: 'Doing great! Want to grab coffee later?' }
+    content: { type: 'text', value: 'Doing great! Want to grab coffee later?' },
+    duration: 2.461,
+    from: 3.461
   }
 ] as TextMessageVideoProps['messages']
 
@@ -50,6 +76,16 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
   const generateFakeTexts = async () => {
     remove()
     fakeTexts.forEach((text) => append(text))
+  }
+
+  const getNextSender = () => {
+    const lastMessage = fields[fields.length - 1]
+    return lastMessage?.sender === 'sender' ? 'receiver' : 'sender'
+  }
+
+  const getNextFrom = () => {
+    const lastMessage = fields[fields.length - 1]
+    return lastMessage?.from + lastMessage?.duration
   }
 
   return (
@@ -86,7 +122,7 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
               </Select>
             </div>
             <div className="flex items-center space-x-2">
-              <Label htmlFor="mode">Dark Mode</Label>
+              <Label htmlFor="mode">Light Mode</Label>
               <Switch
                 id="mode"
                 checked={form.watch('mode') === 'dark'}
@@ -94,163 +130,220 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
                   form.setValue('mode', checked ? 'dark' : 'light')
                 }
               />
+              <Label htmlFor="mode">Dark Mode</Label>
             </div>
           </div>
 
           <div>
             <Label>Messages</Label>
-            <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable droppableId="messages">
-                {(provided) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    className="space-y-2"
-                  >
-                    {fields.map((field, index) => (
-                      <Draggable
-                        key={field.id}
-                        draggableId={field.id}
-                        index={index}
-                      >
-                        {(provided) => (
-                          <Card
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="p-2"
-                          >
-                            <div className="flex items-center space-x-2">
-                              <div {...provided.dragHandleProps}>
-                                <GripVertical className="text-gray-400" />
-                              </div>
-                              <Select
-                                onValueChange={(value) =>
-                                  form.setValue(
-                                    `messages.${index}.sender`,
-                                    value as 'sender' | 'receiver'
-                                  )
-                                }
-                                value={form.watch(`messages.${index}.sender`)}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select sender" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="sender">Sender</SelectItem>
-                                  <SelectItem value="receiver">
-                                    Receiver
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <Select
-                                onValueChange={(value) =>
-                                  form.setValue(
-                                    `messages.${index}.content.type`,
-                                    value as 'text' | 'image'
-                                  )
-                                }
-                                value={form.watch(
-                                  `messages.${index}.content.type`
-                                )}
-                              >
-                                <SelectTrigger className="w-fit">
-                                  <SelectValue placeholder="Select type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="text">Text</SelectItem>
-                                  <SelectItem value="image">Image</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              {form.watch(`messages.${index}.content.type`) ===
-                              'text' ? (
-                                <Input
-                                  {...form.register(
-                                    `messages.${index}.content.value`
-                                  )}
-                                  placeholder="Message content"
-                                />
-                              ) : (
-                                <Input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0]
-                                    if (file) {
-                                      const reader = new FileReader()
-                                      reader.onloadend = () => {
-                                        form.setValue(
-                                          `messages.${index}.content.value`,
-                                          reader.result as string
-                                        )
-                                      }
-                                      reader.readAsDataURL(file)
+            <ScrollArea className="h-[400px] px-2 border rounded-md">
+              <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="messages">
+                  {(provided) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className="space-y-2 py-2"
+                    >
+                      {fields.map((field, index) => (
+                        <Draggable
+                          key={field.id}
+                          draggableId={field.id}
+                          index={index}
+                        >
+                          {(provided) => (
+                            <Card
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className="p-0 border-none"
+                            >
+                              <div className="flex items-center space-x-2">
+                                <div {...provided.dragHandleProps}>
+                                  <GripVertical className="text-gray-400" />
+                                </div>
+                                <div className="flex space-x-2">
+                                  <Button
+                                    type="button"
+                                    variant={
+                                      form.watch(`messages.${index}.sender`) ===
+                                      'receiver'
+                                        ? 'default'
+                                        : 'outline'
                                     }
-                                  }}
-                                />
-                              )}
-                              <div className="flex space-x-2">
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  className="w-10 h-10 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                                  onClick={() => remove(index)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  className="w-10 h-10 p-0"
-                                  onClick={() =>
-                                    insert(index + 1, {
-                                      sender: 'sender',
-                                      content: { type: 'text', value: '' },
-                                      duration: 0,
-                                      from: 0
-                                    })
+                                    onClick={() =>
+                                      form.setValue(
+                                        `messages.${index}.sender`,
+                                        'receiver'
+                                      )
+                                    }
+                                  >
+                                    <MessageSquareIcon className="mr-2 h-4 w-4" />
+                                    Left
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant={
+                                      form.watch(`messages.${index}.sender`) ===
+                                      'sender'
+                                        ? 'default'
+                                        : 'outline'
+                                    }
+                                    onClick={() =>
+                                      form.setValue(
+                                        `messages.${index}.sender`,
+                                        'sender'
+                                      )
+                                    }
+                                  >
+                                    <MessageSquareIcon className="mr-2 h-4 w-4" />
+                                    Right
+                                  </Button>
+                                </div>
+                                <Select
+                                  onValueChange={(value) =>
+                                    form.setValue(
+                                      `messages.${index}.content.type`,
+                                      value as 'text' | 'image'
+                                    )
                                   }
+                                  value={form.watch(
+                                    `messages.${index}.content.type`
+                                  )}
                                 >
-                                  <PlusCircle className="h-4 w-4" />
-                                </Button>
+                                  <SelectTrigger className="w-fit">
+                                    <SelectValue placeholder="Select type" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="text">Text</SelectItem>
+                                    <SelectItem value="image">Image</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                {form.watch(
+                                  `messages.${index}.content.type`
+                                ) === 'text' ? (
+                                  <Input
+                                    {...form.register(
+                                      `messages.${index}.content.value`
+                                    )}
+                                    placeholder="Message content"
+                                  />
+                                ) : (
+                                  <Input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0]
+                                      if (file) {
+                                        const reader = new FileReader()
+                                        reader.onloadend = () => {
+                                          form.setValue(
+                                            `messages.${index}.content.value`,
+                                            reader.result as string
+                                          )
+                                        }
+                                        reader.readAsDataURL(file)
+                                      }
+                                    }}
+                                  />
+                                )}
+                                <div className="flex space-x-2">
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    className="w-10 h-10 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                                    onClick={() => remove(index)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    className="w-10 h-10 p-0"
+                                    onClick={() =>
+                                      insert(index + 1, {
+                                        sender: getNextSender(),
+                                        content: { type: 'text', value: '' },
+                                        duration: 1,
+                                        from: 0
+                                      })
+                                    }
+                                  >
+                                    <PlusCircle className="h-4 w-4" />
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
-                          </Card>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="mt-2"
-              onClick={() =>
-                append({
-                  sender: 'sender',
-                  content: { type: 'text', value: '' },
-                  duration: 0,
-                  from: 0
-                })
-              }
-            >
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add Message
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="mt-2"
-              onClick={generateFakeTexts}
-            >
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Generate Fake Texts
-            </Button>
+                            </Card>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            </ScrollArea>
+            <Separator className="my-4" />
+            <div className="flex flex-row gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={() =>
+                  append({
+                    sender: getNextSender(),
+                    content: { type: 'text', value: '' },
+                    duration: 1,
+                    from: getNextFrom()
+                  })
+                }
+              >
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Message
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={generateFakeTexts}
+              >
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Generate Fake Texts
+              </Button>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="mt-2"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Clear Messages
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you sure you want to reset the messages?
+                    </AlertDialogTitle>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        remove()
+                      }}
+                    >
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
         </div>
       </CardContent>

@@ -24,6 +24,7 @@ import { FormErrors } from '@/components/form/form-errors'
 import { FormSubmit } from '@/components/form/form-submit'
 import { TextMessageStep } from '@/components/form/text-message-step'
 import { VideoPreview } from '@/components/form/video-preview'
+import { TextMessage } from '@/components/text-message'
 
 import { TwoVoiceStep } from '../form/two-voice-step'
 
@@ -79,13 +80,10 @@ export const TextMessageForm: React.FC<TextMessageFormProps> = ({
           </div>
 
           <div className="w-full lg:w-2/5">
-            <div className="sticky top-8 w-full py-8 flex items-center justify-center p-4 lg:p-0 ">
-              {/* <TextMessage
-                style={form.watch('style')}
-                mode={form.watch('mode')}
-                receiver={form.watch('receiver')}
-                messages={form.watch('messages')}
-              /> */}
+            <div className="sticky top-8 w-full py-8 flex items-center justify-center p-4 lg:p-0 flex-col">
+              <div className="w-full">
+                <TextMessage {...(form.watch() as TextMessageVideoProps)} />
+              </div>
               <VideoPreview form={form} />
             </div>
           </div>
