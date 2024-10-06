@@ -22,6 +22,7 @@ const REVALIDATE_PERIOD = 1 // 2 minutes in seconds
 
 export const isAdmin = unstable_cache(
   async (userId: string): Promise<boolean> => {
+    if (!userId) return false
     const dbUser = await db.query.users.findFirst({
       where: (users, { eq }) => eq(users.id, userId),
       columns: { role: true }
