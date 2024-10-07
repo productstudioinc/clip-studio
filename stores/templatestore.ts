@@ -234,38 +234,14 @@ export type AIVideoProps = z.infer<typeof AIVideoSchema>
 export type ClipsVideoProps = z.infer<typeof ClipsVideoSchema>
 
 // Default Props
-const allMinecraftBackgrounds = [
-  'https://assets.clip.studio/mc_0.mp4',
-  'https://assets.clip.studio/mc_1.mp4',
-  'https://assets.clip.studio/mc_2.mp4',
-  'https://assets.clip.studio/mc_3.mp4',
-  'https://assets.clip.studio/mc_4.mp4',
-  'https://assets.clip.studio/mc_5.mp4',
-  'https://assets.clip.studio/mc_6.mp4',
-  'https://assets.clip.studio/mc_7.mp4',
-  'https://assets.clip.studio/mc_8.mp4',
-  'https://assets.clip.studio/mc_9.mp4',
-  'https://assets.clip.studio/mc_10.mp4',
-  'https://assets.clip.studio/mc_11.mp4',
-  'https://assets.clip.studio/mc_12.mp4',
-  'https://assets.clip.studio/mc_13.mp4',
-  'https://assets.clip.studio/mc_14.mp4',
-  'https://assets.clip.studio/mc_15.mp4',
-  'https://assets.clip.studio/mc_16.mp4',
-  'https://assets.clip.studio/mc_17.mp4',
-  'https://assets.clip.studio/mc_18.mp4',
-  'https://assets.clip.studio/mc_19.mp4',
-  'https://assets.clip.studio/mc_20.mp4',
-  'https://assets.clip.studio/mc_21.mp4',
-  'https://assets.clip.studio/mc_22.mp4',
-  'https://assets.clip.studio/mc_23.mp4',
-  'https://assets.clip.studio/mc_24.mp4',
-  'https://assets.clip.studio/mc_25.mp4',
-  'https://assets.clip.studio/mc_26.mp4',
-  'https://assets.clip.studio/mc_27.mp4',
-  'https://assets.clip.studio/mc_28.mp4',
-  'https://assets.clip.studio/mc_29.mp4'
-]
+const generateMinecraftBackgrounds = (count: number) => {
+  return Array.from(
+    { length: count },
+    (_, i) => `https://assets.clip.studio/mc_${i}.mp4`
+  )
+}
+
+const allMinecraftBackgrounds = generateMinecraftBackgrounds(100)
 
 const selectRandomBackgroundWindow = (
   backgrounds: string[],
