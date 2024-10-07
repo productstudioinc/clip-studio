@@ -108,6 +108,7 @@ export const SplitScreenComposition = ({
                 endAt={FPS * 60}
                 style={videoStyle}
                 muted
+                pauseWhenBuffering
               />
             </Series.Sequence>
           ))}

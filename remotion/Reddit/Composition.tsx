@@ -103,6 +103,7 @@ export const RedditComposition = ({
                 endAt={BACKGROUND_VIDEO_DURATION}
                 className="absolute w-full h-full object-cover"
                 muted
+                pauseWhenBuffering
               />
             </Series.Sequence>
           ))}
