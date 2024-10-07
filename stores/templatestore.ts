@@ -1,6 +1,7 @@
 /* eslint-disable unused-imports/no-unused-vars */
 import { z } from 'zod'
 import { create } from 'zustand'
+import { devtools } from 'zustand/middleware'
 
 import { alignmentDefault } from './alignmenttext'
 import { splitScreenTranscriptionDefault } from './splitscreentranscription'
@@ -36,39 +37,6 @@ export enum Language {
   Vietnamese = 'vi',
   Norwegian = 'no',
   Hungarian = 'hu'
-}
-
-// Emoji map of language flags
-export const LanguageFlags: Record<Language, string> = {
-  [Language.English]: '🇬🇧',
-  [Language.German]: '🇩🇪',
-  [Language.Hindi]: '🇮🇳',
-  [Language.French]: '🇫🇷',
-  [Language.Portuguese]: '🇵🇹',
-  [Language.Italian]: '🇮🇹',
-  [Language.Spanish]: '🇪🇸',
-  [Language.Russian]: '🇷🇺',
-  [Language.Indonesian]: '🇮🇩',
-  [Language.Dutch]: '🇳🇱',
-  [Language.Turkish]: '🇹🇷',
-  [Language.Filipino]: '🇵🇭',
-  [Language.Polish]: '🇵🇱',
-  [Language.Swedish]: '🇸🇪',
-  [Language.Bulgarian]: '🇧🇬',
-  [Language.Romanian]: '🇷🇴',
-  [Language.Arabic]: '🇸🇦',
-  [Language.Czech]: '🇨🇿',
-  [Language.Greek]: '🇬🇷',
-  [Language.Finnish]: '🇫🇮',
-  [Language.Croatian]: '🇭🇷',
-  [Language.Malay]: '🇲🇾',
-  [Language.Slovak]: '🇸🇰',
-  [Language.Danish]: '🇩🇰',
-  [Language.Tamil]: '🇱🇰',
-  [Language.Ukrainian]: '🇺🇦',
-  [Language.Vietnamese]: '🇻🇳',
-  [Language.Norwegian]: '🇳🇴',
-  [Language.Hungarian]: '🇭🇺'
 }
 
 export enum AspectRatio {
@@ -487,96 +455,98 @@ type State = {
   reset: () => void
 }
 
-export const useTemplateStore = create<State>()((set) => ({
-  ...initialState,
-  setSelectedTemplate: (template) => set({ selectedTemplate: template }),
-  setSplitScreenState: (state) =>
-    set((prevState) => ({
-      splitScreenState: { ...prevState.splitScreenState, ...state }
-    })),
-  setRedditState: (state) =>
-    set((prevState) => ({
-      redditState: { ...prevState.redditState, ...state }
-    })),
-  setTwitterThreadState: (state) =>
-    set((prevState) => ({
-      twitterThreadState: { ...prevState.twitterThreadState, ...state }
-    })),
-  setTextMessageState: (state) =>
-    set((prevState) => ({
-      textMessageState: { ...prevState.textMessageState, ...state }
-    })),
-  setDurationInFrames: (length) =>
-    set((state) => ({
-      durationInFrames: length,
-      splitScreenState: {
-        ...state.splitScreenState,
-        durationInFrames: length
-      },
-      redditState: { ...state.redditState, durationInFrames: length },
-      twitterThreadState: {
-        ...state.twitterThreadState,
-        durationInFrames: length
-      },
-      clipsState: { ...state.clipsState, durationInFrames: length },
-      textMessageState: {
-        ...state.textMessageState,
-        durationInFrames: length
-      },
-      aiVideoState: { ...state.aiVideoState, durationInFrames: length }
-    })),
-  setBackgroundTheme: (theme) =>
-    set((state) => ({
-      backgroundTheme: theme,
-      splitScreenState: {
-        ...state.splitScreenState,
-        backgroundTheme: theme
-      },
-      redditState: { ...state.redditState, backgroundTheme: theme },
-      twitterThreadState: {
-        ...state.twitterThreadState,
-        backgroundTheme: theme
-      },
-      clipsState: { ...state.clipsState, backgroundTheme: theme },
-      textMessageState: {
-        ...state.textMessageState,
-        backgroundTheme: theme
-      },
-      aiVideoState: { ...state.aiVideoState, backgroundTheme: theme }
-    })),
-  setBackgroundUrls: (urls) =>
-    set((state) => ({
-      backgroundUrls: urls,
-      splitScreenState: { ...state.splitScreenState, backgroundUrls: urls },
-      redditState: { ...state.redditState, backgroundUrls: urls },
-      twitterThreadState: {
-        ...state.twitterThreadState,
-        backgroundUrls: urls
-      },
-      clipsState: { ...state.clipsState, backgroundUrls: urls },
-      textMessageState: { ...state.textMessageState, backgroundUrls: urls },
-      aiVideoState: { ...state.aiVideoState, backgroundUrls: urls }
-    })),
-  setCaptionStyle: (style) =>
-    set((state) => ({
-      captionStyle: style,
-      splitScreenState: { ...state.splitScreenState, captionStyle: style },
-      redditState: { ...state.redditState, captionStyle: style },
-      twitterThreadState: {
-        ...state.twitterThreadState,
-        captionStyle: style
-      },
-      clipsState: { ...state.clipsState, captionStyle: style },
-      textMessageState: { ...state.textMessageState, captionStyle: style },
-      aiVideoState: { ...state.aiVideoState, captionStyle: style }
-    })),
-  setClipsState: (state) =>
-    set((prevState) => ({
-      clipsState: { ...prevState.clipsState, ...state }
-    })),
-  setAIVideoState: (state) =>
-    set((prevState) => ({
-      aiVideoState: { ...prevState.aiVideoState, ...state }
-    })),
-  reset: () => set(initialState)
-}))
+export const useTemplateStore = create<State>()(
+  devtools((set) => ({
+    ...initialState,
+    setSelectedTemplate: (template) => set({ selectedTemplate: template }),
+    setSplitScreenState: (state) =>
+      set((prevState) => ({
+        splitScreenState: { ...prevState.splitScreenState, ...state }
+      })),
+    setRedditState: (state) =>
+      set((prevState) => ({
+        redditState: { ...prevState.redditState, ...state }
+      })),
+    setTwitterThreadState: (state) =>
+      set((prevState) => ({
+        twitterThreadState: { ...prevState.twitterThreadState, ...state }
+      })),
+    setTextMessageState: (state) =>
+      set((prevState) => ({
+        textMessageState: { ...prevState.textMessageState, ...state }
+      })),
+    setDurationInFrames: (length) =>
+      set((state) => ({
+        durationInFrames: length,
+        splitScreenState: {
+          ...state.splitScreenState,
+          durationInFrames: length
+        },
+        redditState: { ...state.redditState, durationInFrames: length },
+        twitterThreadState: {
+          ...state.twitterThreadState,
+          durationInFrames: length
+        },
+        clipsState: { ...state.clipsState, durationInFrames: length },
+        textMessageState: {
+          ...state.textMessageState,
+          durationInFrames: length
+        },
+        aiVideoState: { ...state.aiVideoState, durationInFrames: length }
+      })),
+    setBackgroundTheme: (theme) =>
+      set((state) => ({
+        backgroundTheme: theme,
+        splitScreenState: {
+          ...state.splitScreenState,
+          backgroundTheme: theme
+        },
+        redditState: { ...state.redditState, backgroundTheme: theme },
+        twitterThreadState: {
+          ...state.twitterThreadState,
+          backgroundTheme: theme
+        },
+        clipsState: { ...state.clipsState, backgroundTheme: theme },
+        textMessageState: {
+          ...state.textMessageState,
+          backgroundTheme: theme
+        },
+        aiVideoState: { ...state.aiVideoState, backgroundTheme: theme }
+      })),
+    setBackgroundUrls: (urls) =>
+      set((state) => ({
+        backgroundUrls: urls,
+        splitScreenState: { ...state.splitScreenState, backgroundUrls: urls },
+        redditState: { ...state.redditState, backgroundUrls: urls },
+        twitterThreadState: {
+          ...state.twitterThreadState,
+          backgroundUrls: urls
+        },
+        clipsState: { ...state.clipsState, backgroundUrls: urls },
+        textMessageState: { ...state.textMessageState, backgroundUrls: urls },
+        aiVideoState: { ...state.aiVideoState, backgroundUrls: urls }
+      })),
+    setCaptionStyle: (style) =>
+      set((state) => ({
+        captionStyle: style,
+        splitScreenState: { ...state.splitScreenState, captionStyle: style },
+        redditState: { ...state.redditState, captionStyle: style },
+        twitterThreadState: {
+          ...state.twitterThreadState,
+          captionStyle: style
+        },
+        clipsState: { ...state.clipsState, captionStyle: style },
+        textMessageState: { ...state.textMessageState, captionStyle: style },
+        aiVideoState: { ...state.aiVideoState, captionStyle: style }
+      })),
+    setClipsState: (state) =>
+      set((prevState) => ({
+        clipsState: { ...prevState.clipsState, ...state }
+      })),
+    setAIVideoState: (state) =>
+      set((prevState) => ({
+        aiVideoState: { ...prevState.aiVideoState, ...state }
+      })),
+    reset: () => set(initialState)
+  }))
+)
