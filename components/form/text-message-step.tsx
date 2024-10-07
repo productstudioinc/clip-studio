@@ -22,7 +22,13 @@ import {
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -35,6 +41,7 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
+
 import { TextMessage } from '../text-message'
 
 type TextMessageStepProps = {
@@ -136,6 +143,7 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
           </div>
 
           <div>
+            <Label>Preview</Label>
             <TextMessage {...(form.watch() as TextMessageVideoProps)} />
             <Label>Messages</Label>
             <ScrollArea className="h-[400px] px-2 border rounded-md">
@@ -349,6 +357,10 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
           </div>
         </div>
       </CardContent>
+      <CardFooter className="text-muted-foreground">
+        A voiceover needs to be generated for the video to be updated with these
+        text messages.
+      </CardFooter>
     </Card>
   )
 }
