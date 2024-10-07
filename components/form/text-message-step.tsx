@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
+import { TextMessage } from '../text-message'
 
 type TextMessageStepProps = {
   form: UseFormReturn<VideoProps>
@@ -135,6 +136,7 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
           </div>
 
           <div>
+            <TextMessage {...(form.watch() as TextMessageVideoProps)} />
             <Label>Messages</Label>
             <ScrollArea className="h-[400px] px-2 border rounded-md">
               <DragDropContext onDragEnd={onDragEnd}>

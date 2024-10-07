@@ -25,7 +25,6 @@ import { FormSubmit } from '@/components/form/form-submit'
 import { TextMessageStep } from '@/components/form/text-message-step'
 import { TwoVoiceStep } from '@/components/form/two-voice-step'
 import { VideoPreview } from '@/components/form/video-preview'
-import { TextMessage } from '@/components/text-message'
 
 interface TextMessageFormProps {
   voices: ElevenlabsVoice[]
@@ -80,9 +79,6 @@ export const TextMessageForm: React.FC<TextMessageFormProps> = ({
 
           <div className="col-span-12 lg:col-span-5">
             <div className="sticky top-8 w-full py-8 flex items-center justify-center p-4 lg:p-0 flex-col">
-              <div className="w-full">
-                <TextMessage {...(form.watch() as TextMessageVideoProps)} />
-              </div>
               <VideoPreview form={form} />
             </div>
           </div>
