@@ -18,7 +18,7 @@ const logger = new Logger({
   source: 'actions/db/admin-queries'
 })
 
-const REVALIDATE_PERIOD = 1 // 2 minutes in seconds
+const REVALIDATE_PERIOD = 120 // 2 minutes in seconds
 
 export const isAdmin = unstable_cache(
   async (userId: string): Promise<boolean> => {

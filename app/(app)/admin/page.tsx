@@ -53,7 +53,7 @@ const CardSkeleton = ({ className }: { className?: string }) => (
 )
 
 const ChartSkeleton = ({ className }: { className?: string }) => (
-  <Card className={cn('h-[250px]', className)}>
+  <Card className={cn('h-[500px]', className)}>
     <CardHeader>
       <Skeleton className="h-6 w-1/3" />
       <Skeleton className="h-4 w-1/2" />
@@ -435,16 +435,16 @@ export default async function AdminDashboard({
         </Suspense>
       </div>
       <div className="grid grid-cols-12 gap-6 mb-6">
-        <Suspense fallback={<CardSkeleton />}>
+        <Suspense fallback={<CardSkeleton className="col-span-4" />}>
           <YoutubeAccountsCountCard />
         </Suspense>
-        <Suspense fallback={<CardSkeleton />}>
+        <Suspense fallback={<CardSkeleton className="col-span-4" />}>
           <TikTokAccountsCountCard />
         </Suspense>
-        <Suspense fallback={<CardSkeleton />}>
+        <Suspense fallback={<CardSkeleton className="col-span-4" />}>
           <YoutubePostsCountCard />
         </Suspense>
-        <Suspense fallback={<CardSkeleton />}>
+        <Suspense fallback={<CardSkeleton className="col-span-4" />}>
           <TikTokPostsCountCard />
         </Suspense>
       </div>

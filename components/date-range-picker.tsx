@@ -33,44 +33,17 @@ export function DateRangePicker({
     const toParam = searchParams.get('to')
     if (fromParam && toParam) {
       return {
-        from: new Date(
-          Date.UTC(
-            new Date(fromParam).getUTCFullYear(),
-            new Date(fromParam).getUTCMonth(),
-            new Date(fromParam).getUTCDate()
-          )
-        ),
-        to: new Date(
-          Date.UTC(
-            new Date(toParam).getUTCFullYear(),
-            new Date(toParam).getUTCMonth(),
-            new Date(toParam).getUTCDate(),
-            23,
-            59,
-            59,
-            999
-          )
-        )
+        from: new Date(fromParam),
+        to: new Date(new Date(toParam).setHours(23, 59, 59, 999))
       }
     } else {
-      const today = new Date(
-        Date.UTC(
-          new Date().getUTCFullYear(),
-          new Date().getUTCMonth(),
-          new Date().getUTCDate(),
-          23,
-          59,
-          59,
-          999
-        )
-      )
+      const today = new Date()
+      today.setHours(23, 59, 59, 999)
       return {
         from: new Date(
-          Date.UTC(
-            today.getUTCFullYear(),
-            today.getUTCMonth(),
-            today.getUTCDate() - 29
-          )
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate() - 29
         ),
         to: today
       }
