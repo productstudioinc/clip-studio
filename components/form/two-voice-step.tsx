@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ElevenlabsVoice, generateTextVoiceover } from '@/actions/elevenlabs'
-import { Language, VideoProps } from '@/stores/templatestore'
+import { Language, LanguageFlags, VideoProps } from '@/stores/templatestore'
 import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
 import { Pause, Play } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
@@ -278,7 +278,8 @@ export const TwoVoiceStep: React.FC<TwoVoiceStepProps> = ({ form, voices }) => {
 
   const languages = Object.entries(Language).map(([key, value]) => ({
     value,
-    label: key
+    label: key,
+    flag: LanguageFlags[value]
   }))
 
   return (
@@ -300,16 +301,28 @@ export const TwoVoiceStep: React.FC<TwoVoiceStepProps> = ({ form, voices }) => {
                       variant="outline"
                       role="combobox"
                       className={cn(
-                        'w-[200px] justify-between',
+                        'w-[200px] justify-between flex items-center',
                         !field.value && 'text-muted-foreground'
                       )}
                     >
-                      {field.value
-                        ? languages.find(
-                            (language) => language.value === field.value
-                          )?.label
-                        : 'Select language'}
-                      <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      {field.value ? (
+                        <>
+                          <span className="mr-2 text-2xl">
+                            {
+                              languages.find(
+                                (lang) => lang.value === field.value
+                              )?.flag
+                            }
+                          </span>
+                          {
+                            languages.find((lang) => lang.value === field.value)
+                              ?.label
+                          }
+                        </>
+                      ) : (
+                        'Select language'
+                      )}
+                      <CaretSortIcon className="h-4 w-4 shrink-0 opacity-50 ml-auto" />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
@@ -330,6 +343,9 @@ export const TwoVoiceStep: React.FC<TwoVoiceStepProps> = ({ form, voices }) => {
                               form.setValue('language', language.value)
                             }}
                           >
+                            <span className="mr-2 text-2xl">
+                              {language.flag}
+                            </span>
                             {language.label}
                             <CheckIcon
                               className={cn(
