@@ -41,12 +41,9 @@ export enum Language {
 // Emoji map of language flags
 export const LanguageFlags: Record<Language, string> = {
   [Language.English]: '🇬🇧',
-  [Language.Japanese]: '🇯🇵',
-  [Language.Chinese]: '🇨🇳',
   [Language.German]: '🇩🇪',
   [Language.Hindi]: '🇮🇳',
   [Language.French]: '🇫🇷',
-  [Language.Korean]: '🇰🇷',
   [Language.Portuguese]: '🇵🇹',
   [Language.Italian]: '🇮🇹',
   [Language.Spanish]: '🇪🇸',
