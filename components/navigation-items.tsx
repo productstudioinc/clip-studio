@@ -32,6 +32,7 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import Hero from '@/components/hero'
 import { Icons } from '@/components/icons'
@@ -89,7 +90,9 @@ export function HeroWrapper() {
         </div>
       </DialogTrigger>
       <DialogContent>
-        <Hero />
+        <ScrollArea className="h-full w-full max-h-[70vh]">
+          <Hero />
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   )
