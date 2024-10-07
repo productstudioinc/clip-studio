@@ -38,27 +38,33 @@ export const TextMessageComposition = (props: TextMessageVideoProps) => {
                 endAt={BACKGROUND_VIDEO_DURATION}
                 className="absolute w-full h-full object-cover"
                 muted
+                pauseWhenBuffering
               />
             </Series.Sequence>
           ))}
         </Series>
         <AbsoluteFill className="flex justify-center items-center">
-          {props.messages.map((message, index) => (
-            <Sequence
-              from={message.from * FPS}
-              durationInFrames={message.duration * FPS}
-              key={index}
-              style={{ fontFamily: robotoFont.fontFamily }}
-            >
-              <AbsoluteFill className="flex justify-center items-center">
-                <TextMessage
-                  {...props}
-                  messages={props.messages.slice(0, index + 1)}
-                  className="max-w-lg"
-                />
-              </AbsoluteFill>
-            </Sequence>
-          ))}
+          {props.messages.map((message, index) => {
+            const startIndex = Math.max(0, index - 5);
+            const visibleMessages = props.messages.slice(startIndex, index + 1);
+            
+            return (
+              <Sequence
+                from={message.from * FPS}
+                durationInFrames={message.duration * FPS}
+                key={index}
+                style={{ fontFamily: robotoFont.fontFamily }}
+              >
+                <AbsoluteFill className="flex justify-center items-center">
+                  <TextMessage
+                    {...props}
+                    messages={visibleMessages}
+                    className="max-w-lg"
+                  />
+                </AbsoluteFill>
+              </Sequence>
+            );
+          })}
         </AbsoluteFill>
       </AbsoluteFill>
     </>
