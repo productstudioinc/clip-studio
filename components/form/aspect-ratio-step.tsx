@@ -14,6 +14,8 @@ import {
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
+import { Badge } from '../ui/badge'
+
 type AspectRatioStepProps = {
   form: UseFormReturn<VideoProps>
 }
@@ -34,7 +36,12 @@ export const AspectRatioStep: React.FC<AspectRatioStepProps> = ({ form }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Select Aspect Ratio</CardTitle>
+        <CardTitle className="flex items-center">
+          Select Aspect Ratio
+          <Badge variant="secondary" className="ml-2">
+            Beta
+          </Badge>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <FormField
