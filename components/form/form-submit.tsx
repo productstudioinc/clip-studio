@@ -77,20 +77,34 @@ export function FormSubmit({
     selectedTemplate,
     splitScreenState,
     redditState,
-    twitterThreadState
+    twitterThreadState,
+    textMessageState,
+    clipsState
   } = useTemplateStore((state) => ({
     selectedTemplate: state.selectedTemplate,
     splitScreenState: state.splitScreenState,
     redditState: state.redditState,
-    twitterThreadState: state.twitterThreadState
+    twitterThreadState: state.twitterThreadState,
+    textMessageState: state.textMessageState,
+    clipsState: state.clipsState
   }))
 
-  const inputProps =
-    selectedTemplate === 'SplitScreen'
-      ? splitScreenState
-      : selectedTemplate === 'Reddit'
-        ? redditState
-        : twitterThreadState
+  const inputProps = (() => {
+    switch (selectedTemplate) {
+      case 'SplitScreen':
+        return splitScreenState
+      case 'Reddit':
+        return redditState
+      case 'TwitterThread':
+        return twitterThreadState
+      case 'TextMessage':
+        return textMessageState
+      case 'Clips':
+        return clipsState
+      default:
+        return twitterThreadState
+    }
+  })()
 
   const { renderMedia, state, undo } = useRendering(
     selectedTemplate,
