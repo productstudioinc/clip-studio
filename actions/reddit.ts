@@ -75,17 +75,33 @@ export const getRedditInfo = createServerAction()
       const accessToken = await getRedditAccessToken()
 
       const apiUrl = `https://oauth.reddit.com/api/info?id=t3_${postId}`
-      const response = await fetch(apiUrl, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'User-Agent': 'ClipStudio/1.0.0'
-        }
-      })
+      
+      // Add retry logic
+      const maxRetries = 3;
+      let retries = 0;
+      let response: Response | undefined;
 
-      if (!response.ok) {
+      while (retries < maxRetries) {
+        response = await fetch(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'User-Agent': 'ClipStudio/1.0.0'
+          }
+        });
+
+        if (response.status === 403) {
+          retries++;
+          logger.warn('Received 403 from Reddit API, retrying', { retryCount: retries });
+          await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+        } else {
+          break;
+        }
+      }
+
+      if (!response || !response.ok) {
         throw new ZSAError(
           'INTERNAL_SERVER_ERROR',
-          'Failed to fetch Reddit post data'
+          `Failed to fetch Reddit post data: ${response?.status} ${response?.statusText}`
         )
       }
 
