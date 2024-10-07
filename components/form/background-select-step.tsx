@@ -41,7 +41,7 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
   const selectBackgroundSection = useCallback(
     (background: SelectBackgroundWithParts) => {
       const totalParts = background.backgroundParts.length
-      const partsNeeded = 10
+      const partsNeeded = 5
       const maxStartIndex = totalParts - partsNeeded
       const startIndex = Math.floor(Math.random() * (maxStartIndex + 1))
 

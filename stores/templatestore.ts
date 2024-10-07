@@ -245,7 +245,7 @@ const allMinecraftBackgrounds = generateMinecraftBackgrounds(100)
 
 const selectRandomBackgroundWindow = (
   backgrounds: string[],
-  windowSize: number = 10
+  windowSize: number = 5
 ) => {
   const totalParts = backgrounds.length
   const maxStartIndex = totalParts - windowSize
