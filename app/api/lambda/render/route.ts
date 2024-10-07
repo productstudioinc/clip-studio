@@ -51,6 +51,10 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
       throw new Error('You must be logged in to use this.')
     }
 
+    if ('type' in body.inputProps && body.inputProps.type === 'blob') {
+      throw new Error('Please wait for your media to finish uploading before rendering.')
+    }
+
     logger.info('User requested render', { email: user?.email })
 
     logger.info('Initiating renderMediaOnLambda', {
