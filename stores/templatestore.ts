@@ -39,6 +39,39 @@ export enum Language {
   Hungarian = 'hu'
 }
 
+// Emoji map of language flags
+export const LanguageFlags: Record<Language, string> = {
+  [Language.English]: '🇬🇧',
+  [Language.German]: '🇩🇪',
+  [Language.Hindi]: '🇮🇳',
+  [Language.French]: '🇫🇷',
+  [Language.Portuguese]: '🇵🇹',
+  [Language.Italian]: '🇮🇹',
+  [Language.Spanish]: '🇪🇸',
+  [Language.Russian]: '🇷🇺',
+  [Language.Indonesian]: '🇮🇩',
+  [Language.Dutch]: '🇳🇱',
+  [Language.Turkish]: '🇹🇷',
+  [Language.Filipino]: '🇵🇭',
+  [Language.Polish]: '🇵🇱',
+  [Language.Swedish]: '🇸🇪',
+  [Language.Bulgarian]: '🇧🇬',
+  [Language.Romanian]: '🇷🇴',
+  [Language.Arabic]: '🇸🇦',
+  [Language.Czech]: '🇨🇿',
+  [Language.Greek]: '🇬🇷',
+  [Language.Finnish]: '🇫🇮',
+  [Language.Croatian]: '🇭🇷',
+  [Language.Malay]: '🇲🇾',
+  [Language.Slovak]: '🇸🇰',
+  [Language.Danish]: '🇩🇰',
+  [Language.Tamil]: '🇱🇰',
+  [Language.Ukrainian]: '🇺🇦',
+  [Language.Vietnamese]: '🇻🇳',
+  [Language.Norwegian]: '🇳🇴',
+  [Language.Hungarian]: '🇭🇺'
+}
+
 export enum AspectRatio {
   Vertical = '9:16',
   Horizontal = '16:9',
