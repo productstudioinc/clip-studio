@@ -33,6 +33,7 @@ export default async function Layout({
         />
       </div>
       <div className="flex flex-col flex-1">
+        <SiteBanner />
         <header className="md:hidden flex items-center justify-between p-2 border-b sticky top-0 z-10 bg-background">
           <MobileSidebar
             user={user}
@@ -41,7 +42,6 @@ export default async function Layout({
             admin={admin}
           />
         </header>
-        <SiteBanner />
         <main className="flex-1 bg-muted/25 relative p-4">
           <Breadcrumbs />
           {children}
