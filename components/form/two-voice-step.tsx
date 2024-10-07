@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ElevenlabsVoice, generateTextVoiceover } from '@/actions/elevenlabs'
 import { Language, LanguageFlags, VideoProps } from '@/stores/templatestore'
+import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
-import { Pause, Play } from 'lucide-react'
+import { Loader2, Pause, Play } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
@@ -56,7 +57,7 @@ export const TwoVoiceStep: React.FC<TwoVoiceStepProps> = ({ form, voices }) => {
     {}
   )
 
-  const { isPending, execute, data } = useServerAction(generateTextVoiceover)
+  const { isPending, execute } = useServerAction(generateTextVoiceover)
 
   useEffect(() => {
     const fetchDurations = async () => {
@@ -170,6 +171,21 @@ export const TwoVoiceStep: React.FC<TwoVoiceStepProps> = ({ form, voices }) => {
       toast.success('Voiceover generated successfully')
     }
   }
+
+  const calculateTotalCharacters = useCallback(() => {
+    const messages = form.getValues('messages')
+    return messages.reduce((total, message) => {
+      if (message.content.type === 'text') {
+        return (
+          total +
+          (typeof message.content.value === 'string'
+            ? message.content.value.length
+            : 0)
+        )
+      }
+      return total
+    }, 0)
+  }, [form])
 
   const VoiceSelector = useCallback(
     ({ person }: { person: 'sender' | 'receiver' }) => (
@@ -379,7 +395,16 @@ export const TwoVoiceStep: React.FC<TwoVoiceStepProps> = ({ form, voices }) => {
           className="w-full"
           type="button"
         >
-          Generate Voiceover
+          {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+          Generate Voiceover{' '}
+          <span className="text-muted-foreground ml-1">
+            ~{' '}
+            {Math.ceil(
+              calculateTotalCharacters() /
+                CREDIT_CONVERSIONS.VOICEOVER_CHARACTERS
+            )}{' '}
+            credits
+          </span>
         </Button>
       </CardFooter>
     </Card>
