@@ -10,7 +10,14 @@ import { z } from 'zod'
 import { useServerAction } from 'zsa-react'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -142,6 +149,9 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
           </div>
         </div>
       </CardContent>
+      <CardFooter className="text-muted-foreground">
+        You must generate a voiceover for the video to be updated
+      </CardFooter>
     </Card>
   )
 }
