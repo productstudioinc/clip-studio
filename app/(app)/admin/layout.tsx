@@ -1,4 +1,5 @@
 import { ReactNode } from 'react'
+import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getUser } from '@/actions/auth/user'
 import { isAdmin } from '@/actions/db/admin-queries'

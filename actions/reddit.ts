@@ -75,11 +75,11 @@ export const getRedditInfo = createServerAction()
       const accessToken = await getRedditAccessToken()
 
       const apiUrl = `https://oauth.reddit.com/api/info?id=t3_${postId}`
-      
+
       // Add retry logic
-      const maxRetries = 3;
-      let retries = 0;
-      let response: Response | undefined;
+      const maxRetries = 3
+      let retries = 0
+      let response: Response | undefined
 
       while (retries < maxRetries) {
         response = await fetch(apiUrl, {
@@ -87,14 +87,16 @@ export const getRedditInfo = createServerAction()
             Authorization: `Bearer ${accessToken}`,
             'User-Agent': 'ClipStudio/1.0.0'
           }
-        });
+        })
 
         if (response.status === 403) {
-          retries++;
-          logger.warn('Received 403 from Reddit API, retrying', { retryCount: retries });
-          await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+          retries++
+          logger.warn('Received 403 from Reddit API, retrying', {
+            retryCount: retries
+          })
+          await new Promise((resolve) => setTimeout(resolve, 1000 * retries))
         } else {
-          break;
+          break
         }
       }
 

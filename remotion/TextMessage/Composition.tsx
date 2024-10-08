@@ -45,9 +45,9 @@ export const TextMessageComposition = (props: TextMessageVideoProps) => {
         </Series>
         <AbsoluteFill className="flex justify-center items-center">
           {props.messages.map((message, index) => {
-            const startIndex = Math.max(0, index - 5);
-            const visibleMessages = props.messages.slice(startIndex, index + 1);
-            
+            const startIndex = Math.max(0, index - 5)
+            const visibleMessages = props.messages.slice(startIndex, index + 1)
+
             return (
               <Sequence
                 from={message.from * FPS}
@@ -63,7 +63,7 @@ export const TextMessageComposition = (props: TextMessageVideoProps) => {
                   />
                 </AbsoluteFill>
               </Sequence>
-            );
+            )
           })}
         </AbsoluteFill>
       </AbsoluteFill>
