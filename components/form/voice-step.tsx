@@ -4,7 +4,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ElevenlabsVoice, generateRedditVoiceover } from '@/actions/elevenlabs'
 import { Language, LanguageFlags, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
-import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
+import {
+  CaretSortIcon,
+  CheckIcon,
+  QuestionMarkIcon
+} from '@radix-ui/react-icons'
 import { Loader2, Pause, Play } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -178,6 +182,8 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
     form.setValue('durationInFrames', Math.floor(data.endTimestamp * 30))
     form.setValue('voiceoverUrl', data.signedUrl)
     form.setValue('voiceoverFrames', data.voiceoverObject)
+    form.setValue('isVoiceoverGenerated', true)
+    form.clearErrors('isVoiceoverGenerated')
 
     toast.success('Voiceover generated successfully!')
   }
@@ -377,11 +383,11 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
             )}
           />
         </div>
-        <div className="mt-6">
+        <div className="mt-6 flex items-center space-x-2">
           <Button
             onClick={handleGenerate}
             disabled={isPending || !form.getValues('voice')}
-            className="w-full"
+            className="flex-grow"
           >
             {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
             Generate Voiceover{' '}
@@ -394,6 +400,21 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
               credits
             </span>
           </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="rounded-full" size="icon">
+                <QuestionMarkIcon className="h-4 w-4" />
+                <span className="sr-only">Open popover</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <p className="text-sm text-muted-foreground">
+                Generating a voiceover will give you a preview of the voiceover
+                for your video based on the text you enter. This is a preview
+                only and will not be used for the final video.
+              </p>
+            </PopoverContent>
+          </Popover>
         </div>
       </CardContent>
     </Card>
