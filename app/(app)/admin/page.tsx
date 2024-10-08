@@ -1,3 +1,6 @@
+import React, { Suspense } from 'react'
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { getUser } from '@/actions/auth/user'
 import {
   getFeedbackCount,
@@ -5,7 +8,6 @@ import {
   getMostRecentRenders,
   getRenderCount,
   getRenderCountPerDay,
-  getRendersPerTemplate,
   getTikTokAccountsCount,
   getTikTokPostsCount,
   getTikTokPostsPerDay,
@@ -17,14 +19,8 @@ import {
   isAdmin
 } from '@/actions/db/admin-queries'
 import { formatDistanceToNow } from 'date-fns'
-import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { Suspense } from 'react'
 
-import { DateRangePicker } from '@/components/date-range-picker'
-import { PerDayChart } from '@/components/per-day-chart'
-import { RendersGroupedByTemplateChart } from '@/components/renders-grouped-by-template-chart'
-import { RendersPieChart } from '@/components/renders-pie-chart'
+import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 import {
   Card,
@@ -41,8 +37,9 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
-import React from 'react'
+import { DateRangePicker } from '@/components/date-range-picker'
+import { PerDayChart } from '@/components/per-day-chart'
+import { RendersGroupedByTemplateChart } from '@/components/renders-grouped-by-template-chart'
 
 const CardSkeleton = ({ className }: { className?: string }) => (
   <Card className={cn('col-span-12 sm:col-span-6 lg:col-span-4', className)}>
@@ -87,7 +84,7 @@ const CountCard = async ({
         <TooltipTrigger asChild>
           <Link
             href={href}
-            className="block col-span-12 sm:col-span-6 lg:col-span-3"
+            className="block col-span-12 sm:col-span-6 lg:col-span-4"
           >
             <Card className="relative group overflow-hidden transition-all duration-300 hover:opacity-80">
               <CardHeader>
@@ -222,17 +219,6 @@ const TikTokAccountsCountCard = async () => {
   )
 }
 
-const RendersPerTemplateCard = React.memo(async () => {
-  const rendersPerTemplate = await getRendersPerTemplate()
-  return (
-    <RendersPieChart
-      className="col-span-12 md:col-span-3 lg:col-span-4"
-      data={rendersPerTemplate}
-    />
-  )
-})
-RendersPerTemplateCard.displayName = 'RendersPerTemplateCard'
-
 const MostRecentRendersCard = async () => {
   const mostRecentRenders = await getMostRecentRenders()
   return (
@@ -299,33 +285,29 @@ const calculatePreviousPeriod = (startDate: Date, endDate: Date) => {
   return { previousStartDate, previousEndDate }
 }
 
-const RenderChart = React.memo(async ({
-  startDate,
-  endDate
-}: {
-  startDate: Date
-  endDate: Date
-}) => {
-  const renderCountPerDay = await getRenderCountPerDay(startDate, endDate)
+const RenderChart = React.memo(
+  async ({ startDate, endDate }: { startDate: Date; endDate: Date }) => {
+    const renderCountPerDay = await getRenderCountPerDay(startDate, endDate)
 
-  const { previousStartDate, previousEndDate } = calculatePreviousPeriod(
-    startDate,
-    endDate
-  )
+    const { previousStartDate, previousEndDate } = calculatePreviousPeriod(
+      startDate,
+      endDate
+    )
 
-  const previousRenderCountPerDay = await getRenderCountPerDay(
-    previousStartDate,
-    previousEndDate
-  )
+    const previousRenderCountPerDay = await getRenderCountPerDay(
+      previousStartDate,
+      previousEndDate
+    )
 
-  return (
-    <RendersGroupedByTemplateChart
-      data={renderCountPerDay as any}
-      previousData={previousRenderCountPerDay as any}
-      className="col-span-12"
-    />
-  )
-})
+    return (
+      <RendersGroupedByTemplateChart
+        data={renderCountPerDay as any}
+        previousData={previousRenderCountPerDay as any}
+        className="col-span-12"
+      />
+    )
+  }
+)
 
 RenderChart.displayName = 'RenderChart'
 
@@ -537,9 +519,6 @@ export default async function AdminDashboard({
         </Suspense>
         <Suspense fallback={<CardSkeleton />}>
           <FeedbackCountCard />
-        </Suspense>
-        <Suspense fallback={<CardSkeleton />}>
-          <RendersPerTemplateCard />
         </Suspense>
       </div>
       <div className="grid grid-cols-12 gap-6 mb-6">

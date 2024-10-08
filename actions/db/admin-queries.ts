@@ -266,19 +266,6 @@ const getYoutubeAccountsCountRaw = async () => {
   return youtubeAccountsCount[0].count
 }
 
-const getRendersPerTemplateRaw = async () => {
-  await authenticateAdmin()
-  const rendersPerTemplate = await db
-    .select({
-      template: pastRenders.templateName,
-      count: sql<number>`count(*)`
-    })
-    .from(pastRenders)
-    .groupBy(pastRenders.templateName)
-
-  return rendersPerTemplate
-}
-
 const getRenderCountPerDayRaw = async (startDate: Date, endDate: Date) => {
   await authenticateAdmin()
   const renderCounts = await db
@@ -447,12 +434,6 @@ export const getTikTokAccountsCount = unstable_cache(
 export const getYoutubeAccountsCount = unstable_cache(
   getYoutubeAccountsCountRaw,
   ['youtube-accounts-count'],
-  { revalidate: REVALIDATE_PERIOD }
-)
-
-export const getRendersPerTemplate = unstable_cache(
-  getRendersPerTemplateRaw,
-  ['renders-per-template'],
   { revalidate: REVALIDATE_PERIOD }
 )
 
