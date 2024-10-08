@@ -115,6 +115,9 @@ export function FormSubmit({
     e.preventDefault()
     if (!form.getValues('isVoiceoverGenerated')) {
       toast.info('You must generate a voiceover first.')
+      form.setError('isVoiceoverGenerated', {
+        message: 'You must generate a voiceover first.'
+      })
       return
     }
     renderMedia()
