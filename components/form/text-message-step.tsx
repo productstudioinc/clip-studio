@@ -189,7 +189,7 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
                                     }
                                   >
                                     <MessageSquareIcon className="md:mr-2 h-4 w-4" />
-                                    <span className="sr-only hidden md:block">
+                                    <span className="hidden md:block">
                                       Left
                                     </span>
                                   </Button>
@@ -209,7 +209,7 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
                                     }
                                   >
                                     <MessageSquareIcon className="md:mr-2 h-4 w-4 [transform:rotateY(180deg)]" />
-                                    <span className="sr-only hidden md:block">
+                                    <span className="hidden md:block">
                                       Right
                                     </span>
                                   </Button>
