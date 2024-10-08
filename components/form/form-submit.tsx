@@ -111,6 +111,15 @@ export function FormSubmit({
     inputProps
   )
 
+  const handleGenerateVideo = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    if (!form.getValues('isVoiceoverGenerated')) {
+      toast.info('You must generate a voiceover first.')
+      return
+    }
+    renderMedia()
+  }
+
   const isRenderingComplete = state.status === 'done'
 
   useEffect(() => {
@@ -137,7 +146,7 @@ export function FormSubmit({
             form.formState.isSubmitting ||
             !form.formState.isValid
           }
-          onClick={renderMedia}
+          onClick={handleGenerateVideo}
           size="lg"
           className="w-full text-lg h-14"
         >
