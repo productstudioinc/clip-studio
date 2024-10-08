@@ -1,8 +1,7 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { TemplateProps, useTemplateStore } from '@/stores/templatestore'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,9 +22,6 @@ type TemplateSelectProps = {
 export const TemplateSelect: React.FC<TemplateSelectProps> = ({
   templates
 }) => {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const pathname = usePathname()
   const { selectedTemplate, setSelectedTemplate } = useTemplateStore(
     (state) => ({
       selectedTemplate: state.selectedTemplate,
@@ -33,25 +29,8 @@ export const TemplateSelect: React.FC<TemplateSelectProps> = ({
     })
   )
 
-  useEffect(() => {
-    const template = searchParams.get('template')
-
-    if (template) {
-      setSelectedTemplate(template as TemplateProps)
-    } else if (templates.length > 0) {
-      const defaultTemplate = templates[0].value as TemplateProps
-      setSelectedTemplate(defaultTemplate)
-      if (pathname === '/') {
-        router.push(`?template=${defaultTemplate}`, { scroll: false })
-      }
-    }
-  }, [searchParams, setSelectedTemplate, templates, router, pathname])
-
   const handleTemplateChange = (value: string) => {
     setSelectedTemplate(value as TemplateProps)
-    if (pathname === '/') {
-      router.push(`?template=${value}`, { scroll: false })
-    }
   }
 
   return (
