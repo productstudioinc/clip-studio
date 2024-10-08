@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { generateStoryScript } from '@/actions/ai-actions'
-import { AIVideoProps } from '@/stores/templatestore'
+import { AIVideoProps, VideoProps } from '@/stores/templatestore'
 import { Loader2, Wand2 } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -21,7 +21,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 
 type PromptStepProps = {
-  form: UseFormReturn<AIVideoProps>
+  form: UseFormReturn<VideoProps>
 }
 
 const storyLengthOptions: {
@@ -46,7 +46,9 @@ export const PromptStep: React.FC<PromptStepProps> = ({ form }) => {
     if (error) {
       toast.error(`Error generating script: ${error.message}`)
     } else {
-      toast.success(JSON.stringify(data))
+      const updatedData = data.map((item) => ({ ...item, imageUrl: null }))
+      form.setValue('videoStructure', updatedData)
+      toast.success(JSON.stringify(updatedData))
     }
   }
 
