@@ -2,20 +2,50 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { ArrowUpIcon } from '@radix-ui/react-icons'
+import { format } from 'date-fns'
 import { AnimatePresence, motion } from 'framer-motion'
 
 import { cn } from '@/lib/utils'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 import AnimatedShinyText from './ui/animated-shiny-text'
+
+type Change = {
+  date: Date
+  items: string[]
+}
+
+const CHANGES: Change[] = [
+  {
+    date: new Date(2024, 6, 10),
+    items: [
+      'Major performance improvements',
+      'Clips template',
+      'Messages template'
+    ]
+  }
+]
 
 export function WhatsNew({ className }: { className?: string }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [contentHeight, setContentHeight] = useState(0)
   const contentRef = useRef<HTMLDivElement>(null)
 
+  const [scrollAreaHeight, setScrollAreaHeight] = useState<number | 'auto'>(
+    'auto'
+  )
+  const changesRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     if (contentRef.current) {
       setContentHeight(contentRef.current.scrollHeight)
+    }
+  }, [isExpanded])
+
+  useEffect(() => {
+    if (changesRef.current) {
+      const changesHeight = changesRef.current.scrollHeight
+      setScrollAreaHeight(changesHeight > 200 ? 200 : 'auto')
     }
   }, [isExpanded])
 
@@ -73,11 +103,25 @@ export function WhatsNew({ className }: { className?: string }) {
                 ref={contentRef}
                 className="px-4 pb-2 text-sm text-muted-foreground"
               >
-                <ul className="list-disc list-inside">
-                  <li>Major performance improvements</li>
-                  <li>Clips template</li>
-                  <li>Texts template</li>
-                </ul>
+                <ScrollArea
+                  className="w-full rounded-md"
+                  style={{ height: scrollAreaHeight }}
+                >
+                  <div ref={changesRef}>
+                    {CHANGES.map((change, index) => (
+                      <div key={index} className="mb-4">
+                        <h3 className="font-semibold mb-2">
+                          {format(change.date, 'MM/dd/yy')}
+                        </h3>
+                        <ul className="list-disc list-inside">
+                          {change.items.map((item, itemIndex) => (
+                            <li key={itemIndex}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
               </div>
             </motion.div>
           )}
