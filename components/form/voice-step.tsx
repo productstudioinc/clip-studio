@@ -183,6 +183,7 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
     form.setValue('voiceoverUrl', data.signedUrl)
     form.setValue('voiceoverFrames', data.voiceoverObject)
     form.setValue('isVoiceoverGenerated', true)
+    form.clearErrors('isVoiceoverGenerated')
 
     toast.success('Voiceover generated successfully!')
   }
