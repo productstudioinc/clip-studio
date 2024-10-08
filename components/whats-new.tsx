@@ -17,7 +17,7 @@ type Change = {
 
 const CHANGES: Change[] = [
   {
-    date: new Date(2024, 6, 10),
+    date: new Date(2024, 9, 7),
     items: [
       'Major performance improvements',
       'Clips template',
@@ -110,7 +110,7 @@ export function WhatsNew({ className }: { className?: string }) {
                   <div ref={changesRef}>
                     {CHANGES.map((change, index) => (
                       <div key={index} className="mb-4">
-                        <h3 className="font-semibold mb-2">
+                        <h3 className="font-semibold">
                           {format(change.date, 'MM/dd/yy')}
                         </h3>
                         <ul className="list-disc list-inside">
