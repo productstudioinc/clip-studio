@@ -270,6 +270,20 @@ const MostRecentRendersCard = async () => {
   )
 }
 
+const calculatePreviousPeriod = (startDate: Date, endDate: Date) => {
+  const daysDifference = Math.floor(
+    (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)
+  )
+
+  const previousStartDate = new Date(startDate)
+  previousStartDate.setDate(previousStartDate.getDate() - daysDifference)
+
+  const previousEndDate = new Date(endDate)
+  previousEndDate.setDate(previousEndDate.getDate() - daysDifference)
+
+  return { previousStartDate, previousEndDate }
+}
+
 const RenderChart = async ({
   startDate,
   endDate
@@ -282,9 +296,27 @@ const RenderChart = async ({
     date,
     count: Number(count)
   }))
+
+  const { previousStartDate, previousEndDate } = calculatePreviousPeriod(
+    startDate,
+    endDate
+  )
+
+  const previousRenderCountPerDay = await getRenderCountPerDay(
+    previousStartDate,
+    previousEndDate
+  )
+  const previousRenderChartData = previousRenderCountPerDay.map(
+    ({ date, count }) => ({
+      date,
+      count: Number(count)
+    })
+  )
+
   return (
     <PerDayChart
       data={renderChartData}
+      previousData={previousRenderChartData}
       className="col-span-12"
       title="Renders Per Day"
       description="Showing total renders for the selected period"
@@ -306,9 +338,27 @@ const FeedbackChart = async ({
     date,
     count: Number(count)
   }))
+
+  const { previousStartDate, previousEndDate } = calculatePreviousPeriod(
+    startDate,
+    endDate
+  )
+
+  const previousFeedbackCountPerDay = await getFeedbackCountPerDay(
+    previousStartDate,
+    previousEndDate
+  )
+  const previousFeedbackChartData = previousFeedbackCountPerDay.map(
+    ({ date, count }) => ({
+      date,
+      count: Number(count)
+    })
+  )
+
   return (
     <PerDayChart
       data={feedbackChartData}
+      previousData={previousFeedbackChartData}
       className="col-span-12 md:col-span-6"
       title="Feedback Per Day"
       description="Showing total feedback for the selected period"
@@ -330,9 +380,27 @@ const TikTokPostsChart = async ({
     date,
     count: Number(count)
   }))
+
+  const { previousStartDate, previousEndDate } = calculatePreviousPeriod(
+    startDate,
+    endDate
+  )
+
+  const previousTikTokPostsPerDay = await getTikTokPostsPerDay(
+    previousStartDate,
+    previousEndDate
+  )
+  const previousTikTokPostsChartData = previousTikTokPostsPerDay.map(
+    ({ date, count }) => ({
+      date,
+      count: Number(count)
+    })
+  )
+
   return (
     <PerDayChart
       data={tikTokPostsChartData}
+      previousData={previousTikTokPostsChartData}
       className="col-span-12 md:col-span-6"
       title="TikTok Posts Per Day"
       description="Showing total TikTok posts for the selected period"
@@ -354,9 +422,27 @@ const YoutubePostsChart = async ({
     date,
     count: Number(count)
   }))
+
+  const { previousStartDate, previousEndDate } = calculatePreviousPeriod(
+    startDate,
+    endDate
+  )
+
+  const previousYoutubePostsPerDay = await getYoutubePostsPerDay(
+    previousStartDate,
+    previousEndDate
+  )
+  const previousYoutubePostsChartData = previousYoutubePostsPerDay.map(
+    ({ date, count }) => ({
+      date,
+      count: Number(count)
+    })
+  )
+
   return (
     <PerDayChart
       data={youtubePostsChartData}
+      previousData={previousYoutubePostsChartData}
       className="col-span-12 md:col-span-6"
       title="Youtube Posts Per Day"
       description="Showing total Youtube posts for the selected period"
@@ -378,9 +464,27 @@ const UserChart = async ({
     date,
     count: Number(count)
   }))
+
+  const { previousStartDate, previousEndDate } = calculatePreviousPeriod(
+    startDate,
+    endDate
+  )
+
+  const previousUserCountPerDay = await getUserCountPerDay(
+    previousStartDate,
+    previousEndDate
+  )
+  const previousUserChartData = previousUserCountPerDay.map(
+    ({ date, count }) => ({
+      date,
+      count: Number(count)
+    })
+  )
+
   return (
     <PerDayChart
       data={userChartData}
+      previousData={previousUserChartData}
       className="col-span-12 md:col-span-6"
       title="Users Per Day"
       description="Showing total users for the selected period"
@@ -412,11 +516,9 @@ export default async function AdminDashboard({
   }
 
   const startDate = searchParams?.from
-    ? new Date(new Date(searchParams.from).setHours(0, 0, 0, 0))
-    : new Date(new Date().setHours(0, 0, 0, 0) - 30 * 24 * 60 * 60 * 1000) // Default to beginning of 30 days ago
-  const endDate = searchParams?.to
-    ? new Date(new Date(searchParams.to).setHours(23, 59, 59, 999))
-    : new Date(new Date().setHours(23, 59, 59, 999)) // Default to end of today
+    ? new Date(searchParams.from)
+    : new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000) // Default to 30 days ago
+  const endDate = searchParams?.to ? new Date(searchParams.to) : new Date() // Default to today
 
   return (
     <>

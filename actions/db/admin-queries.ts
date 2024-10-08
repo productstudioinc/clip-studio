@@ -11,6 +11,7 @@ import {
   youtubeChannels,
   youtubePosts
 } from '@/db/schema'
+import { format } from 'date-fns'
 import { desc, eq, or, sql } from 'drizzle-orm'
 import { Logger } from 'next-axiom'
 
@@ -413,32 +414,81 @@ export const getYoutubeAccountsCount = unstable_cache(
   { revalidate: REVALIDATE_PERIOD }
 )
 
-export const getRenderCountPerDay = unstable_cache(
-  getRenderCountPerDayRaw,
-  ['render-count-per-day'],
-  { revalidate: REVALIDATE_PERIOD }
-)
+export const getRenderCountPerDay = async (startDate: Date, endDate: Date) => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
 
-export const getUserCountPerDay = unstable_cache(
-  getUserCountPerDayRaw,
-  ['user-count-per-day'],
-  { revalidate: REVALIDATE_PERIOD }
-)
+  const cacheOptions: { revalidate: number | false } =
+    endDate < today ? { revalidate: false } : { revalidate: REVALIDATE_PERIOD }
 
-export const getFeedbackCountPerDay = unstable_cache(
-  getFeedbackCountPerDayRaw,
-  ['feedback-count-per-day'],
-  { revalidate: REVALIDATE_PERIOD }
-)
+  return unstable_cache(
+    () => getRenderCountPerDayRaw(startDate, endDate),
+    [
+      `render-count-per-day-${format(startDate, 'yyyy-MM-dd')}-${format(endDate, 'yyyy-MM-dd')}`
+    ],
+    cacheOptions
+  )()
+}
+export const getUserCountPerDay = (startDate: Date, endDate: Date) => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
 
-export const getTikTokPostsPerDay = unstable_cache(
-  getTikTokPostsPerDayRaw,
-  ['tiktok-posts-per-day'],
-  { revalidate: REVALIDATE_PERIOD }
-)
+  const cacheOptions: { revalidate: number | false } =
+    endDate < today ? { revalidate: false } : { revalidate: REVALIDATE_PERIOD }
 
-export const getYoutubePostsPerDay = unstable_cache(
-  getYoutubePostsPerDayRaw,
-  ['youtube-posts-per-day'],
-  { revalidate: REVALIDATE_PERIOD }
-)
+  return unstable_cache(
+    () => getUserCountPerDayRaw(startDate, endDate),
+    [
+      `user-count-per-day-${format(startDate, 'yyyy-MM-dd')}-${format(endDate, 'yyyy-MM-dd')}`
+    ],
+    cacheOptions
+  )()
+}
+
+export const getFeedbackCountPerDay = (startDate: Date, endDate: Date) => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const cacheOptions: { revalidate: number | false } =
+    endDate < today ? { revalidate: false } : { revalidate: REVALIDATE_PERIOD }
+
+  return unstable_cache(
+    () => getFeedbackCountPerDayRaw(startDate, endDate),
+    [
+      `feedback-count-per-day-${format(startDate, 'yyyy-MM-dd')}-${format(endDate, 'yyyy-MM-dd')}`
+    ],
+    cacheOptions
+  )()
+}
+
+export const getTikTokPostsPerDay = (startDate: Date, endDate: Date) => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const cacheOptions: { revalidate: number | false } =
+    endDate < today ? { revalidate: false } : { revalidate: REVALIDATE_PERIOD }
+
+  return unstable_cache(
+    () => getTikTokPostsPerDayRaw(startDate, endDate),
+    [
+      `tiktok-posts-per-day-${format(startDate, 'yyyy-MM-dd')}-${format(endDate, 'yyyy-MM-dd')}`
+    ],
+    cacheOptions
+  )()
+}
+
+export const getYoutubePostsPerDay = (startDate: Date, endDate: Date) => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const cacheOptions: { revalidate: number | false } =
+    endDate < today ? { revalidate: false } : { revalidate: REVALIDATE_PERIOD }
+
+  return unstable_cache(
+    () => getYoutubePostsPerDayRaw(startDate, endDate),
+    [
+      `youtube-posts-per-day-${format(startDate, 'yyyy-MM-dd')}-${format(endDate, 'yyyy-MM-dd')}`
+    ],
+    cacheOptions
+  )()
+}
