@@ -13,8 +13,6 @@ export function WhatsNew({ className }: { className?: string }) {
   const [contentHeight, setContentHeight] = useState(0)
   const contentRef = useRef<HTMLDivElement>(null)
 
-  const toggleExpand = () => setIsExpanded((prev) => !prev)
-
   useEffect(() => {
     if (contentRef.current) {
       setContentHeight(contentRef.current.scrollHeight)
@@ -29,22 +27,23 @@ export function WhatsNew({ className }: { className?: string }) {
         height: isExpanded ? `${contentHeight + 40}px` : '40px'
       }}
       transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
+      onHoverStart={() => setIsExpanded(true)}
+      onHoverEnd={() => setIsExpanded(false)}
     >
       <motion.div
         className={cn(
-          'group border border-black/5 bg-neutral-100 text-base w-full rounded-2xl',
+          'group border border-black/5 bg-neutral-100 text-base w-full rounded-3xl',
           'flex flex-col items-center',
-          'hover:cursor-pointer hover:bg-neutral-200 dark:border-white/5 dark:bg-neutral-900 dark:hover:bg-neutral-800',
+          'hover:bg-neutral-200 dark:border-white/5 dark:bg-neutral-900 dark:hover:bg-neutral-800',
           'overflow-hidden'
         )}
-        onClick={toggleExpand}
         initial={false}
         animate={{
           height: isExpanded ? 'auto' : '40px',
-          borderRadius: '1rem'
+          borderRadius: '1.5rem'
         }}
         transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
-        style={{ borderRadius: '1rem' }}
+        style={{ borderRadius: '1.5rem' }}
       >
         <motion.div
           className="w-full flex items-center justify-center"
