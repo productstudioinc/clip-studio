@@ -61,11 +61,11 @@ class Model:
         return byte_stream.getvalue()
     
     @modal.method()
-    def _inference(self, prompt: str, width: int = 1440, height: int = 1440):
+    def _inference(self, prompt: str, width: int = 720, height: int = 1280):
         return self.inference(prompt, width, height)
     
     @modal.web_endpoint(docs=True)
-    def web_inference(self, prompt: str, width: int = 1440, height: int = 1440, x_api_key: str = Header(None)):
+    def web_inference(self, prompt: str, width: int = 720, height: int = 1280, x_api_key: str = Header(None)):
         api_key = os.getenv("API_KEY")
         if x_api_key != api_key:
             return Response(content="Unauthorized", status_code=401)
