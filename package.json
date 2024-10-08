@@ -16,6 +16,7 @@
     "remotion": "remotion studio src/remotion/index.ts"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.66",
     "@aws-sdk/client-s3": "^3.665.0",
     "@aws-sdk/s3-request-presigner": "^3.665.0",
     "@hookform/resolvers": "^3.9.0",
@@ -53,6 +54,7 @@
     "@supabase/supabase-js": "^2.45.4",
     "@tanstack/react-table": "^8.20.5",
     "@types/uuid": "^10.0.0",
+    "ai": "^3.4.9",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
