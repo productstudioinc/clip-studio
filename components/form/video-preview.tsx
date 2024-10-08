@@ -57,7 +57,6 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ form }) => {
             compositionHeight={height}
             compositionWidth={width}
             controls
-            autoPlay
             loop
             initiallyMuted
           />
