@@ -220,9 +220,10 @@ export const NavigationItems: React.FC<NavigationItemsProps> = ({
       <Separator className="my-2" />
       <div className="flex-1" />
 
-      <WhatsNew className="mb-2" />
       {renderSubscriptionCard(user, subscription, usage)}
 
+      <Separator className="my-2" />
+      <WhatsNew />
       <Separator className="my-2" />
 
       {user ? (

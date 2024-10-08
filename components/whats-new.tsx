@@ -1,132 +1,100 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { ArrowUpIcon } from '@radix-ui/react-icons'
-import { format } from 'date-fns'
-import { AnimatePresence, motion } from 'framer-motion'
+import { useState } from 'react'
+import Link from 'next/link'
+import { MDXContent } from '@content-collections/mdx/react'
+import { ArrowRightIcon, BellIcon } from '@radix-ui/react-icons'
+import { allChangelogs } from 'content-collections'
+import { format, formatDistanceToNow } from 'date-fns'
 
 import { cn } from '@/lib/utils'
-import { ScrollArea } from '@/components/ui/scroll-area'
-
-import AnimatedShinyText from './ui/animated-shiny-text'
-
-type Change = {
-  date: Date
-  items: string[]
-}
-
-const CHANGES: Change[] = [
-  {
-    date: new Date(2024, 9, 7),
-    items: [
-      'Major performance improvements',
-      'Clips template',
-      'Messages template'
-    ]
-  }
-]
+import { Button } from '@/components/ui/button'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
 
 export function WhatsNew({ className }: { className?: string }) {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [contentHeight, setContentHeight] = useState(0)
-  const contentRef = useRef<HTMLDivElement>(null)
-
-  const [scrollAreaHeight, setScrollAreaHeight] = useState<number | 'auto'>(
-    'auto'
+  const [open, setOpen] = useState(false)
+  const changelogs = allChangelogs.sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
   )
-  const changesRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    if (contentRef.current) {
-      setContentHeight(contentRef.current.scrollHeight)
-    }
-  }, [isExpanded])
-
-  useEffect(() => {
-    if (changesRef.current) {
-      const changesHeight = changesRef.current.scrollHeight
-      setScrollAreaHeight(changesHeight > 200 ? 200 : 'auto')
-    }
-  }, [isExpanded])
+  const handleLinkClick = () => {
+    setOpen(false)
+  }
 
   return (
-    <motion.div
-      className={cn('z-10 flex items-center justify-center', className)}
-      initial={false}
-      animate={{
-        height: isExpanded ? `${contentHeight + 40}px` : '40px'
-      }}
-      transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
-      onHoverStart={() => setIsExpanded(true)}
-      onHoverEnd={() => setIsExpanded(false)}
-    >
-      <motion.div
-        className={cn(
-          'group border border-black/5 bg-neutral-100 text-base w-full rounded-3xl',
-          'flex flex-col items-center',
-          'hover:bg-neutral-200 dark:border-white/5 dark:bg-neutral-900 dark:hover:bg-neutral-800',
-          'overflow-hidden'
-        )}
-        initial={false}
-        animate={{
-          height: isExpanded ? 'auto' : '40px',
-          borderRadius: '1.5rem'
-        }}
-        transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
-        style={{ borderRadius: '1.5rem' }}
-      >
-        <motion.div
-          className="w-full flex items-center justify-center"
-          style={{ minHeight: '40px' }}
-          layout="position"
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          className={cn('text-sm font-medium group flex gap-2', className)}
+          variant="ghost"
         >
-          <AnimatedShinyText className="inline-flex items-center justify-center px-4 transition ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400">
-            <span className="mr-1">✨ What&apos;s New</span>
-            <motion.span
-              animate={{ rotate: isExpanded ? 180 : 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <ArrowUpIcon className="size-3" />
-            </motion.span>
-          </AnimatedShinyText>
-        </motion.div>
-        <AnimatePresence initial={false}>
-          {isExpanded && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.2 }}
-              className="w-full"
-            >
-              <div
-                ref={contentRef}
-                className="px-4 pb-2 text-sm text-muted-foreground"
+          <BellIcon className="size-4" />
+          <span className="text-sm font-medium">Changelog</span>
+          <ArrowRightIcon className="size-4 group-hover:translate-x-1 transition-all duration-200 ease-out" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-[400px] bg-popover p-0 rounded-xl overflow-hidden"
+        side="right"
+      >
+        <Link
+          href="/changelog"
+          className="block w-full"
+          onClick={handleLinkClick}
+        >
+          <div className="flex items-center justify-between px-4 py-2 group hover:bg-accent transition-colors duration-200">
+            <h2 className="text-lg font-semibold">Changelog</h2>
+            <div className="flex items-center">
+              <span className="text-sm text-muted-foreground">View all</span>
+              <ArrowRightIcon className="size-4 ml-2 group-hover:translate-x-1 transition-all duration-200 ease-out" />
+            </div>
+          </div>
+        </Link>
+        <Separator />
+        <ScrollArea className="h-[350px]">
+          <div className="divide-y">
+            {changelogs.map((changelog, index) => (
+              <Link
+                key={index}
+                href={`/changelog/${changelog.slug}`}
+                className="block group hover:bg-accent transition-colors duration-200 p-4"
+                onClick={handleLinkClick}
               >
-                <ScrollArea
-                  className="w-full rounded-md"
-                  style={{ height: scrollAreaHeight }}
-                >
-                  <div ref={changesRef}>
-                    {CHANGES.map((change, index) => (
-                      <div key={index} className="mb-4">
-                        <h3 className="font-semibold">
-                          {format(change.date, 'MM/dd/yy')}
-                        </h3>
-                        <ul className="list-disc list-inside">
-                          {change.items.map((item, itemIndex) => (
-                            <li key={itemIndex}>{item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <h3 className="font-semibold">{changelog.title}</h3>
+                    <ArrowRightIcon className="size-4 ml-2 group-hover:translate-x-1 transition-all duration-200 ease-out opacity-0 group-hover:opacity-100" />
                   </div>
-                </ScrollArea>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </motion.div>
+                  {index === 0 && (
+                    <span className="bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded-full">
+                      New
+                    </span>
+                  )}
+                </div>
+                <div className="text-muted-foreground mt-2 line-clamp-2 text-xs">
+                  <MDXContent code={changelog.mdx} />
+                </div>
+                <time className="text-xs text-muted-foreground mt-2 flex items-center gap-2">
+                  <p>{format(new Date(changelog.updatedAt), 'MMMM d, yyyy')}</p>
+                  <span>·</span>
+                  <p className="text-muted-foreground/50">
+                    {formatDistanceToNow(new Date(changelog.updatedAt), {
+                      addSuffix: true
+                    })}
+                  </p>
+                </time>
+              </Link>
+            ))}
+          </div>
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
+      </PopoverContent>
+    </Popover>
   )
 }
