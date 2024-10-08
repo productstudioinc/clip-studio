@@ -1,6 +1,3 @@
-import { Suspense } from 'react'
-import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import { getUser } from '@/actions/auth/user'
 import {
   getFeedbackCount,
@@ -8,6 +5,7 @@ import {
   getMostRecentRenders,
   getRenderCount,
   getRenderCountPerDay,
+  getRendersPerTemplate,
   getTikTokAccountsCount,
   getTikTokPostsCount,
   getTikTokPostsPerDay,
@@ -19,8 +17,14 @@ import {
   isAdmin
 } from '@/actions/db/admin-queries'
 import { formatDistanceToNow } from 'date-fns'
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 
-import { cn } from '@/lib/utils'
+import { DateRangePicker } from '@/components/date-range-picker'
+import { PerDayChart } from '@/components/per-day-chart'
+import { RendersGroupedByTemplateChart } from '@/components/renders-grouped-by-template-chart'
+import { RendersPieChart } from '@/components/renders-pie-chart'
 import { buttonVariants } from '@/components/ui/button'
 import {
   Card,
@@ -37,8 +41,8 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { DateRangePicker } from '@/components/date-range-picker'
-import { PerDayChart } from '@/components/per-day-chart'
+import { cn } from '@/lib/utils'
+import React from 'react'
 
 const CardSkeleton = ({ className }: { className?: string }) => (
   <Card className={cn('col-span-12 sm:col-span-6 lg:col-span-4', className)}>
@@ -83,7 +87,7 @@ const CountCard = async ({
         <TooltipTrigger asChild>
           <Link
             href={href}
-            className="block col-span-12 sm:col-span-6 lg:col-span-4"
+            className="block col-span-12 sm:col-span-6 lg:col-span-3"
           >
             <Card className="relative group overflow-hidden transition-all duration-300 hover:opacity-80">
               <CardHeader>
@@ -218,6 +222,17 @@ const TikTokAccountsCountCard = async () => {
   )
 }
 
+const RendersPerTemplateCard = React.memo(async () => {
+  const rendersPerTemplate = await getRendersPerTemplate()
+  return (
+    <RendersPieChart
+      className="col-span-12 md:col-span-3 lg:col-span-4"
+      data={rendersPerTemplate}
+    />
+  )
+})
+RendersPerTemplateCard.displayName = 'RendersPerTemplateCard'
+
 const MostRecentRendersCard = async () => {
   const mostRecentRenders = await getMostRecentRenders()
   return (
@@ -284,7 +299,7 @@ const calculatePreviousPeriod = (startDate: Date, endDate: Date) => {
   return { previousStartDate, previousEndDate }
 }
 
-const RenderChart = async ({
+const RenderChart = React.memo(async ({
   startDate,
   endDate
 }: {
@@ -292,10 +307,6 @@ const RenderChart = async ({
   endDate: Date
 }) => {
   const renderCountPerDay = await getRenderCountPerDay(startDate, endDate)
-  const renderChartData = renderCountPerDay.map(({ date, count }) => ({
-    date,
-    count: Number(count)
-  }))
 
   const { previousStartDate, previousEndDate } = calculatePreviousPeriod(
     startDate,
@@ -306,25 +317,17 @@ const RenderChart = async ({
     previousStartDate,
     previousEndDate
   )
-  const previousRenderChartData = previousRenderCountPerDay.map(
-    ({ date, count }) => ({
-      date,
-      count: Number(count)
-    })
-  )
 
   return (
-    <PerDayChart
-      data={renderChartData}
-      previousData={previousRenderChartData}
+    <RendersGroupedByTemplateChart
+      data={renderCountPerDay as any}
+      previousData={previousRenderCountPerDay as any}
       className="col-span-12"
-      title="Renders Per Day"
-      description="Showing total renders for the selected period"
-      label="Renders"
-      color="hsl(var(--chart-1))"
     />
   )
-}
+})
+
+RenderChart.displayName = 'RenderChart'
 
 const FeedbackChart = async ({
   startDate,
@@ -534,6 +537,9 @@ export default async function AdminDashboard({
         </Suspense>
         <Suspense fallback={<CardSkeleton />}>
           <FeedbackCountCard />
+        </Suspense>
+        <Suspense fallback={<CardSkeleton />}>
+          <RendersPerTemplateCard />
         </Suspense>
       </div>
       <div className="grid grid-cols-12 gap-6 mb-6">

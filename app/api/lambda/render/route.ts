@@ -3,6 +3,7 @@ import { DISK, RAM, REGION, SITE_NAME, TIMEOUT } from '@/config.mjs'
 import { db } from '@/db'
 import { userUsage } from '@/db/schema'
 import { executeApi } from '@/helpers/api-response'
+import { TemplateProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import {
   AwsRegion,
@@ -15,12 +16,6 @@ import { eq, sql } from 'drizzle-orm'
 import { AxiomRequest } from 'next-axiom'
 
 import { RenderRequest } from '@/types/schema'
-
-const templateNameMap = {
-  SplitScreen: 'Splitscreen',
-  TwitterThread: 'Twitter Thread',
-  Reddit: 'Reddit Story'
-}
 
 export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
   RenderRequest,
@@ -52,7 +47,9 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
     }
 
     if ('type' in body.inputProps && body.inputProps.type === 'blob') {
-      throw new Error('Please wait for your media to finish uploading before rendering.')
+      throw new Error(
+        'Please wait for your media to finish uploading before rendering.'
+      )
     }
 
     logger.info('User requested render', { email: user?.email })
@@ -133,8 +130,7 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
           durationInFrames: body.inputProps.durationInFrames,
           userId: user.id,
           userEmail: user.email,
-          templateName:
-            templateNameMap[body.id as keyof typeof templateNameMap] || body.id
+          templateName: body.id as TemplateProps
         }
       }
     })
