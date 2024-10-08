@@ -1,12 +1,10 @@
-import { CSSProperties, useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   AbsoluteFill,
   cancelRender,
   continueRender,
   delayRender,
-  OffthreadVideo,
   Sequence,
-  Series,
   useVideoConfig
 } from 'remotion'
 
@@ -22,11 +20,9 @@ export type SubtitleProp = {
 const FPS = 30
 
 export const AIVideoComposition = ({
-  videoUrl,
-  type,
   backgroundUrls,
-  transcription,
-  captionStyle
+  captionStyle,
+  voiceoverFrames
 }: AIVideoProps) => {
   const videoConfig = useVideoConfig()
   const [subtitles, setSubtitles] = useState<SubtitleProp[]>([])
@@ -34,17 +30,35 @@ export const AIVideoComposition = ({
 
   const generateSubtitles = useCallback(() => {
     try {
-      const { chunks } = transcription
+      const {
+        characters,
+        character_start_times_seconds,
+        character_end_times_seconds
+      } = voiceoverFrames
       const subtitlesData: SubtitleProp[] = []
-      for (let i = 0; i < chunks.length; i++) {
-        const { timestamp, text } = chunks[i]
-        const startFrame = Math.floor(timestamp[0] * FPS)
-        const endFrame = Math.floor(timestamp[1] * FPS)
-        subtitlesData.push({
-          startFrame,
-          endFrame,
-          text
-        })
+      let currentWord = ''
+      let wordStartIndex = 0
+
+      for (let i = 0; i < characters.length; i++) {
+        if (characters[i] === ' ' || i === characters.length - 1) {
+          if (currentWord) {
+            const startFrame = Math.floor(
+              character_start_times_seconds[wordStartIndex] * FPS
+            )
+            const endFrame = Math.floor(character_end_times_seconds[i] * FPS)
+
+            subtitlesData.push({
+              startFrame,
+              endFrame,
+              text: currentWord.trim()
+            })
+
+            currentWord = ''
+            wordStartIndex = i + 1
+          }
+        } else {
+          currentWord += characters[i]
+        }
       }
       setSubtitles(subtitlesData)
       continueRender(handle)
@@ -52,45 +66,14 @@ export const AIVideoComposition = ({
       console.error('Error in generateSubtitles:', e)
       cancelRender(e)
     }
-  }, [transcription, handle])
+  }, [handle, voiceoverFrames])
 
   useEffect(() => {
     generateSubtitles()
   }, [generateSubtitles])
 
-  const videoStyle: CSSProperties = {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover'
-  }
-
-  const overlayStyle: CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    display: type === 'blob' ? 'flex' : 'none',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10
-  }
-
-  const uploadingTextStyle: CSSProperties = {
-    fontSize: '32px',
-    fontWeight: 'bold',
-    color: 'white',
-    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)'
-  }
-
   return (
     <AbsoluteFill>
-      <div
-        style={{ position: 'absolute', top: 0, width: '100%', height: '50%' }}
-      >
-        <OffthreadVideo src={videoUrl} style={videoStyle} />
-      </div>
       <div
         style={{
           position: 'absolute',
@@ -98,21 +81,7 @@ export const AIVideoComposition = ({
           width: '100%',
           height: '50%'
         }}
-      >
-        <Series>
-          {backgroundUrls.map((part, index) => (
-            <Series.Sequence durationInFrames={FPS * 60} key={index}>
-              <OffthreadVideo
-                src={part}
-                startFrom={0}
-                endAt={FPS * 60}
-                style={videoStyle}
-                muted
-              />
-            </Series.Sequence>
-          ))}
-        </Series>
-      </div>
+      ></div>
       {subtitles.map((subtitle, index) =>
         subtitle.startFrame < subtitle.endFrame ? (
           <Sequence
@@ -128,9 +97,6 @@ export const AIVideoComposition = ({
           </Sequence>
         ) : null
       )}
-      <div style={overlayStyle}>
-        <div style={uploadingTextStyle}>Uploading video...</div>
-      </div>
     </AbsoluteFill>
   )
 }

@@ -3,16 +3,16 @@ import { generateObject } from 'ai'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'
 
-export const generateStory = createServerAction()
+export const generateStoryScript = createServerAction()
   .input(
     z.object({
-      theme: z.string(),
+      prompt: z.string(),
       range: z.string(),
       segments: z.string()
     })
   )
   .handler(async ({ input }) => {
-    const { theme, range, segments } = input
+    const { prompt, range, segments } = input
 
     const result = await generateObject({
       model: openai('gpt-4o-mini', {
@@ -46,7 +46,7 @@ export const generateStory = createServerAction()
 
       For this ${range} minute story, you should create approximately ${segments} segments.
 
-      The theme of the story is ${theme}.
+      The theme of the story is ${prompt}.
 
       Incorporate these inputs into your story as follows:
       1. Ensure the story aligns with the given theme
@@ -72,7 +72,5 @@ export const generateStory = createServerAction()
       Ensure that both the text and image descriptions work together to create a cohesive and engaging story that has the potential to go viral on social media. Each segment should flow naturally into the next, creating a seamless narrative experience for a ${range} minute video with ${segments} segments.`
     })
 
-    console.log(JSON.stringify(result.object, null, 2))
-
-    return result.object
+    return result.object.segments
   })

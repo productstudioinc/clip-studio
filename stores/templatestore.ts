@@ -45,7 +45,7 @@ export const LanguageFlags: Record<Language, string> = {
   [Language.German]: '🇩🇪',
   [Language.Hindi]: '🇮🇳',
   [Language.French]: '🇫🇷',
-  [Language.Portuguese]: '🇵🇹',
+  [Language.Portuguese]: '🇵��',
   [Language.Italian]: '🇮🇹',
   [Language.Spanish]: '🇪🇸',
   [Language.Russian]: '🇷🇺',
@@ -242,11 +242,38 @@ export const TextMessageVideoSchema = BaseVideoSchema.extend({
 
 export const AIVideoSchema = BaseVideoSchema.extend({
   prompt: z.string(),
-  videoUrl: z.string(),
-  type: z.enum(['blob', 'cloud']),
-  transcription: TranscriptionSchema,
-  backgroundUrls: z.array(z.string())
-})
+  storyLength: z.enum(['short', 'medium', 'long']),
+  range: z.union([z.literal('1-2'), z.literal('3-4'), z.literal('5-7')]),
+  segments: z.union([z.literal('6-7'), z.literal('12-14'), z.literal('18-21')]),
+  videoStructure: z.array(
+    z.object({
+      text: z.string(),
+      imageDescription: z.string(),
+      imageUrl: z.string().nullable()
+    })
+  ),
+  voiceoverUrl: z.string(),
+  voiceoverFrames: VoiceoverFramesSchema
+}).refine(
+  (data) => {
+    const rangeToSegments = {
+      '1-2': '6-7',
+      '3-4': '12-14',
+      '5-7': '18-21'
+    }
+    return (
+      data.segments ===
+      rangeToSegments[data.range as keyof typeof rangeToSegments]
+    )
+  },
+  {
+    message:
+      'Range and segments must match: 1-2 with 6-7, 3-4 with 12-14, or 5-7 with 18-21',
+    path: ['segments']
+  }
+)
+
+export type AIVideoProps = z.infer<typeof AIVideoSchema>
 
 export const VideoSchema = z.union([
   SplitScreenVideoSchema,
@@ -264,7 +291,6 @@ export type RedditVideoProps = z.infer<typeof RedditVideoSchema>
 export type TwitterVideoProps = z.infer<typeof TwitterVideoSchema>
 export type SplitScreenVideoProps = z.infer<typeof SplitScreenVideoSchema>
 export type TextMessageVideoProps = z.infer<typeof TextMessageVideoSchema>
-export type AIVideoProps = z.infer<typeof AIVideoSchema>
 export type ClipsVideoProps = z.infer<typeof ClipsVideoSchema>
 
 // Default Props
@@ -432,11 +458,6 @@ export const defaultClipsProps: ClipsVideoProps = {
 }
 
 export const defaultAIVideoProps: AIVideoProps = {
-  prompt: 'A man and woman are walking in a field of flowers',
-  videoUrl: 'https://assets.clip.studio/ai_sample.mp4',
-  type: 'cloud',
-  transcription: splitScreenTranscriptionDefault,
-  backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
   language: Language.English,
   voiceVolume: 70,
   musicVolume: 30,
@@ -445,11 +466,29 @@ export const defaultAIVideoProps: AIVideoProps = {
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
   durationInFrames: DEFAULT_DURATION_IN_FRAMES,
-  captionStyle: CaptionStyle.Default
+  prompt: 'A story about Julius Caesar',
+  captionStyle: CaptionStyle.Default,
+  voiceoverUrl: 'https://assets.clip.studio/ai_voiceover_sample.mp3',
+  voiceoverFrames: alignmentDefault,
+  storyLength: 'short',
+  range: '1-2',
+  segments: '6-7',
+  videoStructure: [
+    {
+      text: 'A man and woman are walking in a field of flowers',
+      imageDescription: 'A man and woman are walking in a field of flowers',
+      imageUrl: null
+    },
+    {
+      text: 'A man and woman are walking in a field of flowers',
+      imageDescription: 'A man and woman are walking in a field of flowers',
+      imageUrl: null
+    }
+  ]
 }
 
 const initialState = {
-  selectedTemplate: 'Reddit' as TemplateProps,
+  selectedTemplate: 'AIVideo' as TemplateProps,
   splitScreenState: defaultSplitScreenProps,
   redditState: defaultRedditProps,
   twitterThreadState: defaultTwitterThreadProps,
