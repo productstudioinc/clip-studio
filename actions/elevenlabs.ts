@@ -32,7 +32,7 @@ const elevenLabsClient = new ElevenLabsClient({
 export const getVoices = unstable_cache(async () => {
   try {
     const voices = await elevenLabsClient.voices.getAll()
-    const filteredVoices = voices.voices.slice(0, 10).map((voice) => ({
+    const filteredVoices = voices.voices.map((voice) => ({
       voice_id: voice.voice_id,
       name: voice.name,
       description: voice.description,
