@@ -6,7 +6,7 @@ import {
   YoutubeChannel
 } from '@/actions/db/social-media-queries'
 import { ElevenlabsVoice } from '@/actions/elevenlabs'
-import { SelectBackgroundWithParts } from '@/db/schema'
+import { SelectBackgroundWithParts, SelectMusic } from '@/db/schema'
 import {
   AIVideoProps,
   AIVideoSchema,
@@ -31,9 +31,11 @@ interface AIVideoFormProps {
   backgrounds: SelectBackgroundWithParts[]
   youtubeChannels: YoutubeChannel[]
   tiktokAccounts: TikTokAccount[]
+  music: SelectMusic[]
 }
 
 export const AIVideoForm: React.FC<AIVideoFormProps> = ({
+  music,
   backgrounds,
   youtubeChannels,
   tiktokAccounts
@@ -67,6 +69,7 @@ export const AIVideoForm: React.FC<AIVideoFormProps> = ({
             {/* <BackgroundSelectStep form={form} backgrounds={backgrounds} /> */}
             <VisualStyleStep form={form} />
             <CaptionStyleStep form={form} />
+            {/* <MusicStep form={form} music={music} /> */}
             <AspectRatioStep form={form} />
             <FormErrors form={form} />
             <FormSubmit
