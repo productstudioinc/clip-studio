@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
 import { getUser } from '@/actions/auth/user'
 import { db } from '@/db'
@@ -22,42 +23,32 @@ const logger = new Logger({
 
 const REVALIDATE_PERIOD = 300 // 5 minutes in seconds
 
-export const isAdmin = unstable_cache(
-  async (userId: string): Promise<boolean> => {
-    if (!userId) return false
-    const dbUser = await db.query.users.findFirst({
-      where: (users, { eq }) => eq(users.id, userId),
-      columns: { role: true }
-    })
+export const isAdmin = cache(async (userId: string): Promise<boolean> => {
+  if (!userId) return false
+  const dbUser = await db.query.users.findFirst({
+    where: (users, { eq }) => eq(users.id, userId),
+    columns: { role: true }
+  })
 
-    return dbUser?.role === 'admin'
-  },
-  ['isAdmin'],
-  { revalidate: 60 * 60 * 24 } // Cache for 1 day (24 hours)
-)
+  return dbUser?.role === 'admin'
+})
 
-export const authenticateAdmin = unstable_cache(
-  async (): Promise<void> => {
-    const { user } = await getUser()
-    if (!user) {
-      logger.error(
-        'Attempted to access admin function for unauthenticated user'
-      )
-      await logger.flush()
-      throw new Error('Unauthorized: User not authenticated')
-    }
+export const authenticateAdmin = cache(async (): Promise<void> => {
+  const { user } = await getUser()
+  if (!user) {
+    logger.error('Attempted to access admin function for unauthenticated user')
+    await logger.flush()
+    throw new Error('Unauthorized: User not authenticated')
+  }
 
-    const admin = await isAdmin(user.id)
+  const admin = await isAdmin(user.id)
 
-    if (!admin) {
-      logger.error('Attempted to access admin function for non-admin user')
-      await logger.flush()
-      throw new Error('Forbidden: User is not an admin')
-    }
-  },
-  ['authenticateAdmin'],
-  { revalidate: 60 * 60 * 24 }
-)
+  if (!admin) {
+    logger.error('Attempted to access admin function for non-admin user')
+    await logger.flush()
+    throw new Error('Forbidden: User is not an admin')
+  }
+})
 
 export const getFeedback = async () => {
   await authenticateAdmin()
