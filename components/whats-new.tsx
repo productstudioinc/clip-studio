@@ -71,11 +71,12 @@ export function WhatsNew({ className }: { className?: string }) {
             >
               <div
                 ref={contentRef}
-                className="px-6 pb-2 text-sm text-muted-foreground"
+                className="px-4 pb-2 text-sm text-muted-foreground"
               >
-                <ul>
-                  <li>+ Clips template</li>
-                  <li>+ Texts template</li>
+                <ul className="list-disc list-inside">
+                  <li>Major performance improvements</li>
+                  <li>Clips template</li>
+                  <li>Texts template</li>
                 </ul>
               </div>
             </motion.div>
