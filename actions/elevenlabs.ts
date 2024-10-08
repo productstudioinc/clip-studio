@@ -1,5 +1,6 @@
 'use server'
 
+import { unstable_cache } from 'next/cache'
 import { db } from '@/db'
 import { userUsage } from '@/db/schema'
 import {
@@ -28,7 +29,7 @@ const elevenLabsClient = new ElevenLabsClient({
   apiKey: process.env.ELEVEN_LABS_API_KEY!
 })
 
-export const getVoices = async () => {
+export const getVoices = unstable_cache(async () => {
   try {
     const voices = await elevenLabsClient.voices.getAll()
     const filteredVoices = voices.voices.slice(0, 10).map((voice) => ({
@@ -47,7 +48,7 @@ export const getVoices = async () => {
     await logger.flush()
     throw error
   }
-}
+})
 
 export const generateRedditVoiceover = createServerAction()
   .input(
