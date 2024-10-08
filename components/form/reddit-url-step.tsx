@@ -147,6 +147,7 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
             <Label htmlFor="redditText">Text</Label>
             <Textarea
               id="redditText"
+              className="min-h-[140px]"
               {...form.register('text')}
               disabled={isPending}
             />
