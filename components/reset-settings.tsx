@@ -1,8 +1,6 @@
 'use client'
 
-import {
-  useTemplateStore
-} from '@/stores/templatestore'
+import { useTemplateStore } from '@/stores/templatestore'
 import { Trash2 } from 'lucide-react'
 
 import {

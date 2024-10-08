@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import {
   TikTokAccount,
   YoutubeChannel
@@ -14,15 +15,14 @@ import {
   VideoProps
 } from '@/stores/templatestore'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { Form } from '@/components/ui/form'
 import { AspectRatioStep } from '@/components/form/aspect-ratio-step'
 import { BackgroundSelectStep } from '@/components/form/background-select-step'
 import { FormErrors } from '@/components/form/form-errors'
 import { FormSubmit } from '@/components/form/form-submit'
 import { VideoPreview } from '@/components/form/video-preview'
-import { Form } from '@/components/ui/form'
 
 import { CaptionStyleStep } from '../form/caption-style-step'
 import { TranscribeStep } from '../form/transcribe-step'
