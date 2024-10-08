@@ -188,8 +188,10 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
                                       )
                                     }
                                   >
-                                    <MessageSquareIcon className="mr-2 h-4 w-4" />
-                                    Left
+                                    <MessageSquareIcon className="md:mr-2 h-4 w-4" />
+                                    <span className="sr-only hidden md:block">
+                                      Left
+                                    </span>
                                   </Button>
                                   <Button
                                     type="button"
@@ -206,8 +208,10 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
                                       )
                                     }
                                   >
-                                    <MessageSquareIcon className="mr-2 h-4 w-4" />
-                                    Right
+                                    <MessageSquareIcon className="md:mr-2 h-4 w-4 [transform:rotateY(180deg)]" />
+                                    <span className="sr-only hidden md:block">
+                                      Right
+                                    </span>
                                   </Button>
                                 </div>
                                 <Select
@@ -294,12 +298,12 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
               </DragDropContext>
             </ScrollArea>
             <Separator className="my-4" />
-            <div className="flex flex-row gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="mt-2"
+                className="mt-2 w-full sm:w-auto"
                 onClick={() =>
                   append({
                     sender: getNextSender(),
@@ -316,7 +320,7 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="mt-2"
+                className="mt-2 w-full sm:w-auto"
                 onClick={generateFakeTexts}
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
@@ -329,7 +333,7 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
                     type="button"
                     variant="destructive"
                     size="sm"
-                    className="mt-2"
+                    className="mt-2 w-full sm:w-auto"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Clear Messages
