@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { generatePresignedUrl } from '@/actions/generatePresignedUrl'
+import { generatePresignedUrl } from '@/actions/generate-presigned-urls'
 import { VideoProps } from '@/stores/templatestore'
 import { getVideoMetadata } from '@remotion/media-utils'
 import { Pause, Play, Upload, X } from 'lucide-react'
