@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
 import { getUser } from '@/actions/auth/user'
 import { db } from '@/db'
@@ -11,6 +12,8 @@ import {
   youtubeChannels,
   youtubePosts
 } from '@/db/schema'
+import { TemplateSchema } from '@/stores/templatestore'
+import { format } from 'date-fns'
 import { desc, eq, or, sql } from 'drizzle-orm'
 import { Logger } from 'next-axiom'
 
@@ -18,23 +21,19 @@ const logger = new Logger({
   source: 'actions/db/admin-queries'
 })
 
-const REVALIDATE_PERIOD = 120 // 2 minutes in seconds
+const REVALIDATE_PERIOD = 300 // 5 minutes in seconds
 
-export const isAdmin = unstable_cache(
-  async (userId: string): Promise<boolean> => {
-    if (!userId) return false
-    const dbUser = await db.query.users.findFirst({
-      where: (users, { eq }) => eq(users.id, userId),
-      columns: { role: true }
-    })
+export const isAdmin = cache(async (userId: string): Promise<boolean> => {
+  if (!userId) return false
+  const dbUser = await db.query.users.findFirst({
+    where: (users, { eq }) => eq(users.id, userId),
+    columns: { role: true }
+  })
 
-    return dbUser?.role === 'admin'
-  },
-  ['isAdmin'],
-  { revalidate: 60 * 60 * 24 } // Cache for 1 day (24 hours)
-)
+  return dbUser?.role === 'admin'
+})
 
-export const authenticateAdmin = async (): Promise<void> => {
+export const authenticateAdmin = cache(async (): Promise<void> => {
   const { user } = await getUser()
   if (!user) {
     logger.error('Attempted to access admin function for unauthenticated user')
@@ -49,7 +48,7 @@ export const authenticateAdmin = async (): Promise<void> => {
     await logger.flush()
     throw new Error('Forbidden: User is not an admin')
   }
-}
+})
 
 export const getFeedback = async () => {
   await authenticateAdmin()
@@ -202,8 +201,6 @@ export type FeedbackForAdmin = Awaited<
   ReturnType<typeof getFeedbackForAdmin>
 >['feedback'][number]
 
-// Raw functions
-
 const getUserCountRaw = async () => {
   await authenticateAdmin()
   const userCount = await db
@@ -262,21 +259,39 @@ const getYoutubeAccountsCountRaw = async () => {
 
 const getRenderCountPerDayRaw = async (startDate: Date, endDate: Date) => {
   await authenticateAdmin()
-  const renderCountPerDay = await db
+  const renderCounts = await db
     .select({
-      date: sql<string>`to_char(date_series.date, 'YYYY-MM-DD')`,
-      count: sql<number>`COALESCE(count(${pastRenders.id}), 0)`
+      date: sql<string>`to_char(${pastRenders.createdAt}::date, 'YYYY-MM-DD')`,
+      templateName: pastRenders.templateName,
+      count: sql<number>`count(*)`
     })
-    .from(
-      sql`generate_series(${startDate.toISOString()}::date, ${endDate.toISOString()}::date, '1 day'::interval) AS date_series(date)`
+    .from(pastRenders)
+    .where(
+      sql`${pastRenders.createdAt}::date >= ${startDate.toISOString()}::date AND ${pastRenders.createdAt}::date <= ${endDate.toISOString()}::date`
     )
-    .leftJoin(
-      pastRenders,
-      sql`date_trunc('day', ${pastRenders.createdAt}) = date_series.date`
+    .groupBy(
+      sql`to_char(${pastRenders.createdAt}::date, 'YYYY-MM-DD')`,
+      pastRenders.templateName
     )
-    .groupBy(sql`date_series.date`)
-    .orderBy(sql`date_series.date`)
-  return renderCountPerDay
+    .orderBy(sql`to_char(${pastRenders.createdAt}::date, 'YYYY-MM-DD')`)
+
+  const templateNames = [...new Set(TemplateSchema.options)]
+  const renderCountPerDay = renderCounts.reduce(
+    (acc, { date, templateName, count }) => {
+      if (!acc[date]) {
+        acc[date] = {
+          date,
+          ...Object.fromEntries(templateNames.map((name) => [name, 0]))
+        }
+      }
+      acc[date][templateName] = Number(count)
+      return acc
+    },
+    {} as Record<string, Record<string, number | string>>
+  )
+
+  const result = Object.values(renderCountPerDay)
+  return result
 }
 
 const getUserCountPerDayRaw = async (startDate: Date, endDate: Date) => {
@@ -413,32 +428,81 @@ export const getYoutubeAccountsCount = unstable_cache(
   { revalidate: REVALIDATE_PERIOD }
 )
 
-export const getRenderCountPerDay = unstable_cache(
-  getRenderCountPerDayRaw,
-  ['render-count-per-day'],
-  { revalidate: REVALIDATE_PERIOD }
-)
+export const getRenderCountPerDay = async (startDate: Date, endDate: Date) => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
 
-export const getUserCountPerDay = unstable_cache(
-  getUserCountPerDayRaw,
-  ['user-count-per-day'],
-  { revalidate: REVALIDATE_PERIOD }
-)
+  const cacheOptions: { revalidate: number | false } =
+    endDate < today ? { revalidate: false } : { revalidate: REVALIDATE_PERIOD }
 
-export const getFeedbackCountPerDay = unstable_cache(
-  getFeedbackCountPerDayRaw,
-  ['feedback-count-per-day'],
-  { revalidate: REVALIDATE_PERIOD }
-)
+  return unstable_cache(
+    () => getRenderCountPerDayRaw(startDate, endDate),
+    [
+      `render-count-per-day-${format(startDate, 'yyyy-MM-dd')}-${format(endDate, 'yyyy-MM-dd')}`
+    ],
+    cacheOptions
+  )()
+}
+export const getUserCountPerDay = (startDate: Date, endDate: Date) => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
 
-export const getTikTokPostsPerDay = unstable_cache(
-  getTikTokPostsPerDayRaw,
-  ['tiktok-posts-per-day'],
-  { revalidate: REVALIDATE_PERIOD }
-)
+  const cacheOptions: { revalidate: number | false } =
+    endDate < today ? { revalidate: false } : { revalidate: REVALIDATE_PERIOD }
 
-export const getYoutubePostsPerDay = unstable_cache(
-  getYoutubePostsPerDayRaw,
-  ['youtube-posts-per-day'],
-  { revalidate: REVALIDATE_PERIOD }
-)
+  return unstable_cache(
+    () => getUserCountPerDayRaw(startDate, endDate),
+    [
+      `user-count-per-day-${format(startDate, 'yyyy-MM-dd')}-${format(endDate, 'yyyy-MM-dd')}`
+    ],
+    cacheOptions
+  )()
+}
+
+export const getFeedbackCountPerDay = (startDate: Date, endDate: Date) => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const cacheOptions: { revalidate: number | false } =
+    endDate < today ? { revalidate: false } : { revalidate: REVALIDATE_PERIOD }
+
+  return unstable_cache(
+    () => getFeedbackCountPerDayRaw(startDate, endDate),
+    [
+      `feedback-count-per-day-${format(startDate, 'yyyy-MM-dd')}-${format(endDate, 'yyyy-MM-dd')}`
+    ],
+    cacheOptions
+  )()
+}
+
+export const getTikTokPostsPerDay = (startDate: Date, endDate: Date) => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const cacheOptions: { revalidate: number | false } =
+    endDate < today ? { revalidate: false } : { revalidate: REVALIDATE_PERIOD }
+
+  return unstable_cache(
+    () => getTikTokPostsPerDayRaw(startDate, endDate),
+    [
+      `tiktok-posts-per-day-${format(startDate, 'yyyy-MM-dd')}-${format(endDate, 'yyyy-MM-dd')}`
+    ],
+    cacheOptions
+  )()
+}
+
+export const getYoutubePostsPerDay = (startDate: Date, endDate: Date) => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const cacheOptions: { revalidate: number | false } =
+    endDate < today ? { revalidate: false } : { revalidate: REVALIDATE_PERIOD }
+
+  return unstable_cache(
+    () => getYoutubePostsPerDayRaw(startDate, endDate),
+    [
+      `youtube-posts-per-day-${format(startDate, 'yyyy-MM-dd')}-${format(endDate, 'yyyy-MM-dd')}`
+    ],
+    cacheOptions
+  )()
+}

@@ -29,7 +29,7 @@ export default function Error({
             An error occurred while processing your request.
           </p>
 
-          <div className="mt-6 flex w-full shrink-0 items-center gap-x-3 sm:w-auto">
+          <div className="mt-6 flex w-full shrink-0 items-center justify-center gap-x-3">
             <Button
               onClick={() => router.back()}
               className={cn(buttonVariants({ variant: 'secondary' }), 'group')}

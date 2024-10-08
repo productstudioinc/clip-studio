@@ -1,6 +1,6 @@
 'use client'
 
-import * as React from 'react'
+import { TemplateSchema } from '@/stores/templatestore'
 import { TrendingDown, TrendingUp } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts'
 
@@ -14,47 +14,56 @@ import {
 import {
   ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent
 } from '@/components/ui/chart'
 
-interface PerDayChartProps {
-  title: string
-  description: string
-  className?: string
-  data: { date: string; count: number }[]
-  label: string
-  color: string
-  previousData: { date: string; count: number }[]
+export const description =
+  'A stacked bar chart showing render counts per template'
+
+interface DataPoint {
+  date: string
+  [key: string]: number | string
 }
 
-export const PerDayChart: React.FC<PerDayChartProps> = ({
-  className,
+interface RenderChartProps {
+  data: DataPoint[]
+  previousData: DataPoint[]
+  className?: string
+}
+
+const chartConfig: ChartConfig = Object.fromEntries(
+  TemplateSchema.options.map((template, index) => [
+    template,
+    {
+      label: template,
+      color: `hsl(var(--chart-${index + 1}))`
+    }
+  ])
+)
+
+export function RendersGroupedByTemplateChart({
   data,
   previousData,
-  title,
-  description,
-  label,
-  color = 'hsl(var(--chart-1))'
-}) => {
-  const config = {
-    data: {
-      label: label
-    },
-    count: {
-      label: 'Count',
-      color: color
-    }
-  } satisfies ChartConfig
-
-  const total = React.useMemo(
-    () => data.reduce((acc, curr) => acc + curr.count, 0),
-    [data]
+  className
+}: RenderChartProps) {
+  const total = data.reduce(
+    (acc, curr) =>
+      acc +
+      Object.values(curr)
+        .filter((v) => typeof v === 'number')
+        .reduce((sum, v) => sum + (v as number), 0),
+    0
   )
-
-  const previousTotal = React.useMemo(
-    () => previousData.reduce((acc, curr) => acc + curr.count, 0),
-    [previousData]
+  const previousTotal = previousData.reduce(
+    (acc, curr) =>
+      acc +
+      Object.values(curr)
+        .filter((v) => typeof v === 'number')
+        .reduce((sum, v) => sum + (v as number), 0),
+    0
   )
 
   const calculatePercentChange = (current: number, previous: number) => {
@@ -73,8 +82,10 @@ export const PerDayChart: React.FC<PerDayChartProps> = ({
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0">
         <div className="flex flex-1 flex-row justify-between items-start gap-1 px-6 pt-6">
           <div>
-            <CardTitle>{title}</CardTitle>
-            <CardDescription>{description}</CardDescription>
+            <CardTitle>Render Count by Template</CardTitle>
+            <CardDescription>
+              Showing total renders for the selected period
+            </CardDescription>
           </div>
           <div
             className={`flex items-center gap-1 text-sm font-semibold ${changeColor}`}
@@ -102,26 +113,15 @@ export const PerDayChart: React.FC<PerDayChartProps> = ({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="px-2 sm:p-6">
-        <ChartContainer
-          config={config}
-          className="aspect-auto h-[250px] w-full"
-        >
-          <BarChart
-            accessibilityLayer
-            data={data}
-            margin={{
-              left: 12,
-              right: 12
-            }}
-          >
+      <CardContent>
+        <ChartContainer config={chartConfig}>
+          <BarChart accessibilityLayer data={data}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="date"
               tickLine={false}
+              tickMargin={10}
               axisLine={false}
-              tickMargin={8}
-              minTickGap={32}
               tickFormatter={(value) => {
                 const date = new Date(value + 'T00:00:00Z')
                 return date.toLocaleDateString('en-US', {
@@ -135,8 +135,7 @@ export const PerDayChart: React.FC<PerDayChartProps> = ({
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  className="w-[150px]"
-                  nameKey="data"
+                  className="w-40"
                   labelFormatter={(value) => {
                     const date = new Date(value + 'T00:00:00Z')
                     return date.toLocaleDateString('en-US', {
@@ -150,7 +149,16 @@ export const PerDayChart: React.FC<PerDayChartProps> = ({
                 />
               }
             />
-            <Bar dataKey="count" fill={`var(--color-count)`} />
+            <ChartLegend content={<ChartLegendContent />} />
+            {Object.keys(chartConfig).map((key, index, array) => (
+              <Bar
+                key={key}
+                dataKey={key}
+                stackId="a"
+                fill={`var(--color-${key})`}
+                radius={[0, 0, 0, 0]}
+              />
+            ))}
           </BarChart>
         </ChartContainer>
       </CardContent>
