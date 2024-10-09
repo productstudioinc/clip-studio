@@ -3,6 +3,7 @@
 import React from 'react'
 import { generateStoryScript } from '@/actions/aiActions'
 import { AIVideoProps, VideoProps } from '@/stores/templatestore'
+import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { Loader2, Wand2 } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -127,7 +128,10 @@ export const PromptStep: React.FC<PromptStepProps> = ({ form }) => {
           ) : (
             <Wand2 className="mr-2 h-4 w-4" />
           )}
-          Generate Script
+          Generate Script{' '}
+          <span className="text-muted-foreground ml-1">
+            ~ {CREDIT_CONVERSIONS.SCRIPT_GENERATION} credit
+          </span>
         </Button>
       </CardContent>
     </Card>

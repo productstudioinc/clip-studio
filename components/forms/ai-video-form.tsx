@@ -67,8 +67,8 @@ export const AIVideoForm: React.FC<AIVideoFormProps> = ({
             <PromptStep form={form} />
             {/* <TranscribeStep form={form} /> */}
             {/* <BackgroundSelectStep form={form} backgrounds={backgrounds} /> */}
-            <ImageGenStep form={form} />
             <AIVoiceStep form={form} voices={voices} />
+            <ImageGenStep form={form} />
             <CaptionStyleStep form={form} />
             {/* <MusicStep form={form} music={music} /> */}
             <AspectRatioStep form={form} />

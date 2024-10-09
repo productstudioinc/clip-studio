@@ -3,7 +3,8 @@
 import React from 'react'
 import Image from 'next/image'
 import { VideoProps, visualStyles } from '@/stores/templatestore'
-import { Loader2 } from 'lucide-react'
+import { CREDIT_CONVERSIONS } from '@/utils/constants'
+import { ImageIcon, Loader2, RefreshCcw, Wand2 } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -35,28 +36,24 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
       `videoStructure.${index}.imageDescription`
     )
     if (description) {
-      try {
-        const response = await fetch('/api/generate-image', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            visualStyle: form.getValues('visualStyle'),
-            prompt: description
-          })
+      const response = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          visualStyle: form.getValues('visualStyle'),
+          prompt: description
         })
+      })
 
-        if (!response.ok) {
-          throw new Error('Failed to generate image')
-        }
-
+      if (!response.ok) {
         const data = await response.json()
-        return { index, url: data.signedUrl }
-      } catch (error) {
-        console.error('Error generating image:', error)
-        throw new Error('Error generating image')
+        throw new Error(data.error || 'Failed to generate image')
       }
+
+      const data = await response.json()
+      return { index, url: data.signedUrl }
     }
     return null
   }
@@ -80,8 +77,7 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
           }
         })
         .catch((error) => {
-          console.error(`Error generating image for index ${index}:`, error)
-          toast.error(`Failed to generate image ${index + 1}`)
+          toast.error(`Failed to generate image ${index + 1}: ${error.message}`)
         })
         .finally(() => {
           setGeneratingImages((prev) => prev.filter((i) => i !== index))
@@ -91,7 +87,6 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
     try {
       await Promise.all(generatePromises)
     } catch (error) {
-      console.error('Error in handleGenerateAllImages:', error)
       toast.error('Error generating images')
     } finally {
       setIsGeneratingAll(false)
@@ -106,8 +101,7 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
         form.setValue(`videoStructure.${result.index}.imageUrl`, result.url)
       }
     } catch (error) {
-      console.error('Error generating image:', error)
-      toast.error('Failed to generate image')
+      toast.error((error as Error).message)
     } finally {
       setGeneratingImages((prev) => prev.filter((i) => i !== index))
     }
@@ -178,8 +172,17 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
                   Generating All...
                 </>
               ) : (
-                'Generate All Images'
+                <>
+                  <Wand2 className="mr-2 h-4 w-4" />
+                  Generate All Images
+                </>
               )}
+              <span className="text-muted-foreground ml-1">
+                ~{' '}
+                {CREDIT_CONVERSIONS.IMAGE_GENERATION *
+                  form.watch('videoStructure').length}{' '}
+                credits
+              </span>
             </Button>
           </div>
           <ScrollArea className="h-[400px] w-full border rounded-md">
@@ -228,10 +231,19 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
                           Generating...
                         </>
                       ) : item.imageUrl ? (
-                        'Regenerate Image'
+                        <>
+                          <RefreshCcw className="mr-2 h-4 w-4" />
+                          Regenerate Image
+                        </>
                       ) : (
-                        'Generate Image'
+                        <>
+                          <Wand2 className="mr-2 h-4 w-4" />
+                          Generate Image
+                        </>
                       )}
+                      <span className="text-muted-foreground ml-1">
+                        ~ {CREDIT_CONVERSIONS.IMAGE_GENERATION} credits
+                      </span>
                     </Button>
                   </div>
                 </div>

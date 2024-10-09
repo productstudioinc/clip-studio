@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getUser } from '@/actions/auth/user'
+import { db } from '@/db'
+import { userUsage } from '@/db/schema'
 import { VisualStyle } from '@/stores/templatestore'
+import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { R2 } from '@/utils/r2'
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { eq, sql } from 'drizzle-orm'
 import { Logger } from 'next-axiom'
 
 const promptMap: Record<VisualStyle, string> = {
@@ -39,6 +44,53 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const { user } = await getUser()
+    if (!user) {
+      return NextResponse.json(
+        { error: 'You must be logged in to use this feature.' },
+        { status: 401 }
+      )
+    }
+
+    // Set required credits to exactly 10
+    const requiredCredits = CREDIT_CONVERSIONS.IMAGE_GENERATION
+
+    console.log('requiredCredits', requiredCredits)
+
+    // Check user's available credits
+    const userUsageRecord = await db
+      .select({ creditsLeft: userUsage.creditsLeft })
+      .from(userUsage)
+      .where(eq(userUsage.userId, user.id))
+
+    if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
+      logger.error('User does not have a subscription', { userId: user.id })
+      return NextResponse.json(
+        { error: 'You need an active subscription to use this feature.' },
+        { status: 403 }
+      )
+    }
+
+    if (userUsageRecord[0].creditsLeft < requiredCredits) {
+      logger.error('Insufficient credits', {
+        userId: user.id,
+        requiredCredits,
+        availableCredits: userUsageRecord[0].creditsLeft
+      })
+      return NextResponse.json(
+        { error: "You don't have enough credits to generate this image." },
+        { status: 403 }
+      )
+    }
+
+    // Deduct exactly 10 credits
+    await db
+      .update(userUsage)
+      .set({
+        creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
+      })
+      .where(eq(userUsage.userId, user.id))
+
     const stylePrompt = promptMap[visualStyle as VisualStyle].replace(
       '{prompt}',
       prompt
@@ -57,6 +109,14 @@ export async function POST(request: NextRequest) {
     )
 
     if (!response.ok) {
+      // If an error occurred, refund the credits
+      await db
+        .update(userUsage)
+        .set({
+          creditsLeft: sql`${userUsage.creditsLeft} + ${requiredCredits}`
+        })
+        .where(eq(userUsage.userId, user.id))
+
       if (response.status === 401) {
         logger.error('Authentication failed for image generation API', {
           status: response.status,
@@ -94,7 +154,10 @@ export async function POST(request: NextRequest) {
       expiresIn: 3600
     })
 
-    logger.info('Image generated and uploaded successfully', { signedUrl })
+    logger.info('Image generated and uploaded successfully', {
+      signedUrl,
+      userId: user.id
+    })
     await logger.flush()
 
     return NextResponse.json({ signedUrl })

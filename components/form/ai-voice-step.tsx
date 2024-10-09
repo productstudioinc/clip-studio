@@ -6,7 +6,7 @@ import {
   generateStructuredVoiceover
 } from '@/actions/elevenlabs'
 import { Language, VIDEO_FPS, VideoProps } from '@/stores/templatestore'
-import { Loader2, Pause, Play } from 'lucide-react'
+import { Loader2, Mic2, Pause, Play } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
@@ -274,7 +274,11 @@ export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form, voices }) => {
             }
             className="w-full"
           >
-            {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <Mic2 className="mr-2 h-4 w-4" />
+            )}
             Generate Voiceover
           </Button>
         </div>
