@@ -178,16 +178,13 @@ const renderSubscriptionCard = (
   usage: GetUserUsageResult
 ) => {
   if (!user) return <UpgradeCard />
-  if (subscription && usage) {
-    return (
-      <SubscriptionCard
-        subscriptionName={subscription}
-        usage={usage}
-        userId={user.id}
-      />
-    )
-  }
-  return <UpgradeCard />
+  return (
+    <SubscriptionCard
+      subscriptionName={subscription}
+      usage={usage}
+      userId={user.id}
+    />
+  )
 }
 
 export const NavigationItems: React.FC<NavigationItemsProps> = ({
