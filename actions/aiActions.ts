@@ -1,3 +1,5 @@
+'use server'
+
 import { openai } from '@ai-sdk/openai'
 import { generateObject } from 'ai'
 import { z } from 'zod'
@@ -30,7 +32,7 @@ export const generateStoryScript = createServerAction()
         )
       }),
       prompt: `
-      You are tasked with generating a story for a social media video that has the potential to go viral and keep users engaged. The story will consist of multiple segments, each containing a short text description (1-2 sentences) and a corresponding image description. Your goal is to create content that is captivating, shareable, and tailored to the target audience.
+      You are tasked with generating a story for a video that has the potential to go viral and keep users engaged. The story will consist of multiple segments, each containing a short text description (1-2 sentences) and a corresponding image description. Your goal is to create content that is captivating, shareable, and tailored to the target audience.
 
       Guidelines for creating engaging content:
       - Keep each segment concise and impactful

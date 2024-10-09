@@ -1,8 +1,8 @@
 import { enableTailwind } from '@remotion/tailwind'
 
 /**
- *  @param {import('webpack').Configuration} currentConfig
+ *  @param {import('webpack').Configuration} currentConfiguration
  */
-export const webpackOverride = (currentConfig) => {
-  return enableTailwind(currentConfig)
+export const webpackOverride = (currentConfiguration) => {
+  return enableTailwind(currentConfiguration)
 }

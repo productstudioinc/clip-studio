@@ -35,8 +35,6 @@ interface AIVideoFormProps {
 }
 
 export const AIVideoForm: React.FC<AIVideoFormProps> = ({
-  music,
-  backgrounds,
   youtubeChannels,
   tiktokAccounts
 }) => {

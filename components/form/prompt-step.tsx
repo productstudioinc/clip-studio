@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { generateStoryScript } from '@/actions/ai-actions'
+import { generateStoryScript } from '@/actions/aiActions'
 import { AIVideoProps, VideoProps } from '@/stores/templatestore'
 import { Loader2, Wand2 } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
@@ -48,7 +48,6 @@ export const PromptStep: React.FC<PromptStepProps> = ({ form }) => {
     } else {
       const updatedData = data.map((item) => ({ ...item, imageUrl: null }))
       form.setValue('videoStructure', updatedData)
-      toast.success(JSON.stringify(updatedData))
     }
   }
 

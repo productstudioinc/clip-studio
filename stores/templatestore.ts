@@ -45,7 +45,7 @@ export const LanguageFlags: Record<Language, string> = {
   [Language.German]: '🇩🇪',
   [Language.Hindi]: '🇮🇳',
   [Language.French]: '🇫🇷',
-  [Language.Portuguese]: '🇵��',
+  [Language.Portuguese]: '🇵',
   [Language.Italian]: '🇮🇹',
   [Language.Spanish]: '🇪🇸',
   [Language.Russian]: '🇷🇺',
@@ -92,6 +92,60 @@ export enum CaptionStyle {
   Montserrat = 'montserrat'
 }
 
+export enum VisualStyle {
+  Realistic = 'Realistic',
+  Anime = 'Anime',
+  Neopunk = 'Neopunk',
+  JapaneseInk = 'Japanese Ink',
+  LineArt = 'Line Art',
+  Medieval = 'Medieval',
+  Cinematic = 'Cinematic',
+  Playdoh = 'Playdoh'
+}
+
+export const visualStyles = [
+  {
+    id: VisualStyle.Realistic,
+    name: 'Realistic',
+    image: 'https://assets.clip.studio/visual_style_realistic.jpg'
+  },
+  {
+    id: VisualStyle.Anime,
+    name: 'Anime',
+    image: 'https://assets.clip.studio/visual_style_anime.jpg'
+  },
+  {
+    id: VisualStyle.Neopunk,
+    name: 'Neopunk',
+    image: 'https://assets.clip.studio/visual_style_neopunk.jpg'
+  },
+  {
+    id: VisualStyle.JapaneseInk,
+    name: 'Japanese Ink',
+    image: 'https://assets.clip.studio/visual_style_japanese.jpg'
+  },
+  {
+    id: VisualStyle.LineArt,
+    name: 'Line Art',
+    image: 'https://assets.clip.studio/visual_style_lineart.jpg'
+  },
+  {
+    id: VisualStyle.Medieval,
+    name: 'Medieval',
+    image: 'https://assets.clip.studio/visual_style_medieval.jpg'
+  },
+  {
+    id: VisualStyle.Cinematic,
+    name: 'Cinematic',
+    image: 'https://assets.clip.studio/visual_style_cinematic.jpg'
+  },
+  {
+    id: VisualStyle.Playdoh,
+    name: 'Playdoh',
+    image: 'https://assets.clip.studio/visual_style_playdoh.jpg'
+  }
+]
+
 // Constants
 export const AspectRatioMap: Record<
   AspectRatio,
@@ -129,7 +183,6 @@ const BaseVideoSchema = z.object({
   voiceVolume: z.number().min(0).max(100).default(70),
   music: z.string().optional(),
   musicVolume: z.number().min(0).max(100).default(30),
-  visualStyle: z.string().optional(),
   aspectRatio: z.nativeEnum(AspectRatio).default(AspectRatio.Vertical),
   width: z.number().min(1).default(VIDEO_WIDTH),
   height: z.number().min(1).default(VIDEO_HEIGHT),
@@ -253,25 +306,9 @@ export const AIVideoSchema = BaseVideoSchema.extend({
     })
   ),
   voiceoverUrl: z.string(),
+  visualStyle: z.nativeEnum(VisualStyle).default(VisualStyle.Realistic),
   voiceoverFrames: VoiceoverFramesSchema
-}).refine(
-  (data) => {
-    const rangeToSegments = {
-      '1-2': '6-7',
-      '3-4': '12-14',
-      '5-7': '18-21'
-    }
-    return (
-      data.segments ===
-      rangeToSegments[data.range as keyof typeof rangeToSegments]
-    )
-  },
-  {
-    message:
-      'Range and segments must match: 1-2 with 6-7, 3-4 with 12-14, or 5-7 with 18-21',
-    path: ['segments']
-  }
-)
+})
 
 export type AIVideoProps = z.infer<typeof AIVideoSchema>
 
@@ -473,6 +510,7 @@ export const defaultAIVideoProps: AIVideoProps = {
   storyLength: 'short',
   range: '1-2',
   segments: '6-7',
+  visualStyle: VisualStyle.Realistic,
   videoStructure: [
     {
       text: 'A man and woman are walking in a field of flowers',
