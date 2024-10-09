@@ -465,63 +465,31 @@ export const generateStructuredVoiceover = createServerAction()
         }
       )) as AudioResponse
 
-      // Remove punctuation and adjust timestamps
-      const punctuationRegex = /[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/g
-      const cleanedAlignment = audio.normalized_alignment.characters.reduce(
-        (acc, char, index) => {
-          if (!punctuationRegex.test(char)) {
-            acc.characters.push(char)
-            acc.character_start_times_seconds.push(
-              audio.normalized_alignment.character_start_times_seconds[index]
-            )
-            acc.character_end_times_seconds.push(
-              audio.normalized_alignment.character_end_times_seconds[index]
-            )
-          }
-          return acc
-        },
-        {
-          characters: [] as string[],
-          character_start_times_seconds: [] as number[],
-          character_end_times_seconds: [] as number[]
-        }
-      )
+      const alignment = audio.normalized_alignment
+      const totalDuration =
+        alignment.character_end_times_seconds[
+          alignment.character_end_times_seconds.length - 1
+        ]
 
       // Calculate segment durations
       const segmentDurations = []
-      let currentIndex = 0
-      const breakMarker = '<break time="1s" />'
+      let currentPosition = 0
+      const breakMarker = ' <break time="1s" /> '
 
       for (let i = 0; i < videoStructure.length; i++) {
         const segment = videoStructure[i]
-        const segmentText =
-          segment.text + (i < videoStructure.length - 1 ? breakMarker : '')
-        const segmentEndIndex = currentIndex + segmentText.length
+        const segmentText = segment.text
 
-        const startTime =
-          cleanedAlignment.character_start_times_seconds[currentIndex] || 0
-        let endTime =
-          cleanedAlignment.character_end_times_seconds[
-            Math.min(
-              segmentEndIndex - 1,
-              cleanedAlignment.character_end_times_seconds.length - 1
-            )
-          ] || 0
+        const segmentStart = currentPosition / fullText.length
+        currentPosition +=
+          segmentText.length +
+          (i < videoStructure.length - 1 ? breakMarker.length : 0)
+        const segmentEnd = currentPosition / fullText.length
 
-        // If this is not the last segment, subtract the break time
-        if (i < videoStructure.length - 1) {
-          const breakStartIndex = cleanedAlignment.characters.indexOf(
-            breakMarker,
-            currentIndex
-          )
-          if (breakStartIndex !== -1) {
-            endTime =
-              cleanedAlignment.character_start_times_seconds[breakStartIndex]
-          }
-        }
+        const startTime = segmentStart * totalDuration
+        const endTime = segmentEnd * totalDuration
 
         segmentDurations.push(endTime - startTime)
-        currentIndex = segmentEndIndex
       }
 
       const audioBuffer = Buffer.from(audio.audio_base64, 'base64')
@@ -552,8 +520,8 @@ export const generateStructuredVoiceover = createServerAction()
 
       return {
         signedUrl,
-        endTimestamp: cleanedAlignment.character_end_times_seconds.slice(-1)[0],
-        voiceoverObject: cleanedAlignment,
+        endTimestamp: totalDuration,
+        voiceoverObject: alignment,
         segmentDurations
       }
     } catch (error) {
@@ -566,6 +534,8 @@ export const generateStructuredVoiceover = createServerAction()
         .where(eq(userUsage.userId, user.id))
 
       logger.error(errorString, { error })
+
+      console.error(error)
 
       if (error instanceof ZSAError) {
         throw error
