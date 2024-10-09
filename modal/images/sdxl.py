@@ -63,7 +63,7 @@ class Model:
             **load_options,
         )
 
-    def inference(self, prompt: str, negative_prompt: str, width: int = 720, height: int = 1280, n_steps: int = 24, high_noise_frac: float = 0.8):
+    def inference(self, prompt: str, negative_prompt: str, width: int = 1024, height: int = 1024, n_steps: int = 24, high_noise_frac: float = 0.8):
         image = self.base(
             prompt=prompt,
             negative_prompt=negative_prompt,
@@ -88,7 +88,7 @@ class Model:
         return byte_stream.getvalue()
     
     @modal.method()
-    def _inference(self, prompt: str, negative_prompt: str = "disfigured, ugly, deformed, noisy, blurry", width: int = 720, height: int = 1280, n_steps: int = 24, high_noise_frac: float = 0.8):
+    def _inference(self, prompt: str, negative_prompt: str = "disfigured, ugly, deformed, noisy, blurry", width: int = 1024, height: int = 1024, n_steps: int = 24, high_noise_frac: float = 0.8):
         return self.inference(prompt, negative_prompt, width, height, n_steps, high_noise_frac)
     
     @modal.web_endpoint(docs=True)

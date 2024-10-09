@@ -513,13 +513,27 @@ export const defaultAIVideoProps: AIVideoProps = {
   visualStyle: VisualStyle.Realistic,
   videoStructure: [
     {
-      text: 'A man and woman are walking in a field of flowers',
-      imageDescription: 'A man and woman are walking in a field of flowers',
+      text: 'In the heart of Rome, a young Julius Caesar gazes at the bustling Forum, dreaming of greatness. "One day, I will rule this city!" he whispers to himself, determination burning in his eyes.',
+      imageDescription:
+        'A vibrant scene of the Roman Forum filled with people, market stalls, and grand architecture. Young Julius Caesar stands at the forefront, his expression fierce and hopeful, with the sun setting behind him.',
       imageUrl: null
     },
     {
-      text: 'A man and woman are walking in a field of flowers',
-      imageDescription: 'A man and woman are walking in a field of flowers',
+      text: 'Years pass, and Caesar rises through the ranks, his charisma captivating the masses. "The people love me!" he exclaims, as crowds cheer his name, unaware of the shadows lurking behind him.',
+      imageDescription:
+        'A lively crowd in the Forum, cheering for Caesar, who stands on a platform, arms raised in triumph. The crowd is diverse, with expressions of joy and admiration, while a few shadowy figures watch from the sidelines.',
+      imageUrl: null
+    },
+    {
+      text: 'But power breeds envy. In a dimly lit room, conspirators plot against him. "He must be stopped!" one hisses, their faces twisted with jealousy and fear.',
+      imageDescription:
+        'A dark, moody room with cloaked figures gathered around a table, their faces obscured. The atmosphere is tense, with flickering candlelight casting ominous shadows on the walls.',
+      imageUrl: null
+    },
+    {
+      text: 'On the Ides of March, Caesar strides into the Senate, unaware of the danger. "I am invincible!" he declares, confidence radiating from him as he enters the marble hall.',
+      imageDescription:
+        'Caesar enters a grand Senate chamber, sunlight streaming through high windows. He walks with purpose, a confident smile on his face, while senators exchange nervous glances.',
       imageUrl: null
     }
   ]

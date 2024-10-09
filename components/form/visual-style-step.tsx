@@ -20,6 +20,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import ZoomableImage from '@/components/zoomable-image'
 
 type VisualStyleStepProps = {
   form: UseFormReturn<VideoProps>
@@ -189,11 +190,9 @@ export function VisualStyleStep({ form }: VisualStyleStepProps) {
                     {generatingImages.includes(index) ? (
                       <Skeleton className="h-[150px] w-[150px] rounded-md" />
                     ) : (
-                      <img
+                      <ZoomableImage
                         src={item.imageUrl || '/placeholder.svg'}
                         alt={`Preview ${index + 1}`}
-                        width={150}
-                        height={150}
                         className="rounded-md object-cover h-[150px] w-[150px]"
                       />
                     )}

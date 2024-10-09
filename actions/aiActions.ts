@@ -62,9 +62,21 @@ export const generateStoryScript = createServerAction()
       - End with a twist or satisfying conclusion in the final segment
 
       For the image descriptions:
-      - Describe a visually striking scene that complements the text for each segment
-      - Include details on colors, expressions, and key elements
-      - Ensure each image can be easily visualized and created
+      - Each description MUST be completely self-contained and individually discernible
+      - Always include full names of key characters in every relevant description
+      - Incorporate specific details related to the story's theme or historical context
+      - Include relevant keywords, time period, or setting information in every description
+      - Ensure each description clearly connects to the overall narrative theme
+      - Provide enough context that someone unfamiliar with the story would understand the image's significance
+      - Use 20-30 words to capture all necessary details while remaining concise
+      - Avoid any references to previous segments or ongoing narrative
+      - Use clear, specific language to convey the main image concept
+      - Strictly avoid content that could violate social media terms of service
+      - Keep all content family-friendly and suitable for a general audience
+
+      Example:
+      Instead of: "A diverse group of people stand together in a park, holding hands and smiling."
+      Write: "Dr. Martin Luther King Jr. leads a diverse group in a 1960s civil rights march, their determined faces reflecting hope for equality and justice in America."
 
       Remember to focus on viral potential:
       - Include elements that encourage sharing (e.g., relatable content, humor, inspiration)
@@ -74,5 +86,6 @@ export const generateStoryScript = createServerAction()
       Ensure that both the text and image descriptions work together to create a cohesive and engaging story that has the potential to go viral on social media. Each segment should flow naturally into the next, creating a seamless narrative experience for a ${range} minute video with ${segments} segments.`
     })
 
+    console.log(result.object.segments)
     return result.object.segments
   })
