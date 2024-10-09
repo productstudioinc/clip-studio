@@ -86,6 +86,5 @@ export const generateStoryScript = createServerAction()
       Ensure that both the text and image descriptions work together to create a cohesive and engaging story that has the potential to go viral on social media. Each segment should flow naturally into the next, creating a seamless narrative experience for a ${range} minute video with ${segments} segments.`
     })
 
-    console.log(result.object.segments)
     return result.object.segments
   })

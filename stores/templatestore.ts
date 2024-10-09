@@ -293,7 +293,15 @@ export const TextMessageVideoSchema = BaseVideoSchema.extend({
   backgroundUrls: z.array(z.string())
 })
 
-export const AIVideoSchema = BaseVideoSchema.extend({
+export const AIVideoSchema = z.object({
+  language: z.nativeEnum(Language).default(Language.English),
+  voiceVolume: z.number().min(0).max(100).default(70),
+  musicVolume: z.number().min(0).max(100).default(30),
+  aspectRatio: z.nativeEnum(AspectRatio).default(AspectRatio.Vertical),
+  width: z.number().min(1).default(VIDEO_WIDTH),
+  height: z.number().min(1).default(VIDEO_HEIGHT),
+  fps: z.number().min(1).default(VIDEO_FPS),
+  durationInFrames: z.number().min(1).default(DEFAULT_DURATION_IN_FRAMES),
   prompt: z.string(),
   storyLength: z.enum(['short', 'medium', 'long']),
   range: z.union([z.literal('1-2'), z.literal('3-4'), z.literal('5-7')]),
@@ -302,12 +310,17 @@ export const AIVideoSchema = BaseVideoSchema.extend({
     z.object({
       text: z.string(),
       imageDescription: z.string(),
-      imageUrl: z.string().nullable()
+      imageUrl: z.string().nullable(),
+      duration: z.number().optional() // Make duration optional
     })
   ),
+  voiceId: z.string(),
   voiceoverUrl: z.string(),
   visualStyle: z.nativeEnum(VisualStyle).default(VisualStyle.Realistic),
-  voiceoverFrames: VoiceoverFramesSchema
+  voiceoverFrames: VoiceoverFramesSchema,
+  backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
+  backgroundUrls: z.array(z.string()).optional(),
+  captionStyle: z.nativeEnum(CaptionStyle).default(CaptionStyle.Default)
 })
 
 export type AIVideoProps = z.infer<typeof AIVideoSchema>
@@ -507,6 +520,7 @@ export const defaultAIVideoProps: AIVideoProps = {
   captionStyle: CaptionStyle.Default,
   voiceoverUrl: 'https://assets.clip.studio/ai_voiceover_sample.mp3',
   voiceoverFrames: alignmentDefault,
+  voiceId: 'EXAVITQu4vr4xnSDxMaL',
   storyLength: 'short',
   range: '1-2',
   segments: '6-7',
@@ -516,25 +530,29 @@ export const defaultAIVideoProps: AIVideoProps = {
       text: 'In the heart of Rome, a young Julius Caesar gazes at the bustling Forum, dreaming of greatness. "One day, I will rule this city!" he whispers to himself, determination burning in his eyes.',
       imageDescription:
         'A vibrant scene of the Roman Forum filled with people, market stalls, and grand architecture. Young Julius Caesar stands at the forefront, his expression fierce and hopeful, with the sun setting behind him.',
-      imageUrl: null
+      imageUrl: null,
+      duration: 10
     },
     {
       text: 'Years pass, and Caesar rises through the ranks, his charisma captivating the masses. "The people love me!" he exclaims, as crowds cheer his name, unaware of the shadows lurking behind him.',
       imageDescription:
         'A lively crowd in the Forum, cheering for Caesar, who stands on a platform, arms raised in triumph. The crowd is diverse, with expressions of joy and admiration, while a few shadowy figures watch from the sidelines.',
-      imageUrl: null
+      imageUrl: null,
+      duration: 10
     },
     {
       text: 'But power breeds envy. In a dimly lit room, conspirators plot against him. "He must be stopped!" one hisses, their faces twisted with jealousy and fear.',
       imageDescription:
         'A dark, moody room with cloaked figures gathered around a table, their faces obscured. The atmosphere is tense, with flickering candlelight casting ominous shadows on the walls.',
-      imageUrl: null
+      imageUrl: null,
+      duration: 10
     },
     {
       text: 'On the Ides of March, Caesar strides into the Senate, unaware of the danger. "I am invincible!" he declares, confidence radiating from him as he enters the marble hall.',
       imageDescription:
         'Caesar enters a grand Senate chamber, sunlight streaming through high windows. He walks with purpose, a confident smile on his face, while senators exchange nervous glances.',
-      imageUrl: null
+      imageUrl: null,
+      duration: 10
     }
   ]
 }

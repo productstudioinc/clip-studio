@@ -79,14 +79,16 @@ export function FormSubmit({
     redditState,
     twitterThreadState,
     textMessageState,
-    clipsState
+    clipsState,
+    aivideoState
   } = useTemplateStore((state) => ({
     selectedTemplate: state.selectedTemplate,
     splitScreenState: state.splitScreenState,
     redditState: state.redditState,
     twitterThreadState: state.twitterThreadState,
     textMessageState: state.textMessageState,
-    clipsState: state.clipsState
+    clipsState: state.clipsState,
+    aivideoState: state.aiVideoState
   }))
 
   const inputProps = (() => {
@@ -101,6 +103,8 @@ export function FormSubmit({
         return textMessageState
       case 'Clips':
         return clipsState
+      case 'AIVideo':
+        return aivideoState
       default:
         return twitterThreadState
     }

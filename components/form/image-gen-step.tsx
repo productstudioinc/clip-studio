@@ -22,11 +22,11 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import ZoomableImage from '@/components/zoomable-image'
 
-type VisualStyleStepProps = {
+type ImageGenStepProps = {
   form: UseFormReturn<VideoProps>
 }
 
-export function VisualStyleStep({ form }: VisualStyleStepProps) {
+export function ImageGenStep({ form }: ImageGenStepProps) {
   const [generatingImages, setGeneratingImages] = React.useState<number[]>([])
   const [isGeneratingAll, setIsGeneratingAll] = React.useState(false)
 

@@ -4,6 +4,7 @@ import { unstable_cache } from 'next/cache'
 import { db } from '@/db'
 import { userUsage } from '@/db/schema'
 import {
+  AIVideoSchema,
   Language,
   TextMessageVideoSchema,
   VIDEO_FPS
@@ -382,6 +383,193 @@ export const generateTextVoiceover = createServerAction()
 
       logger.error(errorString, { error })
       await logger.flush()
+
+      throw new ZSAError(
+        'INTERNAL_SERVER_ERROR',
+        'An error occurred while generating the voiceover.'
+      )
+    }
+  })
+
+export const generateStructuredVoiceover = createServerAction()
+  .input(
+    z.object({
+      voiceId: AIVideoSchema.shape.voiceId,
+      videoStructure: AIVideoSchema.shape.videoStructure,
+      language: AIVideoSchema.shape.language
+    })
+  )
+  .handler(async ({ input }) => {
+    const logger = new Logger().with({
+      function: 'generateStructuredVoiceover',
+      ...input
+    })
+    logger.info(startingFunctionString)
+
+    const { user } = await getUser()
+    if (!user) {
+      logger.error(errorString, { error: 'User not authorized' })
+      await logger.flush()
+      throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
+    }
+
+    const { voiceId, videoStructure, language } = input
+
+    const fullText = videoStructure
+      .map((section) => section.text)
+      .join(' <break time="1s" /> ')
+    const characterCount = fullText.length
+    const requiredCredits = Math.ceil(
+      characterCount / CREDIT_CONVERSIONS.VOICEOVER_CHARACTERS
+    )
+
+    try {
+      const userUsageRecord = await db
+        .select({ creditsLeft: userUsage.creditsLeft })
+        .from(userUsage)
+        .where(eq(userUsage.userId, user.id))
+
+      if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
+        logger.error(errorString, {
+          error: 'User does not have a subscription'
+        })
+        await logger.flush()
+        throw new ZSAError(
+          'INTERNAL_SERVER_ERROR',
+          'You need an active subscription to use this feature.'
+        )
+      }
+
+      if (userUsageRecord[0].creditsLeft < requiredCredits) {
+        logger.error(errorString, { error: 'Insufficient credits' })
+        await logger.flush()
+        throw new ZSAError(
+          'INSUFFICIENT_CREDITS',
+          `You don't have enough credits to generate this voiceover.`
+        )
+      }
+
+      await db
+        .update(userUsage)
+        .set({
+          creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
+        })
+        .where(eq(userUsage.userId, user.id))
+
+      const audio = (await elevenLabsClient.textToSpeech.convertWithTimestamps(
+        voiceId,
+        {
+          model_id: 'eleven_turbo_v2_5',
+          text: fullText,
+          language_code: language
+        }
+      )) as AudioResponse
+
+      // Remove punctuation and adjust timestamps
+      const punctuationRegex = /[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/g
+      const cleanedAlignment = audio.normalized_alignment.characters.reduce(
+        (acc, char, index) => {
+          if (!punctuationRegex.test(char)) {
+            acc.characters.push(char)
+            acc.character_start_times_seconds.push(
+              audio.normalized_alignment.character_start_times_seconds[index]
+            )
+            acc.character_end_times_seconds.push(
+              audio.normalized_alignment.character_end_times_seconds[index]
+            )
+          }
+          return acc
+        },
+        {
+          characters: [] as string[],
+          character_start_times_seconds: [] as number[],
+          character_end_times_seconds: [] as number[]
+        }
+      )
+
+      // Calculate segment durations
+      const segmentDurations = []
+      let currentIndex = 0
+      const breakMarker = '<break time="1s" />'
+
+      for (let i = 0; i < videoStructure.length; i++) {
+        const segment = videoStructure[i]
+        const segmentText =
+          segment.text + (i < videoStructure.length - 1 ? breakMarker : '')
+        const segmentEndIndex = currentIndex + segmentText.length
+
+        const startTime =
+          cleanedAlignment.character_start_times_seconds[currentIndex] || 0
+        let endTime =
+          cleanedAlignment.character_end_times_seconds[
+            Math.min(
+              segmentEndIndex - 1,
+              cleanedAlignment.character_end_times_seconds.length - 1
+            )
+          ] || 0
+
+        // If this is not the last segment, subtract the break time
+        if (i < videoStructure.length - 1) {
+          const breakStartIndex = cleanedAlignment.characters.indexOf(
+            breakMarker,
+            currentIndex
+          )
+          if (breakStartIndex !== -1) {
+            endTime =
+              cleanedAlignment.character_start_times_seconds[breakStartIndex]
+          }
+        }
+
+        segmentDurations.push(endTime - startTime)
+        currentIndex = segmentEndIndex
+      }
+
+      const audioBuffer = Buffer.from(audio.audio_base64, 'base64')
+      const s3Key = `voiceovers/${voiceId}/${crypto.randomUUID()}.mp3`
+
+      const putObjectCommand = new PutObjectCommand({
+        Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+        Key: s3Key,
+        Body: audioBuffer,
+        ContentType: 'audio/mpeg'
+      })
+
+      await R2.send(putObjectCommand)
+
+      const getObjectCommand = new GetObjectCommand({
+        Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+        Key: s3Key
+      })
+
+      const signedUrl = await getSignedUrl(R2, getObjectCommand, {
+        expiresIn: 3600
+      })
+
+      logger.info('Structured voiceover generated successfully', { signedUrl })
+      await logger.flush()
+
+      console.log('Segment Durations:', segmentDurations)
+
+      return {
+        signedUrl,
+        endTimestamp: cleanedAlignment.character_end_times_seconds.slice(-1)[0],
+        voiceoverObject: cleanedAlignment,
+        segmentDurations
+      }
+    } catch (error) {
+      // If an error occurred, refund the credits
+      await db
+        .update(userUsage)
+        .set({
+          creditsLeft: sql`${userUsage.creditsLeft} + ${requiredCredits}`
+        })
+        .where(eq(userUsage.userId, user.id))
+
+      logger.error(errorString, { error })
+
+      if (error instanceof ZSAError) {
+        throw error
+      }
 
       throw new ZSAError(
         'INTERNAL_SERVER_ERROR',

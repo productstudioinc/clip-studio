@@ -51,6 +51,11 @@ export const RemotionRoot: React.FC = () => {
         height={VIDEO_HEIGHT}
         schema={AIVideoSchema}
         defaultProps={aiVideoState as any}
+        calculateMetadata={async ({ props }) => {
+          return {
+            durationInFrames: props.durationInFrames
+          }
+        }}
       />
 
       <Composition
