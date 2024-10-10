@@ -136,7 +136,9 @@ const UsageDisplay = ({
   const calculateUsed = (total: number | null, left: number | null) =>
     total !== null && left !== null ? total - left : null
   const calculatePercentage = (used: number | null, total: number | null) =>
-    used !== null && total !== null && total !== 0 ? (used / total) * 100 : 0
+    used !== null && total !== null && total !== 0
+      ? Math.floor((used / total) * 100)
+      : 0
 
   const usageItems = [
     {
