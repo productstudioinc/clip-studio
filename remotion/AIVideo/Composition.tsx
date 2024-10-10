@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   AbsoluteFill,
   Audio,
@@ -28,26 +28,8 @@ const ImageAnimation: React.FC<{ src: string; durationInFrames: number }> = ({
   durationInFrames
 }) => {
   const frame = useCurrentFrame()
-  const { width, height } = useVideoConfig()
-
-  // Use useMemo to ensure the animation type doesn't change on re-renders
-  const animationType = useMemo(
-    () => (Math.random() > 0.5 ? 'zoom' : 'pan'),
-    []
-  )
-
   const progress = frame / durationInFrames
-
-  let transform = ''
-
-  if (animationType === 'zoom') {
-    const scale = interpolate(progress, [0, 1], [1, 1.1])
-    transform = `scale(${scale})`
-  } else {
-    const translateX = interpolate(progress, [0, 1], [0, -5]) // Reduced movement for subtler effect
-    const translateY = interpolate(progress, [0, 1], [0, -5])
-    transform = `translate(${translateX}%, ${translateY}%) scale(1.05)`
-  }
+  const scale = interpolate(progress, [0, 1], [1, 1.1])
 
   return (
     <Img
@@ -56,8 +38,8 @@ const ImageAnimation: React.FC<{ src: string; durationInFrames: number }> = ({
         width: '100%',
         height: '100%',
         objectFit: 'cover',
-        transform,
-        transition: 'transform 0.1s linear' // Smooth out any potential frame jumps
+        transform: `scale(${scale})`,
+        transition: 'transform 0.1s linear'
       }}
     />
   )

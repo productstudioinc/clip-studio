@@ -6,6 +6,7 @@ import {
   generateStructuredVoiceover
 } from '@/actions/elevenlabs'
 import { Language, VIDEO_FPS, VideoProps } from '@/stores/templatestore'
+import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { Loader2, Mic2, Pause, Play } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -147,6 +148,7 @@ export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form, voices }) => {
           duration: data.segmentDurations[index]
         }))
       form.setValue('videoStructure', updatedVideoStructure)
+      form.setValue('isVoiceoverGenerated', true)
 
       toast.success(
         'Voiceover generated. The voiceover has been successfully generated and added to your video.'
@@ -278,6 +280,16 @@ export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form, voices }) => {
               <Mic2 className="mr-2 h-4 w-4" />
             )}
             Generate Voiceover
+            <span className="text-muted-foreground ml-1">
+              ~{' '}
+              {Math.ceil(
+                form
+                  .getValues('videoStructure')
+                  .reduce((acc, curr) => acc + curr.text.length, 0) /
+                  CREDIT_CONVERSIONS.VOICEOVER_CHARACTERS
+              )}{' '}
+              credits
+            </span>
           </Button>
         </div>
       </CardContent>

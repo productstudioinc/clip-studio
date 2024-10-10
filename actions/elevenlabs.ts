@@ -527,8 +527,6 @@ export const generateStructuredVoiceover = createServerAction()
       logger.info('Structured voiceover generated successfully', { signedUrl })
       await logger.flush()
 
-      console.log('Segment Durations:', segmentDurations)
-
       return {
         signedUrl,
         endTimestamp: totalDuration,
