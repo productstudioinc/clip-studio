@@ -157,14 +157,6 @@ export default function Pricing({
                 <span className="flex">20 credits</span>
               </li>
               <li className="flex items-center gap-3 text-sm font-medium text-black dark:text-white">
-                <CheckIcon className="h-5 w-5 shrink-0 rounded-full bg-green-600 p-[2px] text-white dark:text-white" />
-                <span className="flex">1 credit = 1 script generation</span>
-              </li>
-              <li className="flex items-center gap-3 text-sm font-medium text-black dark:text-white">
-                <CheckIcon className="h-5 w-5 shrink-0 rounded-full bg-green-600 p-[2px] text-white dark:text-white" />
-                <span className="flex">10 credits = 1 AI Image</span>
-              </li>
-              <li className="flex items-center gap-3 text-sm font-medium text-black dark:text-white">
                 <div className="h-5 w-5 shrink-0 rounded-full bg-red-600 p-[2px] flex items-center justify-center">
                   <span className="text-white font-bold">×</span>
                 </div>
