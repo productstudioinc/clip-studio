@@ -106,7 +106,6 @@ export const generateRedditVoiceover = createServerAction()
         )
       }
 
-      // Deduct the credits
       await db
         .update(userUsage)
         .set({
@@ -202,17 +201,20 @@ export const generateRedditVoiceover = createServerAction()
         titleEnd
       }
     } catch (error) {
-      // If an error occurred, refund the credits
-      await db
-        .update(userUsage)
-        .set({
-          creditsLeft: sql`${userUsage.creditsLeft} + ${requiredCredits}`
-        })
-        .where(eq(userUsage.userId, user.id))
+      if (
+        !(error instanceof ZSAError) ||
+        error.code !== 'INSUFFICIENT_CREDITS'
+      ) {
+        await db
+          .update(userUsage)
+          .set({
+            creditsLeft: sql`${userUsage.creditsLeft} + ${requiredCredits}`
+          })
+          .where(eq(userUsage.userId, user.id))
+      }
 
       logger.error(errorString, { error })
 
-      // rethrow zsa errors if they bubble up
       if (error instanceof ZSAError) {
         throw error
       }
@@ -374,15 +376,24 @@ export const generateTextVoiceover = createServerAction()
         durationInFrames
       }
     } catch (error) {
-      await db
-        .update(userUsage)
-        .set({
-          creditsLeft: sql`${userUsage.creditsLeft} + ${requiredCredits}`
-        })
-        .where(eq(userUsage.userId, user.id))
+      if (
+        !(error instanceof ZSAError) ||
+        error.code !== 'INSUFFICIENT_CREDITS'
+      ) {
+        await db
+          .update(userUsage)
+          .set({
+            creditsLeft: sql`${userUsage.creditsLeft} + ${requiredCredits}`
+          })
+          .where(eq(userUsage.userId, user.id))
+      }
 
       logger.error(errorString, { error })
       await logger.flush()
+
+      if (error instanceof ZSAError) {
+        throw error
+      }
 
       throw new ZSAError(
         'INTERNAL_SERVER_ERROR',
@@ -525,16 +536,19 @@ export const generateStructuredVoiceover = createServerAction()
         segmentDurations
       }
     } catch (error) {
-      // If an error occurred, refund the credits
-      await db
-        .update(userUsage)
-        .set({
-          creditsLeft: sql`${userUsage.creditsLeft} + ${requiredCredits}`
-        })
-        .where(eq(userUsage.userId, user.id))
+      if (
+        !(error instanceof ZSAError) ||
+        error.code !== 'INSUFFICIENT_CREDITS'
+      ) {
+        await db
+          .update(userUsage)
+          .set({
+            creditsLeft: sql`${userUsage.creditsLeft} + ${requiredCredits}`
+          })
+          .where(eq(userUsage.userId, user.id))
+      }
 
       logger.error(errorString, { error })
-
       console.error(error)
 
       if (error instanceof ZSAError) {
