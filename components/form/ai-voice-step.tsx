@@ -130,9 +130,7 @@ export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form, voices }) => {
     })
 
     if (err) {
-      toast.error(
-        'Error generating voiceover. Please try again. ' + err.message
-      )
+      toast.error(err.message)
     } else {
       form.setValue('voiceoverUrl', data.signedUrl)
       form.setValue('voiceoverFrames', data.voiceoverObject)
