@@ -182,14 +182,14 @@ const UsageDisplay = ({
       {usageItems.map((item, index) => (
         <div
           key={index}
-          className={`flex items-center gap-2 ${index === usageItems.length - 1 ? '' : 'pb-2'}`}
+          className={`flex items-start gap-2 ${index === usageItems.length - 1 ? '' : 'pb-2'}`}
         >
-          <item.icon className="h-4 w-4 text-muted-foreground" />
+          <item.icon className="h-4 w-4 text-muted-foreground mt-1" />
           <div className="flex-1">
             <Progress value={item.percentage} className="h-2" />
             <div className="text-xs mt-1 text-muted-foreground font-medium flex justify-between">
               <span>{`${item.current ?? 'N/A'}/${item.total ?? 'N/A'}`}</span>
-              <span>{`${item.percentage.toFixed(0)}% used`}</span>
+              <span>{`${item.percentage}% used`}</span>
             </div>
           </div>
         </div>
