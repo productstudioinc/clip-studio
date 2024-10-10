@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
+import { voiceoverFrames } from './aivideo_voiceover'
 import { alignmentDefault } from './alignmenttext'
 import { splitScreenTranscriptionDefault } from './splitscreentranscription'
 
@@ -522,8 +523,8 @@ export const defaultAIVideoProps: AIVideoProps = {
   durationInFrames: DEFAULT_DURATION_IN_FRAMES,
   prompt: 'A story about Julius Caesar',
   captionStyle: CaptionStyle.Default,
-  voiceoverUrl: 'https://assets.clip.studio/ai_voiceover_sample.mp3',
-  voiceoverFrames: alignmentDefault,
+  voiceoverUrl: 'https://assets.clip.studio/aivideo_voiceover.mp3',
+  voiceoverFrames: voiceoverFrames,
   voiceId: 'EXAVITQu4vr4xnSDxMaL',
   storyLength: 'short',
   range: '1-2',
@@ -531,32 +532,95 @@ export const defaultAIVideoProps: AIVideoProps = {
   visualStyle: VisualStyle.Realistic,
   videoStructure: [
     {
-      text: 'In the heart of Rome, a young Julius Caesar gazes at the bustling Forum, dreaming of greatness. "One day, I will rule this city!" he whispers to himself, determination burning in his eyes.',
+      text: 'In the heart of ancient Rome, a young Julius Caesar gazes at the bustling Forum, dreaming of greatness. His ambition burns bright, igniting a fire within him to change the world.',
       imageDescription:
-        'A vibrant scene of the Roman Forum filled with people, market stalls, and grand architecture. Young Julius Caesar stands at the forefront, his expression fierce and hopeful, with the sun setting behind him.',
-      imageUrl: null,
-      duration: 10
+        'A young Julius Caesar stands in the Roman Forum, surrounded by citizens and merchants, his eyes filled with determination and ambition, set against the backdrop of ancient Roman architecture.',
+      duration: 13.113052631578947,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_1.png'
     },
     {
-      text: 'Years pass, and Caesar rises through the ranks, his charisma captivating the masses. "The people love me!" he exclaims, as crowds cheer his name, unaware of the shadows lurking behind him.',
+      text: 'As he rises through the ranks, Julius Caesar forms a powerful alliance with Pompey and Crassus, known as the First Triumvirate. Together, they reshape the political landscape of Rome.',
       imageDescription:
-        'A lively crowd in the Forum, cheering for Caesar, who stands on a platform, arms raised in triumph. The crowd is diverse, with expressions of joy and admiration, while a few shadowy figures watch from the sidelines.',
-      imageUrl: null,
-      duration: 10
+        'Julius Caesar, Pompey, and Crassus stand together in a dimly lit room, discussing strategies, their expressions serious, symbolizing the power dynamics of the First Triumvirate.',
+      duration: 13.442526315789474,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_2.png'
     },
     {
-      text: 'But power breeds envy. In a dimly lit room, conspirators plot against him. "He must be stopped!" one hisses, their faces twisted with jealousy and fear.',
+      text: "With military genius, Caesar conquers Gaul, expanding Rome's territory and earning the loyalty of his soldiers. His fame grows, but so does the envy of his rivals.",
       imageDescription:
-        'A dark, moody room with cloaked figures gathered around a table, their faces obscured. The atmosphere is tense, with flickering candlelight casting ominous shadows on the walls.',
-      imageUrl: null,
-      duration: 10
+        'Julius Caesar leads his troops into battle against the Gauls, a fierce expression on his face, as Roman soldiers rally behind him, banners waving in the wind.',
+      duration: 12.124631578947362,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_3.png'
     },
     {
-      text: 'On the Ides of March, Caesar strides into the Senate, unaware of the danger. "I am invincible!" he declares, confidence radiating from him as he enters the marble hall.',
+      text: 'Returning to Rome, Caesar is greeted as a hero, but whispers of betrayal echo in the Senate. His popularity threatens the power of the Senate, igniting fear among the elite.',
       imageDescription:
-        'Caesar enters a grand Senate chamber, sunlight streaming through high windows. He walks with purpose, a confident smile on his face, while senators exchange nervous glances.',
-      imageUrl: null,
-      duration: 10
+        'A jubilant crowd welcomes Julius Caesar back to Rome, while shadowy figures in the Senate plot against him, their faces twisted with jealousy and fear.',
+      duration: 12.783578947368426,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_4.png'
+    },
+    {
+      text: "Despite warnings, Caesar crosses the Rubicon River, declaring, 'The die is cast!' This bold move ignites a civil war, pitting him against Pompey and the Senate.",
+      imageDescription:
+        'Julius Caesar stands at the banks of the Rubicon River, resolute and defiant, as he prepares to lead his army into a civil war, the river symbolizing a point of no return.',
+      duration: 11.926947368421054,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_5.png'
+    },
+    {
+      text: 'The war rages on, and Caesar emerges victorious, becoming dictator for life. His reforms bring hope to the people, but his power grows increasingly absolute.',
+      imageDescription:
+        'Julius Caesar addresses a crowd in the Roman Forum, gesturing passionately as citizens cheer, while senators watch with concern, foreshadowing his growing tyranny.',
+      duration: 11.729263157894742,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_6.png'
+    },
+    {
+      text: "Yet, with great power comes great danger. A conspiracy brews among the Senate, led by Brutus and Cassius, who fear for the Republic's future.",
+      imageDescription:
+        'Brutus and Cassius huddle in a dark corner of the Senate, plotting against Julius Caesar, their faces tense with determination and fear for the Republic.',
+      duration: 10.674947368421044,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_7.png'
+    },
+    {
+      text: 'On the Ides of March, Caesar arrives at the Senate, unaware of the impending betrayal. His friend Brutus stands among the conspirators, torn between loyalty and duty.',
+      imageDescription:
+        'Julius Caesar enters the Senate, a confident smile on his face, while Brutus watches from the shadows, his expression conflicted, symbolizing the tension of betrayal.',
+      duration: 12.322315789473691,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_8.png'
+    },
+    {
+      text: "As the conspirators strike, Caesar utters his famous last words, 'Et tu, Brute?' His shock reverberates through history, marking the end of an era.",
+      imageDescription:
+        'Julius Caesar, surrounded by senators, falls to the ground, a look of betrayal on his face, as Brutus stands over him, a dagger in hand, capturing the moment of treachery.',
+      duration: 11.070315789473668,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_9.png'
+    },
+    {
+      text: "Caesar's assassination plunges Rome into chaos. The Republic crumbles, and civil war erupts once more, as his legacy looms large over the empire.",
+      imageDescription:
+        "A chaotic scene unfolds in Rome as citizens riot and soldiers clash, the aftermath of Julius Caesar's assassination, symbolizing the turmoil of a fallen Republic.",
+      duration: 10.938526315789474,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_10.png'
+    },
+    {
+      text: "In the wake of his death, Caesar's adopted heir, Octavian, rises to power, vowing to restore order and avenge his fallen mentor, setting the stage for a new empire.",
+      imageDescription:
+        'Octavian stands resolute in front of a statue of Julius Caesar, determination in his eyes, as he prepares to lead Rome into a new era, symbolizing hope and vengeance.',
+      duration: 12.190526315789498,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_11.png'
+    },
+    {
+      text: "The rise of the Roman Empire begins, but the shadow of Julius Caesar's ambition and tragedy remains, a reminder of the fine line between power and downfall.",
+      imageDescription:
+        "A panoramic view of the Roman Empire at its height, with a statue of Julius Caesar in the foreground, symbolizing his lasting impact on history and the empire's legacy.",
+      duration: 11.66336842105261,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_12.png'
+    },
+    {
+      text: "Julius Caesar's story teaches us that ambition can lead to greatness, but unchecked power can also lead to ruin. His legacy continues to inspire and caution leaders today.",
+      imageDescription:
+        'A modern-day leader stands before a statue of Julius Caesar, reflecting on the lessons of ambition and power, symbolizing the timeless relevance of his story.',
+      duration: 11.268,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_13.png'
     }
   ]
 }

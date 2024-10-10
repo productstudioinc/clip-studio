@@ -71,7 +71,8 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
 
     setGeneratingImages((prev) => [...prev, ...indicesToGenerate])
 
-    for (const index of indicesToGenerate) {
+    const generateWithDelay = async (index: number) => {
+      const startTime = Date.now()
       try {
         const result = await generateSingleImage(index)
         if (result) {
@@ -84,9 +85,16 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
       } finally {
         setGeneratingImages((prev) => prev.filter((i) => i !== index))
       }
-
-      await sleep(750)
+      const elapsedTime = Date.now() - startTime
+      const remainingDelay = Math.max(0, 750 - elapsedTime)
+      await sleep(remainingDelay)
     }
+
+    await Promise.all(
+      indicesToGenerate.map((index, i) =>
+        sleep(i * 750).then(() => generateWithDelay(index))
+      )
+    )
 
     setIsGeneratingAll(false)
   }

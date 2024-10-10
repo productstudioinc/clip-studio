@@ -55,8 +55,6 @@ export async function POST(request: NextRequest) {
     // Set required credits to exactly 10
     const requiredCredits = CREDIT_CONVERSIONS.IMAGE_GENERATION
 
-    console.log('requiredCredits', requiredCredits)
-
     // Check user's available credits
     const userUsageRecord = await db
       .select({ creditsLeft: userUsage.creditsLeft })
