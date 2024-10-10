@@ -168,6 +168,8 @@ export const TwoVoiceStep: React.FC<TwoVoiceStepProps> = ({ form, voices }) => {
       form.setValue('messages', updatedMessages)
       form.setValue('voiceoverUrl', data.signedUrl)
       form.setValue('durationInFrames', data.durationInFrames)
+      form.setValue('isVoiceoverGenerated', true)
+      form.clearErrors('isVoiceoverGenerated')
       toast.success('Voiceover generated successfully')
     }
   }

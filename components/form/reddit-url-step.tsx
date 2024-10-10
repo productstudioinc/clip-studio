@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { getRedditInfo } from '@/actions/reddit'
 import { VideoProps } from '@/stores/templatestore'
 import { Loader2 } from 'lucide-react'
@@ -68,6 +68,25 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
     }
   }
 
+  useEffect(() => {
+    const fieldsToWatch = [
+      'title',
+      'subreddit',
+      'accountName',
+      'text',
+      'likes',
+      'comments'
+    ]
+
+    const subscription = form.watch((value, { name }) => {
+      if (fieldsToWatch.includes(name as string)) {
+        form.setValue('isVoiceoverGenerated', false)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [form])
+
   return (
     <Card>
       <CardHeader>
@@ -128,6 +147,7 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
             <Label htmlFor="redditText">Text</Label>
             <Textarea
               id="redditText"
+              className="min-h-[140px]"
               {...form.register('text')}
               disabled={isPending}
             />

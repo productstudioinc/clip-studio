@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { GetUserUsageResult } from '@/actions/db/user-queries'
 import { createClient } from '@/supabase/client'
 import { getBillingPortal } from '@/utils/stripe/server'
-import { Info, Loader2, Settings } from 'lucide-react'
+import { Coins, Loader2, Settings, Users, ZapIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
 
-import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -14,31 +17,14 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip'
-
-type Usage = {
-  currentUsage: {
-    creditsLeft: number | null
-    connectedAccountsLeft: number | null
-  }
-  totalLimits: {
-    credits: number | null
-    connectedAccounts: number | null
-  }
-}
 
 export default function SubscriptionCard({
   subscriptionName,
   usage,
   userId
 }: {
-  subscriptionName: string | null
-  usage: Usage
+  subscriptionName: string | null | undefined
+  usage: GetUserUsageResult
   userId: string
 }) {
   const { isPending, execute } = useServerAction(getBillingPortal)
@@ -53,7 +39,7 @@ export default function SubscriptionCard({
 
   return (
     <Card>
-      <CardHeader className="p-4">
+      <CardHeader className="p-4 pb-0">
         <CardTitle>Your Usage</CardTitle>
         <CardDescription>{subscriptionName || 'Free Plan'}</CardDescription>
       </CardHeader>
@@ -78,6 +64,19 @@ export default function SubscriptionCard({
             Manage
           </Button>
         )}
+
+        {!subscriptionName && (
+          <Link
+            href="/pricing"
+            className={cn(
+              buttonVariants({ size: 'sm', variant: 'rainbow' }),
+              'w-full'
+            )}
+          >
+            <ZapIcon className="h-4 w-4 mr-2 fill-current" />
+            Upgrade
+          </Link>
+        )}
       </CardContent>
     </Card>
   )
@@ -88,11 +87,12 @@ const UsageDisplay = ({
   userId,
   showConnectedAccounts
 }: {
-  usage: Usage
+  usage: GetUserUsageResult
   userId: string
   showConnectedAccounts: boolean
 }) => {
-  const [realtimeUsage, setRealtimeUsage] = useState<Usage>(initialUsage)
+  const [realtimeUsage, setRealtimeUsage] =
+    useState<GetUserUsageResult>(initialUsage)
   const supabase = createClient()
 
   useEffect(() => {
@@ -106,17 +106,20 @@ const UsageDisplay = ({
           table: 'user_usage',
           filter: `user_id=eq.${userId}`
         },
-        ({ new: newUsage }) => {
-          setRealtimeUsage((prevUsage) => ({
-            ...prevUsage,
-            currentUsage: {
-              creditsLeft:
-                newUsage.credits_left ?? prevUsage.currentUsage.creditsLeft,
-              connectedAccountsLeft:
-                newUsage.connected_accounts_left ??
-                prevUsage.currentUsage.connectedAccountsLeft
+        ({ new: newUsage }: { new: any }) => {
+          setRealtimeUsage((prevUsage) => {
+            if (!prevUsage) return prevUsage
+            return {
+              ...prevUsage,
+              currentUsage: {
+                creditsLeft:
+                  newUsage.credits_left ?? prevUsage.currentUsage.creditsLeft,
+                connectedAccountsLeft:
+                  newUsage.connected_accounts_left ??
+                  prevUsage.currentUsage.connectedAccountsLeft
+              }
             }
-          }))
+          })
         }
       )
       .subscribe()
@@ -124,7 +127,9 @@ const UsageDisplay = ({
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [realtimeUsage, supabase, userId])
+  }, [supabase, userId])
+
+  if (!realtimeUsage) return null
 
   const { currentUsage, totalLimits } = realtimeUsage
 
@@ -136,6 +141,7 @@ const UsageDisplay = ({
   const usageItems = [
     {
       label: 'Credits Used',
+      icon: Coins,
       current: calculateUsed(totalLimits.credits, currentUsage.creditsLeft),
       total: totalLimits.credits,
       unit: '',
@@ -148,6 +154,7 @@ const UsageDisplay = ({
       ? [
           {
             label: 'Connected Accounts',
+            icon: Users,
             current: calculateUsed(
               totalLimits.connectedAccounts,
               currentUsage.connectedAccountsLeft
@@ -167,32 +174,24 @@ const UsageDisplay = ({
   ]
 
   return (
-    <TooltipProvider>
-      <div
-        className={`flex flex-col gap-3 ${showConnectedAccounts ? 'pb-0' : 'pb-2'}`}
-      >
-        {usageItems.map((item, index) => (
-          <div
-            key={index}
-            className={`flex flex-col gap-1 ${index === 0 ? 'pb-2' : ''}`}
-          >
-            <div className="flex justify-between items-center text-xs">
-              <span className="flex-grow">{item.label}</span>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-4 w-4 p-0">
-                    <Info className="h-3 w-3" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{`${item.current ?? 'N/A'} / ${item.total ?? 'N/A'} ${item.unit}`}</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
+    <div
+      className={`flex flex-col gap-3 ${showConnectedAccounts ? 'pb-0' : 'pb-2'}`}
+    >
+      {usageItems.map((item, index) => (
+        <div
+          key={index}
+          className={`flex items-center gap-2 ${index === usageItems.length - 1 ? '' : 'pb-2'}`}
+        >
+          <item.icon className="h-4 w-4 text-muted-foreground" />
+          <div className="flex-1">
             <Progress value={item.percentage} className="h-2" />
+            <div className="text-xs mt-1 text-muted-foreground font-medium flex justify-between">
+              <span>{`${item.current ?? 'N/A'}/${item.total ?? 'N/A'}`}</span>
+              <span>{`${item.percentage.toFixed(0)}% used`}</span>
+            </div>
           </div>
-        ))}
-      </div>
-    </TooltipProvider>
+        </div>
+      ))}
+    </div>
   )
 }

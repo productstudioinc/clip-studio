@@ -219,7 +219,8 @@ export const RedditVideoSchema = BaseVideoSchema.extend({
   voiceoverUrl: z.string(),
   voiceoverFrames: VoiceoverFramesSchema,
   titleEnd: z.number(),
-  backgroundUrls: z.array(z.string())
+  backgroundUrls: z.array(z.string()),
+  isVoiceoverGenerated: z.boolean().default(false) // a flag to generate a voiceover
 })
 
 export const TwitterVideoSchema = BaseVideoSchema.extend({
@@ -245,16 +246,6 @@ export const ClipsVideoSchema = BaseVideoSchema.extend({
   title: z.string().optional(),
   subtitle: z.string().optional()
 })
-
-export const TemplateSchema = z.enum([
-  'SplitScreen',
-  'Reddit',
-  'TwitterThread',
-  'Clips',
-  'TextMessage',
-  'AIVideo'
-])
-export type TemplateProps = z.infer<typeof TemplateSchema>
 
 export const TextMessageVideoSchema = BaseVideoSchema.extend({
   sender: z.object({
@@ -290,7 +281,8 @@ export const TextMessageVideoSchema = BaseVideoSchema.extend({
   style: z.enum(['imessage', 'whatsapp']),
   mode: z.enum(['dark', 'light']),
   voiceoverUrl: z.string(),
-  backgroundUrls: z.array(z.string())
+  backgroundUrls: z.array(z.string()),
+  isVoiceoverGenerated: z.boolean().default(false) // a flag to generate a voiceover
 })
 
 export const AIVideoSchema = z.object({
@@ -333,6 +325,16 @@ export const VideoSchema = z.union([
   TextMessageVideoSchema,
   AIVideoSchema
 ])
+
+export const TemplateSchema = z.enum([
+  'SplitScreen',
+  'Reddit',
+  'TwitterThread',
+  'Clips',
+  'TextMessage',
+  'AIVideo'
+])
+export type TemplateProps = z.infer<typeof TemplateSchema>
 
 // Types
 export type VideoProps = z.infer<typeof VideoSchema>
@@ -402,7 +404,8 @@ export const defaultRedditProps: RedditVideoProps = {
   width: VIDEO_WIDTH,
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
-  captionStyle: CaptionStyle.Default
+  captionStyle: CaptionStyle.Default,
+  isVoiceoverGenerated: false
 }
 
 export const defaultTwitterThreadProps: TwitterVideoProps = {
@@ -484,7 +487,8 @@ export const defaultTextMessageProps: TextMessageVideoProps = {
   backgroundTheme: BackgroundTheme.Minecraft,
   backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
   captionStyle: CaptionStyle.Default,
-  voiceoverUrl: 'https://assets.clip.studio/messages_voiceover_sample.mp3'
+  voiceoverUrl: 'https://assets.clip.studio/messages_voiceover_sample.mp3',
+  isVoiceoverGenerated: false
 }
 
 export const defaultClipsProps: ClipsVideoProps = {

@@ -44,11 +44,11 @@ import { WhatsNew } from './whats-new'
 export function UpgradeCard() {
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="p-4 pb-0">
         <CardTitle>Upgrade to Pro</CardTitle>
         <CardDescription>Create even more videos with AI</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4">
         <Link
           href="/pricing"
           className={cn(
@@ -178,16 +178,13 @@ const renderSubscriptionCard = (
   usage: GetUserUsageResult
 ) => {
   if (!user) return <UpgradeCard />
-  if (subscription && usage) {
-    return (
-      <SubscriptionCard
-        subscriptionName={subscription}
-        usage={usage}
-        userId={user.id}
-      />
-    )
-  }
-  return <UpgradeCard />
+  return (
+    <SubscriptionCard
+      subscriptionName={subscription}
+      usage={usage}
+      userId={user.id}
+    />
+  )
 }
 
 export const NavigationItems: React.FC<NavigationItemsProps> = ({

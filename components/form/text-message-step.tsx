@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { TextMessageVideoProps, VideoProps } from '@/stores/templatestore'
 import {
   GripVertical,
@@ -95,6 +95,16 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
     const lastMessage = fields[fields.length - 1]
     return lastMessage?.from + lastMessage?.duration
   }
+
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'messages') {
+        form.setValue('isVoiceoverGenerated', false)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [form])
 
   return (
     <Card>
