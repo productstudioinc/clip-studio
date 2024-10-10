@@ -44,11 +44,11 @@ import { WhatsNew } from './whats-new'
 export function UpgradeCard() {
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="p-4 pb-0">
         <CardTitle>Upgrade to Pro</CardTitle>
         <CardDescription>Create even more videos with AI</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4">
         <Link
           href="/pricing"
           className={cn(

@@ -41,7 +41,7 @@ export function WhatsNew({ className }: { className?: string }) {
       </PopoverTrigger>
       <PopoverContent
         className="w-[400px] bg-popover p-0 rounded-xl overflow-hidden"
-        side="right"
+        side="left"
       >
         <Link
           href="/changelog"

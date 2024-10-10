@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { GetUserUsageResult } from '@/actions/db/user-queries'
 import { createClient } from '@/supabase/client'
 import { getBillingPortal } from '@/utils/stripe/server'
-import { Loader2, Settings, ZapIcon } from 'lucide-react'
+import { Coins, Loader2, Settings, Users, ZapIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
 
@@ -39,7 +39,7 @@ export default function SubscriptionCard({
 
   return (
     <Card>
-      <CardHeader className="p-4">
+      <CardHeader className="p-4 pb-0">
         <CardTitle>Your Usage</CardTitle>
         <CardDescription>{subscriptionName || 'Free Plan'}</CardDescription>
       </CardHeader>
@@ -65,16 +65,18 @@ export default function SubscriptionCard({
           </Button>
         )}
 
-        <Link
-          href="/pricing"
-          className={cn(
-            buttonVariants({ size: 'sm', variant: 'rainbow' }),
-            'w-full'
-          )}
-        >
-          <ZapIcon className="h-4 w-4 mr-2 fill-current" />
-          Upgrade
-        </Link>
+        {!subscriptionName && (
+          <Link
+            href="/pricing"
+            className={cn(
+              buttonVariants({ size: 'sm', variant: 'rainbow' }),
+              'w-full'
+            )}
+          >
+            <ZapIcon className="h-4 w-4 mr-2 fill-current" />
+            Upgrade
+          </Link>
+        )}
       </CardContent>
     </Card>
   )
@@ -139,6 +141,7 @@ const UsageDisplay = ({
   const usageItems = [
     {
       label: 'Credits Used',
+      icon: Coins,
       current: calculateUsed(totalLimits.credits, currentUsage.creditsLeft),
       total: totalLimits.credits,
       unit: '',
@@ -151,6 +154,7 @@ const UsageDisplay = ({
       ? [
           {
             label: 'Connected Accounts',
+            icon: Users,
             current: calculateUsed(
               totalLimits.connectedAccounts,
               currentUsage.connectedAccountsLeft
@@ -176,14 +180,16 @@ const UsageDisplay = ({
       {usageItems.map((item, index) => (
         <div
           key={index}
-          className={`flex flex-col gap-1 ${index === 0 ? 'pb-2' : ''}`}
+          className={`flex items-center gap-2 ${index === usageItems.length - 1 ? '' : 'pb-2'}`}
         >
-          <Progress value={item.percentage} className="h-2" />
-          {index === 0 && (
-            <div className="text-xs text-left mt-1 text-muted-foreground font-medium">
-              {`${item.current ?? 'N/A'}/${item.total ?? 'N/A'} ${item.percentage.toFixed(0)}% used`}
+          <item.icon className="h-4 w-4 text-muted-foreground" />
+          <div className="flex-1">
+            <Progress value={item.percentage} className="h-2" />
+            <div className="text-xs mt-1 text-muted-foreground font-medium flex justify-between">
+              <span>{`${item.current ?? 'N/A'}/${item.total ?? 'N/A'}`}</span>
+              <span>{`${item.percentage.toFixed(0)}% used`}</span>
             </div>
-          )}
+          </div>
         </div>
       ))}
     </div>
