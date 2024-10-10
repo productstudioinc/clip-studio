@@ -13,6 +13,9 @@ export function CreditCalculator() {
   const voiceoverCharacters = credits * 100
   const transcriptionSeconds = credits * 10
 
+  const scriptGenerations = credits
+  const aiImages = Math.floor(credits / 10)
+
   const formatDuration = (totalSeconds: number) => {
     const hours = Math.floor(totalSeconds / 3600)
     const minutes = Math.ceil((totalSeconds % 3600) / 60)
@@ -90,6 +93,16 @@ export function CreditCalculator() {
               {formatDuration(transcriptionSeconds)}
             </span>
           </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium">Script Generations:</span>
+            <span className="font-semibold">
+              {formatNumber(scriptGenerations)}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium">AI Images:</span>
+            <span className="font-semibold">{formatNumber(aiImages)}</span>
+          </div>
         </div>
         <div className="bg-muted p-4 rounded-md">
           <h3 className="font-semibold mb-2">How it works:</h3>
@@ -99,6 +112,8 @@ export function CreditCalculator() {
             <li>1 credit = 5 seconds of video</li>
             <li>1 credit = 100 characters of voiceover</li>
             <li>1 credit = 10 seconds of transcription</li>
+            <li>1 credit = 1 script generation</li>
+            <li>10 credits = 1 AI Image</li>
           </ul>
         </div>
       </CardContent>
