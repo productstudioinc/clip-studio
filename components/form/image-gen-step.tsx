@@ -4,7 +4,7 @@ import React from 'react'
 import Image from 'next/image'
 import { VideoProps, visualStyles } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
-import { ImageIcon, Loader2, RefreshCcw, Wand2 } from 'lucide-react'
+import { Loader2, RefreshCcw, Wand2 } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -22,6 +22,8 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import ZoomableImage from '@/components/zoomable-image'
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 type ImageGenStepProps = {
   form: UseFormReturn<VideoProps>
@@ -69,28 +71,24 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
 
     setGeneratingImages((prev) => [...prev, ...indicesToGenerate])
 
-    const generatePromises = indicesToGenerate.map((index) => {
-      return generateSingleImage(index)
-        .then((result) => {
-          if (result) {
-            form.setValue(`videoStructure.${result.index}.imageUrl`, result.url)
-          }
-        })
-        .catch((error) => {
-          toast.error(`Failed to generate image ${index + 1}: ${error.message}`)
-        })
-        .finally(() => {
-          setGeneratingImages((prev) => prev.filter((i) => i !== index))
-        })
-    })
+    for (const index of indicesToGenerate) {
+      try {
+        const result = await generateSingleImage(index)
+        if (result) {
+          form.setValue(`videoStructure.${result.index}.imageUrl`, result.url)
+        }
+      } catch (error) {
+        toast.error(
+          `Failed to generate image ${index + 1}: ${(error as Error).message}`
+        )
+      } finally {
+        setGeneratingImages((prev) => prev.filter((i) => i !== index))
+      }
 
-    try {
-      await Promise.all(generatePromises)
-    } catch (error) {
-      toast.error('Error generating images')
-    } finally {
-      setIsGeneratingAll(false)
+      await sleep(750)
     }
+
+    setIsGeneratingAll(false)
   }
 
   const handleGenerateImage = async (index: number) => {
