@@ -37,6 +37,9 @@ export default function SubscriptionCard({
     }
   }
 
+  // Check if totalLimits.credits is null
+  const showOnlyUpgradeCard = usage?.totalLimits.credits === null
+
   return (
     <Card>
       <CardHeader className="p-4 pb-0">
@@ -44,28 +47,7 @@ export default function SubscriptionCard({
         <CardDescription>{subscriptionName || 'Free Plan'}</CardDescription>
       </CardHeader>
       <CardContent className="p-4">
-        <UsageDisplay
-          usage={usage}
-          userId={userId}
-          showConnectedAccounts={!!subscriptionName}
-        />
-        {subscriptionName && (
-          <Button
-            size={'sm'}
-            className="w-full mt-4"
-            onClick={manageSubscription}
-            disabled={isPending}
-          >
-            {isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Settings className="h-4 w-4 mr-2" />
-            )}
-            Manage
-          </Button>
-        )}
-
-        {!subscriptionName && (
+        {showOnlyUpgradeCard ? (
           <Link
             href="/pricing"
             className={cn(
@@ -76,6 +58,40 @@ export default function SubscriptionCard({
             <ZapIcon className="h-4 w-4 mr-2 fill-current" />
             Upgrade
           </Link>
+        ) : (
+          <>
+            <UsageDisplay
+              usage={usage}
+              userId={userId}
+              showConnectedAccounts={!!subscriptionName}
+            />
+            {subscriptionName ? (
+              <Button
+                size={'sm'}
+                className="w-full mt-4"
+                onClick={manageSubscription}
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Settings className="h-4 w-4 mr-2" />
+                )}
+                Manage
+              </Button>
+            ) : (
+              <Link
+                href="/pricing"
+                className={cn(
+                  buttonVariants({ size: 'sm', variant: 'rainbow' }),
+                  'w-full mt-4'
+                )}
+              >
+                <ZapIcon className="h-4 w-4 mr-2 fill-current" />
+                Upgrade
+              </Link>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

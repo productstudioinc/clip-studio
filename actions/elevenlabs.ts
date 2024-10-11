@@ -387,7 +387,6 @@ export const generateTextVoiceover = createServerAction()
           })
           .where(eq(userUsage.userId, user.id))
       }
-
       logger.error(errorString, { error })
       await logger.flush()
 
@@ -466,7 +465,7 @@ export const generateStructuredVoiceover = createServerAction()
           creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
         })
         .where(eq(userUsage.userId, user.id))
-
+      
       const audio = (await elevenLabsClient.textToSpeech.convertWithTimestamps(
         voiceId,
         {
@@ -547,8 +546,7 @@ export const generateStructuredVoiceover = createServerAction()
       }
 
       logger.error(errorString, { error })
-      console.error(error)
-
+      
       if (error instanceof ZSAError) {
         throw error
       }
