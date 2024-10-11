@@ -133,12 +133,14 @@ export default function Pricing({
                     {
                       'border-2 border-green-600 shadow-lg':
                         product.metadata &&
-                        (product.metadata as any).isMostPopular === 'true'
+                        (product.metadata as Record<string, string>)
+                          .isMostPopular === 'true'
                     }
                   )}
                 >
-                  {product.metadata &&
-                    (product.metadata as any).isMostPopular === 'true' && (
+                  {(product.metadata as Record<string, string>) &&
+                    (product.metadata as Record<string, string>)
+                      .isMostPopular === 'true' && (
                       <div className="absolute top-0 right-0 bg-green-600 py-0.5 px-2 rounded-bl-xl rounded-tr-xl flex items-center">
                         <span className="text-white ml-1 font-sans font-semibold text-sm">
                           Recommended
@@ -233,7 +235,7 @@ export default function Pricing({
 
                   <hr className="m-0 h-px w-full border-none bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0 mb-4" />
 
-                  {(product.metadata as any) && (
+                  {(product.metadata as Record<string, string>) && (
                     <ul className="flex flex-col gap-2 font-normal">
                       {Object.entries(product.marketingFeatures || {}).map(
                         ([_, feature], idx) => (
