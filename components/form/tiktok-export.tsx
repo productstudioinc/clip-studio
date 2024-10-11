@@ -13,10 +13,10 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger
@@ -51,6 +51,7 @@ export function TikTokExportDialog({
   const [selectedAccount, setSelectedAccount] = useState<TikTokAccount | null>(
     null
   )
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [caption, setCaption] = useState('')
   const [visibility, setVisibility] = useState<
     | 'PUBLIC_TO_EVERYONE'
@@ -299,31 +300,41 @@ export function TikTokExportDialog({
           </AccordionItem>
         </Accordion>
 
-        <DialogFooter className="sm:justify-start">
-          <div className="text-sm text-gray-500 mb-2">
-            By posting, you agree to TikTok&apos;s{' '}
-            <a
-              href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
-            >
-              Music Usage Confirmation
-            </a>
+        <div className="sm:justify-start flex sm:flex-col space-y-4 flex-col sm:space-x-0">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="terms"
+              checked={termsAccepted}
+              onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+            />
+            <Label htmlFor="terms" className="text-sm text-muted-foreground">
+              By posting, you agree to TikTok&apos;s{' '}
+              <a
+                href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                Music Usage Confirmation
+              </a>
+            </Label>
           </div>
+
           <Button
             onClick={() => handleupload()}
+            className="w-full"
             disabled={
               isUploading ||
               !selectedAccount ||
               !caption ||
-              (discloseVideoContent && !videoContentType)
+              (discloseVideoContent && !videoContentType) ||
+              !termsAccepted
             }
           >
             {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Submit
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   )
