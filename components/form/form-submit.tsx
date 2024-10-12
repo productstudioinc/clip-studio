@@ -113,13 +113,14 @@ export function FormSubmit({
 
   const handleGenerateVideo = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    if (!form.getValues('isVoiceoverGenerated')) {
-      toast.info('You must generate a voiceover first.')
-      form.setError('isVoiceoverGenerated', {
-        message: 'You must generate a voiceover first.'
-      })
-      return
-    }
+
+    // if (!form.watch('isVoiceoverGenerated')) {
+    //   toast.info('You must generate a voiceover first.')
+    //   form.setError('isVoiceoverGenerated', {
+    //     message: 'You must generate a voiceover first.'
+    //   })
+    //   return
+    // }
     renderMedia()
   }
 
