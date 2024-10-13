@@ -1,7 +1,7 @@
 import { revalidateTag, unstable_cache } from 'next/cache'
 import { db } from '@/db'
 import { music, templates } from '@/db/schema'
-import { eq } from 'drizzle-orm'
+import { asc, eq } from 'drizzle-orm'
 import { Logger } from 'next-axiom'
 
 const logger = new Logger({
@@ -19,6 +19,7 @@ const getCachedTemplates = unstable_cache(
             ? eq(templates.active, true)
             : undefined
         )
+        .orderBy(asc(templates.name))
       return response
     } catch (error) {
       logger.error('Error fetching templates', {
