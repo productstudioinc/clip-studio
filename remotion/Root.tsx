@@ -52,9 +52,8 @@ export const RemotionRoot: React.FC = () => {
         schema={AIVideoSchema}
         defaultProps={aiVideoState as any}
         calculateMetadata={async ({ props }) => {
-          const data = await getVideoMetadata(props.videoUrl)
           return {
-            durationInFrames: Math.floor(data.durationInSeconds * 30)
+            durationInFrames: props.durationInFrames
           }
         }}
       />

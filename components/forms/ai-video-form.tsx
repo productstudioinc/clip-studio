@@ -18,13 +18,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
 import { Form } from '@/components/ui/form'
+import { AIVoiceStep } from '@/components/form/ai-voice-step'
 import { AspectRatioStep } from '@/components/form/aspect-ratio-step'
 import { CaptionStyleStep } from '@/components/form/caption-style-step'
 import { FormErrors } from '@/components/form/form-errors'
 import { FormSubmit } from '@/components/form/form-submit'
+import { ImageGenStep } from '@/components/form/image-gen-step'
 import { PromptStep } from '@/components/form/prompt-step'
 import { VideoPreview } from '@/components/form/video-preview'
-import { VisualStyleStep } from '@/components/form/visual-style-step'
 
 interface AIVideoFormProps {
   voices: ElevenlabsVoice[]
@@ -35,10 +36,9 @@ interface AIVideoFormProps {
 }
 
 export const AIVideoForm: React.FC<AIVideoFormProps> = ({
-  music,
-  backgrounds,
   youtubeChannels,
-  tiktokAccounts
+  tiktokAccounts,
+  voices
 }) => {
   const form = useForm<VideoProps>({
     resolver: zodResolver(AIVideoSchema),
@@ -67,7 +67,8 @@ export const AIVideoForm: React.FC<AIVideoFormProps> = ({
             <PromptStep form={form} />
             {/* <TranscribeStep form={form} /> */}
             {/* <BackgroundSelectStep form={form} backgrounds={backgrounds} /> */}
-            <VisualStyleStep form={form} />
+            <AIVoiceStep form={form} voices={voices} />
+            <ImageGenStep form={form} />
             <CaptionStyleStep form={form} />
             {/* <MusicStep form={form} music={music} /> */}
             <AspectRatioStep form={form} />

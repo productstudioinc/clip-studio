@@ -227,6 +227,9 @@ export default function Pricing({
                           <p>Upgrading...</p>
                         )}
                         {isLoading && id === currentPrice?.id && (
+                          <p>Upgrading...</p>
+                        )}
+                        {isLoading && id === currentPrice?.id && (
                           <Loader className="mr-2 h-4 w-4 animate-spin" />
                         )}
                       </>

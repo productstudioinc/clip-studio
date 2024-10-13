@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
+import { voiceoverFrames } from './aivideo_voiceover'
 import { alignmentDefault } from './alignmenttext'
 import { splitScreenTranscriptionDefault } from './splitscreentranscription'
 
@@ -45,7 +46,7 @@ export const LanguageFlags: Record<Language, string> = {
   [Language.German]: '🇩🇪',
   [Language.Hindi]: '🇮🇳',
   [Language.French]: '🇫🇷',
-  [Language.Portuguese]: '🇵🇹',
+  [Language.Portuguese]: '🇵',
   [Language.Italian]: '🇮🇹',
   [Language.Spanish]: '🇪🇸',
   [Language.Russian]: '🇷🇺',
@@ -92,6 +93,60 @@ export enum CaptionStyle {
   Montserrat = 'montserrat'
 }
 
+export enum VisualStyle {
+  Realistic = 'Realistic',
+  Anime = 'Anime',
+  Neopunk = 'Neopunk',
+  JapaneseInk = 'Japanese Ink',
+  LineArt = 'Line Art',
+  Medieval = 'Medieval',
+  Cinematic = 'Cinematic',
+  Playdoh = 'Playdoh'
+}
+
+export const visualStyles = [
+  {
+    id: VisualStyle.Realistic,
+    name: 'Realistic',
+    image: 'https://assets.clip.studio/visual_style_realistic.jpg'
+  },
+  {
+    id: VisualStyle.Anime,
+    name: 'Anime',
+    image: 'https://assets.clip.studio/visual_style_anime.jpg'
+  },
+  {
+    id: VisualStyle.Neopunk,
+    name: 'Neopunk',
+    image: 'https://assets.clip.studio/visual_style_neopunk.jpg'
+  },
+  {
+    id: VisualStyle.JapaneseInk,
+    name: 'Japanese Ink',
+    image: 'https://assets.clip.studio/visual_style_japanese.jpg'
+  },
+  {
+    id: VisualStyle.LineArt,
+    name: 'Line Art',
+    image: 'https://assets.clip.studio/visual_style_lineart.jpg'
+  },
+  {
+    id: VisualStyle.Medieval,
+    name: 'Medieval',
+    image: 'https://assets.clip.studio/visual_style_medieval.jpg'
+  },
+  {
+    id: VisualStyle.Cinematic,
+    name: 'Cinematic',
+    image: 'https://assets.clip.studio/visual_style_cinematic.jpg'
+  },
+  {
+    id: VisualStyle.Playdoh,
+    name: 'Playdoh',
+    image: 'https://assets.clip.studio/visual_style_playdoh.jpg'
+  }
+]
+
 // Constants
 export const AspectRatioMap: Record<
   AspectRatio,
@@ -129,7 +184,6 @@ const BaseVideoSchema = z.object({
   voiceVolume: z.number().min(0).max(100).default(70),
   music: z.string().optional(),
   musicVolume: z.number().min(0).max(100).default(30),
-  visualStyle: z.string().optional(),
   aspectRatio: z.nativeEnum(AspectRatio).default(AspectRatio.Vertical),
   width: z.number().min(1).default(VIDEO_WIDTH),
   height: z.number().min(1).default(VIDEO_HEIGHT),
@@ -232,13 +286,37 @@ export const TextMessageVideoSchema = BaseVideoSchema.extend({
   isVoiceoverGenerated: z.boolean().default(false) // a flag to generate a voiceover
 })
 
-export const AIVideoSchema = BaseVideoSchema.extend({
+export const AIVideoSchema = z.object({
+  language: z.nativeEnum(Language).default(Language.English),
+  voiceVolume: z.number().min(0).max(100).default(70),
+  musicVolume: z.number().min(0).max(100).default(30),
+  aspectRatio: z.nativeEnum(AspectRatio).default(AspectRatio.Vertical),
+  width: z.number().min(1).default(VIDEO_WIDTH),
+  height: z.number().min(1).default(VIDEO_HEIGHT),
+  fps: z.number().min(1).default(VIDEO_FPS),
+  durationInFrames: z.number().min(1).default(DEFAULT_DURATION_IN_FRAMES),
   prompt: z.string(),
-  videoUrl: z.string(),
-  type: z.enum(['blob', 'cloud']),
-  transcription: TranscriptionSchema,
-  backgroundUrls: z.array(z.string())
+  storyLength: z.enum(['short', 'medium', 'long']),
+  range: z.union([z.literal('1-2'), z.literal('3-4'), z.literal('5-7')]),
+  segments: z.union([z.literal('6-7'), z.literal('12-14'), z.literal('18-21')]),
+  videoStructure: z.array(
+    z.object({
+      text: z.string(),
+      imageDescription: z.string(),
+      imageUrl: z.string().nullable(),
+      duration: z.number().optional() // Make duration optional
+    })
+  ),
+  voiceId: z.string(),
+  voiceoverUrl: z.string(),
+  visualStyle: z.nativeEnum(VisualStyle).default(VisualStyle.Realistic),
+  voiceoverFrames: VoiceoverFramesSchema,
+  backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
+  backgroundUrls: z.array(z.string()).optional(),
+  captionStyle: z.nativeEnum(CaptionStyle).default(CaptionStyle.Default)
 })
+
+export type AIVideoProps = z.infer<typeof AIVideoSchema>
 
 export const VideoSchema = z.union([
   SplitScreenVideoSchema,
@@ -266,7 +344,6 @@ export type RedditVideoProps = z.infer<typeof RedditVideoSchema>
 export type TwitterVideoProps = z.infer<typeof TwitterVideoSchema>
 export type SplitScreenVideoProps = z.infer<typeof SplitScreenVideoSchema>
 export type TextMessageVideoProps = z.infer<typeof TextMessageVideoSchema>
-export type AIVideoProps = z.infer<typeof AIVideoSchema>
 export type ClipsVideoProps = z.infer<typeof ClipsVideoSchema>
 
 // Default Props
@@ -436,11 +513,6 @@ export const defaultClipsProps: ClipsVideoProps = {
 }
 
 export const defaultAIVideoProps: AIVideoProps = {
-  prompt: 'A man and woman are walking in a field of flowers',
-  videoUrl: 'https://assets.clip.studio/ai_sample.mp4',
-  type: 'cloud',
-  transcription: splitScreenTranscriptionDefault,
-  backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
   language: Language.English,
   voiceVolume: 70,
   musicVolume: 30,
@@ -449,11 +521,112 @@ export const defaultAIVideoProps: AIVideoProps = {
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
   durationInFrames: DEFAULT_DURATION_IN_FRAMES,
-  captionStyle: CaptionStyle.Default
+  prompt: 'A story about Julius Caesar',
+  captionStyle: CaptionStyle.Default,
+  voiceoverUrl: 'https://assets.clip.studio/aivideo_voiceover.mp3',
+  voiceoverFrames: voiceoverFrames,
+  voiceId: 'EXAVITQu4vr4xnSDxMaL',
+  storyLength: 'short',
+  range: '1-2',
+  segments: '6-7',
+  visualStyle: VisualStyle.Realistic,
+  videoStructure: [
+    {
+      text: 'In the heart of ancient Rome, a young Julius Caesar gazes at the bustling Forum, dreaming of greatness. His ambition burns bright, igniting a fire within him to change the world.',
+      imageDescription:
+        'A young Julius Caesar stands in the Roman Forum, surrounded by citizens and merchants, his eyes filled with determination and ambition, set against the backdrop of ancient Roman architecture.',
+      duration: 13.113052631578947,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_1.png'
+    },
+    {
+      text: 'As he rises through the ranks, Julius Caesar forms a powerful alliance with Pompey and Crassus, known as the First Triumvirate. Together, they reshape the political landscape of Rome.',
+      imageDescription:
+        'Julius Caesar, Pompey, and Crassus stand together in a dimly lit room, discussing strategies, their expressions serious, symbolizing the power dynamics of the First Triumvirate.',
+      duration: 13.442526315789474,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_2.png'
+    },
+    {
+      text: "With military genius, Caesar conquers Gaul, expanding Rome's territory and earning the loyalty of his soldiers. His fame grows, but so does the envy of his rivals.",
+      imageDescription:
+        'Julius Caesar leads his troops into battle against the Gauls, a fierce expression on his face, as Roman soldiers rally behind him, banners waving in the wind.',
+      duration: 12.124631578947362,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_3.png'
+    },
+    {
+      text: 'Returning to Rome, Caesar is greeted as a hero, but whispers of betrayal echo in the Senate. His popularity threatens the power of the Senate, igniting fear among the elite.',
+      imageDescription:
+        'A jubilant crowd welcomes Julius Caesar back to Rome, while shadowy figures in the Senate plot against him, their faces twisted with jealousy and fear.',
+      duration: 12.783578947368426,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_4.png'
+    },
+    {
+      text: "Despite warnings, Caesar crosses the Rubicon River, declaring, 'The die is cast!' This bold move ignites a civil war, pitting him against Pompey and the Senate.",
+      imageDescription:
+        'Julius Caesar stands at the banks of the Rubicon River, resolute and defiant, as he prepares to lead his army into a civil war, the river symbolizing a point of no return.',
+      duration: 11.926947368421054,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_5.png'
+    },
+    {
+      text: 'The war rages on, and Caesar emerges victorious, becoming dictator for life. His reforms bring hope to the people, but his power grows increasingly absolute.',
+      imageDescription:
+        'Julius Caesar addresses a crowd in the Roman Forum, gesturing passionately as citizens cheer, while senators watch with concern, foreshadowing his growing tyranny.',
+      duration: 11.729263157894742,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_6.png'
+    },
+    {
+      text: "Yet, with great power comes great danger. A conspiracy brews among the Senate, led by Brutus and Cassius, who fear for the Republic's future.",
+      imageDescription:
+        'Brutus and Cassius huddle in a dark corner of the Senate, plotting against Julius Caesar, their faces tense with determination and fear for the Republic.',
+      duration: 10.674947368421044,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_7.png'
+    },
+    {
+      text: 'On the Ides of March, Caesar arrives at the Senate, unaware of the impending betrayal. His friend Brutus stands among the conspirators, torn between loyalty and duty.',
+      imageDescription:
+        'Julius Caesar enters the Senate, a confident smile on his face, while Brutus watches from the shadows, his expression conflicted, symbolizing the tension of betrayal.',
+      duration: 12.322315789473691,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_8.png'
+    },
+    {
+      text: "As the conspirators strike, Caesar utters his famous last words, 'Et tu, Brute?' His shock reverberates through history, marking the end of an era.",
+      imageDescription:
+        'Julius Caesar, surrounded by senators, falls to the ground, a look of betrayal on his face, as Brutus stands over him, a dagger in hand, capturing the moment of treachery.',
+      duration: 11.070315789473668,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_9.png'
+    },
+    {
+      text: "Caesar's assassination plunges Rome into chaos. The Republic crumbles, and civil war erupts once more, as his legacy looms large over the empire.",
+      imageDescription:
+        "A chaotic scene unfolds in Rome as citizens riot and soldiers clash, the aftermath of Julius Caesar's assassination, symbolizing the turmoil of a fallen Republic.",
+      duration: 10.938526315789474,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_10.png'
+    },
+    {
+      text: "In the wake of his death, Caesar's adopted heir, Octavian, rises to power, vowing to restore order and avenge his fallen mentor, setting the stage for a new empire.",
+      imageDescription:
+        'Octavian stands resolute in front of a statue of Julius Caesar, determination in his eyes, as he prepares to lead Rome into a new era, symbolizing hope and vengeance.',
+      duration: 12.190526315789498,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_11.png'
+    },
+    {
+      text: "The rise of the Roman Empire begins, but the shadow of Julius Caesar's ambition and tragedy remains, a reminder of the fine line between power and downfall.",
+      imageDescription:
+        "A panoramic view of the Roman Empire at its height, with a statue of Julius Caesar in the foreground, symbolizing his lasting impact on history and the empire's legacy.",
+      duration: 11.66336842105261,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_12.png'
+    },
+    {
+      text: "Julius Caesar's story teaches us that ambition can lead to greatness, but unchecked power can also lead to ruin. His legacy continues to inspire and caution leaders today.",
+      imageDescription:
+        'A modern-day leader stands before a statue of Julius Caesar, reflecting on the lessons of ambition and power, symbolizing the timeless relevance of his story.',
+      duration: 11.268,
+      imageUrl: 'https://assets.clip.studio/aivideo_default_image_13.png'
+    }
+  ]
 }
 
 const initialState = {
-  selectedTemplate: 'Reddit' as TemplateProps,
+  selectedTemplate: 'AIVideo' as TemplateProps,
   splitScreenState: defaultSplitScreenProps,
   redditState: defaultRedditProps,
   twitterThreadState: defaultTwitterThreadProps,

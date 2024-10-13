@@ -1,12 +1,14 @@
-import { CSSProperties, useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   AbsoluteFill,
+  Audio,
   cancelRender,
   continueRender,
   delayRender,
-  OffthreadVideo,
+  Img,
+  interpolate,
   Sequence,
-  Series,
+  useCurrentFrame,
   useVideoConfig
 } from 'remotion'
 
@@ -21,12 +23,34 @@ export type SubtitleProp = {
 
 const FPS = 30
 
+const ImageAnimation: React.FC<{ src: string; durationInFrames: number }> = ({
+  src,
+  durationInFrames
+}) => {
+  const frame = useCurrentFrame()
+  const progress = frame / durationInFrames
+  const scale = interpolate(progress, [0, 1], [1, 1.1])
+
+  return (
+    <Img
+      src={src}
+      style={{
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+        transform: `scale(${scale})`,
+        transition: 'transform 0.1s linear'
+      }}
+    />
+  )
+}
+
 export const AIVideoComposition = ({
-  videoUrl,
-  type,
-  backgroundUrls,
-  transcription,
-  captionStyle
+  captionStyle,
+  voiceoverFrames,
+  voiceoverUrl,
+  voiceVolume,
+  videoStructure
 }: AIVideoProps) => {
   const videoConfig = useVideoConfig()
   const [subtitles, setSubtitles] = useState<SubtitleProp[]>([])
@@ -34,17 +58,35 @@ export const AIVideoComposition = ({
 
   const generateSubtitles = useCallback(() => {
     try {
-      const { chunks } = transcription
+      const {
+        characters,
+        character_start_times_seconds,
+        character_end_times_seconds
+      } = voiceoverFrames
       const subtitlesData: SubtitleProp[] = []
-      for (let i = 0; i < chunks.length; i++) {
-        const { timestamp, text } = chunks[i]
-        const startFrame = Math.floor(timestamp[0] * FPS)
-        const endFrame = Math.floor(timestamp[1] * FPS)
-        subtitlesData.push({
-          startFrame,
-          endFrame,
-          text
-        })
+      let currentWord = ''
+      let wordStartIndex = 0
+
+      for (let i = 0; i < characters.length; i++) {
+        if (characters[i] === ' ' || i === characters.length - 1) {
+          if (currentWord) {
+            const startFrame = Math.floor(
+              character_start_times_seconds[wordStartIndex] * FPS
+            )
+            const endFrame = Math.floor(character_end_times_seconds[i] * FPS)
+
+            subtitlesData.push({
+              startFrame,
+              endFrame,
+              text: currentWord.trim()
+            })
+
+            currentWord = ''
+            wordStartIndex = i + 1
+          }
+        } else {
+          currentWord += characters[i]
+        }
       }
       setSubtitles(subtitlesData)
       continueRender(handle)
@@ -52,85 +94,78 @@ export const AIVideoComposition = ({
       console.error('Error in generateSubtitles:', e)
       cancelRender(e)
     }
-  }, [transcription, handle])
+  }, [handle, voiceoverFrames])
 
   useEffect(() => {
     generateSubtitles()
   }, [generateSubtitles])
 
-  const videoStyle: CSSProperties = {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover'
-  }
-
-  const overlayStyle: CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    display: type === 'blob' ? 'flex' : 'none',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10
-  }
-
-  const uploadingTextStyle: CSSProperties = {
-    fontSize: '32px',
-    fontWeight: 'bold',
-    color: 'white',
-    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)'
-  }
+  // Calculate cumulative durations for image sequences
+  const imageDurations = videoStructure.reduce(
+    (acc, item, index) => {
+      const startFrame = acc.length > 0 ? acc[acc.length - 1].endFrame : 0
+      const durationInFrames = Math.floor((item.duration || 0) * FPS)
+      acc.push({
+        startFrame,
+        endFrame: startFrame + durationInFrames,
+        imageUrl: item.imageUrl,
+        durationInFrames
+      })
+      return acc
+    },
+    [] as Array<{
+      startFrame: number
+      endFrame: number
+      imageUrl: string | null
+      durationInFrames: number
+    }>
+  )
 
   return (
-    <AbsoluteFill>
-      <div
-        style={{ position: 'absolute', top: 0, width: '100%', height: '50%' }}
-      >
-        <OffthreadVideo src={videoUrl} style={videoStyle} />
-      </div>
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          width: '100%',
-          height: '50%'
-        }}
-      >
-        <Series>
-          {backgroundUrls.map((part, index) => (
-            <Series.Sequence durationInFrames={FPS * 60} key={index}>
-              <OffthreadVideo
-                src={part}
-                startFrom={0}
-                endAt={FPS * 60}
-                style={videoStyle}
-                muted
+    <>
+      <Audio src={voiceoverUrl} pauseWhenBuffering volume={voiceVolume / 100} />
+      <AbsoluteFill>
+        {imageDurations.map(
+          (item, index) =>
+            item.imageUrl && (
+              <Sequence
+                from={item.startFrame}
+                durationInFrames={item.durationInFrames}
+                key={`image-${index}`}
+              >
+                <ImageAnimation
+                  src={item.imageUrl}
+                  durationInFrames={item.durationInFrames}
+                />
+              </Sequence>
+            )
+        )}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            width: '100%',
+            height: '50%',
+            background:
+              'linear-gradient(to bottom, transparent, rgba(0,0,0,0.7))'
+          }}
+        ></div>
+        {subtitles.map((subtitle, index) =>
+          subtitle.startFrame < subtitle.endFrame ? (
+            <Sequence
+              from={subtitle.startFrame}
+              durationInFrames={subtitle.endFrame - subtitle.startFrame}
+              key={`subtitle-${index}`}
+            >
+              <Subtitle
+                text={subtitle.text}
+                captionStyle={captionStyle}
+                style={{ top: '50%', position: 'absolute' }}
               />
-            </Series.Sequence>
-          ))}
-        </Series>
-      </div>
-      {subtitles.map((subtitle, index) =>
-        subtitle.startFrame < subtitle.endFrame ? (
-          <Sequence
-            from={subtitle.startFrame}
-            durationInFrames={subtitle.endFrame - subtitle.startFrame}
-            key={index}
-          >
-            <Subtitle
-              text={subtitle.text}
-              captionStyle={captionStyle}
-              style={{ top: '50%' }}
-            />
-          </Sequence>
-        ) : null
-      )}
-      <div style={overlayStyle}>
-        <div style={uploadingTextStyle}>Uploading video...</div>
-      </div>
-    </AbsoluteFill>
+            </Sequence>
+          ) : null
+        )}
+      </AbsoluteFill>
+    </>
   )
 }

@@ -4,6 +4,7 @@ import { unstable_cache } from 'next/cache'
 import { db } from '@/db'
 import { userUsage } from '@/db/schema'
 import {
+  AIVideoSchema,
   Language,
   TextMessageVideoSchema,
   VIDEO_FPS
@@ -386,10 +387,166 @@ export const generateTextVoiceover = createServerAction()
           })
           .where(eq(userUsage.userId, user.id))
       }
-
       logger.error(errorString, { error })
       await logger.flush()
 
+      if (error instanceof ZSAError) {
+        throw error
+      }
+
+      throw new ZSAError(
+        'INTERNAL_SERVER_ERROR',
+        'An error occurred while generating the voiceover.'
+      )
+    }
+  })
+
+export const generateStructuredVoiceover = createServerAction()
+  .input(
+    z.object({
+      voiceId: AIVideoSchema.shape.voiceId,
+      videoStructure: AIVideoSchema.shape.videoStructure,
+      language: AIVideoSchema.shape.language
+    })
+  )
+  .handler(async ({ input }) => {
+    const logger = new Logger().with({
+      function: 'generateStructuredVoiceover',
+      ...input
+    })
+    logger.info(startingFunctionString)
+
+    const { user } = await getUser()
+    if (!user) {
+      logger.error(errorString, { error: 'User not authorized' })
+      await logger.flush()
+      throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
+    }
+
+    const { voiceId, videoStructure, language } = input
+
+    const fullText = videoStructure
+      .map((section) => section.text)
+      .join(' <break time="1s" /> ')
+    const characterCount = fullText.length
+    const requiredCredits = Math.ceil(
+      characterCount / CREDIT_CONVERSIONS.VOICEOVER_CHARACTERS
+    )
+
+    try {
+      const userUsageRecord = await db
+        .select({ creditsLeft: userUsage.creditsLeft })
+        .from(userUsage)
+        .where(eq(userUsage.userId, user.id))
+
+      if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
+        logger.error(errorString, {
+          error: 'User does not have a subscription'
+        })
+        await logger.flush()
+        throw new ZSAError(
+          'INTERNAL_SERVER_ERROR',
+          'You need an active subscription to use this feature.'
+        )
+      }
+
+      if (userUsageRecord[0].creditsLeft < requiredCredits) {
+        logger.error(errorString, { error: 'Insufficient credits' })
+        await logger.flush()
+        throw new ZSAError(
+          'INSUFFICIENT_CREDITS',
+          `You don't have enough credits to generate this voiceover.`
+        )
+      }
+
+      await db
+        .update(userUsage)
+        .set({
+          creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
+        })
+        .where(eq(userUsage.userId, user.id))
+      
+      const audio = (await elevenLabsClient.textToSpeech.convertWithTimestamps(
+        voiceId,
+        {
+          model_id: 'eleven_turbo_v2_5',
+          text: fullText,
+          language_code: language
+        }
+      )) as AudioResponse
+
+      const alignment = audio.normalized_alignment
+      const totalDuration =
+        alignment.character_end_times_seconds[
+          alignment.character_end_times_seconds.length - 1
+        ]
+
+      // Calculate segment durations
+      const segmentDurations = []
+      let currentPosition = 0
+      const breakMarker = ' <break time="1s" /> '
+
+      for (let i = 0; i < videoStructure.length; i++) {
+        const segment = videoStructure[i]
+        const segmentText = segment.text
+
+        const segmentStart = currentPosition / fullText.length
+        currentPosition +=
+          segmentText.length +
+          (i < videoStructure.length - 1 ? breakMarker.length : 0)
+        const segmentEnd = currentPosition / fullText.length
+
+        const startTime = segmentStart * totalDuration
+        const endTime = segmentEnd * totalDuration
+
+        segmentDurations.push(endTime - startTime)
+      }
+
+      const audioBuffer = Buffer.from(audio.audio_base64, 'base64')
+      const s3Key = `voiceovers/${voiceId}/${crypto.randomUUID()}.mp3`
+
+      const putObjectCommand = new PutObjectCommand({
+        Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+        Key: s3Key,
+        Body: audioBuffer,
+        ContentType: 'audio/mpeg'
+      })
+
+      await R2.send(putObjectCommand)
+
+      const getObjectCommand = new GetObjectCommand({
+        Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+        Key: s3Key
+      })
+
+      const signedUrl = await getSignedUrl(R2, getObjectCommand, {
+        expiresIn: 3600
+      })
+
+      logger.info('Structured voiceover generated successfully', { signedUrl })
+      await logger.flush()
+
+      return {
+        signedUrl,
+        endTimestamp: totalDuration,
+        voiceoverObject: alignment,
+        segmentDurations
+      }
+    } catch (error) {
+      if (
+        !(error instanceof ZSAError) ||
+        error.code !== 'INSUFFICIENT_CREDITS'
+      ) {
+        await db
+          .update(userUsage)
+          .set({
+            creditsLeft: sql`${userUsage.creditsLeft} + ${requiredCredits}`
+          })
+          .where(eq(userUsage.userId, user.id))
+      }
+
+      logger.error(errorString, { error })
+      
       if (error instanceof ZSAError) {
         throw error
       }
