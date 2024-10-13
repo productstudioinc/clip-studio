@@ -36,109 +36,103 @@ export const generateStoryScript = createServerAction()
     const requiredCredits = CREDIT_CONVERSIONS.SCRIPT_GENERATION
 
     try {
-      // Check user's available credits
-      const userUsageRecord = await db
-        .select({ creditsLeft: userUsage.creditsLeft })
-        .from(userUsage)
-        .where(eq(userUsage.userId, user.id))
+      const result = await db.transaction(async (tx) => {
+        const userUsageRecord = await tx
+          .select({ creditsLeft: userUsage.creditsLeft })
+          .from(userUsage)
+          .where(eq(userUsage.userId, user.id))
+          .for('update')
 
-      if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
-        logger.error('User does not have a subscription', { userId: user.id })
-        throw new ZSAError(
-          'INTERNAL_SERVER_ERROR',
-          'You need an active subscription to use this feature.'
-        )
-      }
-
-      if (userUsageRecord[0].creditsLeft < requiredCredits) {
-        logger.error('Insufficient credits', {
-          userId: user.id,
-          requiredCredits,
-          availableCredits: userUsageRecord[0].creditsLeft
-        })
-        throw new ZSAError(
-          'INSUFFICIENT_CREDITS',
-          `You don't have enough credits to generate this script.`
-        )
-      }
-
-      // Deduct the credits
-      await db
-        .update(userUsage)
-        .set({
-          creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
-        })
-        .where(eq(userUsage.userId, user.id))
-
-      // Generate the story script
-      const result = await generateObject({
-        model: openai('gpt-4o-mini', {
-          structuredOutputs: true
-        }),
-        schemaName: 'story',
-        schemaDescription:
-          'A story object containing an array of segments, each with text and an image description',
-        schema: z.object({
-          segments: z.array(
-            z.object({
-              text: z.string(),
-              imageDescription: z.string()
-            })
+        if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
+          throw new ZSAError(
+            'INTERNAL_SERVER_ERROR',
+            'You need an active subscription to use this feature.'
           )
-        }),
-        prompt: `
-        You are tasked with generating a story for a video that has the potential to go viral and keep users engaged. The story will consist of multiple segments, each containing a short text description (1-2 sentences) and a corresponding image description. Your goal is to create content that is captivating, shareable, and tailored to the target audience.
+        }
 
-        Guidelines for creating engaging content:
-        - Keep each segment concise and impactful
-        - Use emotional triggers (e.g., surprise, joy, curiosity)
-        - Incorporate relatable situations or characters
-        - Create a narrative arc with a clear beginning, middle, and end across all segments
-        - Use vivid language to paint a picture in the viewer's mind
+        if (userUsageRecord[0].creditsLeft < requiredCredits) {
+          throw new ZSAError(
+            'INSUFFICIENT_CREDITS',
+            `You don't have enough credits to generate this script.`
+          )
+        }
 
-        The story should be 3-4 minutes long. Use the following guidelines for the number of segments:
-        - Short story (1-2 minutes): 6-7 segments
-        - Medium story (3-4 minutes): 12-14 segments
-        - Long story (5-7 minutes): 18-21 segments
+        await tx
+          .update(userUsage)
+          .set({
+            creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
+          })
+          .where(eq(userUsage.userId, user.id))
 
-        For this ${range} minute story, you should create approximately ${segments} segments.
+        return await generateObject({
+          model: openai('gpt-4o-mini', {
+            structuredOutputs: true
+          }),
+          schemaName: 'story',
+          schemaDescription:
+            'A story object containing an array of segments, each with text and an image description',
+          schema: z.object({
+            segments: z.array(
+              z.object({
+                text: z.string(),
+                imageDescription: z.string()
+              })
+            )
+          }),
+          prompt: `
+          You are tasked with generating a story for a video that has the potential to go viral and keep users engaged. The story will consist of multiple segments, each containing a short text description (1-2 sentences) and a corresponding image description. Your goal is to create content that is captivating, shareable, and tailored to the target audience.
 
-        The theme of the story is ${prompt}.
+          Guidelines for creating engaging content:
+          - Keep each segment concise and impactful
+          - Use emotional triggers (e.g., surprise, joy, curiosity)
+          - Incorporate relatable situations or characters
+          - Create a narrative arc with a clear beginning, middle, and end across all segments
+          - Use vivid language to paint a picture in the viewer's mind
 
-        Incorporate these inputs into your story as follows:
-        1. Ensure the story aligns with the given theme
-        2. Tailor the content to appeal to the target audience
-        3. Structure the story to fit within the specified duration of ${range} minutes by creating ${segments} segments
+          The story should be 3-4 minutes long. Use the following guidelines for the number of segments:
+          - Short story (1-2 minutes): 6-7 segments
+          - Medium story (3-4 minutes): 12-14 segments
+          - Long story (5-7 minutes): 18-21 segments
 
-        When crafting the text descriptions:
-        - Start with a hook to grab the viewer's attention in the first segment
-        - Use short, punchy sentences for easy reading
-        - Include dialogue or inner thoughts to add depth
-        - End with a twist or satisfying conclusion in the final segment
+          For this ${range} minute story, you should create approximately ${segments} segments.
 
-        For the image descriptions:
-        - Focus primarily on the characters and their actions in each scene
-        - Describe the character's appearance, expression, and body language in detail
-        - Clearly state what action or activity the character is performing
-        - Include the full names of key characters in every relevant description
-        - Provide context about the setting or environment, but keep it secondary to the character's actions
-        - Ensure each description clearly connects to the overall narrative theme
-        - Use 20-30 words to capture all necessary details while remaining concise
-        - Avoid any references to previous segments or ongoing narrative
-        - Use clear, specific language to convey the main image concept
-        - Strictly avoid content that could violate social media terms of service
-        - Keep all content family-friendly and suitable for a general audience
+          The theme of the story is ${prompt}.
 
-        Example:
-        Instead of: "A diverse group of people stand together in a park, holding hands and smiling."
-        Write: "Dr. Martin Luther King Jr., with a determined expression, raises his right hand in a powerful gesture while addressing a diverse crowd. His passionate stance conveys leadership and inspiration in the 1960s civil rights movement."
+          Incorporate these inputs into your story as follows:
+          1. Ensure the story aligns with the given theme
+          2. Tailor the content to appeal to the target audience
+          3. Structure the story to fit within the specified duration of ${range} minutes by creating ${segments} segments
 
-        Remember to focus on viral potential:
-        - Include elements that encourage sharing (e.g., relatable content, humor, inspiration)
-        - Create a sense of urgency or FOMO (Fear Of Missing Out)
-        - Leave room for viewer interpretation or engagement
+          When crafting the text descriptions:
+          - Start with a hook to grab the viewer's attention in the first segment
+          - Use short, punchy sentences for easy reading
+          - Include dialogue or inner thoughts to add depth
+          - End with a twist or satisfying conclusion in the final segment
 
-        Ensure that both the text and image descriptions work together to create a cohesive and engaging story that has the potential to go viral on social media. Each segment should flow naturally into the next, creating a seamless narrative experience for a ${range} minute video with ${segments} segments.`
+          For the image descriptions:
+          - Focus primarily on the characters and their actions in each scene
+          - Describe the character's appearance, expression, and body language in detail
+          - Clearly state what action or activity the character is performing
+          - Include the full names of key characters in every relevant description
+          - Provide context about the setting or environment, but keep it secondary to the character's actions
+          - Ensure each description clearly connects to the overall narrative theme
+          - Use 20-30 words to capture all necessary details while remaining concise
+          - Avoid any references to previous segments or ongoing narrative
+          - Use clear, specific language to convey the main image concept
+          - Strictly avoid content that could violate social media terms of service
+          - Keep all content family-friendly and suitable for a general audience
+
+          Example:
+          Instead of: "A diverse group of people stand together in a park, holding hands and smiling."
+          Write: "Dr. Martin Luther King Jr., with a determined expression, raises his right hand in a powerful gesture while addressing a diverse crowd. His passionate stance conveys leadership and inspiration in the 1960s civil rights movement."
+
+          Remember to focus on viral potential:
+          - Include elements that encourage sharing (e.g., relatable content, humor, inspiration)
+          - Create a sense of urgency or FOMO (Fear Of Missing Out)
+          - Leave room for viewer interpretation or engagement
+
+          Ensure that both the text and image descriptions work together to create a cohesive and engaging story that has the potential to go viral on social media. Each segment should flow naturally into the next, creating a seamless narrative experience for a ${range} minute video with ${segments} segments.`
+        })
       })
 
       logger.info('Story script generated successfully', {
@@ -148,22 +142,11 @@ export const generateStoryScript = createServerAction()
       })
       return result.object.segments
     } catch (error) {
-      // If an error occurred, refund the credits
-      if (user) {
-        await db
-          .update(userUsage)
-          .set({
-            creditsLeft: sql`${userUsage.creditsLeft} + ${requiredCredits}`
-          })
-          .where(eq(userUsage.userId, user.id))
-      }
-
       logger.error('Error in generateStoryScript', {
         error: error instanceof Error ? error.message : String(error),
         userId: user?.id
       })
 
-      // rethrow ZSAError if it bubbles up
       if (error instanceof ZSAError) {
         throw error
       }
