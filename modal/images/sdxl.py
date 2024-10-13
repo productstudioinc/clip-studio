@@ -72,7 +72,7 @@ class Model:
         image = self.base(
             prompt=prompt,
             negative_prompt=negative_prompt,
-            num_inference_steps=70,
+            num_inference_steps=30,
             denoising_end=high_noise_frac,
             output_type="latent",
             width=width,
@@ -82,7 +82,7 @@ class Model:
         image = self.refiner(
             prompt=prompt,
             negative_prompt=negative_prompt,
-            num_inference_steps=70,
+            num_inference_steps=30,
             denoising_start=high_noise_frac,
             image=image,
         ).images[0]

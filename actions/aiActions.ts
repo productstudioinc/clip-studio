@@ -117,12 +117,12 @@ export const generateStoryScript = createServerAction()
         - End with a twist or satisfying conclusion in the final segment
 
         For the image descriptions:
-        - Each description MUST be completely self-contained and individually discernible
-        - Always include full names of key characters in every relevant description
-        - Incorporate specific details related to the story's theme or historical context
-        - Include relevant keywords, time period, or setting information in every description
+        - Focus primarily on the characters and their actions in each scene
+        - Describe the character's appearance, expression, and body language in detail
+        - Clearly state what action or activity the character is performing
+        - Include the full names of key characters in every relevant description
+        - Provide context about the setting or environment, but keep it secondary to the character's actions
         - Ensure each description clearly connects to the overall narrative theme
-        - Provide enough context that someone unfamiliar with the story would understand the image's significance
         - Use 20-30 words to capture all necessary details while remaining concise
         - Avoid any references to previous segments or ongoing narrative
         - Use clear, specific language to convey the main image concept
@@ -131,7 +131,7 @@ export const generateStoryScript = createServerAction()
 
         Example:
         Instead of: "A diverse group of people stand together in a park, holding hands and smiling."
-        Write: "Dr. Martin Luther King Jr. leads a diverse group in a 1960s civil rights march, their determined faces reflecting hope for equality and justice in America."
+        Write: "Dr. Martin Luther King Jr., with a determined expression, raises his right hand in a powerful gesture while addressing a diverse crowd. His passionate stance conveys leadership and inspiration in the 1960s civil rights movement."
 
         Remember to focus on viral potential:
         - Include elements that encourage sharing (e.g., relatable content, humor, inspiration)
