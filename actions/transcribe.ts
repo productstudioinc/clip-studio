@@ -62,7 +62,7 @@ export const getTranscriptionId = createServerAction()
           await logger.flush()
           throw new ZSAError(
             'INTERNAL_SERVER_ERROR',
-            'User usage record not found'
+            'You must have an active subscription to use this feature.'
           )
         }
 
