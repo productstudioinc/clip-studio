@@ -81,138 +81,125 @@ export const generateRedditVoiceover = createServerAction()
     )
 
     try {
-      const userUsageRecord = await db
-        .select({ creditsLeft: userUsage.creditsLeft })
-        .from(userUsage)
-        .where(eq(userUsage.userId, user.id))
+      const result = await db.transaction(async (tx) => {
+        const userUsageRecord = await tx
+          .select({ creditsLeft: userUsage.creditsLeft })
+          .from(userUsage)
+          .where(eq(userUsage.userId, user.id))
+          .for('update')
 
-      if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
-        logger.error(errorString, {
-          error: 'User does not have a subscription'
-        })
-        await logger.flush()
-        throw new ZSAError(
-          'INTERNAL_SERVER_ERROR',
-          'You need an active subscription to use this feature.'
-        )
-      }
-
-      if (userUsageRecord[0].creditsLeft < requiredCredits) {
-        logger.error(errorString, { error: 'Insufficient credits' })
-        await logger.flush()
-        throw new ZSAError(
-          'INSUFFICIENT_CREDITS',
-          `You don't have enough credits to generate this voiceover.`
-        )
-      }
-
-      await db
-        .update(userUsage)
-        .set({
-          creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
-        })
-        .where(eq(userUsage.userId, user.id))
-
-      const audio = (await elevenLabsClient.textToSpeech.convertWithTimestamps(
-        input.voiceId,
-        {
-          model_id: 'eleven_turbo_v2_5',
-          text: fullText,
-          language_code: input.language
+        if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
+          throw new ZSAError(
+            'INTERNAL_SERVER_ERROR',
+            'You need an active subscription to use this feature.'
+          )
         }
-      )) as AudioResponse
 
-      const audioBuffer = Buffer.from(audio.audio_base64, 'base64')
-      const s3Key = `voiceovers/${input.voiceId}/${crypto.randomUUID()}.mp3`
-
-      const putObjectCommand = new PutObjectCommand({
-        Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-        Key: s3Key,
-        Body: audioBuffer,
-        ContentType: 'audio/mpeg'
-      })
-
-      await R2.send(putObjectCommand)
-
-      const getObjectCommand = new GetObjectCommand({
-        Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-        Key: s3Key
-      })
-
-      const signedUrl = await getSignedUrl(R2, getObjectCommand, {
-        expiresIn: 3600
-      })
-
-      const normalizedTitle = input.title.toLowerCase()
-      const normalizedCharacters = audio.normalized_alignment.characters.map(
-        (char) => char.toLowerCase()
-      )
-
-      let titleEndIndex = -1
-      for (
-        let i = 0;
-        i <= normalizedCharacters.length - normalizedTitle.length;
-        i++
-      ) {
-        if (
-          normalizedCharacters.slice(i, i + normalizedTitle.length).join('') ===
-          normalizedTitle
-        ) {
-          titleEndIndex = i + normalizedTitle.length - 1
-          break
+        if (userUsageRecord[0].creditsLeft < requiredCredits) {
+          throw new ZSAError(
+            'INSUFFICIENT_CREDITS',
+            `You don't have enough credits to generate this voiceover.`
+          )
         }
-      }
 
-      let actualTitleEndIndex = titleEndIndex
-      while (
-        actualTitleEndIndex < normalizedCharacters.length &&
-        normalizedCharacters[actualTitleEndIndex] !== ' '
-      ) {
-        actualTitleEndIndex++
-      }
-
-      while (
-        actualTitleEndIndex < normalizedCharacters.length &&
-        normalizedCharacters[actualTitleEndIndex] === ' '
-      ) {
-        actualTitleEndIndex++
-      }
-
-      const titleEnd =
-        actualTitleEndIndex >= 0
-          ? audio.normalized_alignment.character_end_times_seconds[
-              actualTitleEndIndex
-            ]
-          : 0
-
-      logger.info('Voiceover generated successfully', {
-        signedUrl,
-        endTimestamp:
-          audio.normalized_alignment.character_end_times_seconds.slice(-1)[0],
-        voiceoverObject: audio.normalized_alignment,
-        titleEnd
-      })
-      await logger.flush()
-      return {
-        signedUrl,
-        endTimestamp:
-          audio.normalized_alignment.character_end_times_seconds.slice(-1)[0],
-        voiceoverObject: audio.normalized_alignment,
-        titleEnd
-      }
-    } catch (error) {
-      if (
-        !(error instanceof ZSAError) ||
-        error.code !== 'INSUFFICIENT_CREDITS'
-      ) {
-        await db
+        await tx
           .update(userUsage)
           .set({
-            creditsLeft: sql`${userUsage.creditsLeft} + ${requiredCredits}`
+            creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
           })
           .where(eq(userUsage.userId, user.id))
-      }
 
+        const audio =
+          (await elevenLabsClient.textToSpeech.convertWithTimestamps(
+            input.voiceId,
+            {
+              model_id: 'eleven_turbo_v2_5',
+              text: fullText,
+              language_code: input.language
+            }
+          )) as AudioResponse
+
+        const audioBuffer = Buffer.from(audio.audio_base64, 'base64')
+        const s3Key = `voiceovers/${input.voiceId}/${crypto.randomUUID()}.mp3`
+
+        const putObjectCommand = new PutObjectCommand({
+          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+          Key: s3Key,
+          Body: audioBuffer,
+          ContentType: 'audio/mpeg'
+        })
+
+        await R2.send(putObjectCommand)
+
+        const getObjectCommand = new GetObjectCommand({
+          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+          Key: s3Key
+        })
+
+        const signedUrl = await getSignedUrl(R2, getObjectCommand, {
+          expiresIn: 3600
+        })
+
+        const normalizedTitle = input.title.toLowerCase()
+        const normalizedCharacters = audio.normalized_alignment.characters.map(
+          (char) => char.toLowerCase()
+        )
+
+        let titleEndIndex = -1
+        for (
+          let i = 0;
+          i <= normalizedCharacters.length - normalizedTitle.length;
+          i++
+        ) {
+          if (
+            normalizedCharacters
+              .slice(i, i + normalizedTitle.length)
+              .join('') === normalizedTitle
+          ) {
+            titleEndIndex = i + normalizedTitle.length - 1
+            break
+          }
+        }
+
+        let actualTitleEndIndex = titleEndIndex
+        while (
+          actualTitleEndIndex < normalizedCharacters.length &&
+          normalizedCharacters[actualTitleEndIndex] !== ' '
+        ) {
+          actualTitleEndIndex++
+        }
+
+        while (
+          actualTitleEndIndex < normalizedCharacters.length &&
+          normalizedCharacters[actualTitleEndIndex] === ' '
+        ) {
+          actualTitleEndIndex++
+        }
+
+        const titleEnd =
+          actualTitleEndIndex >= 0
+            ? audio.normalized_alignment.character_end_times_seconds[
+                actualTitleEndIndex
+              ]
+            : 0
+
+        return {
+          signedUrl,
+          endTimestamp:
+            audio.normalized_alignment.character_end_times_seconds.slice(-1)[0],
+          voiceoverObject: audio.normalized_alignment,
+          titleEnd
+        }
+      })
+
+      logger.info('Voiceover generated successfully', {
+        signedUrl: result.signedUrl,
+        endTimestamp: result.endTimestamp,
+        titleEnd: result.titleEnd
+      })
+      await logger.flush()
+      return result
+    } catch (error) {
       logger.error(errorString, { error })
 
       if (error instanceof ZSAError) {
@@ -262,131 +249,116 @@ export const generateTextVoiceover = createServerAction()
     )
 
     try {
-      const userUsageRecord = await db
-        .select({ creditsLeft: userUsage.creditsLeft })
-        .from(userUsage)
-        .where(eq(userUsage.userId, user.id))
+      const result = await db.transaction(async (tx) => {
+        const userUsageRecord = await tx
+          .select({ creditsLeft: userUsage.creditsLeft })
+          .from(userUsage)
+          .where(eq(userUsage.userId, user.id))
+          .for('update')
 
-      if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
-        logger.error(errorString, {
-          error: 'User does not have a subscription'
-        })
-        await logger.flush()
-        throw new ZSAError(
-          'INTERNAL_SERVER_ERROR',
-          'You need an active subscription to use this feature.'
-        )
-      }
-
-      if (userUsageRecord[0].creditsLeft < requiredCredits) {
-        logger.error(errorString, { error: 'Insufficient credits' })
-        await logger.flush()
-        throw new ZSAError(
-          'INSUFFICIENT_CREDITS',
-          `You don't have enough credits to generate this voiceover.`
-        )
-      }
-
-      await db
-        .update(userUsage)
-        .set({
-          creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
-        })
-        .where(eq(userUsage.userId, user.id))
-
-      const audioBuffers: Buffer[] = []
-      const sections: Array<{ from: number; duration: number }> = []
-
-      let currentTime = 0
-
-      console.log(messages)
-
-      for (const message of messages) {
-        const voiceId =
-          message.sender === 'sender' ? senderVoiceId : receiverVoiceId
-
-        if (message.content.type === 'text') {
-          const messageText = message.content.value as string
-
-          // Add the message and a break after it
-          const fullMessageText = `${messageText} ——`
-
-          const audioResponse =
-            (await elevenLabsClient.textToSpeech.convertWithTimestamps(
-              voiceId,
-              {
-                model_id: 'eleven_turbo_v2_5',
-                text: fullMessageText,
-                language_code: language
-              }
-            )) as AudioResponse
-
-          const audioBuffer = Buffer.from(audioResponse.audio_base64, 'base64')
-          audioBuffers.push(audioBuffer)
-
-          // Get the actual duration of the message (use the last timestamp for duration)
-          const endTimestamp =
-            audioResponse.normalized_alignment.character_end_times_seconds.slice(
-              -1
-            )[0]
-          const duration = endTimestamp // Duration of the message is directly the end timestamp
-
-          sections.push({ from: currentTime, duration })
-
-          // Update the current time to the end of this message for the next message
-          currentTime += duration
+        if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
+          throw new ZSAError(
+            'INTERNAL_SERVER_ERROR',
+            'You need an active subscription to use this feature.'
+          )
         }
-      }
 
-      // Calculate the total duration by summing up all durations from the sections
-      const totalDuration = sections.reduce(
-        (sum, section) => sum + section.duration,
-        0
-      )
+        if (userUsageRecord[0].creditsLeft < requiredCredits) {
+          throw new ZSAError(
+            'INSUFFICIENT_CREDITS',
+            `You don't have enough credits to generate this voiceover.`
+          )
+        }
 
-      const durationInFrames = Math.floor(totalDuration * VIDEO_FPS)
-
-      const combinedAudioBuffer = Buffer.concat(audioBuffers)
-
-      const s3Key = `voiceovers/combined/${crypto.randomUUID()}.mp3`
-      const putObjectCommand = new PutObjectCommand({
-        Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-        Key: s3Key,
-        Body: combinedAudioBuffer,
-        ContentType: 'audio/mpeg'
-      })
-
-      await R2.send(putObjectCommand)
-
-      const getObjectCommand = new GetObjectCommand({
-        Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-        Key: s3Key
-      })
-
-      const signedUrl = await getSignedUrl(R2, getObjectCommand, {
-        expiresIn: 3600
-      })
-
-      logger.info('Combined voiceover generated successfully', { signedUrl })
-      await logger.flush()
-
-      return {
-        signedUrl,
-        sections,
-        durationInFrames
-      }
-    } catch (error) {
-      if (
-        !(error instanceof ZSAError) ||
-        error.code !== 'INSUFFICIENT_CREDITS'
-      ) {
-        await db
+        await tx
           .update(userUsage)
           .set({
-            creditsLeft: sql`${userUsage.creditsLeft} + ${requiredCredits}`
+            creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
           })
           .where(eq(userUsage.userId, user.id))
-      }
+
+        const audioBuffers: Buffer[] = []
+        const sections: Array<{ from: number; duration: number }> = []
+
+        let currentTime = 0
+
+        for (const message of messages) {
+          const voiceId =
+            message.sender === 'sender' ? senderVoiceId : receiverVoiceId
+
+          if (message.content.type === 'text') {
+            const messageText = message.content.value as string
+            const fullMessageText = `${messageText} ——`
+
+            const audioResponse =
+              (await elevenLabsClient.textToSpeech.convertWithTimestamps(
+                voiceId,
+                {
+                  model_id: 'eleven_turbo_v2_5',
+                  text: fullMessageText,
+                  language_code: language
+                }
+              )) as AudioResponse
+
+            const audioBuffer = Buffer.from(
+              audioResponse.audio_base64,
+              'base64'
+            )
+            audioBuffers.push(audioBuffer)
+
+            const endTimestamp =
+              audioResponse.normalized_alignment.character_end_times_seconds.slice(
+                -1
+              )[0]
+            const duration = endTimestamp
+
+            sections.push({ from: currentTime, duration })
+            currentTime += duration
+          }
+        }
+
+        const totalDuration = sections.reduce(
+          (sum, section) => sum + section.duration,
+          0
+        )
+
+        const durationInFrames = Math.floor(totalDuration * VIDEO_FPS)
+
+        const combinedAudioBuffer = Buffer.concat(audioBuffers)
+
+        const s3Key = `voiceovers/combined/${crypto.randomUUID()}.mp3`
+        const putObjectCommand = new PutObjectCommand({
+          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+          Key: s3Key,
+          Body: combinedAudioBuffer,
+          ContentType: 'audio/mpeg'
+        })
+
+        await R2.send(putObjectCommand)
+
+        const getObjectCommand = new GetObjectCommand({
+          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+          Key: s3Key
+        })
+
+        const signedUrl = await getSignedUrl(R2, getObjectCommand, {
+          expiresIn: 3600
+        })
+
+        return {
+          signedUrl,
+          sections,
+          durationInFrames
+        }
+      })
+
+      logger.info('Combined voiceover generated successfully', {
+        signedUrl: result.signedUrl
+      })
+      await logger.flush()
+
+      return result
+    } catch (error) {
       logger.error(errorString, { error })
       await logger.flush()
 
@@ -434,119 +406,106 @@ export const generateStructuredVoiceover = createServerAction()
     )
 
     try {
-      const userUsageRecord = await db
-        .select({ creditsLeft: userUsage.creditsLeft })
-        .from(userUsage)
-        .where(eq(userUsage.userId, user.id))
+      const result = await db.transaction(async (tx) => {
+        const userUsageRecord = await tx
+          .select({ creditsLeft: userUsage.creditsLeft })
+          .from(userUsage)
+          .where(eq(userUsage.userId, user.id))
+          .for('update')
 
-      if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
-        logger.error(errorString, {
-          error: 'User does not have a subscription'
-        })
-        await logger.flush()
-        throw new ZSAError(
-          'INTERNAL_SERVER_ERROR',
-          'You need an active subscription to use this feature.'
-        )
-      }
-
-      if (userUsageRecord[0].creditsLeft < requiredCredits) {
-        logger.error(errorString, { error: 'Insufficient credits' })
-        await logger.flush()
-        throw new ZSAError(
-          'INSUFFICIENT_CREDITS',
-          `You don't have enough credits to generate this voiceover.`
-        )
-      }
-
-      await db
-        .update(userUsage)
-        .set({
-          creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
-        })
-        .where(eq(userUsage.userId, user.id))
-      
-      const audio = (await elevenLabsClient.textToSpeech.convertWithTimestamps(
-        voiceId,
-        {
-          model_id: 'eleven_turbo_v2_5',
-          text: fullText,
-          language_code: language
+        if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
+          throw new ZSAError(
+            'INTERNAL_SERVER_ERROR',
+            'You need an active subscription to use this feature.'
+          )
         }
-      )) as AudioResponse
 
-      const alignment = audio.normalized_alignment
-      const totalDuration =
-        alignment.character_end_times_seconds[
-          alignment.character_end_times_seconds.length - 1
-        ]
+        if (userUsageRecord[0].creditsLeft < requiredCredits) {
+          throw new ZSAError(
+            'INSUFFICIENT_CREDITS',
+            `You don't have enough credits to generate this voiceover.`
+          )
+        }
 
-      // Calculate segment durations
-      const segmentDurations = []
-      let currentPosition = 0
-      const breakMarker = ' <break time="1s" /> '
-
-      for (let i = 0; i < videoStructure.length; i++) {
-        const segment = videoStructure[i]
-        const segmentText = segment.text
-
-        const segmentStart = currentPosition / fullText.length
-        currentPosition +=
-          segmentText.length +
-          (i < videoStructure.length - 1 ? breakMarker.length : 0)
-        const segmentEnd = currentPosition / fullText.length
-
-        const startTime = segmentStart * totalDuration
-        const endTime = segmentEnd * totalDuration
-
-        segmentDurations.push(endTime - startTime)
-      }
-
-      const audioBuffer = Buffer.from(audio.audio_base64, 'base64')
-      const s3Key = `voiceovers/${voiceId}/${crypto.randomUUID()}.mp3`
-
-      const putObjectCommand = new PutObjectCommand({
-        Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-        Key: s3Key,
-        Body: audioBuffer,
-        ContentType: 'audio/mpeg'
-      })
-
-      await R2.send(putObjectCommand)
-
-      const getObjectCommand = new GetObjectCommand({
-        Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-        Key: s3Key
-      })
-
-      const signedUrl = await getSignedUrl(R2, getObjectCommand, {
-        expiresIn: 3600
-      })
-
-      logger.info('Structured voiceover generated successfully', { signedUrl })
-      await logger.flush()
-
-      return {
-        signedUrl,
-        endTimestamp: totalDuration,
-        voiceoverObject: alignment,
-        segmentDurations
-      }
-    } catch (error) {
-      if (
-        !(error instanceof ZSAError) ||
-        error.code !== 'INSUFFICIENT_CREDITS'
-      ) {
-        await db
+        await tx
           .update(userUsage)
           .set({
-            creditsLeft: sql`${userUsage.creditsLeft} + ${requiredCredits}`
+            creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
           })
           .where(eq(userUsage.userId, user.id))
-      }
 
+        const audio =
+          (await elevenLabsClient.textToSpeech.convertWithTimestamps(voiceId, {
+            model_id: 'eleven_turbo_v2_5',
+            text: fullText,
+            language_code: language
+          })) as AudioResponse
+
+        const alignment = audio.normalized_alignment
+        const totalDuration =
+          alignment.character_end_times_seconds[
+            alignment.character_end_times_seconds.length - 1
+          ]
+
+        const segmentDurations = []
+        let currentPosition = 0
+        const breakMarker = ' <break time="1s" /> '
+
+        for (let i = 0; i < videoStructure.length; i++) {
+          const segment = videoStructure[i]
+          const segmentText = segment.text
+
+          const segmentStart = currentPosition / fullText.length
+          currentPosition +=
+            segmentText.length +
+            (i < videoStructure.length - 1 ? breakMarker.length : 0)
+          const segmentEnd = currentPosition / fullText.length
+
+          const startTime = segmentStart * totalDuration
+          const endTime = segmentEnd * totalDuration
+
+          segmentDurations.push(endTime - startTime)
+        }
+
+        const audioBuffer = Buffer.from(audio.audio_base64, 'base64')
+        const s3Key = `voiceovers/${voiceId}/${crypto.randomUUID()}.mp3`
+
+        const putObjectCommand = new PutObjectCommand({
+          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+          Key: s3Key,
+          Body: audioBuffer,
+          ContentType: 'audio/mpeg'
+        })
+
+        await R2.send(putObjectCommand)
+
+        const getObjectCommand = new GetObjectCommand({
+          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+          Key: s3Key
+        })
+
+        const signedUrl = await getSignedUrl(R2, getObjectCommand, {
+          expiresIn: 3600
+        })
+
+        return {
+          signedUrl,
+          endTimestamp: totalDuration,
+          voiceoverObject: alignment,
+          segmentDurations
+        }
+      })
+
+      logger.info('Structured voiceover generated successfully', {
+        signedUrl: result.signedUrl
+      })
+      await logger.flush()
+
+      return result
+    } catch (error) {
       logger.error(errorString, { error })
-      
+      await logger.flush()
+
       if (error instanceof ZSAError) {
         throw error
       }
