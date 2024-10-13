@@ -158,6 +158,7 @@ export const TwoVoiceStep: React.FC<TwoVoiceStepProps> = ({ form, voices }) => {
 
     if (error) {
       toast.error(error.message)
+      form.setValue('isVoiceoverGenerated', false)
     } else {
       const updatedMessages = messages.map((message, index) => ({
         ...message,
