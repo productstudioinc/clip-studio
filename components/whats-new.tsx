@@ -68,7 +68,7 @@ export function WhatsNew({ className }: { className?: string }) {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <h3 className="font-semibold">{changelog.title}</h3>
+                    <h3 className="font-semibold">{changelog.subtitle}</h3>
                     <ArrowRightIcon className="size-4 ml-2 group-hover:translate-x-1 transition-all duration-200 ease-out opacity-0 group-hover:opacity-100" />
                   </div>
                   {index === 0 && (

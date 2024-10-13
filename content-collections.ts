@@ -27,6 +27,7 @@ const changelog = defineCollection({
   include: '**/*.mdx',
   schema: (z) => ({
     title: z.string(),
+    subtitle: z.string().optional(),
     updatedAt: z.string().optional(),
     slug: z.string().optional(),
     category: z.string().optional()
