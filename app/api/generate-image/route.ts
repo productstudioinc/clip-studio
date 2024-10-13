@@ -20,7 +20,7 @@ const promptMap: Record<VisualStyle, string> = {
   [VisualStyle.JapaneseInk]:
     'Japanese ink wash painting {prompt} . sumi-e style, brush strokes, monochrome, Zen-like simplicity',
   [VisualStyle.LineArt]:
-    'line art drawing {prompt} . professional, sleek, modern, minimalist, graphic, line art, vector graphics',
+    'line art drawing {prompt} . professional, sleek, modern, minimalist, graphic, line art, vector graphics, colored',
   [VisualStyle.Medieval]:
     'gothic fantasy {prompt} . dark and brooding atmosphere, medieval architecture, mythical creatures',
   [VisualStyle.Cinematic]:
