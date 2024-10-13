@@ -132,6 +132,7 @@ export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form, voices }) => {
 
     if (err) {
       toast.error(err.message)
+      form.setValue('isVoiceoverGenerated', false)
     } else {
       form.setValue('voiceoverUrl', data.signedUrl)
       form.setValue('voiceoverFrames', data.voiceoverObject)
@@ -149,6 +150,7 @@ export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form, voices }) => {
         }))
       form.setValue('videoStructure', updatedVideoStructure)
       form.setValue('isVoiceoverGenerated', true)
+      form.clearErrors('isVoiceoverGenerated')
 
       toast.success(
         'Voiceover generated. The voiceover has been successfully generated and added to your video.'
