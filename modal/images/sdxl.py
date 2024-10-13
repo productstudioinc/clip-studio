@@ -1,5 +1,6 @@
 import io
 import modal
+from diffusers import DiffusionPipeline, DPMSolverSinglestepScheduler
 
 sdxl_image = modal.Image.debian_slim(python_version="3.10").apt_install(
         "libglib2.0-0", 
@@ -21,7 +22,7 @@ app = modal.App('sdxl')
 with sdxl_image.imports():
     import os
     import torch
-    from diffusers import DiffusionPipeline
+    from diffusers import DiffusionPipeline, DPMSolverSinglestepScheduler
     from fastapi import Response, Header
 
 @app.cls(gpu=modal.gpu.A100(), container_idle_timeout=240, image=sdxl_image, timeout=120, secrets=[modal.Secret.from_name("flux.1-secret")])
@@ -63,11 +64,15 @@ class Model:
             **load_options,
         )
 
-    def inference(self, prompt: str, negative_prompt: str, width: int = 1024, height: int = 1024, n_steps: int = 24, high_noise_frac: float = 0.8):
+        karras_scheduler = DPMSolverSinglestepScheduler.from_config(self.base.scheduler.config, use_karras_sigmas=True)
+        self.base.scheduler = karras_scheduler
+        self.refiner.scheduler = karras_scheduler
+
+    def inference(self, prompt: str, negative_prompt: str, width: int = 1024, height: int = 1024, high_noise_frac: float = 0.8):
         image = self.base(
             prompt=prompt,
             negative_prompt=negative_prompt,
-            num_inference_steps=n_steps,
+            num_inference_steps=70,
             denoising_end=high_noise_frac,
             output_type="latent",
             width=width,
@@ -77,7 +82,7 @@ class Model:
         image = self.refiner(
             prompt=prompt,
             negative_prompt=negative_prompt,
-            num_inference_steps=n_steps,
+            num_inference_steps=70,
             denoising_start=high_noise_frac,
             image=image,
         ).images[0]
@@ -88,16 +93,16 @@ class Model:
         return byte_stream.getvalue()
     
     @modal.method()
-    def _inference(self, prompt: str, negative_prompt: str = "disfigured, ugly, deformed, noisy, blurry", width: int = 1024, height: int = 1024, n_steps: int = 24, high_noise_frac: float = 0.8):
-        return self.inference(prompt, negative_prompt, width, height, n_steps, high_noise_frac)
+    def _inference(self, prompt: str, negative_prompt: str = "disfigured, ugly, deformed, noisy, blurry", width: int = 1024, height: int = 1024, high_noise_frac: float = 0.8):
+        return self.inference(prompt, negative_prompt, width, height, high_noise_frac)
     
     @modal.web_endpoint(docs=True)
-    def web_inference(self, prompt: str, negative_prompt: str = "disfigured, ugly, deformed", width: int = 1024, height: int = 1024, n_steps: int = 24, high_noise_frac: float = 0.8, x_api_key: str = Header(None)):
+    def web_inference(self, prompt: str, negative_prompt: str = "disfigured, ugly, deformed", width: int = 1024, height: int = 1024, high_noise_frac: float = 0.8, x_api_key: str = Header(None)):
         api_key = os.getenv("API_KEY")
         if x_api_key != api_key:
             return Response(content="Unauthorized", status_code=401)
 
-        image = self.inference(prompt, negative_prompt, width, height, n_steps, high_noise_frac)
+        image = self.inference(prompt, negative_prompt, width, height, high_noise_frac)
         return Response(content=image, media_type="image/png")
     
 @app.local_entrypoint()
