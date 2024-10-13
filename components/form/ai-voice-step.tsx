@@ -191,7 +191,7 @@ export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form, voices }) => {
         <ScrollArea className="h-[300px] p-4 mt-4 border rounded-md">
           <FormField
             control={form.control}
-            name="voice"
+            name="voiceId"
             render={({ field }) => (
               <FormItem>
                 <FormControl>
@@ -271,7 +271,7 @@ export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form, voices }) => {
             onClick={handleGenerateVoiceover}
             disabled={
               isPending ||
-              !form.getValues('voice') ||
+              !form.getValues('voiceId') ||
               form.getValues('videoStructure').length === 0
             }
             className="w-full"
