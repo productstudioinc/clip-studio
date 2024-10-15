@@ -68,7 +68,11 @@ export const checkoutWithStripe = createServerAction()
         success_url: getURL(input.redirectPath),
         metadata: input.referralId
           ? { tolt_referral: input.referralId }
-          : undefined
+          : undefined,
+        payment_method_collection: 'always',
+        subscription_data: {
+          trial_period_days: 7
+        }
       }
       const session = await stripe.checkout.sessions.create(params)
       return { sessionId: session.id }

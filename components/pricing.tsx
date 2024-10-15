@@ -33,7 +33,7 @@ export default function Pricing({
   subscription: string | null
 }) {
   const router = useRouter()
-  const [interval, setInterval] = useState<Interval>('month')
+  const [interval, setInterval] = useState<Interval>('year')
   const [isLoading, setIsLoading] = useState(false)
   const [id, setId] = useState<string | null>(null)
   const [toltReferralId, setToltReferralId] = useState<string | null>(null)
@@ -92,6 +92,7 @@ export default function Pricing({
           <span className="text-sm text-black dark:text-white">Monthly</span>
           <Switch
             id="interval"
+            checked={interval === 'year'}
             onCheckedChange={(checked) => {
               setInterval(checked ? 'year' : 'month')
             }}
@@ -102,7 +103,7 @@ export default function Pricing({
           </span>
         </div>
 
-        <div className="mx-auto grid w-full justify-center gap-8 sm:grid-cols-1 lg:grid-cols-3">
+        <div className="mx-auto grid w-full justify-center gap-4 sm:grid-cols-1 lg:grid-cols-3">
           {products
             .sort((a, b) => {
               // Sort by product.metadata.order if it exists
@@ -124,29 +125,29 @@ export default function Pricing({
               const currentPrice =
                 interval === 'month' ? monthlyPrice : yearlyPrice
               const isCurrentPlan = subscription === product.name
+              const isMostPopular =
+                (product.metadata as Record<string, string>)?.isMostPopular ===
+                'true'
 
               return (
                 <div
                   key={product.id}
                   className={cn(
-                    'relative flex w-full max-w-[400px] flex-col overflow-hidden rounded-2xl border p-6 text-black dark:text-white mx-auto',
+                    'relative flex w-full flex-col overflow-hidden rounded-2xl border p-6 text-black dark:text-white mx-auto',
                     {
-                      'border-2 border-green-600 shadow-lg':
-                        product.metadata &&
-                        (product.metadata as Record<string, string>)
-                          .isMostPopular === 'true'
+                      'border-2 border-green-600 shadow-lg max-w-[400px] z-10':
+                        isMostPopular,
+                      'max-w-[350px] scale-95': !isMostPopular
                     }
                   )}
                 >
-                  {(product.metadata as Record<string, string>) &&
-                    (product.metadata as Record<string, string>)
-                      .isMostPopular === 'true' && (
-                      <div className="absolute top-0 right-0 bg-green-600 py-0.5 px-2 rounded-bl-xl rounded-tr-xl flex items-center">
-                        <span className="text-white ml-1 font-sans font-semibold text-sm">
-                          Recommended
-                        </span>
-                      </div>
-                    )}
+                  {isMostPopular && (
+                    <div className="absolute top-0 right-0 bg-green-600 py-1 px-3 rounded-bl-xl rounded-tr-xl flex items-center">
+                      <span className="text-white ml-1 font-sans font-semibold text-base">
+                        Popular
+                      </span>
+                    </div>
+                  )}
 
                   <div className="flex flex-col items-start mb-2">
                     <h2 className="text-xl font-semibold leading-7">
@@ -207,6 +208,7 @@ export default function Pricing({
                       'group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter mb-4',
                       'transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2'
                     )}
+                    variant={isMostPopular ? 'default' : 'outline'}
                     disabled={
                       isLoading || !currentPrice || subscription !== null
                     }
@@ -221,13 +223,10 @@ export default function Pricing({
                       <>
                         {(!isLoading ||
                           (isLoading && id !== currentPrice?.id)) && (
-                          <p>Upgrade</p>
+                          <p>Start 7 days free</p>
                         )}
                         {isLoading && id === currentPrice?.id && (
-                          <p>Upgrading...</p>
-                        )}
-                        {isLoading && id === currentPrice?.id && (
-                          <p>Upgrading...</p>
+                          <p>Starting Trial...</p>
                         )}
                         {isLoading && id === currentPrice?.id && (
                           <Loader className="mr-2 h-4 w-4 animate-spin" />
