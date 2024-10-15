@@ -71,6 +71,13 @@
       "when": 1728190000980,
       "tag": "0009_romantic_jack_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1729034953952,
+      "tag": "0010_noisy_jackal",
+      "breakpoints": true
     }
   ]
 }
