@@ -49,6 +49,19 @@ async function sendDiscordWebhook(subscription: Stripe.Subscription) {
           {
             name: 'Amount',
             value: `${(subscription.items.data[0].price.unit_amount ?? 0) / 100} ${subscription.currency}`
+          },
+          {
+            name: 'Billing Interval',
+            value: (() => {
+              const recurring = subscription.items.data[0].price.recurring
+              if (recurring && recurring.interval) {
+                const count = recurring.interval_count || 1
+                return `${count} ${recurring.interval}${count > 1 ? 's' : ''}`
+              }
+              throw new Error(
+                'Invalid subscription data: missing recurring interval'
+              )
+            })()
           }
         ],
         color: 5814783
