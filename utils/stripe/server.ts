@@ -3,11 +3,12 @@
 import { redirect } from 'next/navigation'
 import { getUser } from '@/actions/auth/user'
 import { createOrRetrieveCustomer } from '@/actions/db/billing-queries'
+import { Price } from '@/db/schema'
 import Stripe from 'stripe'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'
 
-import { getURL } from '../helpers/helpers'
+import { calculateTrialEndUnixTimestamp, getURL } from '../helpers/helpers'
 import { stripe } from './config'
 
 type CheckoutResponse = {
@@ -36,7 +37,7 @@ export const getBillingPortal = createServerAction()
 export const checkoutWithStripe = createServerAction()
   .input(
     z.object({
-      priceId: z.string(),
+      price: Price,
       redirectPath: z.string().default('/confirmation'),
       referralId: z.string().optional()
     })
@@ -62,7 +63,7 @@ export const checkoutWithStripe = createServerAction()
         billing_address_collection: 'required',
         customer,
         customer_update: { address: 'auto' },
-        line_items: [{ price: input.priceId, quantity: 1 }],
+        line_items: [{ price: input.price.id, quantity: 1 }],
         cancel_url: getURL(),
         mode: 'subscription',
         success_url: getURL(input.redirectPath),
@@ -71,7 +72,7 @@ export const checkoutWithStripe = createServerAction()
           : undefined,
         payment_method_collection: 'always',
         subscription_data: {
-          trial_period_days: 7
+          trial_end: calculateTrialEndUnixTimestamp(input.price.trialPeriodDays)
         }
       }
       const session = await stripe.checkout.sessions.create(params)

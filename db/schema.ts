@@ -10,6 +10,7 @@ import {
   timestamp,
   uuid
 } from 'drizzle-orm/pg-core'
+import { createSelectSchema } from 'drizzle-zod'
 
 // Enums
 export const pricingTypeEnum = pgEnum('pricing_type', ['one_time', 'recurring'])
@@ -99,6 +100,7 @@ export const prices = pgTable('prices', {
   type: pricingTypeEnum('type'),
   interval: pricingPlanIntervalEnum('interval'),
   intervalCount: integer('interval_count'),
+  trialPeriodDays: integer('trial_period_days'),
   metadata: jsonb('metadata')
 })
 
@@ -144,7 +146,9 @@ export const subscriptions = pgTable('subscriptions', {
     .defaultNow(),
   endedAt: timestamp('ended_at', { withTimezone: true }).defaultNow(),
   cancelAt: timestamp('cancel_at', { withTimezone: true }).defaultNow(),
-  canceledAt: timestamp('canceled_at', { withTimezone: true }).defaultNow()
+  canceledAt: timestamp('canceled_at', { withTimezone: true }).defaultNow(),
+  trialStart: timestamp('trial_start', { withTimezone: true }).defaultNow(),
+  trialEnd: timestamp('trial_end', { withTimezone: true }).defaultNow()
 })
 
 export const userUsage = pgTable('user_usage', {
@@ -334,3 +338,6 @@ export const pastRendersRelations = relations(pastRenders, ({ one }) => ({
 }))
 
 export type SelectPastRenders = typeof pastRenders.$inferSelect
+
+export const Price = createSelectSchema(prices)
+export type SelectPrice = typeof prices.$inferSelect

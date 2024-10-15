@@ -8,9 +8,12 @@ import {
   users,
   userUsage
 } from '@/db/schema'
+import { toDateTime } from '@/utils/helpers/helpers'
 import { stripe } from '@/utils/stripe/config'
 import { and, eq } from 'drizzle-orm'
 import Stripe from 'stripe'
+
+const TRIAL_PERIOD_DAYS = 7
 
 const upsertProductRecord = async (product: Stripe.Product) => {
   const productData = {
@@ -52,7 +55,8 @@ const upsertPriceRecord = async (
     type: price.type,
     unitAmount: price.unit_amount ?? null,
     interval: price.recurring?.interval ?? null,
-    intervalCount: price.recurring?.interval_count ?? null
+    intervalCount: price.recurring?.interval_count ?? null,
+    trialPeriodDays: price.recurring?.trial_period_days ?? TRIAL_PERIOD_DAYS
   }
 
   try {
@@ -240,6 +244,12 @@ const manageSubscriptionStatusChange = async (
       created: new Date(subscription.created * 1000),
       endedAt: subscription.ended_at
         ? new Date(subscription.ended_at * 1000)
+        : null,
+      trial_start: subscription.trial_start
+        ? toDateTime(subscription.trial_start).toISOString()
+        : null,
+      trial_end: subscription.trial_end
+        ? toDateTime(subscription.trial_end).toISOString()
         : null
     }
     await db.insert(subscriptions).values(subscriptionData).onConflictDoUpdate({

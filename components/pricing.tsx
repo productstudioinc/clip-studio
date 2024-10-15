@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { GetProductsResult } from '@/actions/db/user-queries'
+import { Price } from '@/db/schema'
 import { getStripe } from '@/utils/stripe/client'
 import { checkoutWithStripe } from '@/utils/stripe/server'
 import { CheckIcon } from '@radix-ui/react-icons'
@@ -10,6 +11,7 @@ import { User } from '@supabase/supabase-js'
 import { motion } from 'framer-motion'
 import { Loader } from 'lucide-react'
 import { toast } from 'sonner'
+import { z } from 'zod'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -44,15 +46,15 @@ export default function Pricing({
     }
   }, [])
 
-  const onSubscribeClick = async (priceId: string) => {
+  const onSubscribeClick = async (price: Partial<z.infer<typeof Price>>) => {
     setIsLoading(true)
-    setId(priceId)
+    setId(price.id!)
     if (!user) {
       setIsLoading(false)
       return router.push('/login')
     }
     const [data, err] = await checkoutWithStripe({
-      priceId,
+      price: price as z.infer<typeof Price>,
       referralId: toltReferralId || undefined
     })
     if (err) {
@@ -213,7 +215,7 @@ export default function Pricing({
                       isLoading || !currentPrice || subscription !== null
                     }
                     onClick={() =>
-                      currentPrice && onSubscribeClick(currentPrice.id)
+                      currentPrice && onSubscribeClick(currentPrice)
                     }
                   >
                     <span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 transform-gpu bg-white opacity-10 transition-all duration-1000 ease-out group-hover:-translate-x-96 dark:bg-black" />
