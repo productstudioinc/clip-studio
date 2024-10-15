@@ -29,6 +29,10 @@ async function sendDiscordWebhook(subscription: Stripe.Subscription) {
     throw new Error('Discord webhook URL not found')
   }
 
+  const product = await stripe.products.retrieve(
+    subscription.items.data[0].price.product as string
+  )
+
   const message = {
     content: `New subscription created!`,
     embeds: [
@@ -40,8 +44,7 @@ async function sendDiscordWebhook(subscription: Stripe.Subscription) {
           { name: 'Status', value: subscription.status },
           {
             name: 'Plan',
-            value: (subscription.items.data[0].price.product as Stripe.Product)
-              .name
+            value: product.name
           },
           {
             name: 'Amount',
