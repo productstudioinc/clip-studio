@@ -9,7 +9,7 @@ import { checkoutWithStripe } from '@/utils/stripe/server'
 import { CheckIcon } from '@radix-ui/react-icons'
 import { User } from '@supabase/supabase-js'
 import { motion } from 'framer-motion'
-import { Loader } from 'lucide-react'
+import { Loader, XIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -105,7 +105,55 @@ export default function Pricing({
           </span>
         </div>
 
-        <div className="mx-auto grid w-full justify-center gap-4 sm:grid-cols-1 lg:grid-cols-3">
+        <div className="mx-auto grid w-full justify-center gap-4 sm:grid-cols-1 lg:grid-cols-4">
+          <div className="relative flex w-full flex-col overflow-hidden rounded-2xl border p-6 text-black dark:text-white mx-auto max-w-[350px] scale-95">
+            <div className="flex flex-col items-start mb-2">
+              <h2 className="text-xl font-semibold leading-7">Free</h2>
+              <p className="mt-1 h-10 text-sm leading-5 text-black/70 dark:text-white/70">
+                Get started with basic features
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-1 mb-4">
+              <span className="text-4xl font-bold text-black dark:text-white">
+                $0
+                <span className="ml-2 text-sm font-normal text-gray-500">
+                  / month
+                </span>
+              </span>
+              <span className="block h-5 text-sm font-normal text-gray-500">
+                &nbsp;
+              </span>
+            </div>
+
+            <Button
+              className={cn(
+                'group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter mb-4',
+                'transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2'
+              )}
+              variant="outline"
+              onClick={() => {
+                router.push('/login')
+              }}
+            >
+              <span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 transform-gpu bg-white opacity-10 transition-all duration-1000 ease-out group-hover:-translate-x-96 dark:bg-black" />
+              <p>Register</p>
+            </Button>
+
+            <hr className="m-0 h-px w-full border-none bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0 mb-4" />
+
+            <ul className="flex flex-col gap-2 font-normal">
+              <li className="flex items-center gap-3 text-sm font-medium text-black dark:text-white">
+                <CheckIcon className="h-5 w-5 shrink-0 rounded-full bg-green-600 p-[2px] text-white dark:text-white" />
+                <span className="flex">20 credits</span>
+              </li>
+              <li className="flex items-center gap-3 text-sm font-medium text-black dark:text-white">
+                <XIcon className="h-5 w-5 shrink-0 rounded-full bg-red-600 p-[2px] text-white dark:text-white" />
+                <span className="flex">No connected accounts</span>
+              </li>
+            </ul>
+          </div>
+
           {products
             .sort((a, b) => {
               // Sort by product.metadata.order if it exists
@@ -225,10 +273,10 @@ export default function Pricing({
                       <>
                         {(!isLoading ||
                           (isLoading && id !== currentPrice?.id)) && (
-                          <p>Start 7 days free</p>
+                          <p>Get Started</p>
                         )}
                         {isLoading && id === currentPrice?.id && (
-                          <p>Starting Trial...</p>
+                          <p>Starting...</p>
                         )}
                         {isLoading && id === currentPrice?.id && (
                           <Loader className="mr-2 h-4 w-4 animate-spin" />

@@ -8,7 +8,7 @@ import Stripe from 'stripe'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'
 
-import { calculateTrialEndUnixTimestamp, getURL } from '../helpers/helpers'
+import { getURL } from '../helpers/helpers'
 import { stripe } from './config'
 
 type CheckoutResponse = {
@@ -70,10 +70,7 @@ export const checkoutWithStripe = createServerAction()
         metadata: input.referralId
           ? { tolt_referral: input.referralId }
           : undefined,
-        payment_method_collection: 'always',
-        subscription_data: {
-          trial_end: calculateTrialEndUnixTimestamp(input.price.trialPeriodDays)
-        }
+        payment_method_collection: 'always'
       }
       const session = await stripe.checkout.sessions.create(params)
       return { sessionId: session.id }

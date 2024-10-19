@@ -100,7 +100,6 @@ export const prices = pgTable('prices', {
   type: pricingTypeEnum('type'),
   interval: pricingPlanIntervalEnum('interval'),
   intervalCount: integer('interval_count'),
-  trialPeriodDays: integer('trial_period_days'),
   metadata: jsonb('metadata')
 })
 
