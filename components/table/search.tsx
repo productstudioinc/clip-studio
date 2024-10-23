@@ -26,7 +26,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
   )
 
   const handleSearch = useCallback(
-    debounce((term: string) => {
+    (term: string) => {
       if (term !== currentQuery) {
         const params = new URLSearchParams(searchParams)
         params.set('page', '1')
@@ -37,13 +37,18 @@ export default function Search({ placeholder }: { placeholder: string }) {
         }
         replace(`${pathname}?${params.toString()}`)
       }
-    }, 200),
+    },
     [searchParams, pathname, replace, currentQuery]
   )
 
+  const debouncedHandleSearch = useMemo(
+    () => debounce(handleSearch, 200),
+    [handleSearch]
+  )
+
   useEffect(() => {
-    handleSearch(debouncedTerm)
-  }, [debouncedTerm, handleSearch])
+    debouncedHandleSearch(debouncedTerm)
+  }, [debouncedTerm, debouncedHandleSearch])
 
   return (
     <div className="relative">
