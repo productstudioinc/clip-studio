@@ -8,18 +8,14 @@ import '@/styles/globals.css'
 
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import dynamic from 'next/dynamic'
 import { Montserrat } from 'next/font/google'
 import localFont from 'next/font/local'
 import Script from 'next/script'
 import { GeistSans } from 'geist/font/sans'
 import { AxiomWebVitals } from 'next-axiom'
 
+import { PostHogPageView } from './_analytics/PostHogPageViewImport'
 import { PHProvider } from './_analytics/provider'
-
-const PostHogPageView = dynamic(() => import('./_analytics/PostHogPageView'), {
-  ssr: false
-})
 
 export const metadata: Metadata = constructMetadata({
   title: 'Clip Studio | Create viral short-form videos with AI'

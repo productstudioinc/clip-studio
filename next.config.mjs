@@ -37,7 +37,10 @@ const nextConfig = {
       }
     ]
   },
-  skipTrailingSlashRedirect: true
+  skipTrailingSlashRedirect: true,
+  experimental: {
+    reactCompiler: true
+  }
 }
 
 export default withContentCollections(withAxiom(nextConfig))
