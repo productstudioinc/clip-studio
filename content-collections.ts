@@ -17,7 +17,7 @@ const pages = defineCollection({
       mdx,
       slug: document.slug || document.title.toLowerCase().replace(/ /g, '-'),
       updatedAt: document.updatedAt || new Date().toISOString()
-    }
+    };
   }
 })
 
@@ -39,7 +39,7 @@ const changelog = defineCollection({
       mdx,
       slug: document.slug || document.title.toLowerCase().replace(/ /g, '-'),
       updatedAt: document.updatedAt || new Date().toISOString()
-    }
+    };
   }
 })
 
