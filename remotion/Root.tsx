@@ -20,13 +20,13 @@ import { ClipsComposition } from './Clips/Composition'
 import { RedditComposition } from './Reddit/Composition'
 import { SplitScreenComposition } from './SplitScreen/Composition'
 import { TextMessageComposition } from './TextMessage/Composition'
-import { TwitterThreadComposition } from './TwitterThread/Composition'
+import { TwitterComposition } from './TwitterThread/Composition'
 
 export const RemotionRoot: React.FC = () => {
   const {
     splitScreenState,
     redditState,
-    twitterThreadState,
+    twitterState,
     clipsState,
     textMessageState,
     aiVideoState
@@ -34,7 +34,7 @@ export const RemotionRoot: React.FC = () => {
     selectedTemplate: state.selectedTemplate,
     splitScreenState: state.splitScreenState,
     redditState: state.redditState,
-    twitterThreadState: state.twitterThreadState,
+    twitterState: state.twitterState,
     clipsState: state.clipsState,
     textMessageState: state.textMessageState,
     aiVideoState: state.aiVideoState
@@ -105,14 +105,14 @@ export const RemotionRoot: React.FC = () => {
         }}
       />
       <Composition
-        id="TwitterThread"
-        component={TwitterThreadComposition}
-        durationInFrames={twitterThreadState.durationInFrames}
+        id="Twitter"
+        component={TwitterComposition}
+        durationInFrames={twitterState.durationInFrames}
         schema={TwitterVideoSchema}
         fps={VIDEO_FPS}
         width={VIDEO_WIDTH}
         height={VIDEO_HEIGHT}
-        defaultProps={twitterThreadState as any}
+        defaultProps={twitterState as any}
       />
       <Composition
         id="Clips"

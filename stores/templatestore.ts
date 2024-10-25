@@ -226,7 +226,9 @@ export const RedditVideoSchema = BaseVideoSchema.extend({
 
 export const TwitterVideoSchema = BaseVideoSchema.extend({
   tweetId: z.string(),
-  backgroundUrls: z.array(z.string()).min(1)
+  backgroundUrls: z.array(z.string()).min(1),
+  voiceoverUrl: z.string(),
+  voiceoverFrames: VoiceoverFramesSchema
 })
 
 export const SplitScreenVideoSchema = BaseVideoSchema.extend({
@@ -330,7 +332,7 @@ export const VideoSchema = z.union([
 export const TemplateSchema = z.enum([
   'SplitScreen',
   'Reddit',
-  'TwitterThread',
+  'Twitter',
   'Clips',
   'TextMessage',
   'AIVideo'
@@ -409,11 +411,13 @@ export const defaultRedditProps: RedditVideoProps = {
   isVoiceoverGenerated: false
 }
 
-export const defaultTwitterThreadProps: TwitterVideoProps = {
+export const defaultTwitterProps: TwitterVideoProps = {
   tweetId: '1803609101110550977',
   durationInFrames: 900,
   backgroundTheme: BackgroundTheme.Minecraft,
   backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
+  voiceoverUrl: 'https://assets.clip.studio/reddit_voiceover_sample.mp3',
+  voiceoverFrames: alignmentDefault,
   language: Language.English,
   voiceVolume: 70,
   musicVolume: 30,
@@ -629,7 +633,7 @@ const initialState = {
   selectedTemplate: 'AIVideo' as TemplateProps,
   splitScreenState: defaultSplitScreenProps,
   redditState: defaultRedditProps,
-  twitterThreadState: defaultTwitterThreadProps,
+  twitterState: defaultTwitterProps,
   textMessageState: defaultTextMessageProps,
   durationInFrames: DEFAULT_DURATION_IN_FRAMES,
   backgroundTheme: BackgroundTheme.Minecraft,
@@ -646,8 +650,8 @@ type State = {
   setSplitScreenState: (state: Partial<SplitScreenVideoProps>) => void
   redditState: RedditVideoProps
   setRedditState: (state: Partial<RedditVideoProps>) => void
-  twitterThreadState: TwitterVideoProps
-  setTwitterThreadState: (state: Partial<TwitterVideoProps>) => void
+  twitterState: TwitterVideoProps
+  setTwitterState: (state: Partial<TwitterVideoProps>) => void
   textMessageState: TextMessageVideoProps
   setTextMessageState: (state: Partial<TextMessageVideoProps>) => void
   durationInFrames: number
@@ -677,9 +681,9 @@ export const useTemplateStore = create<State>()(
       set((prevState) => ({
         redditState: { ...prevState.redditState, ...state }
       })),
-    setTwitterThreadState: (state) =>
+    setTwitterState: (state) =>
       set((prevState) => ({
-        twitterThreadState: { ...prevState.twitterThreadState, ...state }
+        twitterState: { ...prevState.twitterState, ...state }
       })),
     setTextMessageState: (state) =>
       set((prevState) => ({
@@ -693,10 +697,7 @@ export const useTemplateStore = create<State>()(
           durationInFrames: length
         },
         redditState: { ...state.redditState, durationInFrames: length },
-        twitterThreadState: {
-          ...state.twitterThreadState,
-          durationInFrames: length
-        },
+        twitterState: { ...state.twitterState, durationInFrames: length },
         clipsState: { ...state.clipsState, durationInFrames: length },
         textMessageState: {
           ...state.textMessageState,
@@ -712,10 +713,7 @@ export const useTemplateStore = create<State>()(
           backgroundTheme: theme
         },
         redditState: { ...state.redditState, backgroundTheme: theme },
-        twitterThreadState: {
-          ...state.twitterThreadState,
-          backgroundTheme: theme
-        },
+        twitterState: { ...state.twitterState, backgroundTheme: theme },
         clipsState: { ...state.clipsState, backgroundTheme: theme },
         textMessageState: {
           ...state.textMessageState,
@@ -728,10 +726,7 @@ export const useTemplateStore = create<State>()(
         backgroundUrls: urls,
         splitScreenState: { ...state.splitScreenState, backgroundUrls: urls },
         redditState: { ...state.redditState, backgroundUrls: urls },
-        twitterThreadState: {
-          ...state.twitterThreadState,
-          backgroundUrls: urls
-        },
+        twitterState: { ...state.twitterState, backgroundUrls: urls },
         clipsState: { ...state.clipsState, backgroundUrls: urls },
         textMessageState: { ...state.textMessageState, backgroundUrls: urls },
         aiVideoState: { ...state.aiVideoState, backgroundUrls: urls }
@@ -741,10 +736,7 @@ export const useTemplateStore = create<State>()(
         captionStyle: style,
         splitScreenState: { ...state.splitScreenState, captionStyle: style },
         redditState: { ...state.redditState, captionStyle: style },
-        twitterThreadState: {
-          ...state.twitterThreadState,
-          captionStyle: style
-        },
+        twitterState: { ...state.twitterState, captionStyle: style },
         clipsState: { ...state.clipsState, captionStyle: style },
         textMessageState: { ...state.textMessageState, captionStyle: style },
         aiVideoState: { ...state.aiVideoState, captionStyle: style }

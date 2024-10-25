@@ -9,7 +9,7 @@ import {
 import { Tweet } from '../../components/tweet/tweet'
 import { TwitterVideoProps } from '../../stores/templatestore'
 
-export const TwitterThreadComposition = ({
+export const TwitterComposition = ({
   tweetId,
   durationInFrames,
   backgroundUrls

@@ -77,7 +77,7 @@ export function FormSubmit({
     selectedTemplate,
     splitScreenState,
     redditState,
-    twitterThreadState,
+    twitterState,
     textMessageState,
     clipsState,
     aivideoState
@@ -85,7 +85,7 @@ export function FormSubmit({
     selectedTemplate: state.selectedTemplate,
     splitScreenState: state.splitScreenState,
     redditState: state.redditState,
-    twitterThreadState: state.twitterThreadState,
+    twitterState: state.twitterState,
     textMessageState: state.textMessageState,
     clipsState: state.clipsState,
     aivideoState: state.aiVideoState
@@ -97,8 +97,8 @@ export function FormSubmit({
         return splitScreenState
       case 'Reddit':
         return redditState
-      case 'TwitterThread':
-        return twitterThreadState
+      case 'Twitter':
+        return twitterState
       case 'TextMessage':
         return textMessageState
       case 'Clips':
@@ -106,7 +106,7 @@ export function FormSubmit({
       case 'AIVideo':
         return aivideoState
       default:
-        return twitterThreadState
+        return twitterState
     }
   })()
 

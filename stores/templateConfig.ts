@@ -3,7 +3,7 @@ import { ClipsComposition } from '../remotion/Clips/Composition'
 import { RedditComposition } from '../remotion/Reddit/Composition'
 import { SplitScreenComposition } from '../remotion/SplitScreen/Composition'
 import { TextMessageComposition } from '../remotion/TextMessage/Composition'
-import { TwitterThreadComposition } from '../remotion/TwitterThread/Composition'
+import { TwitterComposition } from '../remotion/TwitterThread/Composition'
 import { useTemplateStore } from './templatestore'
 
 const useTemplateConfig = () => {
@@ -11,7 +11,7 @@ const useTemplateConfig = () => {
     selectedTemplate,
     splitScreenState,
     redditState,
-    twitterThreadState,
+    twitterState,
     clipsState,
     textMessageState,
     aiVideoState
@@ -19,7 +19,7 @@ const useTemplateConfig = () => {
     selectedTemplate: state.selectedTemplate,
     splitScreenState: state.splitScreenState,
     redditState: state.redditState,
-    twitterThreadState: state.twitterThreadState,
+    twitterState: state.twitterState,
     clipsState: state.clipsState,
     textMessageState: state.textMessageState,
     aiVideoState: state.aiVideoState
@@ -36,10 +36,10 @@ const useTemplateConfig = () => {
       state: redditState,
       durationInFrames: redditState.durationInFrames
     },
-    TwitterThread: {
-      component: TwitterThreadComposition,
-      state: twitterThreadState,
-      durationInFrames: twitterThreadState.durationInFrames
+    Twitter: {
+      component: TwitterComposition,
+      state: twitterState,
+      durationInFrames: twitterState.durationInFrames
     },
     Clips: {
       component: ClipsComposition,
