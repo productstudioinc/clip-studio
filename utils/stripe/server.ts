@@ -37,7 +37,7 @@ export const getBillingPortal = createServerAction()
 export const checkoutWithStripe = createServerAction()
   .input(
     z.object({
-      price: Price,
+      price: Price.partial(),
       redirectPath: z.string().default('/confirmation'),
       referralId: z.string().optional()
     })
