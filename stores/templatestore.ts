@@ -412,7 +412,7 @@ export const defaultRedditProps: RedditVideoProps = {
 }
 
 export const defaultTwitterProps: TwitterVideoProps = {
-  tweetId: '1803609101110550977',
+  tweetId: '1848975277570797673',
   durationInFrames: 900,
   backgroundTheme: BackgroundTheme.Minecraft,
   backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
