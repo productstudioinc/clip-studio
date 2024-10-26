@@ -225,7 +225,15 @@ export const RedditVideoSchema = BaseVideoSchema.extend({
 })
 
 export const TwitterVideoSchema = BaseVideoSchema.extend({
-  tweetId: z.string(),
+  tweets: z.array(
+    z.object({
+      id: z.string(),
+      username: z.string(),
+      avatar: z.string(),
+      content: z.string(),
+      image: z.string()
+    })
+  ),
   backgroundUrls: z.array(z.string()).min(1),
   voiceoverUrl: z.string(),
   voiceoverFrames: VoiceoverFramesSchema
@@ -412,7 +420,6 @@ export const defaultRedditProps: RedditVideoProps = {
 }
 
 export const defaultTwitterProps: TwitterVideoProps = {
-  tweetId: '1848975277570797673',
   durationInFrames: 900,
   backgroundTheme: BackgroundTheme.Minecraft,
   backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
@@ -425,7 +432,8 @@ export const defaultTwitterProps: TwitterVideoProps = {
   width: VIDEO_WIDTH,
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
-  captionStyle: CaptionStyle.Default
+  captionStyle: CaptionStyle.Default,
+  tweets: []
 }
 
 export const defaultTextMessageProps: TextMessageVideoProps = {

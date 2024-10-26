@@ -24,7 +24,6 @@ import { CaptionStyleStep } from '@/components/form/caption-style-step'
 import { FormErrors } from '@/components/form/form-errors'
 import { FormSubmit } from '@/components/form/form-submit'
 // import { MusicStep } from '@/components/form/music-step'
-import { RedditUrlStep } from '@/components/form/reddit-url-step'
 import { TwitterUrlStep } from '@/components/form/twitter-url-step'
 import { VideoPreview } from '@/components/form/video-preview'
 
@@ -64,7 +63,6 @@ export const TwitterForm: React.FC<TwitterFormProps> = ({
         <div className="grid grid-cols-12 gap-8">
           <div className="col-span-12 lg:col-span-7 space-y-6">
             <TwitterUrlStep form={form} />
-            <RedditUrlStep form={form} />
             {/* <VoiceStep form={form} voices={voices} /> */}
             {/* <MusicStep form={form} music={music} /> */}
             <BackgroundSelectStep form={form} backgrounds={backgrounds} />
