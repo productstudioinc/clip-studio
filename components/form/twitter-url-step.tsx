@@ -3,7 +3,14 @@
 import React, { useState } from 'react'
 import { fetchTweet } from '@/actions/twitter'
 import { VideoProps } from '@/stores/templatestore'
-import { GripVertical, Loader2, PlusCircle, Trash2 } from 'lucide-react'
+import {
+  GripVertical,
+  Loader2,
+  PlusCircle,
+  Trash2,
+  Upload,
+  User
+} from 'lucide-react'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import { useFieldArray, UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -19,11 +26,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Textarea } from '@/components/ui/textarea'
 
 type TwitterUrlStepProps = {
   form: UseFormReturn<VideoProps>
@@ -41,12 +50,12 @@ const twitterUrlSchema = z
     }
   )
 
-export const TwitterUrlStep: React.FC<TwitterUrlStepProps> = ({ form }) => {
+export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
   const [tweetUrl, setTweetUrl] = useState('')
   const [urlError, setUrlError] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
 
-  const { fields, append, remove, move } = useFieldArray({
+  const { fields, append, remove, move, update } = useFieldArray({
     control: form.control,
     name: 'tweets'
   })
@@ -72,7 +81,7 @@ export const TwitterUrlStep: React.FC<TwitterUrlStepProps> = ({ form }) => {
         username: tweetData.user.screen_name,
         avatar: tweetData.user.profile_image_url_https,
         content: tweetData.text,
-        image: tweetData.entities.media?.[0]?.url || ''
+        image: tweetData.photos?.[0]?.url || ''
       })
 
       toast.success('Tweet fetched successfully')
@@ -93,6 +102,19 @@ export const TwitterUrlStep: React.FC<TwitterUrlStepProps> = ({ form }) => {
     if (!result.destination) return
     move(result.source.index, result.destination.index)
   }
+
+  const handleImageUpload =
+    (index: number, type: 'avatar' | 'image') =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0]
+      if (file) {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          update(index, { ...fields[index], [type]: reader.result as string })
+        }
+        reader.readAsDataURL(file)
+      }
+    }
 
   return (
     <Card>
@@ -134,14 +156,14 @@ export const TwitterUrlStep: React.FC<TwitterUrlStepProps> = ({ form }) => {
 
           <div>
             <Label>Tweets</Label>
-            <ScrollArea className="h-[400px] px-2 border rounded-md">
+            <ScrollArea className="h-[500px] border rounded-md">
               <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable droppableId="tweets">
                   {(provided) => (
                     <div
                       {...provided.droppableProps}
                       ref={provided.innerRef}
-                      className="space-y-2 py-2"
+                      className="space-y-4 p-4"
                     >
                       {fields.map((field, index) => (
                         <Draggable
@@ -153,29 +175,114 @@ export const TwitterUrlStep: React.FC<TwitterUrlStepProps> = ({ form }) => {
                             <Card
                               ref={provided.innerRef}
                               {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className="p-2"
+                              className="p-4"
                             >
-                              <div className="flex items-center space-x-2">
-                                <div {...provided.dragHandleProps}>
-                                  <GripVertical className="text-gray-400" />
+                              <div className="flex flex-col space-y-4">
+                                <div className="flex items-start space-x-4">
+                                  <div
+                                    {...provided.dragHandleProps}
+                                    className="cursor-move self-center"
+                                  >
+                                    <GripVertical className="text-gray-400" />
+                                  </div>
+                                  <div className="flex-grow space-y-4">
+                                    <div className="flex items-center space-x-4">
+                                      <Avatar className="w-12 h-12 flex-shrink-0">
+                                        <AvatarImage
+                                          src={field.avatar}
+                                          alt={field.username}
+                                        />
+                                        <AvatarFallback>
+                                          <User />
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <div className="flex-grow">
+                                        <Input
+                                          {...form.register(
+                                            `tweets.${index}.username`
+                                          )}
+                                          placeholder="Username"
+                                        />
+                                      </div>
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-10 w-10 flex-shrink-0"
+                                        onClick={() => remove(index)}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                        <span className="sr-only">
+                                          Delete tweet
+                                        </span>
+                                      </Button>
+                                    </div>
+                                    <div className="flex space-x-4">
+                                      <Textarea
+                                        {...form.register(
+                                          `tweets.${index}.content`
+                                        )}
+                                        placeholder="Tweet content"
+                                        className="h-24 resize-none flex-grow"
+                                      />
+                                      {field.image && (
+                                        <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
+                                          <img
+                                            src={field.image}
+                                            alt="Tweet image"
+                                            className="w-full h-full object-cover"
+                                          />
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
                                 </div>
-                                <Input
-                                  {...form.register(`tweets.${index}.username`)}
-                                  placeholder="Username"
-                                />
-                                <Input
-                                  {...form.register(`tweets.${index}.content`)}
-                                  placeholder="Tweet content"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  className="w-10 h-10 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                                  onClick={() => remove(index)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+                                <div className="flex flex-wrap gap-2">
+                                  <div className="flex-grow min-w-[200px]">
+                                    <Input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={handleImageUpload(
+                                        index,
+                                        'avatar'
+                                      )}
+                                      className="hidden"
+                                      id={`avatar-upload-${index}`}
+                                    />
+                                    <Label
+                                      htmlFor={`avatar-upload-${index}`}
+                                      className="cursor-pointer inline-flex items-center justify-center h-9 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground w-full"
+                                    >
+                                      <Upload className="mr-2 h-4 w-4 flex-shrink-0" />
+                                      <span className="whitespace-nowrap">
+                                        Change Avatar
+                                      </span>
+                                    </Label>
+                                  </div>
+                                  <div className="flex-grow min-w-[200px]">
+                                    <Input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={handleImageUpload(
+                                        index,
+                                        'image'
+                                      )}
+                                      className="hidden"
+                                      id={`image-upload-${index}`}
+                                    />
+                                    <Label
+                                      htmlFor={`image-upload-${index}`}
+                                      className="cursor-pointer inline-flex items-center justify-center h-9 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground w-full"
+                                    >
+                                      <Upload className="mr-2 h-4 w-4 flex-shrink-0" />
+                                      <span className="whitespace-nowrap">
+                                        {field.image
+                                          ? 'Change Tweet Image'
+                                          : 'Upload Tweet Image'}
+                                      </span>
+                                    </Label>
+                                  </div>
+                                </div>
                               </div>
                             </Card>
                           )}
@@ -187,7 +294,7 @@ export const TwitterUrlStep: React.FC<TwitterUrlStepProps> = ({ form }) => {
                 </Droppable>
               </DragDropContext>
             </ScrollArea>
-            <div className="flex flex-col sm:flex-row gap-2 mt-2">
+            <div className="flex flex-col sm:flex-row gap-2 mt-4">
               <Button
                 type="button"
                 variant="outline"
