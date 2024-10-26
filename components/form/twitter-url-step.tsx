@@ -177,110 +177,108 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                               {...provided.draggableProps}
                               className="p-4"
                             >
-                              <div className="flex flex-col space-y-4">
-                                <div className="flex items-start space-x-4">
-                                  <div
-                                    {...provided.dragHandleProps}
-                                    className="cursor-move self-center"
-                                  >
-                                    <GripVertical className="text-gray-400" />
+                              <div className="flex space-x-4">
+                                <div
+                                  {...provided.dragHandleProps}
+                                  className="cursor-move self-center"
+                                >
+                                  <GripVertical className="text-gray-400" />
+                                </div>
+                                <div className="flex-grow space-y-4">
+                                  <div className="flex items-center space-x-4">
+                                    <Avatar className="w-12 h-12 flex-shrink-0">
+                                      <AvatarImage
+                                        src={field.avatar}
+                                        alt={field.username}
+                                      />
+                                      <AvatarFallback>
+                                        <User />
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-grow">
+                                      <Input
+                                        {...form.register(
+                                          `tweets.${index}.username`
+                                        )}
+                                        placeholder="Username"
+                                      />
+                                    </div>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-10 w-10 flex-shrink-0"
+                                      onClick={() => remove(index)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                      <span className="sr-only">
+                                        Delete tweet
+                                      </span>
+                                    </Button>
                                   </div>
-                                  <div className="flex-grow space-y-4">
-                                    <div className="flex items-center space-x-4">
-                                      <Avatar className="w-12 h-12 flex-shrink-0">
-                                        <AvatarImage
-                                          src={field.avatar}
-                                          alt={field.username}
-                                        />
-                                        <AvatarFallback>
-                                          <User />
-                                        </AvatarFallback>
-                                      </Avatar>
-                                      <div className="flex-grow">
-                                        <Input
-                                          {...form.register(
-                                            `tweets.${index}.username`
-                                          )}
-                                          placeholder="Username"
+                                  <div className="flex space-x-4">
+                                    <Textarea
+                                      {...form.register(
+                                        `tweets.${index}.content`
+                                      )}
+                                      placeholder="Tweet content"
+                                      className="h-24 resize-none flex-grow"
+                                    />
+                                    {field.image && (
+                                      <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
+                                        <img
+                                          src={field.image}
+                                          alt="Tweet image"
+                                          className="w-full h-full object-cover"
                                         />
                                       </div>
-                                      <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-10 w-10 flex-shrink-0"
-                                        onClick={() => remove(index)}
-                                      >
-                                        <Trash2 className="h-4 w-4" />
-                                        <span className="sr-only">
-                                          Delete tweet
-                                        </span>
-                                      </Button>
-                                    </div>
-                                    <div className="flex space-x-4">
-                                      <Textarea
-                                        {...form.register(
-                                          `tweets.${index}.content`
+                                    )}
+                                  </div>
+                                  <div className="flex flex-wrap gap-2">
+                                    <div className="flex-grow min-w-[200px]">
+                                      <Input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageUpload(
+                                          index,
+                                          'avatar'
                                         )}
-                                        placeholder="Tweet content"
-                                        className="h-24 resize-none flex-grow"
+                                        className="hidden"
+                                        id={`avatar-upload-${index}`}
                                       />
-                                      {field.image && (
-                                        <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
-                                          <img
-                                            src={field.image}
-                                            alt="Tweet image"
-                                            className="w-full h-full object-cover"
-                                          />
-                                        </div>
-                                      )}
+                                      <Label
+                                        htmlFor={`avatar-upload-${index}`}
+                                        className="cursor-pointer inline-flex items-center justify-center h-9 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground w-full"
+                                      >
+                                        <Upload className="mr-2 h-4 w-4 flex-shrink-0" />
+                                        <span className="whitespace-nowrap">
+                                          Change Avatar
+                                        </span>
+                                      </Label>
                                     </div>
-                                  </div>
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                  <div className="flex-grow min-w-[200px]">
-                                    <Input
-                                      type="file"
-                                      accept="image/*"
-                                      onChange={handleImageUpload(
-                                        index,
-                                        'avatar'
-                                      )}
-                                      className="hidden"
-                                      id={`avatar-upload-${index}`}
-                                    />
-                                    <Label
-                                      htmlFor={`avatar-upload-${index}`}
-                                      className="cursor-pointer inline-flex items-center justify-center h-9 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground w-full"
-                                    >
-                                      <Upload className="mr-2 h-4 w-4 flex-shrink-0" />
-                                      <span className="whitespace-nowrap">
-                                        Change Avatar
-                                      </span>
-                                    </Label>
-                                  </div>
-                                  <div className="flex-grow min-w-[200px]">
-                                    <Input
-                                      type="file"
-                                      accept="image/*"
-                                      onChange={handleImageUpload(
-                                        index,
-                                        'image'
-                                      )}
-                                      className="hidden"
-                                      id={`image-upload-${index}`}
-                                    />
-                                    <Label
-                                      htmlFor={`image-upload-${index}`}
-                                      className="cursor-pointer inline-flex items-center justify-center h-9 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground w-full"
-                                    >
-                                      <Upload className="mr-2 h-4 w-4 flex-shrink-0" />
-                                      <span className="whitespace-nowrap">
-                                        {field.image
-                                          ? 'Change Tweet Image'
-                                          : 'Upload Tweet Image'}
-                                      </span>
-                                    </Label>
+                                    <div className="flex-grow min-w-[200px]">
+                                      <Input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageUpload(
+                                          index,
+                                          'image'
+                                        )}
+                                        className="hidden"
+                                        id={`image-upload-${index}`}
+                                      />
+                                      <Label
+                                        htmlFor={`image-upload-${index}`}
+                                        className="cursor-pointer inline-flex items-center justify-center h-9 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground w-full"
+                                      >
+                                        <Upload className="mr-2 h-4 w-4 flex-shrink-0" />
+                                        <span className="whitespace-nowrap">
+                                          {field.image
+                                            ? 'Change Tweet Image'
+                                            : 'Upload Tweet Image'}
+                                        </span>
+                                      </Label>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
