@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { generatePresignedUrl } from '@/actions/generate-presigned-urls'
 import { fetchTweet } from '@/actions/twitter'
 import { VideoProps } from '@/stores/templatestore'
 import {
@@ -60,6 +61,10 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
     name: 'tweets'
   })
 
+  const [uploadingStates, setUploadingStates] = useState<{
+    [key: string]: boolean
+  }>({})
+
   const handleFetchTweet = async () => {
     try {
       setIsPending(true)
@@ -103,18 +108,55 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
     move(result.source.index, result.destination.index)
   }
 
-  const handleImageUpload =
-    (index: number, type: 'avatar' | 'image') =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (index: number, type: 'avatar' | 'image') => {
+    return async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0]
-      if (file) {
-        const reader = new FileReader()
-        reader.onloadend = () => {
-          update(index, { ...fields[index], [type]: reader.result as string })
+      if (!file) return
+
+      const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10mb
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error('File size exceeds 10mb')
+        return
+      }
+
+      const uploadKey = `${type}-${index}`
+      setUploadingStates((prev) => ({ ...prev, [uploadKey]: true }))
+
+      try {
+        const contentType = file.type || 'application/octet-stream'
+        const arrayBuffer = await file.arrayBuffer()
+        const contentLength = arrayBuffer.byteLength
+
+        const [data, err] = await generatePresignedUrl({
+          contentType,
+          contentLength
+        })
+
+        if (err) {
+          throw new Error(err.message)
         }
-        reader.readAsDataURL(file)
+
+        await fetch(data.presignedUrl, {
+          method: 'PUT',
+          body: arrayBuffer,
+          headers: {
+            'Content-Type': contentType
+          }
+        })
+
+        update(index, { ...fields[index], [type]: data.readUrl })
+        toast.success('Image uploaded successfully')
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : 'An error occurred during upload'
+        )
+      } finally {
+        setUploadingStates((prev) => ({ ...prev, [uploadKey]: false }))
       }
     }
+  }
 
   return (
     <Card>
@@ -234,44 +276,60 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                       </div>
                                     )}
                                   </div>
-                                  <div className="flex flex-wrap gap-2">
-                                    <div className="flex-grow min-w-[200px]">
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div>
                                       <Input
                                         type="file"
                                         accept="image/*"
-                                        onChange={handleImageUpload(
-                                          index,
-                                          'avatar'
-                                        )}
+                                        onChange={(e) =>
+                                          handleImageUpload(index, 'avatar')(e)
+                                        }
                                         className="hidden"
                                         id={`avatar-upload-${index}`}
                                       />
                                       <Label
                                         htmlFor={`avatar-upload-${index}`}
-                                        className="cursor-pointer inline-flex items-center justify-center h-9 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground w-full"
+                                        className={`cursor-pointer inline-flex items-center justify-center h-9 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring border border-input bg-background hover:bg-accent hover:text-accent-foreground w-full ${
+                                          uploadingStates[`avatar-${index}`]
+                                            ? 'opacity-50 pointer-events-none'
+                                            : ''
+                                        }`}
                                       >
-                                        <Upload className="mr-2 h-4 w-4 flex-shrink-0" />
+                                        {uploadingStates[`avatar-${index}`] && (
+                                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        )}
+                                        <Upload
+                                          className={`mr-2 h-4 w-4 flex-shrink-0 ${uploadingStates[`avatar-${index}`] ? 'hidden' : ''}`}
+                                        />
                                         <span className="whitespace-nowrap">
                                           Change Avatar
                                         </span>
                                       </Label>
                                     </div>
-                                    <div className="flex-grow min-w-[200px]">
+                                    <div>
                                       <Input
                                         type="file"
                                         accept="image/*"
-                                        onChange={handleImageUpload(
-                                          index,
-                                          'image'
-                                        )}
+                                        onChange={(e) =>
+                                          handleImageUpload(index, 'image')(e)
+                                        }
                                         className="hidden"
                                         id={`image-upload-${index}`}
                                       />
                                       <Label
                                         htmlFor={`image-upload-${index}`}
-                                        className="cursor-pointer inline-flex items-center justify-center h-9 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground w-full"
+                                        className={`cursor-pointer inline-flex items-center justify-center h-9 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring border border-input bg-background hover:bg-accent hover:text-accent-foreground w-full ${
+                                          uploadingStates[`image-${index}`]
+                                            ? 'opacity-50 pointer-events-none'
+                                            : ''
+                                        }`}
                                       >
-                                        <Upload className="mr-2 h-4 w-4 flex-shrink-0" />
+                                        {uploadingStates[`image-${index}`] && (
+                                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        )}
+                                        <Upload
+                                          className={`mr-2 h-4 w-4 flex-shrink-0 ${uploadingStates[`image-${index}`] ? 'hidden' : ''}`}
+                                        />
                                         <span className="whitespace-nowrap">
                                           {field.image
                                             ? 'Change Tweet Image'
