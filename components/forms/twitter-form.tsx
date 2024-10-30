@@ -27,6 +27,8 @@ import { FormSubmit } from '@/components/form/form-submit'
 import { TwitterUrlStep } from '@/components/form/twitter-url-step'
 import { VideoPreview } from '@/components/form/video-preview'
 
+import TwitterVoiceStep from '../form/twitter-voice-step'
+
 interface TwitterFormProps {
   voices: ElevenlabsVoice[]
   backgrounds: SelectBackgroundWithParts[]
@@ -65,6 +67,7 @@ export const TwitterForm: React.FC<TwitterFormProps> = ({
             <TwitterUrlStep form={form} />
             {/* <VoiceStep form={form} voices={voices} /> */}
             {/* <MusicStep form={form} music={music} /> */}
+            <TwitterVoiceStep form={form} voices={voices} />
             <BackgroundSelectStep form={form} backgrounds={backgrounds} />
             <CaptionStyleStep form={form} />
             <AspectRatioStep form={form} />

@@ -236,7 +236,16 @@ export const TwitterVideoSchema = BaseVideoSchema.extend({
   ),
   backgroundUrls: z.array(z.string()).min(1),
   voiceoverUrl: z.string(),
-  voiceoverFrames: VoiceoverFramesSchema
+  voiceoverFrames: VoiceoverFramesSchema,
+  voiceSettings: z
+    .array(
+      z.object({
+        username: z.string(),
+        voiceId: z.string()
+      })
+    )
+    .optional(),
+  isVoiceoverGenerated: z.boolean().default(false)
 })
 
 export const SplitScreenVideoSchema = BaseVideoSchema.extend({
@@ -433,7 +442,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
   captionStyle: CaptionStyle.Default,
-  tweets: []
+  tweets: [],
+  voiceSettings: [],
+  isVoiceoverGenerated: false
 }
 
 export const defaultTextMessageProps: TextMessageVideoProps = {

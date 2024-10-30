@@ -80,6 +80,9 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
       if (!tweetData) {
         throw new Error('Failed to fetch tweet data')
       }
+      if (tweetData.video) {
+        throw new Error("We don't support video tweets yet")
+      }
 
       append({
         id: tweetId,
@@ -89,14 +92,25 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
         image: tweetData.photos?.[0]?.url || ''
       })
 
+      const currentVoiceSettings = form.getValues('voiceSettings') || []
+      const username = tweetData.user.screen_name
+
+      if (!currentVoiceSettings.some((s) => s.username === username)) {
+        form.setValue('voiceSettings', [
+          ...currentVoiceSettings,
+          { username, voiceId: '' }
+        ])
+      }
+
       toast.success('Tweet fetched successfully')
       setTweetUrl('')
     } catch (error) {
       if (error instanceof z.ZodError) {
         setUrlError(error.errors[0].message)
       } else {
-        console.error('Error fetching tweet:', error)
-        toast.error('Error fetching tweet')
+        toast.error(
+          error instanceof Error ? error.message : 'Error fetching tweet'
+        )
       }
     } finally {
       setIsPending(false)
@@ -250,7 +264,22 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                       variant="ghost"
                                       size="icon"
                                       className="h-10 w-10 flex-shrink-0"
-                                      onClick={() => remove(index)}
+                                      onClick={() => {
+                                        const username = fields[index].username
+                                        remove(index)
+
+                                        // Remove voice settings for the deleted tweet's username
+                                        const currentVoiceSettings =
+                                          form.getValues('voiceSettings') || []
+                                        const updatedVoiceSettings =
+                                          currentVoiceSettings.filter(
+                                            (s) => s.username !== username
+                                          )
+                                        form.setValue(
+                                          'voiceSettings',
+                                          updatedVoiceSettings
+                                        )
+                                      }}
                                     >
                                       <Trash2 className="h-4 w-4" />
                                       <span className="sr-only">
@@ -356,15 +385,23 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                 variant="outline"
                 size="sm"
                 className="w-full sm:w-auto"
-                onClick={() =>
-                  append({
+                onClick={() => {
+                  const newTweet = {
                     id: Date.now().toString(),
                     username: '',
                     avatar: '',
                     content: '',
                     image: ''
-                  })
-                }
+                  }
+                  append(newTweet)
+
+                  const currentVoiceSettings =
+                    form.getValues('voiceSettings') || []
+                  form.setValue('voiceSettings', [
+                    ...currentVoiceSettings,
+                    { username: '', voiceId: '' }
+                  ])
+                }}
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add Custom Tweet

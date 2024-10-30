@@ -517,6 +517,192 @@ export const generateStructuredVoiceover = createServerAction()
     }
   })
 
+export const generateTwitterVoiceover = createServerAction()
+  .input(
+    z.object({
+      tweets: z.array(
+        z.object({
+          username: z.string(),
+          content: z.string()
+        })
+      ),
+      voiceSettings: z.array(
+        z.object({
+          username: z.string(),
+          voiceId: z.string()
+        })
+      ),
+      language: z.nativeEnum(Language)
+    })
+  )
+  .handler(async ({ input }) => {
+    const logger = new Logger().with({
+      function: 'generateTwitterVoiceover',
+      ...input
+    })
+    logger.info(startingFunctionString)
+
+    const { user } = await getUser()
+    if (!user) {
+      logger.error(errorString, { error: 'User not authorized' })
+      await logger.flush()
+      throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
+    }
+
+    console.log(input)
+
+    const fullText = input.tweets
+      .map((tweet) => tweet.content)
+      .join(' <break time="1s" /> ')
+    const characterCount = fullText.length
+    const requiredCredits = Math.ceil(
+      characterCount / CREDIT_CONVERSIONS.VOICEOVER_CHARACTERS
+    )
+
+    try {
+      const result = await db.transaction(async (tx) => {
+        const userUsageRecord = await tx
+          .select({ creditsLeft: userUsage.creditsLeft })
+          .from(userUsage)
+          .where(eq(userUsage.userId, user.id))
+          .for('update')
+
+        if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
+          throw new ZSAError(
+            'INTERNAL_SERVER_ERROR',
+            'You need an active subscription to use this feature.'
+          )
+        }
+
+        if (userUsageRecord[0].creditsLeft < requiredCredits) {
+          throw new ZSAError(
+            'INSUFFICIENT_CREDITS',
+            `You don't have enough credits to generate this voiceover.`
+          )
+        }
+
+        await tx
+          .update(userUsage)
+          .set({
+            creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
+          })
+          .where(eq(userUsage.userId, user.id))
+
+        const audioBuffers: Buffer[] = []
+        let currentAlignment: Alignment = {
+          characters: [],
+          character_start_times_seconds: [],
+          character_end_times_seconds: []
+        }
+        let totalDuration = 0
+
+        for (const tweet of input.tweets) {
+          const voiceSetting = input.voiceSettings.find(
+            (vs) => vs.username === tweet.username
+          )
+          if (!voiceSetting) continue
+
+          const tweetText = `${tweet.content} —————`
+
+          const audioResponse =
+            (await elevenLabsClient.textToSpeech.convertWithTimestamps(
+              voiceSetting.voiceId,
+              {
+                model_id: 'eleven_turbo_v2_5',
+                text: tweetText,
+                language_code: input.language
+              }
+            )) as AudioResponse
+
+          const audioBuffer = Buffer.from(audioResponse.audio_base64, 'base64')
+          audioBuffers.push(audioBuffer)
+
+          // Adjust timestamps for the current position
+          const adjustedAlignment = {
+            characters: audioResponse.normalized_alignment.characters,
+            character_start_times_seconds:
+              audioResponse.normalized_alignment.character_start_times_seconds.map(
+                (t) => t + totalDuration
+              ),
+            character_end_times_seconds:
+              audioResponse.normalized_alignment.character_end_times_seconds.map(
+                (t) => t + totalDuration
+              )
+          }
+
+          // Merge alignments
+          currentAlignment = {
+            characters: [
+              ...currentAlignment.characters,
+              ...adjustedAlignment.characters
+            ],
+            character_start_times_seconds: [
+              ...currentAlignment.character_start_times_seconds,
+              ...adjustedAlignment.character_start_times_seconds
+            ],
+            character_end_times_seconds: [
+              ...currentAlignment.character_end_times_seconds,
+              ...adjustedAlignment.character_end_times_seconds
+            ]
+          }
+
+          totalDuration =
+            currentAlignment.character_end_times_seconds[
+              currentAlignment.character_end_times_seconds.length - 1
+            ]
+        }
+
+        const combinedAudioBuffer = Buffer.concat(audioBuffers)
+        const s3Key = `voiceovers/twitter/${crypto.randomUUID()}.mp3`
+
+        const putObjectCommand = new PutObjectCommand({
+          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+          Key: s3Key,
+          Body: combinedAudioBuffer,
+          ContentType: 'audio/mpeg'
+        })
+
+        await R2.send(putObjectCommand)
+
+        const getObjectCommand = new GetObjectCommand({
+          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+          Key: s3Key
+        })
+
+        const signedUrl = await getSignedUrl(R2, getObjectCommand, {
+          expiresIn: 3600
+        })
+
+        return {
+          signedUrl,
+          endTimestamp: totalDuration,
+          voiceoverObject: currentAlignment
+        }
+      })
+
+      logger.info('Twitter voiceover generated successfully', {
+        signedUrl: result.signedUrl
+      })
+      await logger.flush()
+
+      console.log(result)
+      return result
+    } catch (error) {
+      logger.error(errorString, { error })
+      await logger.flush()
+      console.error(error)
+
+      if (error instanceof ZSAError) {
+        throw error
+      }
+
+      throw new ZSAError(
+        'INTERNAL_SERVER_ERROR',
+        'An error occurred while generating the voiceover.'
+      )
+    }
+  })
+
 export type ElevenlabsVoice = Awaited<ReturnType<typeof getVoices>>[number]
 
 type AudioResponse = {
