@@ -1,22 +1,22 @@
-import { enrichTweet, TweetBody, type TwitterComponents } from 'react-tweet'
-import type { Tweet } from 'react-tweet/api'
+import { TwitterVideoProps } from '@/stores/templatestore'
+import { type TwitterComponents } from 'react-tweet'
 
+import { TweetBody } from './tweet-body'
 import { TweetContainer } from './tweet-container'
 import { TweetHeader } from './tweet-header'
 import { TweetMedia } from './tweet-media'
 
 type Props = {
-  tweet: Tweet
+  tweet: TwitterVideoProps['tweets'][number]
   components?: TwitterComponents
 }
 
-export const MyTweet = ({ tweet: t, components }: Props) => {
-  const tweet = enrichTweet(t)
+export const MyTweet = ({ tweet, components }: Props) => {
   return (
     <TweetContainer className="dark">
       <TweetHeader tweet={tweet} components={components} />
       <TweetBody tweet={tweet} />
-      {tweet.mediaDetails?.length ? (
+      {tweet.image ? (
         <TweetMedia tweet={tweet} components={components} />
       ) : null}
     </TweetContainer>
