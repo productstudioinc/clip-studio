@@ -9,6 +9,7 @@ import { User } from '@supabase/supabase-js'
 import { motion } from 'framer-motion'
 import {
   CircleUser,
+  DollarSign,
   FilmIcon,
   LogInIcon,
   LucideIcon,
@@ -127,7 +128,7 @@ const NavLink: React.FC<NavItem & { currentRoute: string }> = ({
     <Link
       href={href}
       className={cn(
-        'flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary',
+        'flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary text-xs',
         currentRoute === href
           ? 'bg-muted text-primary'
           : 'text-muted-foreground'
@@ -156,6 +157,11 @@ const getNavItems = (admin: boolean, mobile: boolean): NavItem[] => [
     href: 'https://discord.gg/AVRVrVHTwQ',
     icon: Icons.discord,
     label: 'Join our Discord'
+  },
+  {
+    href: '/affiliate',
+    icon: DollarSign,
+    label: 'Earn 30% for referrals'
   },
   ...(admin
     ? [
