@@ -231,7 +231,11 @@ export const TwitterVideoSchema = BaseVideoSchema.extend({
       username: z.string(),
       avatar: z.string(),
       content: z.string(),
-      image: z.string()
+      image: z.string(),
+      likes: z.number().optional(),
+      retweets: z.number().optional(),
+      comments: z.number().optional(),
+      verified: z.boolean().optional().default(true)
     })
   ),
   backgroundUrls: z.array(z.string()).min(1),

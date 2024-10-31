@@ -89,7 +89,10 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
         username: tweetData.user.screen_name,
         avatar: tweetData.user.profile_image_url_https,
         content: tweetData.text,
-        image: tweetData.photos?.[0]?.url || ''
+        image: tweetData.photos?.[0]?.url || '',
+        verified: tweetData.user.verified,
+        likes: tweetData.favorite_count,
+        comments: tweetData.conversation_count
       })
 
       const currentVoiceSettings = form.getValues('voiceSettings') || []

@@ -5,9 +5,11 @@ import { TwitterVideoProps } from '@/stores/templatestore'
 import { MyTweet } from './my-tweet'
 
 export const UserTweet = ({
-  tweet
+  tweet,
+  className
 }: {
   tweet: TwitterVideoProps['tweets'][number]
+  className?: string
 }) => {
-  return <MyTweet tweet={tweet} />
+  return <MyTweet tweet={tweet} className={className} />
 }

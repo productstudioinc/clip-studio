@@ -1,5 +1,4 @@
 import {
-  AbsoluteFill,
   Audio,
   OffthreadVideo,
   Sequence,
@@ -8,7 +7,7 @@ import {
   useCurrentFrame
 } from 'remotion'
 
-import { UserTweet } from '../../components/tweet/tweet'
+import { MyTweet } from '../../components/tweet/my-tweet'
 import { TwitterVideoProps } from '../../stores/templatestore'
 
 const FPS = 30
@@ -62,27 +61,26 @@ export const TwitterComposition = ({
   return (
     <>
       <Audio src={voiceoverUrl} volume={voiceVolume / 100} />
-      <AbsoluteFill>
-        <Series>
-          {backgroundUrls.map((part, index) => (
-            <Series.Sequence durationInFrames={60 * FPS} key={index}>
-              <OffthreadVideo
-                src={part}
-                startFrom={0}
-                endAt={60 * FPS}
-                style={{
-                  position: 'absolute',
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover'
-                }}
-                muted
-              />
-            </Series.Sequence>
-          ))}
-        </Series>
+      <Series>
+        {backgroundUrls.map((part, index) => (
+          <Series.Sequence durationInFrames={60 * FPS} key={index}>
+            <OffthreadVideo
+              src={part}
+              startFrom={0}
+              endAt={60 * FPS}
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+              }}
+              muted
+            />
+          </Series.Sequence>
+        ))}
+      </Series>
 
-        <div
+      {/* <div
           style={{
             position: 'absolute',
             bottom: 0,
@@ -91,8 +89,8 @@ export const TwitterComposition = ({
             background:
               'linear-gradient(to bottom, transparent, rgba(0,0,0,0.7))'
           }}
-        />
-
+        /> */}
+      {/* 
         <AbsoluteFill
           style={{
             justifyContent: 'center',
@@ -110,17 +108,17 @@ export const TwitterComposition = ({
               opacity: progress
             }}
           ></div>
-        </AbsoluteFill>
-        {tweets.map((tweet, index) => (
-          <Sequence
-            from={tweetDurations[index].startFrame}
-            durationInFrames={tweetDurations[index].durationInFrames}
-            key={`tweet-${index}`}
-          >
-            <UserTweet tweet={tweet} />
-          </Sequence>
-        ))}
-      </AbsoluteFill>
+        </AbsoluteFill> */}
+      {tweets.map((tweet, index) => (
+        <Sequence
+          from={tweetDurations[index].startFrame}
+          durationInFrames={tweetDurations[index].durationInFrames}
+          key={`tweet-${index}`}
+          className="flex justify-center items-center"
+        >
+          <MyTweet tweet={tweet} className="h-fit" />
+        </Sequence>
+      ))}
     </>
   )
 }
