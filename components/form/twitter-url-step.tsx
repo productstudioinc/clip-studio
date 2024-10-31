@@ -391,10 +391,13 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                 onClick={() => {
                   const newTweet = {
                     id: Date.now().toString(),
-                    username: '',
+                    username: `user${Math.floor(Math.random() * 10000)}`,
                     avatar: '',
                     content: '',
-                    image: ''
+                    image: '',
+                    verified: false,
+                    likes: 0,
+                    comments: 0
                   }
                   append(newTweet)
 

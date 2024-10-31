@@ -1,5 +1,6 @@
 import { TwitterVideoProps } from '@/stores/templatestore'
 import clsx from 'clsx'
+import { User } from 'lucide-react'
 import { TwitterComponents } from 'react-tweet'
 
 import { AvatarImg } from './avatar-img'
@@ -16,7 +17,16 @@ export const TweetHeader = ({ tweet, components }: Props) => {
     <div className={s.header}>
       <div className={s.avatar}>
         <div className={clsx(s.avatarOverflow)}>
-          <Img src={tweet.avatar} alt={tweet.username} width={48} height={48} />
+          {tweet.avatar ? (
+            <Img
+              src={tweet.avatar}
+              alt={tweet.username}
+              width={48}
+              height={48}
+            />
+          ) : (
+            <User className="w-10 h-10 flex-shrink-0" />
+          )}
         </div>
         <div className={s.avatarOverflow}>
           <div className={s.avatarShadow}></div>

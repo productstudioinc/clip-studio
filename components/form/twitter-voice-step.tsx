@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ElevenlabsVoice, generateTwitterVoiceover } from '@/actions/elevenlabs'
 import { Language, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
