@@ -3,9 +3,10 @@ import { z } from 'zod'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
-import { voiceoverFrames } from './aivideo_voiceover'
+import { aiVoiceoverFrames } from './aivideo_voiceover'
 import { alignmentDefault } from './alignmenttext'
 import { splitScreenTranscriptionDefault } from './splitscreentranscription'
+import { twitterVoiceoverFrames } from './twitter_voiceover'
 
 // Enums
 export enum Language {
@@ -433,11 +434,11 @@ export const defaultRedditProps: RedditVideoProps = {
 }
 
 export const defaultTwitterProps: TwitterVideoProps = {
-  durationInFrames: 900,
+  durationInFrames: 8571,
   backgroundTheme: BackgroundTheme.Minecraft,
   backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
-  voiceoverUrl: 'https://assets.clip.studio/reddit_voiceover_sample.mp3',
-  voiceoverFrames: alignmentDefault,
+  voiceoverUrl: 'https://assets.clip.studio/twitter_voiceover_sample.mp3',
+  voiceoverFrames: twitterVoiceoverFrames,
   language: Language.English,
   voiceVolume: 70,
   musicVolume: 30,
@@ -446,7 +447,212 @@ export const defaultTwitterProps: TwitterVideoProps = {
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
   captionStyle: CaptionStyle.Default,
-  tweets: [],
+  tweets: [
+    {
+      id: '1848975277570797673',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        'I was very surprised when my husband talked about how he was disciplined as a child when we met. He\'d describe a punishment that sounds like what would be done to criminals and then say something like "my dad did that to me at 11 when I wet the bed".',
+      image: '',
+      verified: false,
+      likes: 190447,
+      comments: 791
+    },
+    {
+      id: '1848975294201278847',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        "One time he mentioned how his mom tied up his 12 years old sisters and put hot pepper in her V because she brought a male classmate to the house to study. I explained to him that was abuse, I didn't go through that and I turned out fine.",
+      image: '',
+      verified: false,
+      likes: 29458,
+      comments: 66
+    },
+    {
+      id: '1848975305647464693',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        'We agreed then not to raise our kids like that when we had them. I usually take the kids to visit their grandparents, both my parents and my MIL. I stay over with them whenever I visit so there has never been any issue. Last week was my wedding anniversary and me and my husband',
+      image: '',
+      verified: false,
+      likes: 16838,
+      comments: 8
+    },
+    {
+      id: '1848975310689112483',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        "decided to take a trip to a resort, just the two of us to celebrate.\nMy parents and siblings all lived in another state and I was contemplating having my friends over to watch the kids. When my MIL heard, she asked why I would want a stranger watch her grandkids when she's alive.",
+      image: '',
+      verified: false,
+      likes: 12976,
+      comments: 6
+    },
+    {
+      id: '1848975316561125549',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        "I was skeptical at first but my husband convinced me to allow her. She came a day before we left and promised to take good care of them. I've raised my kids to be well mannered so I wasn't expecting any issue to arise. We returned home 5 days later and when we got inside,",
+      image: '',
+      verified: false,
+      likes: 12165,
+      comments: 15
+    },
+    {
+      id: '1848975324190593049',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        "the kids weren't in the living room. It was around 6 in the evening and their grand mum told us they are asleep. My kids come home from school by 3:30pm, bath, eat, take a 30mins nap, do their homework and watch tv till 9pm. My last born will watch cartoon until I force her to go",
+      image: '',
+      verified: false,
+      likes: 12381,
+      comments: 2
+    },
+    {
+      id: '1848975329609539655',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        "to bed. It was strange seeing an empty sitting room. Mama convinced me that they were willingly in bed but my maternal instincts said otherwise.\nAs I opened their bedroom door, I heard a gasp and then silence. I went to my baby's bed and I saw her shutting her eyes tight,",
+      image: '',
+      verified: false,
+      likes: 12674,
+      comments: 3
+    },
+    {
+      id: '1848975334646898977',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        'she looked fearful and flinched when I touched her.I asked her "What\'s wrong?" She jumped on my body and screamed mummy as soon as she heard my voice and started crying. My son joined her too and I was confused as to they were crying and thought about where their elder sister was',
+      image: '',
+      verified: false,
+      likes: 14552,
+      comments: 2
+    },
+    {
+      id: '1848975339612995987',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        'I initially thought they had missed me but the tears was too much for that. Their grandma came into the room with my husband. When my son saw her, he ran to his bed and mama started screaming at the one on my body to go to bed. My baby cried harder saying',
+      image: '',
+      verified: false,
+      likes: 12634,
+      comments: 1
+    },
+    {
+      id: '1848975345266868671',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        '"Mummy, don\'t let her beat me". She filled me in on how grandma has been beating them and said "Mummy, if you see my sister". I didn\'t allow her finish before I quickly went to her bed.\nI ripped the covers off her and she was shivering and running temperature.',
+      image: '',
+      verified: false,
+      likes: 13406,
+      comments: 1
+    },
+    {
+      id: '1848975350614622600',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        "Her menstrual flow started two days ago and it came when we were away. She had forgotten to dispose one of her used pad and left it in a black nylon in their bathroom. Mama discovered and called her attention to it. She apologized and went to thrash it but the apology wasn't",
+      image: '',
+      verified: false,
+      likes: 12369,
+      comments: 1
+    },
+    {
+      id: '1848975355819778109',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        'enough for MIL. She beat her and further asked her to go outside to the compound to kneel down. She was there under sun all day till late in the evening. The next day, she had been unable to get off bed and the younger ones went to inform grandma. She said she was faking it, she',
+      image: '',
+      verified: false,
+      likes: 12338,
+      comments: 4
+    },
+    {
+      id: '1848975360907444541',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        "still forced her to do chores without giving her any drug for the fever. She told her that was how her father was raised and he didn't die so she would be fine. I was livid upon hearing all of these. My husband saw the state she was and rushed her to the car. I took the other two",
+      image: '',
+      verified: false,
+      likes: 12024,
+      comments: 4
+    },
+    {
+      id: '1848975366175490418',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        "to follow him and MIL tried to stop me that it wasn't a big deal. I pushed her off me but she wouldn't stop so kicked her out of anger. We took my daughter to the hospital and stayed that night. We got back the next day and mama had left. She called her son crying the next day",
+      image: '',
+      verified: false,
+      likes: 11535,
+      comments: 1
+    },
+    {
+      id: '1848975371380678678',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        "that I beat her up last night cos she was trying to calm me down.\nI took the phone and called her liar and that the only reason I didn't involve the police was because she's my MIL and that nothing must happen to my child. Not up to an hour my husband ended the call,",
+      image: '',
+      verified: false,
+      likes: 11582,
+      comments: 18
+    },
+    {
+      id: '1848975376812302833',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        "his sister called and said I was proud and that is why I feel my kids are above correction. I told her that was the reason she was unable to conceive as God was trying to save the kids from her. My husband has blocked her and mama. He said said he'd realized how toxic his family",
+      image: '',
+      verified: false,
+      likes: 15767,
+      comments: 19
+    },
+    {
+      id: '1848975381987995655',
+      username: 'Remzsx',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
+      content:
+        "was because despite that mama almost have our daughter ki||ed, she still supported her. He doesn't want us exposed to that. We are trying to decide if we should go non contact with them but won't that be going too far? Kindly advice.",
+      image: '',
+      verified: false,
+      likes: 17006,
+      comments: 667
+    }
+  ],
   voiceSettings: [],
   isVoiceoverGenerated: false
 }
@@ -551,7 +757,7 @@ export const defaultAIVideoProps: AIVideoProps = {
   prompt: 'A story about Julius Caesar',
   captionStyle: CaptionStyle.Default,
   voiceoverUrl: 'https://assets.clip.studio/aivideo_voiceover.mp3',
-  voiceoverFrames: voiceoverFrames,
+  voiceoverFrames: aiVoiceoverFrames,
   voiceId: 'EXAVITQu4vr4xnSDxMaL',
   storyLength: 'short',
   range: '1-2',

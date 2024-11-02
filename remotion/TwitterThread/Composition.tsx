@@ -21,33 +21,44 @@ export const TwitterComposition = ({
 }: TwitterVideoProps) => {
   const frame = useCurrentFrame()
 
-  const tweetDurations = tweets.map((tweet, index) => {
-    const startChar =
-      index === 0
-        ? 0
-        : voiceoverFrames.character_end_times_seconds.findIndex(
-            (time) =>
-              time > voiceoverFrames.character_start_times_seconds[index]
-          )
-    const endChar =
-      index === tweets.length - 1
-        ? voiceoverFrames.character_end_times_seconds.length - 1
-        : voiceoverFrames.character_start_times_seconds.findIndex(
-            (time) =>
-              time > voiceoverFrames.character_end_times_seconds[index + 1]
-          )
+  const findDashes = (chars: string[], startIndex: number) => {
+    let consecutiveDashes = 0
+    for (let i = startIndex; i < chars.length; i++) {
+      if (chars[i] === '-') {
+        consecutiveDashes++
+        if (consecutiveDashes === 5) {
+          console.log(`Found 5 dashes starting at index ${i - 4}`)
+          return i - 4
+        }
+      } else {
+        consecutiveDashes = 0
+      }
+    }
+    return -1
+  }
 
-    return {
-      startFrame: Math.floor(
+  const tweetDurations = tweets.reduce(
+    (acc, tweet, index) => {
+      const startChar =
+        index === 0
+          ? 0
+          : findDashes(voiceoverFrames.characters, acc[index - 1].endChar) + 6
+      const endChar = findDashes(voiceoverFrames.characters, startChar)
+
+      const startFrame = Math.floor(
         voiceoverFrames.character_start_times_seconds[startChar] * FPS
-      ),
-      durationInFrames: Math.floor(
+      )
+      const durationInFrames = Math.floor(
         (voiceoverFrames.character_end_times_seconds[endChar] -
           voiceoverFrames.character_start_times_seconds[startChar]) *
           FPS
       )
-    }
-  })
+
+      acc.push({ startFrame, durationInFrames, endChar })
+      return acc
+    },
+    [] as { startFrame: number; durationInFrames: number; endChar: number }[]
+  )
 
   const progress = spring({
     frame,

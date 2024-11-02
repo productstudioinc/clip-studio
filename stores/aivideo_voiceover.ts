@@ -1,4 +1,4 @@
-export const voiceoverFrames = {
+export const aiVoiceoverFrames = {
   characters: [
     ' ',
     'I',
