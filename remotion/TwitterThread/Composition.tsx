@@ -27,7 +27,6 @@ export const TwitterComposition = ({
       if (chars[i] === '-') {
         consecutiveDashes++
         if (consecutiveDashes === 5) {
-          console.log(`Found 5 dashes starting at index ${i - 4}`)
           return i - 4
         }
       } else {
