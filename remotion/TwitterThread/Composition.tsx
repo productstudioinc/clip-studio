@@ -1,95 +1,42 @@
-import {
-  AbsoluteFill,
-  OffthreadVideo,
-  Series,
-  spring,
-  useCurrentFrame
-} from 'remotion'
+import { Audio, OffthreadVideo, Sequence, Series } from 'remotion'
 
-import { Tweet } from '../../components/tweet/tweet'
+import { MyTweet } from '../../components/tweet/my-tweet'
 import { TwitterVideoProps } from '../../stores/templatestore'
 
-export const TwitterThreadComposition = ({
-  tweetId,
-  durationInFrames,
-  backgroundUrls
+const FPS = 30
+
+export const TwitterComposition = ({
+  backgroundUrls,
+  tweets,
+  voiceoverUrl,
+  voiceVolume
 }: TwitterVideoProps) => {
-  const frame = useCurrentFrame()
-  const progress = spring({
-    frame,
-    fps: 30,
-    config: {
-      damping: 200,
-      stiffness: 100
-    }
-  })
-
-  if (!tweetId) {
-    return null
-  }
-
   return (
-    <AbsoluteFill>
+    <>
+      <Audio src={voiceoverUrl} volume={voiceVolume / 100} />
       <Series>
         {backgroundUrls.map((part, index) => (
-          <Series.Sequence durationInFrames={60 * 30} key={index}>
+          <Series.Sequence durationInFrames={60 * FPS} key={index}>
             <OffthreadVideo
               src={part}
               startFrom={0}
-              endAt={60 * 30}
-              style={{
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover'
-              }}
+              endAt={60 * FPS}
+              className="absolute w-full h-full object-cover"
               muted
             />
           </Series.Sequence>
         ))}
       </Series>
-      <AbsoluteFill
-        style={{
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}
-      >
-        <div
-          style={{
-            width: '90%',
-            height: '90%',
-            maxWidth: '600px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            opacity: progress
-          }}
+      {tweets.map((tweet, index) => (
+        <Sequence
+          from={Math.floor((tweets[index].from || 0) * FPS)}
+          durationInFrames={Math.floor((tweets[index].duration || 0) * FPS)}
+          key={`tweet-${index}`}
+          className="flex justify-center items-center"
         >
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              position: 'relative'
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
-              <Tweet id={tweetId} />
-            </div>
-          </div>
-        </div>
-      </AbsoluteFill>
-    </AbsoluteFill>
+          <MyTweet tweet={tweet} className="h-fit" />
+        </Sequence>
+      ))}
+    </>
   )
 }

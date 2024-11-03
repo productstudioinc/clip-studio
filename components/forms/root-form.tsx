@@ -18,6 +18,7 @@ import { ClipsForm } from '@/components/forms/clips-form'
 import { RedditForm } from '@/components/forms/reddit-form'
 import { SplitScreenForm } from '@/components/forms/split-screen-form'
 import { TextMessageForm } from '@/components/forms/text-message-form'
+import { TwitterForm } from '@/components/forms/twitter-form'
 
 export const RootForm: React.FC<{
   voices: ElevenlabsVoice[]
@@ -56,8 +57,8 @@ export const RootForm: React.FC<{
         return <ClipsForm {...commonProps} />
       case TemplateSchema.Enum.AIVideo:
         return <AIVideoForm {...commonProps} />
-      // case TemplateSchema.Enum.TwitterThread:
-      //   return <TwitterForm {...commonProps} />;
+      case TemplateSchema.Enum.Twitter:
+        return <TwitterForm {...commonProps} />
       default:
         return null
     }

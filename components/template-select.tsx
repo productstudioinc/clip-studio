@@ -20,7 +20,15 @@ export const TemplateSelect: FC<TemplateSelectProps> = ({ templates }) => {
   )
 
   const handleSelect = (value: string) => {
-    setSelectedTemplate(value as 'SplitScreen' | 'Reddit' | 'TwitterThread')
+    setSelectedTemplate(
+      value as
+        | 'SplitScreen'
+        | 'Reddit'
+        | 'Twitter'
+        | 'Clips'
+        | 'TextMessage'
+        | 'AIVideo'
+    )
   }
 
   return (
