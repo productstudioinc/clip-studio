@@ -80,9 +80,9 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
       if (!tweetData) {
         throw new Error('Failed to fetch tweet data')
       }
-      if (tweetData.video) {
-        throw new Error("We don't support video tweets yet")
-      }
+      // if (tweetData.video) {
+      //   throw new Error("We don't support video tweets yet")
+      // }
 
       append({
         id: tweetId,
@@ -92,7 +92,13 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
         image: tweetData.photos?.[0]?.url || '',
         verified: tweetData.user.verified,
         likes: tweetData.favorite_count,
-        comments: tweetData.conversation_count
+        comments: tweetData.conversation_count,
+        from:
+          fields.length > 0
+            ? (fields[fields.length - 1]?.from ?? 0) +
+              (fields[fields.length - 1]?.duration ?? 0)
+            : 0,
+        duration: 3
       })
 
       const currentVoiceSettings = form.getValues('voiceSettings') || []
@@ -397,7 +403,9 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                     image: '',
                     verified: false,
                     likes: 0,
-                    comments: 0
+                    comments: 0,
+                    from: 0,
+                    duration: 3
                   }
                   append(newTweet)
 
