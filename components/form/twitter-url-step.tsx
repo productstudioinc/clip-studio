@@ -3,11 +3,16 @@
 import React, { useEffect, useState } from 'react'
 import { generatePresignedUrl } from '@/actions/generate-presigned-urls'
 import { fetchTweet } from '@/actions/twitter'
-import { VideoProps } from '@/stores/templatestore'
+import {
+  defaultTwitterProps,
+  TwitterVideoProps,
+  VideoProps
+} from '@/stores/templatestore'
 import {
   GripVertical,
   Loader2,
   PlusCircle,
+  RefreshCw,
   Trash2,
   Upload,
   User
@@ -66,11 +71,20 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
   }>({})
 
   useEffect(() => {
-    const fieldsToWatch = ['tweets']
+    const fieldsToWatch = fields.map((t, i) => {
+      return `tweets.${i}.content`
+    })
 
     const subscription = form.watch((value, { name }) => {
       if (fieldsToWatch.includes(name as string)) {
         form.setValue('isVoiceoverGenerated', false)
+      }
+      if (name === 'tweets') {
+        const currentTweets = (value as TwitterVideoProps).tweets || []
+        const prevTweets = fields
+        if (currentTweets.length !== prevTweets.length) {
+          form.setValue('isVoiceoverGenerated', false)
+        }
       }
     })
 
@@ -191,6 +205,13 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
         setUploadingStates((prev) => ({ ...prev, [uploadKey]: false }))
       }
     }
+  }
+
+  const generateFakeTweets = () => {
+    remove()
+    defaultTwitterProps.tweets.forEach((tweet) => append(tweet))
+    form.clearErrors()
+    form.setValue('isVoiceoverGenerated', true)
   }
 
   return (
@@ -326,6 +347,21 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                       </div>
                                     )}
                                   </div>
+
+                                  <div className="flex space-x-2">
+                                    <Input
+                                      {...form.register(
+                                        `tweets.${index}.likes`
+                                      )}
+                                      placeholder="Likes"
+                                    />
+                                    <Input
+                                      {...form.register(
+                                        `tweets.${index}.comments`
+                                      )}
+                                      placeholder="Comments"
+                                    />
+                                  </div>
                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     <div>
                                       <Input
@@ -431,6 +467,17 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add Custom Tweet
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full sm:w-auto"
+                onClick={generateFakeTweets}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Generate Sample Tweets
               </Button>
 
               <AlertDialog>
