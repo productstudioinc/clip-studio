@@ -29,19 +29,30 @@ export async function RendersGrid({ renderHistory }: RendersGridProps) {
               <p className="text-sm text-gray-500 mb-2">
                 {formatDistanceToNow(render.createdAt, { addSuffix: true })}
               </p>
-              <Link
-                href={render.videoUrl || '#'}
-                target="_blank"
-                className={cn(
-                  buttonVariants({
-                    variant: 'outline',
-                    size: 'sm'
-                  }),
-                  'w-full'
-                )}
-              >
-                <Download className="mr-2 h-4 w-4" /> Download
-              </Link>
+              <div className="flex flex-col gap-2">
+                <Link
+                  href={render.videoUrl || '#'}
+                  target="_blank"
+                  className={cn(
+                    buttonVariants({
+                      variant: 'outline',
+                      size: 'sm'
+                    }),
+                    'w-full'
+                  )}
+                >
+                  <Download className="mr-2 h-4 w-4" /> Download
+                </Link>
+                <Link
+                  href={`/admin/renders/${render.id}`}
+                  className={cn(
+                    buttonVariants({ variant: 'outline', size: 'sm' }),
+                    'w-full'
+                  )}
+                >
+                  View
+                </Link>
+              </div>
             </div>
           </div>
         ))}

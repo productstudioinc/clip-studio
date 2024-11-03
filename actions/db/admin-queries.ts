@@ -93,6 +93,15 @@ export const getRenderHistory = async (
     currentPage: page
   }
 }
+
+export const getRenderById = async (id: string) => {
+  await authenticateAdmin()
+  const render = await db.query.pastRenders.findFirst({
+    where: (pastRenders, { eq }) => eq(pastRenders.id, id)
+  })
+  return render
+}
+
 export const getUsersForAdmin = async (
   page: number = 1,
   pageSize: number = 10,
