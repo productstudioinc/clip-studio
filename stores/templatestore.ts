@@ -430,7 +430,7 @@ export const defaultRedditProps: RedditVideoProps = {
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
   captionStyle: CaptionStyle.Default,
-  isVoiceoverGenerated: false
+  isVoiceoverGenerated: true
 }
 
 export const defaultTwitterProps: TwitterVideoProps = {
@@ -687,7 +687,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     }
   ],
   voiceSettings: [],
-  isVoiceoverGenerated: false
+  isVoiceoverGenerated: true
 }
 
 export const defaultTextMessageProps: TextMessageVideoProps = {
@@ -755,7 +755,7 @@ export const defaultTextMessageProps: TextMessageVideoProps = {
   backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
   captionStyle: CaptionStyle.Default,
   voiceoverUrl: 'https://assets.clip.studio/messages_voiceover_sample.mp3',
-  isVoiceoverGenerated: false
+  isVoiceoverGenerated: true
 }
 
 export const defaultClipsProps: ClipsVideoProps = {
@@ -892,7 +892,7 @@ export const defaultAIVideoProps: AIVideoProps = {
 }
 
 const initialState = {
-  selectedTemplate: 'Twitter' as TemplateProps,
+  selectedTemplate: 'Reddit' as TemplateProps,
   splitScreenState: defaultSplitScreenProps,
   redditState: defaultRedditProps,
   twitterState: defaultTwitterProps,

@@ -20,11 +20,11 @@ import { useForm } from 'react-hook-form'
 import { Form } from '@/components/ui/form'
 import { AspectRatioStep } from '@/components/form/aspect-ratio-step'
 import { BackgroundSelectStep } from '@/components/form/background-select-step'
-import { FormErrors } from '@/components/form/form-errors'
 import { FormSubmit } from '@/components/form/form-submit'
 import { TextMessageStep } from '@/components/form/text-message-step'
 import { TwoVoiceStep } from '@/components/form/two-voice-step'
 import { VideoPreview } from '@/components/form/video-preview'
+import { NumberedSteps } from '@/components/numbered-steps'
 
 interface TextMessageFormProps {
   voices: ElevenlabsVoice[]
@@ -61,7 +61,7 @@ export const TextMessageForm: React.FC<TextMessageFormProps> = ({
     <Form {...form}>
       <form className="w-full space-y-6">
         <div className="grid grid-cols-12 gap-8">
-          <div className="col-span-12 lg:col-span-7 space-y-6">
+          <NumberedSteps className="col-span-12 lg:col-span-7 space-y-6">
             <TextMessageStep form={form} />
             {/* <VoiceStep form={form} voices={voices} /> */}
             <TwoVoiceStep form={form} voices={voices} />
@@ -69,13 +69,12 @@ export const TextMessageForm: React.FC<TextMessageFormProps> = ({
             <BackgroundSelectStep form={form} backgrounds={backgrounds} />
             {/* <CaptionStyleStep form={form} /> */}
             <AspectRatioStep form={form} />
-            <FormErrors form={form} />
             <FormSubmit
               form={form}
               youtubeChannels={youtubeChannels}
               tiktokAccounts={tiktokAccounts}
             />
-          </div>
+          </NumberedSteps>
 
           <div className="col-span-12 lg:col-span-5">
             <div className="sticky top-8 w-full py-8 flex items-center justify-center p-4 lg:p-0 flex-col">

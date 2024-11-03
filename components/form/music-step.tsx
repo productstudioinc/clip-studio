@@ -136,7 +136,7 @@ export const MusicStep: React.FC<MusicStepProps> = ({ form, music }) => {
                       <Label
                         key={m.id}
                         htmlFor={m.id.toString()}
-                        className="flex items-center gap-4 cursor-pointer relative rounded-md border p-2 [&:has([data-state=checked])]:border-primary overflow-hidden"
+                        className="relative flex-shrink-0 hover:cursor-pointer flex flex-row items-center justify-between rounded-md border-2 border-muted bg-popover p-2 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary gap-2"
                       >
                         <RadioGroupItem
                           value={m.id.toString()}

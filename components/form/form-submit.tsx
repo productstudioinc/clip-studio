@@ -118,16 +118,16 @@ export function FormSubmit({
   const handleGenerateVideo = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
 
-    // const isVoiceoverGenerated = form.getValues('isVoiceoverGenerated')
+    const isVoiceoverGenerated = form.getValues('isVoiceoverGenerated')
 
-    // if (!isVoiceoverGenerated) {
-    //   toast.error('You must generate a voiceover first.')
-    //   form.setError('isVoiceoverGenerated', {
-    //     type: 'manual',
-    //     message: 'You must generate a voiceover first.'
-    //   })
-    //   return
-    // }
+    if (!isVoiceoverGenerated) {
+      toast.error('You must generate a voiceover first.')
+      form.setError('isVoiceoverGenerated', {
+        type: 'manual',
+        message: 'You must generate a voiceover first.'
+      })
+      return
+    }
 
     renderMedia()
   }
@@ -150,6 +150,11 @@ export function FormSubmit({
         <CardTitle>Generate Video</CardTitle>
       </CardHeader>
       <CardContent>
+        {Object.entries(form.formState.errors).map(([key, error]) => (
+          <div key={key} className="text-red-500 mb-4">
+            Error: {error.message}
+          </div>
+        ))}
         <Button
           variant={'rainbow'}
           disabled={

@@ -42,6 +42,12 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Slider } from '@/components/ui/slider'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 
 type VoiceStepProps = {
   form: UseFormReturn<VideoProps>
@@ -291,7 +297,7 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
                       <Label
                         key={voice.voice_id}
                         htmlFor={voice.voice_id}
-                        className="flex items-center gap-4 cursor-pointer relative rounded-md border p-2 [&:has([data-state=checked])]:border-primary overflow-hidden"
+                        className="relative flex-shrink-0 hover:cursor-pointer flex flex-row items-center justify-between rounded-md border-2 border-muted bg-popover p-2 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary gap-2"
                       >
                         <RadioGroupItem
                           value={voice.voice_id}
@@ -384,22 +390,33 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
           />
         </div>
         <div className="mt-6 flex items-center space-x-2">
-          <Button
-            onClick={handleGenerate}
-            disabled={isPending || !form.getValues('voice')}
-            className="flex-grow"
-          >
-            {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-            Generate Voiceover{' '}
-            <span className="text-muted-foreground ml-1">
-              ~{' '}
-              {Math.ceil(
-                form.getValues('text').length /
-                  CREDIT_CONVERSIONS.VOICEOVER_CHARACTERS
-              )}{' '}
-              credits
-            </span>
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={handleGenerate}
+                  disabled={isPending || !form.getValues('voice')}
+                  className="flex-grow"
+                >
+                  {isPending && (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  )}
+                  Generate Voiceover{' '}
+                  <span className="text-muted-foreground ml-1">
+                    ~{' '}
+                    {Math.ceil(
+                      form.getValues('text').length /
+                        CREDIT_CONVERSIONS.VOICEOVER_CHARACTERS
+                    )}{' '}
+                    credits
+                  </span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Generate a voiceover preview for your video</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="rounded-full" size="icon">
@@ -410,8 +427,7 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
             <PopoverContent className="w-80">
               <p className="text-sm text-muted-foreground">
                 Generating a voiceover will give you a preview of the voiceover
-                for your video based on the text you enter. This is a preview
-                only and will not be used for the final video.
+                for your video based on the text you enter.
               </p>
             </PopoverContent>
           </Popover>

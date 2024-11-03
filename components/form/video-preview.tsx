@@ -24,6 +24,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ form }) => {
   const width = watch('width')
   const height = watch('height')
   const fps = watch('fps')
+  const isVoiceoverGenerated = watch('isVoiceoverGenerated')
 
   const aspectRatioClass = React.useMemo(() => {
     const ratio = width / height
@@ -45,7 +46,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ form }) => {
       </CardHeader>
       <CardContent>
         <div
-          className={`w-full h-full mx-auto flex items-center justify-center ${aspectRatioClass}`}
+          className={`relative w-full h-full mx-auto flex flex-col items-center justify-center ${aspectRatioClass}`}
         >
           <Player
             component={CompositionComponent as any}
@@ -60,6 +61,14 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ form }) => {
             loop
             initiallyMuted
           />
+          {isVoiceoverGenerated !== undefined && !isVoiceoverGenerated && (
+            <div className="absolute inset-0 bg-black/60 flex items-start justify-center text-center pt-10">
+              <p className="text-red-500 text-lg font-bold">
+                ⚠️ Voiceover is out of sync with the video. <br /> Please
+                generate a new voiceover to preview the video.
+              </p>
+            </div>
+          )}
         </div>
         {/* <div className="mt-4">
 					<table className="w-full">

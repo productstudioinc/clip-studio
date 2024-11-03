@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { generatePresignedUrl } from '@/actions/generate-presigned-urls'
 import { fetchTweet } from '@/actions/twitter'
 import { VideoProps } from '@/stores/templatestore'
@@ -64,6 +64,18 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
   const [uploadingStates, setUploadingStates] = useState<{
     [key: string]: boolean
   }>({})
+
+  useEffect(() => {
+    const fieldsToWatch = ['tweets']
+
+    const subscription = form.watch((value, { name }) => {
+      if (fieldsToWatch.includes(name as string)) {
+        form.setValue('isVoiceoverGenerated', false)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [form])
 
   const handleFetchTweet = async () => {
     try {
@@ -314,7 +326,7 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                       </div>
                                     )}
                                   </div>
-                                  <div className="grid grid-cols-2 gap-2">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     <div>
                                       <Input
                                         type="file"

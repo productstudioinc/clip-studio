@@ -21,11 +21,11 @@ import { Form } from '@/components/ui/form'
 import { AIVoiceStep } from '@/components/form/ai-voice-step'
 import { AspectRatioStep } from '@/components/form/aspect-ratio-step'
 import { CaptionStyleStep } from '@/components/form/caption-style-step'
-import { FormErrors } from '@/components/form/form-errors'
 import { FormSubmit } from '@/components/form/form-submit'
 import { ImageGenStep } from '@/components/form/image-gen-step'
 import { PromptStep } from '@/components/form/prompt-step'
 import { VideoPreview } from '@/components/form/video-preview'
+import { NumberedSteps } from '@/components/numbered-steps'
 
 interface AIVideoFormProps {
   voices: ElevenlabsVoice[]
@@ -63,7 +63,7 @@ export const AIVideoForm: React.FC<AIVideoFormProps> = ({
     <Form {...form}>
       <form className="w-full space-y-6" onSubmit={handleSubmit}>
         <div className="grid grid-cols-12 gap-8">
-          <div className="col-span-12 lg:col-span-7 space-y-6">
+          <NumberedSteps className="col-span-12 lg:col-span-7 space-y-6">
             <PromptStep form={form} />
             {/* <TranscribeStep form={form} /> */}
             {/* <BackgroundSelectStep form={form} backgrounds={backgrounds} /> */}
@@ -72,13 +72,12 @@ export const AIVideoForm: React.FC<AIVideoFormProps> = ({
             <CaptionStyleStep form={form} />
             {/* <MusicStep form={form} music={music} /> */}
             <AspectRatioStep form={form} />
-            <FormErrors form={form} />
             <FormSubmit
               form={form}
               youtubeChannels={youtubeChannels}
               tiktokAccounts={tiktokAccounts}
             />
-          </div>
+          </NumberedSteps>
 
           <div className="col-span-12 lg:col-span-5">
             <div className="sticky top-8 flex items-center justify-center">
