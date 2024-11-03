@@ -236,7 +236,9 @@ export const TwitterVideoSchema = BaseVideoSchema.extend({
       likes: z.number().optional(),
       retweets: z.number().optional(),
       comments: z.number().optional(),
-      verified: z.boolean().optional().default(true)
+      verified: z.boolean().optional().default(true),
+      duration: z.number().optional(),
+      from: z.number().optional()
     })
   ),
   backgroundUrls: z.array(z.string()).min(1),
@@ -434,10 +436,10 @@ export const defaultRedditProps: RedditVideoProps = {
 }
 
 export const defaultTwitterProps: TwitterVideoProps = {
-  durationInFrames: 8571,
+  durationInFrames: 7780,
   backgroundTheme: BackgroundTheme.Minecraft,
   backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
-  voiceoverUrl: 'https://assets.clip.studio/twitter_voiceover_sample.mp3',
+  voiceoverUrl: 'https://assets.clip.studio/twitter_voiceover_sample_2.mp3',
   voiceoverFrames: twitterVoiceoverFrames,
   language: Language.English,
   voiceVolume: 70,
@@ -458,7 +460,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 190447,
-      comments: 791
+      comments: 791,
+      duration: 12.214,
+      from: 0
     },
     {
       id: '1848975294201278847',
@@ -470,7 +474,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 29458,
-      comments: 66
+      comments: 66,
+      duration: 12.168,
+      from: 12.214
     },
     {
       id: '1848975305647464693',
@@ -482,7 +488,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 16838,
-      comments: 8
+      comments: 8,
+      duration: 15.65,
+      from: 24.381999999999998
     },
     {
       id: '1848975310689112483',
@@ -494,7 +502,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 12976,
-      comments: 6
+      comments: 6,
+      duration: 15.046,
+      from: 40.032
     },
     {
       id: '1848975316561125549',
@@ -506,7 +516,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 12165,
-      comments: 15
+      comments: 15,
+      duration: 16.207,
+      from: 55.077999999999996
     },
     {
       id: '1848975324190593049',
@@ -518,7 +530,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 12381,
-      comments: 2
+      comments: 2,
+      duration: 18.483,
+      from: 71.285
     },
     {
       id: '1848975329609539655',
@@ -530,7 +544,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 12674,
-      comments: 3
+      comments: 3,
+      duration: 15.789,
+      from: 89.768
     },
     {
       id: '1848975334646898977',
@@ -542,7 +558,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 14552,
-      comments: 2
+      comments: 2,
+      duration: 14.953,
+      from: 105.557
     },
     {
       id: '1848975339612995987',
@@ -554,7 +572,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 12634,
-      comments: 1
+      comments: 1,
+      duration: 14.49,
+      from: 120.51
     },
     {
       id: '1848975345266868671',
@@ -566,7 +586,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 13406,
-      comments: 1
+      comments: 1,
+      duration: 15.696,
+      from: 135
     },
     {
       id: '1848975350614622600',
@@ -578,7 +600,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 12369,
-      comments: 1
+      comments: 1,
+      duration: 15.557,
+      from: 150.696
     },
     {
       id: '1848975355819778109',
@@ -590,7 +614,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 12338,
-      comments: 4
+      comments: 4,
+      duration: 16.161,
+      from: 166.253
     },
     {
       id: '1848975360907444541',
@@ -602,7 +628,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 12024,
-      comments: 4
+      comments: 4,
+      duration: 16.486,
+      from: 182.414
     },
     {
       id: '1848975366175490418',
@@ -614,7 +642,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 11535,
-      comments: 1
+      comments: 1,
+      duration: 15.65,
+      from: 198.89999999999998
     },
     {
       id: '1848975371380678678',
@@ -626,7 +656,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 11582,
-      comments: 18
+      comments: 18,
+      duration: 14.21,
+      from: 214.54999999999998
     },
     {
       id: '1848975376812302833',
@@ -638,7 +670,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 15767,
-      comments: 19
+      comments: 19,
+      duration: 15.511,
+      from: 228.76
     },
     {
       id: '1848975381987995655',
@@ -650,7 +684,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       image: '',
       verified: false,
       likes: 17006,
-      comments: 667
+      comments: 667,
+      duration: 15.093,
+      from: 244.271
     }
   ],
   voiceSettings: [],
@@ -859,7 +895,7 @@ export const defaultAIVideoProps: AIVideoProps = {
 }
 
 const initialState = {
-  selectedTemplate: 'AIVideo' as TemplateProps,
+  selectedTemplate: 'Twitter' as TemplateProps,
   splitScreenState: defaultSplitScreenProps,
   redditState: defaultRedditProps,
   twitterState: defaultTwitterProps,

@@ -551,9 +551,7 @@ export const generateTwitterVoiceover = createServerAction()
 
     console.log(input)
 
-    const fullText = input.tweets
-      .map((tweet) => tweet.content)
-      .join(' <break time="1s" /> ')
+    const fullText = input.tweets.map((tweet) => tweet.content).join(' ')
     const characterCount = fullText.length
     const requiredCredits = Math.ceil(
       characterCount / CREDIT_CONVERSIONS.VOICEOVER_CHARACTERS
@@ -589,12 +587,8 @@ export const generateTwitterVoiceover = createServerAction()
           .where(eq(userUsage.userId, user.id))
 
         const audioBuffers: Buffer[] = []
-        let currentAlignment: Alignment = {
-          characters: [],
-          character_start_times_seconds: [],
-          character_end_times_seconds: []
-        }
-        let totalDuration = 0
+        const sections: Array<{ from: number; duration: number }> = []
+        let currentTime = 0
 
         for (const tweet of input.tweets) {
           const voiceSetting = input.voiceSettings.find(
@@ -602,7 +596,7 @@ export const generateTwitterVoiceover = createServerAction()
           )
           if (!voiceSetting) continue
 
-          const tweetText = `${tweet.content} —————`
+          const tweetText = `${tweet.content} ---`
 
           const audioResponse =
             (await elevenLabsClient.textToSpeech.convertWithTimestamps(
@@ -617,40 +611,22 @@ export const generateTwitterVoiceover = createServerAction()
           const audioBuffer = Buffer.from(audioResponse.audio_base64, 'base64')
           audioBuffers.push(audioBuffer)
 
-          // Adjust timestamps for the current position
-          const adjustedAlignment = {
-            characters: audioResponse.normalized_alignment.characters,
-            character_start_times_seconds:
-              audioResponse.normalized_alignment.character_start_times_seconds.map(
-                (t) => t + totalDuration
-              ),
-            character_end_times_seconds:
-              audioResponse.normalized_alignment.character_end_times_seconds.map(
-                (t) => t + totalDuration
-              )
-          }
+          const endTimestamp =
+            audioResponse.normalized_alignment.character_end_times_seconds.slice(
+              -1
+            )[0]
+          const duration = endTimestamp
 
-          // Merge alignments
-          currentAlignment = {
-            characters: [
-              ...currentAlignment.characters,
-              ...adjustedAlignment.characters
-            ],
-            character_start_times_seconds: [
-              ...currentAlignment.character_start_times_seconds,
-              ...adjustedAlignment.character_start_times_seconds
-            ],
-            character_end_times_seconds: [
-              ...currentAlignment.character_end_times_seconds,
-              ...adjustedAlignment.character_end_times_seconds
-            ]
-          }
-
-          totalDuration =
-            currentAlignment.character_end_times_seconds[
-              currentAlignment.character_end_times_seconds.length - 1
-            ]
+          sections.push({ duration, from: currentTime })
+          currentTime += duration
         }
+
+        const totalDuration = sections.reduce(
+          (sum, section) => sum + section.duration,
+          0
+        )
+
+        const durationInFrames = Math.floor(totalDuration * VIDEO_FPS)
 
         const combinedAudioBuffer = Buffer.concat(audioBuffers)
         const s3Key = `voiceovers/twitter/${crypto.randomUUID()}.mp3`
@@ -675,8 +651,8 @@ export const generateTwitterVoiceover = createServerAction()
 
         return {
           signedUrl,
-          endTimestamp: totalDuration,
-          voiceoverObject: currentAlignment
+          sections,
+          durationInFrames
         }
       })
 

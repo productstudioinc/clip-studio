@@ -168,8 +168,15 @@ export default function TwitterVoiceStep({
       form.setValue('isVoiceoverGenerated', false)
     } else {
       form.setValue('voiceoverUrl', data.signedUrl)
-      form.setValue('voiceoverFrames', data.voiceoverObject)
-      form.setValue('durationInFrames', Math.floor(data.endTimestamp * 30))
+      const updatedVideoStructure = form
+        .getValues('tweets')
+        .map((segment, index) => ({
+          ...segment,
+          from: data.sections[index].from,
+          duration: data.sections[index].duration
+        }))
+      form.setValue('tweets', updatedVideoStructure)
+      form.setValue('durationInFrames', data.durationInFrames)
       form.setValue('isVoiceoverGenerated', true)
 
       toast.success('Voiceover generated successfully and added to your video.')
