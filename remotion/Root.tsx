@@ -113,6 +113,11 @@ export const RemotionRoot: React.FC = () => {
         width={VIDEO_WIDTH}
         height={VIDEO_HEIGHT}
         defaultProps={twitterState as any}
+        calculateMetadata={async ({ props }) => {
+          return {
+            durationInFrames: props.durationInFrames
+          }
+        }}
       />
       <Composition
         id="Clips"
