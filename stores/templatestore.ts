@@ -6,7 +6,6 @@ import { devtools } from 'zustand/middleware'
 import { aiVoiceoverFrames } from './aivideo_voiceover'
 import { alignmentDefault } from './alignmenttext'
 import { splitScreenTranscriptionDefault } from './splitscreentranscription'
-import { twitterVoiceoverFrames } from './twitter_voiceover'
 
 // Enums
 export enum Language {
@@ -243,7 +242,6 @@ export const TwitterVideoSchema = BaseVideoSchema.extend({
   ),
   backgroundUrls: z.array(z.string()).min(1),
   voiceoverUrl: z.string(),
-  voiceoverFrames: VoiceoverFramesSchema,
   voiceSettings: z
     .array(
       z.object({
@@ -440,7 +438,6 @@ export const defaultTwitterProps: TwitterVideoProps = {
   backgroundTheme: BackgroundTheme.Minecraft,
   backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
   voiceoverUrl: 'https://assets.clip.studio/twitter_voiceover_sample_2.mp3',
-  voiceoverFrames: twitterVoiceoverFrames,
   language: Language.English,
   voiceVolume: 70,
   musicVolume: 30,
