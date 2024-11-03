@@ -2,8 +2,8 @@
     display: flex;
     align-items: center;
     color: var(--tweet-font-color-secondary);
-    padding-top: 0.25rem;
-    margin-top: 0.25rem;
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
     border-top: var(--tweet-border);
     overflow-wrap: break-word;
     white-space: nowrap;
@@ -58,7 +58,7 @@
     font-size: var(--tweet-actions-font-size);
     font-weight: var(--tweet-actions-font-weight);
     line-height: var(--tweet-actions-line-height);
-    margin-left: 0.25rem;
+    margin-right: 1rem;
   }
   
   .reply:hover > .replyIconWrapper {
