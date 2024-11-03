@@ -1,13 +1,9 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { generatePresignedUrl } from '@/actions/generate-presigned-urls'
 import { fetchTweet } from '@/actions/twitter'
-import {
-  defaultTwitterProps,
-  TwitterVideoProps,
-  VideoProps
-} from '@/stores/templatestore'
+import { defaultTwitterProps, VideoProps } from '@/stores/templatestore'
 import {
   GripVertical,
   Loader2,
@@ -70,27 +66,6 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
     [key: string]: boolean
   }>({})
 
-  useEffect(() => {
-    const fieldsToWatch = fields.map((t, i) => {
-      return `tweets.${i}.content`
-    })
-
-    const subscription = form.watch((value, { name }) => {
-      if (fieldsToWatch.includes(name as string)) {
-        form.setValue('isVoiceoverGenerated', false)
-      }
-      if (name === 'tweets') {
-        const currentTweets = (value as TwitterVideoProps).tweets || []
-        const prevTweets = fields
-        if (currentTweets.length !== prevTweets.length) {
-          form.setValue('isVoiceoverGenerated', false)
-        }
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [form])
-
   const handleFetchTweet = async () => {
     try {
       setIsPending(true)
@@ -126,6 +101,7 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
             : 0,
         duration: 3
       })
+      form.setValue('isVoiceoverGenerated', false)
 
       const currentVoiceSettings = form.getValues('voiceSettings') || []
       const username = tweetData.user.screen_name
@@ -321,6 +297,10 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                           'voiceSettings',
                                           updatedVoiceSettings
                                         )
+                                        form.setValue(
+                                          'isVoiceoverGenerated',
+                                          false
+                                        )
                                       }}
                                     >
                                       <Trash2 className="h-4 w-4" />
@@ -463,6 +443,7 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                     ...currentVoiceSettings,
                     { username: '', voiceId: '' }
                   ])
+                  form.setValue('isVoiceoverGenerated', false)
                 }}
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
