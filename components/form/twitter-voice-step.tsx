@@ -2,22 +2,39 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ElevenlabsVoice, generateTwitterVoiceover } from '@/actions/elevenlabs'
-import { Language, VideoProps } from '@/stores/templatestore'
+import { Language, LanguageFlags, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
+import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
 import { Loader2, Mic2, Pause, Play } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
 
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from '@/components/ui/command'
+import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
-  FormLabel
+  FormLabel,
+  FormMessage
 } from '@/components/ui/form'
 import { Label } from '@/components/ui/label'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
@@ -37,6 +54,11 @@ export default function TwitterVoiceStep({
   form,
   voices
 }: TwitterVoiceStepProps) {
+  const languages = Object.entries(Language).map(([key, value]) => ({
+    value,
+    label: key,
+    flag: LanguageFlags[value as Language]
+  }))
   const [playingAudio, setPlayingAudio] = useState<string | null>(null)
   const [progress, setProgress] = useState<number>(0)
   const progressInterval = useRef<NodeJS.Timeout | null>(null)
@@ -142,6 +164,7 @@ export default function TwitterVoiceStep({
   }, [])
 
   const handleGenerateVoiceover = async () => {
+    const language = form.getValues('language')
     const voiceSettings = form.getValues('voiceSettings') || []
     if (voiceSettings.length !== uniqueUsernames.length) {
       toast.error('Please assign a voice to each username')
@@ -160,7 +183,7 @@ export default function TwitterVoiceStep({
         content: tweet.content
       })),
       voiceSettings,
-      language: Language.English
+      language
     })
 
     if (err) {
@@ -197,6 +220,87 @@ export default function TwitterVoiceStep({
         <CardTitle>Assign Voices to Users</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        <FormField
+          control={form.control}
+          name="language"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Language</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        'w-[200px] justify-between flex items-center',
+                        !field.value && 'text-muted-foreground'
+                      )}
+                    >
+                      {field.value ? (
+                        <>
+                          <span className="mr-2 text-2xl">
+                            {
+                              languages.find(
+                                (lang) => lang.value === field.value
+                              )?.flag
+                            }
+                          </span>
+                          {
+                            languages.find((lang) => lang.value === field.value)
+                              ?.label
+                          }
+                        </>
+                      ) : (
+                        'Select language'
+                      )}
+                      <CaretSortIcon className="h-4 w-4 shrink-0 opacity-50 ml-auto" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-[200px] p-0">
+                  <Command>
+                    <CommandInput
+                      placeholder="Search language..."
+                      className="h-9"
+                    />
+                    <CommandList>
+                      <CommandEmpty>No language found.</CommandEmpty>
+                      <CommandGroup>
+                        {languages.map((language) => (
+                          <CommandItem
+                            value={language.label}
+                            key={language.value}
+                            onSelect={() => {
+                              form.setValue('language', language.value)
+                            }}
+                          >
+                            <span className="mr-2 text-2xl">
+                              {language.flag}
+                            </span>
+                            {language.label}
+                            <CheckIcon
+                              className={cn(
+                                'ml-auto h-4 w-4',
+                                language.value === field.value
+                                  ? 'opacity-100'
+                                  : 'opacity-0'
+                              )}
+                            />
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              <FormDescription>
+                This is the language that will be used in the video.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormItem>
           <FormLabel>Select User</FormLabel>
           <Select
