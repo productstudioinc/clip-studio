@@ -5,7 +5,7 @@ import {
   TikTokAccount,
   YoutubeChannel
 } from '@/actions/db/social-media-queries'
-import { ElevenlabsVoice } from '@/actions/elevenlabs'
+import { ElevenlabsLibraryVoice, ElevenlabsVoice } from '@/actions/elevenlabs'
 import { SelectBackgroundWithParts, SelectMusic } from '@/db/schema'
 import {
   defaultTwitterProps,
@@ -24,13 +24,13 @@ import { CaptionStyleStep } from '@/components/form/caption-style-step'
 import { FormSubmit } from '@/components/form/form-submit'
 // import { MusicStep } from '@/components/form/music-step'
 import { TwitterUrlStep } from '@/components/form/twitter-url-step'
+import TwitterVoiceStep from '@/components/form/twitter-voice-step'
 import { VideoPreview } from '@/components/form/video-preview'
 import { NumberedSteps } from '@/components/numbered-steps'
 
-import TwitterVoiceStep from '../form/twitter-voice-step'
-
 interface TwitterFormProps {
   voices: ElevenlabsVoice[]
+  libraryVoices: ElevenlabsLibraryVoice[]
   backgrounds: SelectBackgroundWithParts[]
   youtubeChannels: YoutubeChannel[]
   tiktokAccounts: TikTokAccount[]
@@ -39,6 +39,7 @@ interface TwitterFormProps {
 
 export const TwitterForm: React.FC<TwitterFormProps> = ({
   voices,
+  libraryVoices,
   backgrounds,
   youtubeChannels,
   tiktokAccounts,
@@ -67,7 +68,11 @@ export const TwitterForm: React.FC<TwitterFormProps> = ({
             <TwitterUrlStep form={form} />
             {/* <VoiceStep form={form} voices={voices} /> */}
             {/* <MusicStep form={form} music={music} /> */}
-            <TwitterVoiceStep form={form} voices={voices} />
+            <TwitterVoiceStep
+              form={form}
+              voices={voices}
+              libraryVoices={libraryVoices}
+            />
             <BackgroundSelectStep form={form} backgrounds={backgrounds} />
             <CaptionStyleStep form={form} />
             <AspectRatioStep form={form} />

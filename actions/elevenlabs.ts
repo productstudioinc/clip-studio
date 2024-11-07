@@ -51,6 +51,55 @@ export const getVoices = unstable_cache(async () => {
   }
 })
 
+export const getVoice = createServerAction()
+  .input(z.object({ id: z.string() }))
+  .handler(async ({ input }) => {
+    const voice = await elevenLabsClient.voices.get(input.id)
+    return voice
+  })
+
+export const getLibraryVoices = createServerAction()
+  .input(
+    z.object({
+      search: z.string().optional(),
+      page_size: z.number().optional().default(30),
+      category: z.string().optional(),
+      gender: z.string().optional(),
+      age: z.string().optional(),
+      accent: z.string().optional(),
+      language: z.string().optional(),
+      search_terms: z.string().optional(),
+      use_cases: z.array(z.string()).optional(),
+      descriptions: z.array(z.string()).optional(),
+      featured: z.boolean().optional().default(false),
+      ready_app_enabled: z.boolean().optional().default(false),
+      owner_id: z.string().optional(),
+      sort: z.string().optional(),
+      page: z.number().optional()
+    })
+  )
+  .handler(async ({ input }) => {
+    const logger = new Logger().with({
+      function: 'getLibraryVoices',
+      ...input
+    })
+    logger.info(startingFunctionString)
+
+    try {
+      const voices = await elevenLabsClient.voices.getShared(input)
+      return voices
+    } catch (error) {
+      logger.error('Error fetching voices from ElevenLabs', {
+        error: error instanceof Error ? error.message : String(error)
+      })
+      await logger.flush()
+      throw new ZSAError(
+        'INTERNAL_SERVER_ERROR',
+        'An error occurred while fetching library voices.'
+      )
+    }
+  })
+
 export const generateRedditVoiceover = createServerAction()
   .input(
     z.object({
@@ -680,6 +729,10 @@ export const generateTwitterVoiceover = createServerAction()
   })
 
 export type ElevenlabsVoice = Awaited<ReturnType<typeof getVoices>>[number]
+
+export type ElevenlabsLibraryVoice = Awaited<
+  ReturnType<typeof getLibraryVoices>
+>[number]
 
 type AudioResponse = {
   audio_base64: string

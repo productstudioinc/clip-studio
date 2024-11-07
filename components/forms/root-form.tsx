@@ -4,7 +4,7 @@ import {
   TikTokAccount,
   YoutubeChannel
 } from '@/actions/db/social-media-queries'
-import { ElevenlabsVoice } from '@/actions/elevenlabs'
+import { ElevenlabsLibraryVoice, ElevenlabsVoice } from '@/actions/elevenlabs'
 import {
   SelectBackgroundWithParts,
   SelectMusic,
@@ -22,6 +22,7 @@ import { TwitterForm } from '@/components/forms/twitter-form'
 
 export const RootForm: React.FC<{
   voices: ElevenlabsVoice[]
+  libraryVoices: ElevenlabsLibraryVoice[]
   backgrounds: SelectBackgroundWithParts[]
   youtubeChannels: YoutubeChannel[]
   tiktokAccounts: TikTokAccount[]
@@ -29,6 +30,7 @@ export const RootForm: React.FC<{
   templates: SelectTemplates[]
 }> = ({
   voices,
+  libraryVoices,
   backgrounds,
   youtubeChannels,
   tiktokAccounts,
@@ -39,6 +41,7 @@ export const RootForm: React.FC<{
 
   const commonProps = {
     voices,
+    libraryVoices,
     backgrounds,
     youtubeChannels,
     tiktokAccounts,
