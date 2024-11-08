@@ -148,17 +148,21 @@ export default function TwitterVoiceStep({
         audioRef.current = new Audio(previewUrl)
         audioRef.current.volume = 0.4
 
+        const speed = form.getValues('voiceSpeed') || 1
+
+        audioRef.current.playbackRate = speed
+
         audioRef.current.play().catch((error) => {
           console.error('Could not play audio:', error)
           setPlayingAudio(null)
         })
 
         if (audioRef.current.paused === false) {
-          simulateProgress(audioDurations[voiceId])
+          simulateProgress(audioDurations[voiceId] / speed)
         }
       }
     },
-    [playingAudio, audioDurations]
+    [playingAudio, audioDurations, form]
   )
 
   const simulateProgress = useCallback((duration: number) => {
@@ -234,6 +238,7 @@ export default function TwitterVoiceStep({
   const handleGenerateVoiceover = async () => {
     const language = form.getValues('language')
     const voiceSettings = form.getValues('voiceSettings') || []
+    const voiceSpeed = form.getValues('voiceSpeed') || 1
     if (voiceSettings.length !== uniqueUsernames.length) {
       toast.error('Please assign a voice to each username')
       return
@@ -282,93 +287,139 @@ export default function TwitterVoiceStep({
     totalCharacters / CREDIT_CONVERSIONS.VOICEOVER_CHARACTERS
   )
 
+  const originalDurationRef = useRef<number | null>(null)
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Assign Voices to Users</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <FormField
-          control={form.control}
-          name="language"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Language</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className={cn(
-                        'w-[200px] justify-between flex items-center',
-                        !field.value && 'text-muted-foreground'
-                      )}
-                    >
-                      {field.value ? (
-                        <>
-                          <span className="mr-2 text-2xl">
+        <div className="flex gap-4">
+          <FormField
+            control={form.control}
+            name="language"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Language</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          'w-full justify-between flex items-center',
+                          !field.value && 'text-muted-foreground'
+                        )}
+                      >
+                        {field.value ? (
+                          <>
+                            <span className="mr-2 text-2xl">
+                              {
+                                languages.find(
+                                  (lang) => lang.value === field.value
+                                )?.flag
+                              }
+                            </span>
                             {
                               languages.find(
                                 (lang) => lang.value === field.value
-                              )?.flag
+                              )?.label
                             }
-                          </span>
-                          {
-                            languages.find((lang) => lang.value === field.value)
-                              ?.label
-                          }
-                        </>
-                      ) : (
-                        'Select language'
-                      )}
-                      <CaretSortIcon className="h-4 w-4 shrink-0 opacity-50 ml-auto" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0">
-                  <Command>
-                    <CommandInput
-                      placeholder="Search language..."
-                      className="h-9"
-                    />
-                    <CommandList>
-                      <CommandEmpty>No language found.</CommandEmpty>
-                      <CommandGroup>
-                        {languages.map((language) => (
-                          <CommandItem
-                            value={language.label}
-                            key={language.value}
-                            onSelect={() => {
-                              form.setValue('language', language.value)
-                            }}
-                          >
-                            <span className="mr-2 text-2xl">
-                              {language.flag}
-                            </span>
-                            {language.label}
-                            <CheckIcon
-                              className={cn(
-                                'ml-auto h-4 w-4',
-                                language.value === field.value
-                                  ? 'opacity-100'
-                                  : 'opacity-0'
-                              )}
-                            />
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-              <FormDescription>
-                This is the language that will be used in the video.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                          </>
+                        ) : (
+                          'Select language'
+                        )}
+                        <CaretSortIcon className="h-4 w-4 shrink-0 opacity-50 ml-auto" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[200px] p-0">
+                    <Command>
+                      <CommandInput
+                        placeholder="Search language..."
+                        className="h-9"
+                      />
+                      <CommandList>
+                        <CommandEmpty>No language found.</CommandEmpty>
+                        <CommandGroup>
+                          {languages.map((language) => (
+                            <CommandItem
+                              value={language.label}
+                              key={language.value}
+                              onSelect={() => {
+                                form.setValue('language', language.value)
+                              }}
+                            >
+                              <span className="mr-2 text-2xl">
+                                {language.flag}
+                              </span>
+                              {language.label}
+                              <CheckIcon
+                                className={cn(
+                                  'ml-auto h-4 w-4',
+                                  language.value === field.value
+                                    ? 'opacity-100'
+                                    : 'opacity-0'
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <FormDescription>
+                  This is the language that will be used in the video.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="voiceSpeed"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Voice Speed</FormLabel>
+                <Select
+                  onValueChange={(value) => {
+                    const newSpeed = parseFloat(value)
+                    field.onChange(newSpeed)
+
+                    const currentDurationInFrames =
+                      form.getValues('durationInFrames')
+
+                    if (originalDurationRef.current === null) {
+                      originalDurationRef.current = currentDurationInFrames
+                    }
+
+                    const newDuration = originalDurationRef.current! / newSpeed
+
+                    form.setValue('durationInFrames', Math.floor(newDuration))
+                  }}
+                  value={field.value?.toString() || '1'}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select speed" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Normal (1x)</SelectItem>
+                    <SelectItem value="1.5">Faster (1.5x)</SelectItem>
+                    <SelectItem value="2">Fastest (2x)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Adjust the playback speed of the voice
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+        </div>
+
         <FormItem>
           <FormLabel>Select User</FormLabel>
           <Select

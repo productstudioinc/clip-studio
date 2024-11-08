@@ -9,11 +9,16 @@ export const TwitterComposition = ({
   backgroundUrls,
   tweets,
   voiceoverUrl,
-  voiceVolume
+  voiceVolume,
+  voiceSpeed
 }: TwitterVideoProps) => {
   return (
     <>
-      <Audio src={voiceoverUrl} volume={voiceVolume / 100} />
+      <Audio
+        src={voiceoverUrl}
+        volume={voiceVolume / 100}
+        playbackRate={voiceSpeed}
+      />
       <Series>
         {backgroundUrls.map((part, index) => (
           <Series.Sequence durationInFrames={60 * FPS} key={index}>
@@ -29,8 +34,10 @@ export const TwitterComposition = ({
       </Series>
       {tweets.map((tweet, index) => (
         <Sequence
-          from={Math.floor((tweets[index].from || 0) * FPS)}
-          durationInFrames={Math.floor((tweets[index].duration || 0) * FPS)}
+          from={Math.floor(((tweets[index].from || 0) * FPS) / voiceSpeed)}
+          durationInFrames={Math.floor(
+            ((tweets[index].duration || 0) * FPS) / voiceSpeed
+          )}
           key={`tweet-${index}`}
           className="flex justify-center items-center"
         >
