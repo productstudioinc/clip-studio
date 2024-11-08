@@ -270,7 +270,10 @@ export default function TwitterVoiceStep({
           duration: data.sections[index].duration
         }))
       form.setValue('tweets', updatedVideoStructure)
-      form.setValue('durationInFrames', data.durationInFrames)
+      form.setValue(
+        'durationInFrames',
+        Math.floor(data.durationInFrames / voiceSpeed)
+      )
       form.setValue('isVoiceoverGenerated', true)
 
       toast.success('Voiceover generated successfully and added to your video.')
@@ -412,6 +415,7 @@ export default function TwitterVoiceStep({
                     <SelectItem value="1.1">Fast (1.1x)</SelectItem>
                     <SelectItem value="1.25">Fast (1.25x)</SelectItem>
                     <SelectItem value="1.5">Fast (1.5x)</SelectItem>
+                    <SelectItem value="1.75">Fast (1.75x)</SelectItem>
                     <SelectItem value="2">Fast (2x)</SelectItem>
                   </SelectContent>
                 </Select>

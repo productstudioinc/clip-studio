@@ -252,7 +252,7 @@ export const TwitterVideoSchema = BaseVideoSchema.extend({
     )
     .optional(),
   isVoiceoverGenerated: z.boolean().default(false),
-  voiceSpeed: z.number().min(1).max(2).default(1)
+  voiceSpeed: z.number().min(0.5).max(3).default(1.1)
 })
 
 export const SplitScreenVideoSchema = BaseVideoSchema.extend({
@@ -690,7 +690,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
   ],
   voiceSettings: [],
   isVoiceoverGenerated: true,
-  voiceSpeed: 1
+  voiceSpeed: 1.1
 }
 
 export const defaultTextMessageProps: TextMessageVideoProps = {
