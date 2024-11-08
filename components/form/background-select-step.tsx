@@ -153,11 +153,11 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
   }
 
   const uploadContent = uploadPreviewUrl ? (
-    <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
+    <div className="relative w-full h-full bg-black rounded-lg overflow-hidden">
       <video
         id="preview-video"
         src={uploadPreviewUrl}
-        className="w-full h-full object-contain"
+        className="absolute inset-0 w-full h-full object-cover blur-[2px] scale-[1.1]"
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
       />
@@ -175,6 +175,7 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
             size="icon"
             className="text-white hover:bg-white/20"
             onClick={togglePlay}
+            type="button"
           >
             {isPlaying ? (
               <Pause className="h-6 w-6" />
