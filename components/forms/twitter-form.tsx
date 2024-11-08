@@ -68,11 +68,7 @@ export const TwitterForm: React.FC<TwitterFormProps> = ({
             <TwitterUrlStep form={form} />
             {/* <VoiceStep form={form} voices={voices} /> */}
             {/* <MusicStep form={form} music={music} /> */}
-            <TwitterVoiceStep
-              form={form}
-              voices={voices}
-              libraryVoices={libraryVoices}
-            />
+            <TwitterVoiceStep form={form} voices={voices} />
             <BackgroundSelectStep form={form} backgrounds={backgrounds} />
             <CaptionStyleStep form={form} />
             <AspectRatioStep form={form} />
