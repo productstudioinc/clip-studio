@@ -82,6 +82,7 @@ export enum AspectRatio {
 export enum BackgroundTheme {
   Minecraft = 'Minecraft',
   GTA = 'GTA',
+  Custom = 'Custom',
   Satisfying = 'Satisfying'
 }
 
