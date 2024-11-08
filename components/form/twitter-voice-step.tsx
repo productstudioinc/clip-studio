@@ -395,7 +395,9 @@ export default function TwitterVoiceStep({
                       originalDurationRef.current = currentDurationInFrames
                     }
 
-                    const newDuration = originalDurationRef.current! / newSpeed
+                    const newDuration = Math.floor(
+                      originalDurationRef.current! / newSpeed
+                    )
 
                     form.setValue('durationInFrames', newDuration)
                   }}
@@ -405,7 +407,10 @@ export default function TwitterVoiceStep({
                     <SelectValue placeholder="Select speed" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="0.5">Slow (0.5x)</SelectItem>
                     <SelectItem value="1">Normal (1x)</SelectItem>
+                    <SelectItem value="1.1">Fast (1.1x)</SelectItem>
+                    <SelectItem value="1.25">Fast (1.25x)</SelectItem>
                     <SelectItem value="1.5">Fast (1.5x)</SelectItem>
                     <SelectItem value="2">Fast (2x)</SelectItem>
                   </SelectContent>
