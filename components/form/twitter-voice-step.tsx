@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
-  ElevenlabsLibraryVoice,
   ElevenlabsVoice,
   generateTwitterVoiceover,
   getVoice
@@ -65,7 +64,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 type TwitterVoiceStepProps = {
   form: UseFormReturn<VideoProps>
   voices: ElevenlabsVoice[]
-  customVoice: ElevenlabsLibraryVoice[]
 }
 
 export default function TwitterVoiceStep({
@@ -399,7 +397,7 @@ export default function TwitterVoiceStep({
 
                     const newDuration = originalDurationRef.current! / newSpeed
 
-                    form.setValue('durationInFrames', Math.floor(newDuration))
+                    form.setValue('durationInFrames', newDuration)
                   }}
                   value={field.value?.toString() || '1'}
                 >
@@ -408,8 +406,8 @@ export default function TwitterVoiceStep({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1">Normal (1x)</SelectItem>
-                    <SelectItem value="1.5">Faster (1.5x)</SelectItem>
-                    <SelectItem value="2">Fastest (2x)</SelectItem>
+                    <SelectItem value="1.5">Fast (1.5x)</SelectItem>
+                    <SelectItem value="2">Fast (2x)</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormDescription>
