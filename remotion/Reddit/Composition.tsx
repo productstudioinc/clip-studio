@@ -7,7 +7,8 @@ import {
   delayRender,
   OffthreadVideo,
   Sequence,
-  Series
+  Series,
+  Video
 } from 'remotion'
 
 import { RedditCard } from '../../components/reddit-card'
@@ -91,23 +92,34 @@ export const RedditComposition = ({
     <>
       <Audio src={voiceoverUrl} pauseWhenBuffering volume={voiceVolume / 100} />
       <AbsoluteFill className="w-full h-full">
-        <Series>
-          {backgroundUrls.map((part, index) => (
-            <Series.Sequence
-              durationInFrames={BACKGROUND_VIDEO_DURATION}
-              key={index}
-            >
-              <OffthreadVideo
-                src={part}
-                startFrom={0}
-                endAt={BACKGROUND_VIDEO_DURATION}
-                className="absolute w-full h-full object-cover"
-                muted
-                pauseWhenBuffering
-              />
-            </Series.Sequence>
-          ))}
-        </Series>
+        {backgroundUrls.length === 1 ? (
+          <Video
+            src={backgroundUrls[0]}
+            startFrom={0}
+            className="absolute w-full h-full object-cover"
+            muted
+            loop
+            pauseWhenBuffering
+          />
+        ) : (
+          <Series>
+            {backgroundUrls.map((part, index) => (
+              <Series.Sequence
+                durationInFrames={BACKGROUND_VIDEO_DURATION}
+                key={index}
+              >
+                <OffthreadVideo
+                  src={part}
+                  startFrom={0}
+                  endAt={BACKGROUND_VIDEO_DURATION}
+                  className="absolute w-full h-full object-cover"
+                  muted
+                  pauseWhenBuffering
+                />
+              </Series.Sequence>
+            ))}
+          </Series>
+        )}
         <AbsoluteFill className="flex justify-center items-center">
           <Sequence durationInFrames={titleEndFrame}>
             <AbsoluteFill className="flex justify-center items-center">

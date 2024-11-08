@@ -7,7 +7,8 @@ import {
   OffthreadVideo,
   Sequence,
   Series,
-  useVideoConfig
+  useVideoConfig,
+  Video
 } from 'remotion'
 
 import { SplitScreenVideoProps } from '../../stores/templatestore'
@@ -28,7 +29,6 @@ export const SplitScreenComposition = ({
   transcription,
   captionStyle
 }: SplitScreenVideoProps) => {
-  const videoConfig = useVideoConfig()
   const [subtitles, setSubtitles] = useState<SubtitleProp[]>([])
   const [handle] = useState(() => delayRender())
 
@@ -99,20 +99,31 @@ export const SplitScreenComposition = ({
           height: '50%'
         }}
       >
-        <Series>
-          {backgroundUrls.map((part, index) => (
-            <Series.Sequence durationInFrames={FPS * 60} key={index}>
-              <OffthreadVideo
-                src={part}
-                startFrom={0}
-                endAt={FPS * 60}
-                style={videoStyle}
-                muted
-                pauseWhenBuffering
-              />
-            </Series.Sequence>
-          ))}
-        </Series>
+        {backgroundUrls.length === 1 ? (
+          <Video
+            src={backgroundUrls[0]}
+            startFrom={0}
+            style={videoStyle}
+            muted
+            loop
+            pauseWhenBuffering
+          />
+        ) : (
+          <Series>
+            {backgroundUrls.map((part, index) => (
+              <Series.Sequence durationInFrames={FPS * 60} key={index}>
+                <OffthreadVideo
+                  src={part}
+                  startFrom={0}
+                  endAt={FPS * 60}
+                  style={videoStyle}
+                  muted
+                  pauseWhenBuffering
+                />
+              </Series.Sequence>
+            ))}
+          </Series>
+        )}
       </div>
       {subtitles.map((subtitle, index) =>
         subtitle.startFrame < subtitle.endFrame ? (
