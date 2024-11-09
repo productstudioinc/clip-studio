@@ -22,7 +22,7 @@ const links: Link[] = [
 
 const HeroPill = () => (
   <motion.a
-    href="/"
+    href="/changelog/2024-11-03-twitter-thread-template-launch"
     className="flex w-auto items-center space-x-2 rounded-full bg-primary/20 px-2 py-1 ring-1 ring-accent whitespace-pre"
     initial={{ opacity: 0, y: -20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -32,7 +32,7 @@ const HeroPill = () => (
       📣 Announcement
     </div>
     <p className="text-xs font-medium text-primary sm:text-sm">
-      Introducing clip.studio
+      Introducing our Twitter template
     </p>
     <svg
       width="12"
@@ -90,8 +90,7 @@ const HeroTitles = () => (
         ease
       }}
     >
-      clip.studio is a platform that allows you to create viral short-form
-      videos with AI.
+      Create and publish short-form videos with AI in just a few clicks
     </motion.p>
   </div>
 )
