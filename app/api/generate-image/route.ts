@@ -10,6 +10,8 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { eq, sql } from 'drizzle-orm'
 import { Logger } from 'next-axiom'
 
+export const maxDuration = 300
+
 const promptMap: Record<VisualStyle, string> = {
   [VisualStyle.Realistic]:
     'professional 3d model {prompt}. octane render, highly detailed, volumetric, dramatic lighting',
