@@ -94,15 +94,27 @@ image = (  # build up a Modal Image to run ComfyUI, step by step
     .apt_install("git", "clang", "ffmpeg")  # install git to clone ComfyUI
     .pip_install("fastapi[standard]==0.115.4")  # install web dependencies
     .pip_install("comfy-cli==1.2.7")  # install comfy-cli
-    .pip_install(  # required to build flash-attn
-        "torch",
-        "ninja",
-        "packaging", 
+    .pip_install([
+        "packaging",
         "wheel",
-        # "torch",
-        "setuptools"
-    )
-    .pip_install("flash-attn==2.6.3", extra_options="--no-build-isolation")
+        "setuptools",
+        "numpy===1.26.4",
+    ])
+    # Then install the rest of the dependencies
+    .pip_install([
+        "torch",
+        "accelerate",
+        "tensorflow",
+        "tensorboard",
+        "opencv-python",
+        "soundfile",
+        "mmpose",
+        "tqdm",
+        "more-itertools",
+        "ffmpeg-python>=0.2.0",
+        "pydub",
+    ])
+    # .pip_install("flash-attn==2.6.3", extra_options="--no-build-isolation")
     .run_commands(  # use comfy-cli to install the ComfyUI repo and its dependencies
         "comfy --skip-prompt install --nvidia"
     )
@@ -145,10 +157,36 @@ image = (
     .run_commands(
         "comfy --skip-prompt model download --url https://huggingface.co/fudan-generative-ai/hallo2/resolve/main/realesrgan/RealESRGAN_x2plus.pth --relative-path models/upscale_models"
     )
-    .run_commands(
-        "comfy --skip-prompt model download --url https://huggingface.co/fudan-generative-ai/hallo2/resolve/main/facelib/detection_Resnet50_Final.pth --relative-path models/facelib"
-    )
+    # .run_commands(
+    #     "comfy --skip-prompt model download --url https://huggingface.co/fudan-generative-ai/hallo2/resolve/main/facelib/detection_Resnet50_Final.pth --relative-path models/facelib"
+    # )
     # Add .run_commands(...) calls for any other models you want to download
+    # .run_commands(
+    #     "comfy --skip-prompt model download --url https://huggingface.co/TMElyralab/MuseTalk/resolve/main/musetalk/pytorch_model.bin --relative-path models/musetalk"
+    # )
+    # .run_commands(
+    #     "comfy --skip-prompt model download --url https://huggingface.co/TMElyralab/MuseTalk/resolve/main/musetalk/musetalk.json --relative-path models/musetalk"
+    # )
+
+)
+
+image = (
+    image
+    .run_commands(
+        "comfy --skip-prompt model download --url https://huggingface.co/yzd-v/DWPose/blob/main/dw-ll_ucoco_384.pth --relative-path models/diffusers/TMElyralab/MuseTalk/dwpose"
+    )
+    .run_commands(
+        "comfy --skip-prompt model download --url https://huggingface.co/ManyOtherFunctions/face-parse-bisent/resolve/main/79999_iter.pth --relative-path models/diffusers/TMElyralab/MuseTalk/face-parse-bisent"
+    )
+    .run_commands(
+        "comfy --skip-prompt model download --url https://download.pytorch.org/models/resnet18-5c106cde.pth --relative-path models/diffusers/TMElyralab/MuseTalk/vae"
+    )
+    .run_commands(
+        "comfy --skip-prompt model download --url https://huggingface.co/stabilityai/sd-vae-ft-mse/resolve/main/config.json --relative-path models/diffusers/TMElyralab/MuseTalk/vae"
+    )
+    .run_commands(
+        "comfy --skip-prompt model download --url https://huggingface.co/stabilityai/sd-vae-ft-mse/resolve/main/diffusion_pytorch_model.bin --relative-path models/diffusers/TMElyralab/MuseTalk/vae"
+    )
 )
 
 # To download gated models that require a Hugging Face token (e.g. Flux Dev), add `--set-hf-api-token=<your_token>` to your `comfy model download` command.
@@ -169,9 +207,6 @@ image = (
     .run_commands(
         "comfy node install ComfyUI-VideoHelperSuite"
     )
-    .run_commands(
-        "comfy node install ComfyUI_EchoMimic"
-    )
   
     # Add .run_commands(...) calls for any other custom nodes you want to download
 )
@@ -185,43 +220,65 @@ image = (
 image = (
     image  # Add any additional steps here
     # .run_commands(...)
-    .pip_install(
-        # "flash-attn",
-        "spandrel",
-        "opencv-python",
-        "diffusers",
-        "jwt",
-        # "diffusers",
-        # "bitsandbytes",
-        "omegaconf",
-        "decord",
-        "carvekit",
-        "insightface",
-        # "easydict",
-        # "open_clip",
-        "ffmpeg-python",
-        "lpips",
-        # "taming",
-        "onnxruntime",
-        "accelerate",
-        # "torch",
-        "torchvision",
-        "torchaudio",
-        "numpy<2"
-
-    )
-    .pip_install(
-        "facenet-pytorch", extra_options="--no-deps"
-    )
-    # .conda_install(
-    #     'pytorch',
-    #     'torchvision',
-    #     'torchaudio',
-    #     'pytorch-cuda=12.4',
+    # .run_commands(
+    #     "git clone https://github.com/TMElyra/musetalk.git /root/musetalk && cd /root/musetalk && pip install -e ."
     # )
+    .pip_install(
+        "omegaconf",
+    )
+    .pip_install("protobuf==3.20.3")  # Add this line
+    # .pip_install(
+    #     "facenet-pytorch", extra_options="--no-deps"
+    # )
+    .pip_install(
+        "diffusers",
+        'yapf',
+        'addict',
+        # 'pytorch',
+        # 'torchvision', 
+        # 'torchaudio',
+        'torchvision==0.15.2',
+        'torch==2.0.1',
+        'torchaudio==2.0.2',
+        extra_options='--extra-index-url https://download.pytorch.org/whl/cu121'
+    )
+    .pip_install("openmim", extra_options="--no-cache-dir -U")
+    .run_commands(
+        "mim install mmengine --no-deps && "
+        "mim install 'mmcv==2.0.1' --no-deps && "
+        "mim install 'mmdet==3.2.0' --no-deps && "
+        "mim install 'mmpose==1.1.0' --no-deps"
+    )
     # .apt_install(...)
 )
 
+image = (
+    image
+    # .run_commands(
+    #     # First remove any existing installation
+    #     "rm -rf /root/comfy/ComfyUI/custom_nodes/ComfyUI-MuseTalk"
+    # )
+    .run_commands(
+        # Now install the ComfyUI custom node
+        "comfy node install ComfyUI-MuseTalk"
+    )
+    .run_commands(
+
+        # Original repo doesn't have this file
+        "touch /root/comfy/ComfyUI/custom_nodes/ComfyUI-MuseTalk/musetalk/__init__.py"
+    )
+    
+ 
+)
+
+image = (
+    image
+    .pip_install(
+        "pycocotools",
+        "shapely",
+        "terminaltables",
+    )
+)
 # #### Create the app
 #
 # We create the app and specify the image we built above.
