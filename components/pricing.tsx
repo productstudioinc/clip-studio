@@ -260,7 +260,15 @@ export default function Pricing({
                       event_name: 'InitiateCheckout',
                       custom_data: {
                         value: Number(currentPrice?.unitAmount ?? 0) / 100,
-                        currency: currentPrice?.currency ?? undefined
+                        currency: currentPrice?.currency ?? undefined,
+                        content_ids: [product.id],
+                        num_items: 1,
+                        contents: [
+                          {
+                            id: product.id,
+                            quantity: 1
+                          }
+                        ]
                       }
                     }}
                     action={trackMetaEvent}
