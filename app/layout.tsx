@@ -15,6 +15,10 @@ import Script from 'next/script'
 import { GeistSans } from 'geist/font/sans'
 import { AxiomWebVitals } from 'next-axiom'
 
+import { facebook } from '@/lib/meta'
+import { FacebookPageView } from '@/components/meta/pageview'
+import { FacebookTrackingProvider } from '@/components/meta/tracking-provider'
+
 import { PHProvider } from './_analytics/provider'
 
 const PostHogPageView = dynamic(() => import('./_analytics/PostHogPageView'), {
@@ -51,27 +55,30 @@ export default async function RootLayout({
         data-tolt="4196373f-07fe-4d9a-927b-5aa9c7952153"
       />
       <AxiomWebVitals />
-      <PHProvider>
-        <body
-          className={`${GeistSans.className} ${monserrat.variable} ${komika.variable}`}
-        >
-          <Suspense fallback={<></>}>
-            <ErrorToast />
-          </Suspense>
-          <PostHogPageView />
-          <LocalStorageTools />
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
+      <FacebookTrackingProvider client={facebook}>
+        <PHProvider>
+          <body
+            className={`${GeistSans.className} ${monserrat.variable} ${komika.variable}`}
           >
-            {children}
-            {modal}
-            <Toaster position="top-right" />
-          </ThemeProvider>
-        </body>
-      </PHProvider>
+            <Suspense fallback={<></>}>
+              <ErrorToast />
+            </Suspense>
+            <PostHogPageView />
+            <LocalStorageTools />
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+              {modal}
+              <Toaster position="top-right" />
+            </ThemeProvider>
+          </body>
+        </PHProvider>
+        <FacebookPageView />
+      </FacebookTrackingProvider>
     </html>
   )
 }

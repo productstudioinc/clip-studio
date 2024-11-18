@@ -10,6 +10,8 @@ import { stripe } from '@/utils/stripe/config'
 import { AxiomRequest, withAxiom } from 'next-axiom'
 import Stripe from 'stripe'
 
+import { facebook } from '@/lib/meta'
+
 const relevantEvents = new Set([
   'product.created',
   'product.updated',
@@ -22,6 +24,42 @@ const relevantEvents = new Set([
   'customer.subscription.updated',
   'customer.subscription.deleted'
 ])
+
+async function sendMetaSubscribeEvent(session: Stripe.Checkout.Session) {
+  await facebook.track({
+    event_name: 'Subscribe',
+    event_id: session.id,
+    custom_data: {
+      value: session.amount_total ? session.amount_total / 100 : 0,
+      currency: session.currency || 'USD'
+    },
+    user_data: {
+      external_id: session.customer?.toString() || undefined,
+      email: session.customer_details?.email || undefined,
+      fbc: session.metadata?.fbc,
+      fbp: session.metadata?.fbp,
+      first_name: session.customer_details?.name
+        ?.split(' ')?.[0]
+        ?.toLowerCase(),
+      last_name: session.customer_details?.name
+        ? session.customer_details.name.split(' ').length > 1
+          ? session.customer_details.name
+              .split(' ')
+              .slice(1)
+              .join(' ')
+              .toLowerCase()
+          : undefined
+        : undefined,
+      phone: session.customer_details?.phone || undefined,
+      city: session.customer_details?.address?.city
+        ?.toLowerCase()
+        .replace(/\s+/g, ''),
+      state: session.customer_details?.address?.state?.toLowerCase(),
+      zip: session.customer_details?.address?.postal_code?.toLowerCase(),
+      country: session.customer_details?.address?.country?.toLowerCase()
+    }
+  })
+}
 
 async function sendDiscordWebhook(subscription: Stripe.Subscription) {
   const webhookUrl = process.env.DISCORD_SUB_WEBHOOK
@@ -163,6 +201,7 @@ export const POST = withAxiom(async (req: AxiomRequest) => {
         case 'checkout.session.completed':
           const checkoutSession = event.data.object as Stripe.Checkout.Session
           if (checkoutSession.mode === 'subscription') {
+            await sendMetaSubscribeEvent(checkoutSession)
             const subscriptionId = checkoutSession.subscription
             await manageSubscriptionStatusChange(
               subscriptionId as string,

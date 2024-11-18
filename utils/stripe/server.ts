@@ -8,6 +8,8 @@ import Stripe from 'stripe'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'
 
+import { getFbc, getFbp } from '@/lib/meta/utils'
+
 import { getURL } from '../helpers/helpers'
 import { stripe } from './config'
 
@@ -67,9 +69,11 @@ export const checkoutWithStripe = createServerAction()
         cancel_url: getURL(),
         mode: 'subscription',
         success_url: getURL(input.redirectPath),
-        metadata: input.referralId
-          ? { tolt_referral: input.referralId }
-          : undefined,
+        metadata: {
+          tolt_referral: input.referralId ?? null,
+          fbc: getFbc() ?? null,
+          fbp: getFbp() ?? null
+        },
         payment_method_collection: 'always'
       }
       const session = await stripe.checkout.sessions.create(params)

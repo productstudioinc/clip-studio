@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { GetProductsResult } from '@/actions/db/user-queries'
+import { trackMetaEvent } from '@/actions/meta'
 import { Price } from '@/db/schema'
 import { getStripe } from '@/utils/stripe/client'
 import { checkoutWithStripe } from '@/utils/stripe/server'
@@ -17,6 +18,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { CreditCalculator } from '@/components/credit-calculator-simple'
+import { FacebookTrackOnClick } from '@/components/meta/facebook-track-onclick'
 
 type Interval = 'month' | 'year'
 
@@ -253,37 +255,48 @@ export default function Pricing({
                     </span>
                   </motion.div>
 
-                  <Button
-                    className={cn(
-                      'group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter mb-4',
-                      'transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2'
-                    )}
-                    variant={isMostPopular ? 'default' : 'outline'}
-                    disabled={
-                      isLoading || !currentPrice || subscription !== null
-                    }
-                    onClick={() =>
-                      currentPrice && onSubscribeClick(currentPrice)
-                    }
+                  <FacebookTrackOnClick
+                    event={{
+                      event_name: 'InitiateCheckout',
+                      custom_data: {
+                        value: Number(currentPrice?.unitAmount ?? 0) / 100,
+                        currency: currentPrice?.currency ?? undefined
+                      }
+                    }}
+                    action={trackMetaEvent}
                   >
-                    <span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 transform-gpu bg-white opacity-10 transition-all duration-1000 ease-out group-hover:-translate-x-96 dark:bg-black" />
-                    {isCurrentPlan ? (
-                      <p>Your Plan</p>
-                    ) : (
-                      <>
-                        {(!isLoading ||
-                          (isLoading && id !== currentPrice?.id)) && (
-                          <p>Get Started</p>
-                        )}
-                        {isLoading && id === currentPrice?.id && (
-                          <p>Starting...</p>
-                        )}
-                        {isLoading && id === currentPrice?.id && (
-                          <Loader className="mr-2 h-4 w-4 animate-spin" />
-                        )}
-                      </>
-                    )}
-                  </Button>
+                    <Button
+                      className={cn(
+                        'group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter mb-4',
+                        'transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2'
+                      )}
+                      variant={isMostPopular ? 'default' : 'outline'}
+                      disabled={
+                        isLoading || !currentPrice || subscription !== null
+                      }
+                      onClick={() =>
+                        currentPrice && onSubscribeClick(currentPrice)
+                      }
+                    >
+                      <span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 transform-gpu bg-white opacity-10 transition-all duration-1000 ease-out group-hover:-translate-x-96 dark:bg-black" />
+                      {isCurrentPlan ? (
+                        <p>Your Plan</p>
+                      ) : (
+                        <>
+                          {(!isLoading ||
+                            (isLoading && id !== currentPrice?.id)) && (
+                            <p>Get Started</p>
+                          )}
+                          {isLoading && id === currentPrice?.id && (
+                            <p>Starting...</p>
+                          )}
+                          {isLoading && id === currentPrice?.id && (
+                            <Loader className="mr-2 h-4 w-4 animate-spin" />
+                          )}
+                        </>
+                      )}
+                    </Button>
+                  </FacebookTrackOnClick>
 
                   <hr className="m-0 h-px w-full border-none bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0 mb-4" />
 
