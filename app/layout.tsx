@@ -64,7 +64,12 @@ export default async function RootLayout({
             <Suspense fallback={<></>}>
               <ErrorToast />
             </Suspense>
-            <PostHogPageView />
+            <Suspense fallback={<></>}>
+              <PostHogPageView />
+            </Suspense>
+            <Suspense fallback={<></>}>
+              <FacebookPageView />
+            </Suspense>
             <LocalStorageTools />
             <UTMTracker />
             <ThemeProvider
@@ -79,7 +84,6 @@ export default async function RootLayout({
             </ThemeProvider>
           </body>
         </PHProvider>
-        <FacebookPageView />
       </FacebookTrackingProvider>
     </html>
   )
