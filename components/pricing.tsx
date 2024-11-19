@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { GetProductsResult } from '@/actions/db/user-queries'
+import { trackMetaEvent } from '@/actions/meta'
 import { Price } from '@/db/schema'
 import { getStripe } from '@/utils/stripe/client'
 import { checkoutWithStripe } from '@/utils/stripe/server'
@@ -10,13 +11,17 @@ import { CheckIcon } from '@radix-ui/react-icons'
 import { User } from '@supabase/supabase-js'
 import { motion } from 'framer-motion'
 import { Loader, XIcon } from 'lucide-react'
+import posthog from 'posthog-js'
 import { toast } from 'sonner'
+import { uuidv7 } from 'uuidv7'
 import { z } from 'zod'
 
+import { POSTHOG_EVENTS } from '@/lib/posthog'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { CreditCalculator } from '@/components/credit-calculator-simple'
+import { useFacebookPixel } from '@/components/meta/pixel-provider'
 
 type Interval = 'month' | 'year'
 
@@ -34,6 +39,7 @@ export default function Pricing({
   user: User | null
   subscription: string | null
 }) {
+  const pixel = useFacebookPixel()
   const router = useRouter()
   const [interval, setInterval] = useState<Interval>('year')
   const [isLoading, setIsLoading] = useState(false)
@@ -46,9 +52,14 @@ export default function Pricing({
     }
   }, [])
 
-  const onSubscribeClick = async (price: Partial<z.infer<typeof Price>>) => {
+  const onSubscribeClick = async (
+    price: Partial<z.infer<typeof Price>>,
+    productId: string
+  ) => {
     setIsLoading(true)
     setId(price.id!)
+
+    // Redirect to login if user is not logged in
     if (!user) {
       setIsLoading(false)
       return router.push('/login')
@@ -67,6 +78,36 @@ export default function Pricing({
       setIsLoading(false)
       return
     }
+
+    // Track the event to PostHog
+    posthog.capture(POSTHOG_EVENTS.USER_INITIATE_CHECKOUT, {
+      distinctId: user?.email,
+      email: user?.email
+    })
+
+    // Track the event to Facebook
+    const event_id = uuidv7()
+    const event = {
+      event_id,
+      event_name: 'InitiateCheckout',
+      custom_data: {
+        value: Number(price.unitAmount ?? 0) / 100,
+        currency: price.currency ?? undefined,
+        content_ids: [productId],
+        num_items: 1,
+        contents: [
+          {
+            id: productId,
+            quantity: 1
+          }
+        ]
+      }
+    }
+
+    // Send meta pixel event
+    pixel?.track(event)
+    // Send conversion api event
+    await trackMetaEvent(event)
 
     const stripe = await getStripe()
     stripe?.redirectToCheckout({ sessionId: data?.sessionId })
@@ -263,7 +304,7 @@ export default function Pricing({
                       isLoading || !currentPrice || subscription !== null
                     }
                     onClick={() =>
-                      currentPrice && onSubscribeClick(currentPrice)
+                      currentPrice && onSubscribeClick(currentPrice, product.id)
                     }
                   >
                     <span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 transform-gpu bg-white opacity-10 transition-all duration-1000 ease-out group-hover:-translate-x-96 dark:bg-black" />

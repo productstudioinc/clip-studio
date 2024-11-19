@@ -5,78 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1726351246683,
-      "tag": "0000_mean_sandman",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1726375532022,
-      "tag": "0001_silly_the_fallen",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1726380153032,
-      "tag": "0002_gray_romulus",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1726449444826,
-      "tag": "0003_glossy_puff_adder",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1726449563173,
-      "tag": "0004_powerful_landau",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1726874860896,
-      "tag": "0005_volatile_talos",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1727738963295,
-      "tag": "0006_uneven_prism",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1728166976534,
-      "tag": "0007_loud_psylocke",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1728176733908,
-      "tag": "0008_broad_zzzax",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1728190000980,
-      "tag": "0009_romantic_jack_flag",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "7",
-      "when": 1729034953952,
-      "tag": "0010_noisy_jackal",
+      "when": 1731988477305,
+      "tag": "0000_typical_union_jack",
       "breakpoints": true
     }
   ]
