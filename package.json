@@ -9,11 +9,14 @@
     "lint": "next lint",
     "format": "prettier --check --ignore-path .gitignore .",
     "format:fix": "prettier --write --ignore-path .gitignore .",
+    "db:setup": "pnpm db:reset && pnpm db:migrate",
     "db:pull": "dotenv -e .env.local -- drizzle-kit pull",
     "db:push": "dotenv -e .env.local -- drizzle-kit push",
     "db:generate": "dotenv -e .env.local -- drizzle-kit generate",
     "db:migrate": "dotenv -e .env.local -- npx tsx db/migrate.ts",
-    "remotion": "remotion studio src/remotion/index.ts"
+    "db:reset": "dotenv -e .env.local -- npx tsx db/reset.ts",
+    "remotion": "remotion studio src/remotion/index.ts",
+    "stripe": "stripe listen --forward-to localhost:3000/api/webhooks"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.66",
@@ -61,6 +64,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
+    "cookies-next": "^5.0.2",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.32.2",
     "drizzle-zod": "^0.5.1",
@@ -121,6 +125,7 @@
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.0.0-rc.0",
     "eslint-config-prettier": "^9.1.0",
+    "pgtools": "^1.0.1",
     "postcss": "^8.4.47",
     "prettier-plugin-tailwindcss": "^0.6.8",
     "tailwindcss": "^3.4.14",

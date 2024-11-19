@@ -1,23 +1,29 @@
 DO $$ BEGIN
- CREATE TYPE IF NOT EXISTS "public"."plan_tier" AS ENUM('hobby', 'creator', 'pro');
+ CREATE TYPE "public"."plan_tier" AS ENUM('hobby', 'creator', 'pro');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE IF NOT EXISTS "public"."pricing_plan_interval" AS ENUM('day', 'week', 'month', 'year');
+ CREATE TYPE "public"."pricing_plan_interval" AS ENUM('day', 'week', 'month', 'year');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE IF NOT EXISTS "public"."pricing_type" AS ENUM('one_time', 'recurring');
+ CREATE TYPE "public"."pricing_type" AS ENUM('one_time', 'recurring');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE IF NOT EXISTS "public"."subscription_status" AS ENUM('incomplete', 'incomplete_expired', 'trialing', 'active', 'past_due', 'canceled', 'unpaid', 'paused');
+ CREATE TYPE "public"."subscription_status" AS ENUM('incomplete', 'incomplete_expired', 'trialing', 'active', 'past_due', 'canceled', 'unpaid', 'paused');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "public"."user_role" AS ENUM('user', 'admin');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -48,6 +54,15 @@ CREATE TABLE IF NOT EXISTS "feedback" (
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "music" (
+	"id" integer PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	"description" text,
+	"audio_url" text NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "past_renders" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
@@ -59,10 +74,8 @@ CREATE TABLE IF NOT EXISTS "past_renders" (
 CREATE TABLE IF NOT EXISTS "plan_limits" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"product_id" text,
-	"export_seconds" integer NOT NULL,
-	"voiceover_characters" integer NOT NULL,
-	"transcription_seconds" integer NOT NULL,
-	"connected_accounts" integer NOT NULL
+	"total_credits" integer NOT NULL,
+	"total_connected_accounts" integer NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "prices" (
@@ -109,13 +122,16 @@ CREATE TABLE IF NOT EXISTS "subscriptions" (
 	"current_period_end" timestamp with time zone DEFAULT now() NOT NULL,
 	"ended_at" timestamp with time zone DEFAULT now(),
 	"cancel_at" timestamp with time zone DEFAULT now(),
-	"canceled_at" timestamp with time zone DEFAULT now()
+	"canceled_at" timestamp with time zone DEFAULT now(),
+	"trial_start" timestamp with time zone DEFAULT now(),
+	"trial_end" timestamp with time zone DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "templates" (
 	"id" integer PRIMARY KEY NOT NULL,
 	"value" text NOT NULL,
 	"name" text NOT NULL,
+	"active" boolean DEFAULT false NOT NULL,
 	"preview_url" text NOT NULL
 );
 --> statement-breakpoint
@@ -147,11 +163,8 @@ CREATE TABLE IF NOT EXISTS "tiktok_posts" (
 CREATE TABLE IF NOT EXISTS "user_usage" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
-	"subscription_id" text,
-	"export_seconds_left" integer NOT NULL,
-	"voiceover_characters_left" integer NOT NULL,
-	"transcription_seconds_left" integer NOT NULL,
-	"connected_accounts_left" integer NOT NULL,
+	"credits_left" integer NOT NULL,
+	"connected_accounts_left" integer,
 	"last_reset_date" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "user_usage_user_id_unique" UNIQUE("user_id")
 );
@@ -159,9 +172,13 @@ CREATE TABLE IF NOT EXISTS "user_usage" (
 CREATE TABLE IF NOT EXISTS "users" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"full_name" text,
+	"email" text,
 	"avatar_url" text,
 	"billing_address" jsonb,
-	"payment_method" jsonb
+	"payment_method" jsonb,
+	"role" "user_role" DEFAULT 'user' NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "youtube_channels" (
@@ -262,12 +279,6 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "user_usage" ADD CONSTRAINT "user_usage_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "user_usage" ADD CONSTRAINT "user_usage_subscription_id_subscriptions_id_fk" FOREIGN KEY ("subscription_id") REFERENCES "public"."subscriptions"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

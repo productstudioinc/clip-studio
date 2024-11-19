@@ -8,3 +8,14 @@ export default function PostHogClient() {
   })
   return posthogClient
 }
+
+export enum POSTHOG_EVENTS {
+  // Step 1
+  USER_SIGNUP = 'USER_SIGNUP',
+
+  // Step 2
+  USER_INITIATE_CHECKOUT = 'USER_INITIATE_CHECKOUT',
+
+  // Step 3
+  USER_SUBSCRIBE = 'USER_SUBSCRIBE'
+}

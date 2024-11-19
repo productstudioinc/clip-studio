@@ -1,1 +1,0 @@
-ALTER TABLE "templates" ADD COLUMN "active" boolean DEFAULT false NOT NULL;

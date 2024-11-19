@@ -18,6 +18,7 @@ import { AxiomWebVitals } from 'next-axiom'
 import { facebook } from '@/lib/meta'
 import { FacebookPageView } from '@/components/meta/pageview'
 import { FacebookTrackingProvider } from '@/components/meta/tracking-provider'
+import UTMTracker from '@/components/utm-tracker'
 
 import { PHProvider } from './_analytics/provider'
 
@@ -65,6 +66,7 @@ export default async function RootLayout({
             </Suspense>
             <PostHogPageView />
             <LocalStorageTools />
+            <UTMTracker />
             <ThemeProvider
               attribute="class"
               defaultTheme="system"

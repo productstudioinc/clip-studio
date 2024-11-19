@@ -6,5 +6,9 @@ export default defineConfig({
   dialect: 'postgresql',
   dbCredentials: {
     url: process.env.DATABASE_URL!
-  }
+  },
+  // Print all statements
+  verbose: true,
+  // Always ask for my confirmation
+  strict: true
 })

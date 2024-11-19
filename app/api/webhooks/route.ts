@@ -8,9 +8,11 @@ import {
 } from '@/actions/db/billing-queries'
 import { stripe } from '@/utils/stripe/config'
 import { AxiomRequest, withAxiom } from 'next-axiom'
+import posthog from 'posthog-js'
 import Stripe from 'stripe'
 
 import { facebook } from '@/lib/meta'
+import { POSTHOG_EVENTS } from '@/lib/posthog'
 
 const relevantEvents = new Set([
   'product.created',
@@ -24,6 +26,13 @@ const relevantEvents = new Set([
   'customer.subscription.updated',
   'customer.subscription.deleted'
 ])
+
+function sendPosthogEvent(session: Stripe.Checkout.Session) {
+  posthog.capture(POSTHOG_EVENTS.USER_SUBSCRIBE, {
+    distinctId: session.customer_details?.email,
+    email: session.customer_details?.email
+  })
+}
 
 async function sendMetaSubscribeEvent(session: Stripe.Checkout.Session) {
   await facebook.track({
@@ -202,6 +211,7 @@ export const POST = withAxiom(async (req: AxiomRequest) => {
           const checkoutSession = event.data.object as Stripe.Checkout.Session
           if (checkoutSession.mode === 'subscription') {
             await sendMetaSubscribeEvent(checkoutSession)
+            sendPosthogEvent(checkoutSession)
             const subscriptionId = checkoutSession.subscription
             await manageSubscriptionStatusChange(
               subscriptionId as string,
