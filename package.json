@@ -15,6 +15,7 @@
     "db:generate": "dotenv -e .env.local -- drizzle-kit generate",
     "db:migrate": "dotenv -e .env.local -- npx tsx db/migrate.ts",
     "db:reset": "dotenv -e .env.local -- npx tsx db/reset.ts",
+    "db:squash": "rm -rf supabase/migrations/* && pnpm db:generate && pnpm db:setup",
     "remotion": "remotion studio src/remotion/index.ts",
     "stripe": "stripe listen --forward-to localhost:3000/api/webhooks"
   },
