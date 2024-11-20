@@ -14,7 +14,11 @@ export const POST = withAxiom(async (req) => {
 
     logger.info('Received supabase payload', { payload })
 
-    if (payload.type === 'INSERT' && payload.table === 'auth.users') {
+    if (
+      payload.type === 'INSERT' &&
+      payload.schema === 'auth' &&
+      payload.table === 'users'
+    ) {
       const newUser = payload.record
 
       // Track user signup event in PostHog
