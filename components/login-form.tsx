@@ -73,7 +73,7 @@ export default function LoginComponent() {
         <CardContent>
           <div className="grid gap-4">
             <Button
-              variant="outline"
+              variant="secondary"
               className="w-full"
               onClick={() => {
                 supabase.auth.signInWithOAuth({
