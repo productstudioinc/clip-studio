@@ -62,23 +62,21 @@ const HeroTitles = () => (
         staggerChildren: 0.2
       }}
     >
-      {['Create', 'viral', 'short-form', 'videos', 'with AI'].map(
-        (text, index) => (
-          <motion.span
-            key={index}
-            className="inline-block px-2 tracking-tighter"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: 0.8,
-              delay: index * 0.2,
-              ease
-            }}
-          >
-            {text}
-          </motion.span>
-        )
-      )}
+      {['Create', 'viral', 'videos', 'with 1 click'].map((text, index) => (
+        <motion.span
+          key={index}
+          className="inline-block px-2 tracking-tighter"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.8,
+            delay: index * 0.2,
+            ease
+          }}
+        >
+          {text}
+        </motion.span>
+      ))}
     </motion.h1>
     <motion.p
       className="mx-auto max-w-xl text-center text-lg leading-7 text-muted-foreground sm:text-xl sm:leading-9"
@@ -106,7 +104,7 @@ const HeroCTA = () => (
       <Link
         href="/login"
         className={cn(
-          buttonVariants({ variant: 'default' }),
+          buttonVariants({ variant: 'rainbow', size: 'lg' }),
           'w-full sm:w-auto text-background flex gap-2'
         )}
       >
