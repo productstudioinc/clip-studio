@@ -10,7 +10,7 @@ export default function Page() {
   return (
     <Dialog open={true} onOpenChange={(open) => !open && router.back()}>
       <DialogTitle className="hidden">Login</DialogTitle>
-      <DialogContent className="p-0 border-0 max-w-sm">
+      <DialogContent className="p-0 border-0 max-w-3xl">
         <LoginComponent />
       </DialogContent>
     </Dialog>
