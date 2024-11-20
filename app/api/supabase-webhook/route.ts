@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { withAxiom } from 'next-axiom'
 
-import posthog from '@/lib/posthog'
+import posthog, { POSTHOG_EVENTS } from '@/lib/posthog'
 
 export const POST = withAxiom(async (req) => {
   const logger = req.log.with({
@@ -24,7 +24,7 @@ export const POST = withAxiom(async (req) => {
       // Track user signup event in PostHog
       posthog().capture({
         distinctId: newUser.id,
-        event: 'user_signed_up',
+        event: POSTHOG_EVENTS.USER_SIGNUP,
         properties: {
           email: newUser.email
         }
