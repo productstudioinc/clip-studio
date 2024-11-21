@@ -1,11 +1,11 @@
 // app/providers.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
-import { getUser } from '@/actions/auth/user'
-import { User } from '@supabase/supabase-js'
+import { useEffect } from 'react'
 import posthog from 'posthog-js'
-import { PostHogProvider } from 'posthog-js/react'
+import { PostHogProvider, usePostHog } from 'posthog-js/react'
+
+import { useUser } from '@/lib/hooks/useUser'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
@@ -29,30 +29,20 @@ export function PHProvider({ children }: { children: React.ReactNode }) {
 }
 
 function PostHogAuthWrapper({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const posthog = usePostHog()
+  const { user } = useUser()
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'production') {
-      const fetchUser = async () => {
-        const { user } = await getUser()
-        setUser(user)
-      }
-      fetchUser()
-    }
-  }, [])
-
-  useEffect(() => {
+    if (!posthog) return
     if (process.env.NODE_ENV === 'production') {
       if (user) {
         posthog.identify(user.id, {
           email: user.email,
-          name: user.app_metadata.full_name
+          name: user.user_metadata?.full_name
         })
-      } else {
-        posthog.reset()
       }
     }
-  }, [user])
+  }, [user, posthog])
 
   return <>{children}</>
 }
