@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   TikTokAccount,
   YoutubeChannel
@@ -12,6 +13,7 @@ import { Loader2 } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 
+import { useUser } from '@/lib/hooks/useUser'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -73,6 +75,9 @@ export function FormSubmit({
   tiktokAccounts,
   form
 }: FormSubmitProps) {
+  const { user } = useUser()
+  const router = useRouter()
+
   const {
     selectedTemplate,
     splitScreenState,
@@ -117,6 +122,10 @@ export function FormSubmit({
 
   const handleGenerateVideo = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
+
+    if (!user) {
+      return router.push('/login')
+    }
 
     const isVoiceoverGenerated = form.getValues('isVoiceoverGenerated')
 
