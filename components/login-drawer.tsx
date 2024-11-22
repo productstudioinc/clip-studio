@@ -61,7 +61,7 @@ export function LoginDrawer({
   if (user) return null
 
   // Don't show the login drawer on the login page
-  if (pathname === '/login') return null
+  if (pathname !== '/') return null
 
   if (isDesktop) {
     return (
