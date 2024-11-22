@@ -23,7 +23,10 @@ export default async function Layout({
   const admin = await isAdmin(user?.id || '')
 
   return (
-    <div className="grid min-h-screen w-full grid-cols-1 md:grid-cols-[220px_1fr]">
+    <div
+      className="grid min-h-screen w-full grid-cols-1 md:grid-cols-[220px_1fr]"
+      data-vaul-drawer-wrapper=""
+    >
       <div className="hidden border-r bg-muted/40 md:block md:sticky md:top-0 md:h-screen">
         <NavigationItems
           user={user}

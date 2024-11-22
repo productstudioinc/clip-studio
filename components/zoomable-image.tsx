@@ -2,7 +2,7 @@ import { DetailedHTMLProps, ImgHTMLAttributes, useState } from 'react'
 
 import { cn } from '@/lib/utils'
 
-import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from './ui/dialog'
 
 export default function ZoomableImage({
   src,
@@ -28,6 +28,7 @@ export default function ZoomableImage({
         className="max-w-7xl border-0 bg-transparent p-0"
         onInteractOutside={() => setIsOpen(false)}
       >
+        <DialogTitle hidden>{alt || ''}</DialogTitle>
         <div className="relative h-[calc(100vh-220px)] w-full overflow-clip rounded-md bg-transparent shadow-md">
           <img
             src={src}

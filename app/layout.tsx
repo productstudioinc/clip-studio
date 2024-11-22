@@ -16,6 +16,7 @@ import { GeistSans } from 'geist/font/sans'
 import { AxiomWebVitals } from 'next-axiom'
 
 import { facebook } from '@/lib/meta'
+import { LoginDrawer } from '@/components/login-drawer'
 import { FacebookPageView } from '@/components/meta/pageview'
 import { FacebookTrackingProvider } from '@/components/meta/tracking-provider'
 import UTMTracker from '@/components/utm-tracker'
@@ -80,6 +81,7 @@ export default async function RootLayout({
             >
               {children}
               {modal}
+              <LoginDrawer />
               <Toaster position="top-right" />
             </ThemeProvider>
           </body>

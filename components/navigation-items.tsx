@@ -22,6 +22,7 @@ import {
   ZapIcon
 } from 'lucide-react'
 
+import { siteConfig } from '@/lib/config'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -32,7 +33,13 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import Hero from '@/components/hero'
@@ -93,6 +100,8 @@ export function HeroWrapper() {
         </div>
       </DialogTrigger>
       <DialogContent>
+        <DialogTitle hidden>{siteConfig.name}</DialogTitle>
+        <DialogDescription hidden>{siteConfig.description}</DialogDescription>
         <ScrollArea className="h-full w-full max-h-[70vh]">
           <Hero />
         </ScrollArea>
