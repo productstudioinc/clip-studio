@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { GetUserSubscriptionResult } from '@/actions/auth/user'
@@ -75,13 +75,13 @@ export function UpgradeCard() {
 export function HeroWrapper() {
   const [isOpen, setIsOpen] = useState(false)
 
-  useEffect(() => {
-    const hasVisited = localStorage.getItem('hasVisitedBefore')
-    if (!hasVisited) {
-      setIsOpen(true)
-      localStorage.setItem('hasVisitedBefore', 'true')
-    }
-  }, [])
+  // useEffect(() => {
+  //   const hasVisited = localStorage.getItem('hasVisitedBefore')
+  //   if (!hasVisited) {
+  //     setIsOpen(true)
+  //     localStorage.setItem('hasVisitedBefore', 'true')
+  //   }
+  // }, [])
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
