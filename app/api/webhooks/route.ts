@@ -8,11 +8,10 @@ import {
 } from '@/actions/db/billing-queries'
 import { stripe } from '@/utils/stripe/config'
 import { AxiomRequest, withAxiom } from 'next-axiom'
-import posthog from 'posthog-js'
 import Stripe from 'stripe'
 
 import { facebook } from '@/lib/meta'
-import { POSTHOG_EVENTS } from '@/lib/posthog'
+import posthog, { POSTHOG_EVENTS } from '@/lib/posthog'
 
 const relevantEvents = new Set([
   'product.created',
@@ -28,9 +27,12 @@ const relevantEvents = new Set([
 ])
 
 function sendPosthogEvent(session: Stripe.Checkout.Session) {
-  posthog.capture(POSTHOG_EVENTS.USER_SUBSCRIBE, {
-    distinctId: session.customer_details?.email,
-    email: session.customer_details?.email
+  posthog().capture({
+    event: POSTHOG_EVENTS.USER_SUBSCRIBE,
+    distinctId: session.customer_details?.email || '',
+    properties: {
+      email: session.customer_details?.email || ''
+    }
   })
 }
 
