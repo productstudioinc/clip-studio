@@ -1,15 +1,5 @@
 import { CSSProperties, useCallback, useEffect, useState } from 'react'
-import {
-  AbsoluteFill,
-  cancelRender,
-  continueRender,
-  delayRender,
-  OffthreadVideo,
-  Sequence,
-  Series,
-  useVideoConfig,
-  Video
-} from 'remotion'
+import { AbsoluteFill, OffthreadVideo, Sequence, Series, Video } from 'remotion'
 
 import { SplitScreenVideoProps } from '../../stores/templatestore'
 import Subtitle from '../Shared/Subtitle'
@@ -30,7 +20,6 @@ export const SplitScreenComposition = ({
   captionStyle
 }: SplitScreenVideoProps) => {
   const [subtitles, setSubtitles] = useState<SubtitleProp[]>([])
-  const [handle] = useState(() => delayRender())
 
   const generateSubtitles = useCallback(() => {
     try {
@@ -47,12 +36,10 @@ export const SplitScreenComposition = ({
         })
       }
       setSubtitles(subtitlesData)
-      continueRender(handle)
     } catch (e) {
       console.error('Error in generateSubtitles:', e)
-      cancelRender(e)
     }
-  }, [transcription, handle])
+  }, [transcription])
 
   useEffect(() => {
     generateSubtitles()

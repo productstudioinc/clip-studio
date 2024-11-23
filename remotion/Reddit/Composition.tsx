@@ -2,9 +2,6 @@ import { useCallback, useEffect, useState } from 'react'
 import {
   AbsoluteFill,
   Audio,
-  cancelRender,
-  continueRender,
-  delayRender,
   OffthreadVideo,
   Sequence,
   Series,
@@ -38,7 +35,6 @@ export const RedditComposition = ({
   captionStyle
 }: RedditVideoProps) => {
   const [subtitles, setSubtitles] = useState<SubtitleProp[]>([])
-  const [handle] = useState(() => delayRender())
 
   const generateSubtitles = useCallback(() => {
     try {
@@ -76,12 +72,10 @@ export const RedditComposition = ({
         }
       }
       setSubtitles(subtitlesData)
-      continueRender(handle)
     } catch (e) {
       console.error('Error in generateSubtitles:', e)
-      cancelRender(e)
     }
-  }, [titleEnd, handle, voiceoverFrames])
+  }, [titleEnd, voiceoverFrames])
 
   useEffect(() => {
     generateSubtitles()

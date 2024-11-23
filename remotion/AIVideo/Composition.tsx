@@ -2,9 +2,6 @@ import { useCallback, useEffect, useState } from 'react'
 import {
   AbsoluteFill,
   Audio,
-  cancelRender,
-  continueRender,
-  delayRender,
   Img,
   interpolate,
   Sequence,
@@ -54,7 +51,6 @@ export const AIVideoComposition = ({
 }: AIVideoProps) => {
   const videoConfig = useVideoConfig()
   const [subtitles, setSubtitles] = useState<SubtitleProp[]>([])
-  const [handle] = useState(() => delayRender())
 
   const generateSubtitles = useCallback(() => {
     try {
@@ -89,12 +85,10 @@ export const AIVideoComposition = ({
         }
       }
       setSubtitles(subtitlesData)
-      continueRender(handle)
     } catch (e) {
       console.error('Error in generateSubtitles:', e)
-      cancelRender(e)
     }
-  }, [handle, voiceoverFrames])
+  }, [voiceoverFrames])
 
   useEffect(() => {
     generateSubtitles()
