@@ -34,6 +34,11 @@ const nextConfig = {
         source: '/affiliate',
         destination: 'https://clipstudio.tolt.io',
         permanent: true
+      },
+      {
+        source: '/discord',
+        destination: 'https://discord.gg/Qg4H9dWVv3',
+        permanent: true
       }
     ]
   },

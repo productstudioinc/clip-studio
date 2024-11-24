@@ -109,7 +109,7 @@ export function UserAccountMenu({ user }: UserAccountNavProps) {
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
             <Link
-              href="https://discord.gg/AVRVrVHTwQ"
+              href="/discord"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2"

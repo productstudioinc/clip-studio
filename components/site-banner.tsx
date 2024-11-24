@@ -7,7 +7,7 @@ import posthog from 'posthog-js'
 const DiscordBanner = () => {
   return (
     <Link
-      href="https://discord.gg/AVRVrVHTwQ"
+      href="/discord"
       onClick={() => posthog.capture('banner_clicked')}
       className="group relative top-0 bg-[#5865F2] py-2 text-white transition-all duration-300 md:py-4 block"
     >

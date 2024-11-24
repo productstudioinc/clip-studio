@@ -163,7 +163,7 @@ const getNavItems = (admin: boolean, mobile: boolean): NavItem[] => [
   { href: '/account', icon: UserIcon, label: 'Account' },
   { href: '/feedback', icon: MessageSquareIcon, label: 'Submit Feedback' },
   {
-    href: 'https://discord.gg/AVRVrVHTwQ',
+    href: '/discord',
     icon: Icons.discord,
     label: 'Join our Discord'
   },
