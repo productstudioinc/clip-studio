@@ -275,6 +275,13 @@ const manageSubscriptionStatusChange = async (
 
 const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
   try {
+    if (subscription.status !== 'active') {
+      console.log(
+        `Skipping usage limit update for subscription ${subscription.id} - status: ${subscription.status}`
+      )
+      return
+    }
+
     const subscriptionDetails = await db
       .select({
         userId: subscriptions.userId,
