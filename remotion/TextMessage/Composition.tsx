@@ -1,15 +1,9 @@
 import { TextMessageVideoProps } from '@/stores/templatestore'
 import { loadFont as loadRobotoFont } from '@remotion/google-fonts/Roboto'
-import {
-  AbsoluteFill,
-  Audio,
-  OffthreadVideo,
-  Sequence,
-  Series,
-  Video
-} from 'remotion'
+import { AbsoluteFill, Audio, OffthreadVideo, Sequence, Series } from 'remotion'
 
 import { TextMessage } from '../../components/text-message'
+import { LoopedOffthreadVideo } from '../Shared/LoopedOffthreadVideo'
 
 export type SubtitleProp = {
   startFrame: number
@@ -34,13 +28,11 @@ export const TextMessageComposition = (props: TextMessageVideoProps) => {
       />
       <AbsoluteFill className="w-full h-full">
         {props.backgroundUrls.length === 1 ? (
-          <Video
+          <LoopedOffthreadVideo
             src={props.backgroundUrls[0]}
-            startFrom={0}
+            durationInSeconds={BACKGROUND_VIDEO_DURATION / FPS}
             className="absolute w-full h-full object-cover"
-            muted
-            loop
-            pauseWhenBuffering
+            startFrom={0}
           />
         ) : (
           <Series>

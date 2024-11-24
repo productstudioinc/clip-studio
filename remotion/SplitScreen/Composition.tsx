@@ -1,7 +1,8 @@
 import { CSSProperties, useCallback, useEffect, useState } from 'react'
-import { AbsoluteFill, OffthreadVideo, Sequence, Series, Video } from 'remotion'
+import { AbsoluteFill, OffthreadVideo, Sequence, Series } from 'remotion'
 
 import { SplitScreenVideoProps } from '../../stores/templatestore'
+import { LoopedOffthreadVideo } from '../Shared/LoopedOffthreadVideo'
 import Subtitle from '../Shared/Subtitle'
 
 export type SubtitleProp = {
@@ -87,13 +88,11 @@ export const SplitScreenComposition = ({
         }}
       >
         {backgroundUrls.length === 1 ? (
-          <Video
+          <LoopedOffthreadVideo
             src={backgroundUrls[0]}
-            startFrom={0}
+            durationInSeconds={60}
             style={videoStyle}
-            muted
-            loop
-            pauseWhenBuffering
+            startFrom={0}
           />
         ) : (
           <Series>
