@@ -302,19 +302,29 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                       size="icon"
                                       className="h-10 w-10 flex-shrink-0"
                                       onClick={() => {
-                                        const username = fields[index].username
                                         remove(index)
 
-                                        // Remove voice settings for the deleted tweet's username
-                                        const currentVoiceSettings =
-                                          form.getValues('voiceSettings') || []
-                                        const updatedVoiceSettings =
-                                          currentVoiceSettings.filter(
-                                            (s) => s.username !== username
-                                          )
+                                        const remainingTweets = fields.filter(
+                                          (_, i) => i !== index
+                                        )
+                                        const newVoiceSettings =
+                                          remainingTweets.map((tweet) => {
+                                            const existingSettings = form
+                                              .getValues('voiceSettings')
+                                              ?.find(
+                                                (s) =>
+                                                  s.username === tweet.username
+                                              )
+                                            return {
+                                              username: tweet.username,
+                                              voiceId:
+                                                existingSettings?.voiceId || ''
+                                            }
+                                          })
+
                                         form.setValue(
                                           'voiceSettings',
-                                          updatedVoiceSettings
+                                          newVoiceSettings
                                         )
                                         form.setValue(
                                           'isVoiceoverGenerated',
@@ -500,7 +510,14 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => remove()}>
+                    <AlertDialogAction
+                      onClick={() => {
+                        remove()
+                        // Clear all voice settings when clearing all tweets
+                        form.setValue('voiceSettings', [])
+                        form.setValue('isVoiceoverGenerated', false)
+                      }}
+                    >
                       Continue
                     </AlertDialogAction>
                   </AlertDialogFooter>
