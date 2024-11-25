@@ -370,19 +370,11 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                               `tweets.${index}.username`,
                                               {
                                                 required: true,
-                                                onChange: (e) => {
-                                                  const value =
-                                                    e.target.value.trim()
-                                                  if (value === '') {
-                                                    e.target.value =
-                                                      field.username
-                                                    return
-                                                  }
-                                                  form
-                                                    .register(
-                                                      `tweets.${index}.username`
-                                                    )
-                                                    .onChange(e)
+                                                validate: (value) => {
+                                                  return (
+                                                    value.trim() !== '' ||
+                                                    'Username cannot be empty'
+                                                  )
                                                 }
                                               }
                                             )}
