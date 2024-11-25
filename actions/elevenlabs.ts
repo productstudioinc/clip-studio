@@ -645,7 +645,14 @@ export const generateTwitterVoiceover = createServerAction()
           )
           if (!voiceSetting) continue
 
-          const tweetText = `${tweet.content} ---`
+          const cleanContent = tweet.content
+            .replace(/https?:\/\/\S+/g, '')
+            .replace(/@\S+/g, '')
+            .replace(/#\S+/g, '')
+            .replace(/\s+/g, ' ')
+            .trim()
+
+          const tweetText = `${cleanContent} ---`
 
           const audioResponse =
             (await elevenLabsClient.textToSpeech.convertWithTimestamps(
