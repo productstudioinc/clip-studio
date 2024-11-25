@@ -93,6 +93,7 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
         content: tweetData.text,
         image: tweetData.photos?.[0]?.url || '',
         verified: tweetData.user.verified,
+        hideUsername: false,
         likes: tweetData.favorite_count,
         comments: tweetData.conversation_count,
         from:
@@ -245,6 +246,7 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                     content: '',
                     image: '',
                     verified: false,
+                    hideUsername: false,
                     likes: 0,
                     comments: 0,
                     from: 0,
@@ -444,6 +446,25 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                         className="text-sm"
                                       >
                                         Verified Account
+                                      </Label>
+                                      <Checkbox
+                                        id={`hideUsername-${index}`}
+                                        checked={
+                                          tweets?.[index]?.hideUsername || false
+                                        }
+                                        onCheckedChange={(checked) => {
+                                          form.setValue(
+                                            `tweets.${index}.hideUsername`,
+                                            !!checked,
+                                            { shouldDirty: true }
+                                          )
+                                        }}
+                                      />
+                                      <Label
+                                        htmlFor={`hideUsername-${index}`}
+                                        className="text-sm"
+                                      >
+                                        Hide Username
                                       </Label>
                                     </div>
                                   </div>

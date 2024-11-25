@@ -35,7 +35,7 @@ export const TweetHeader = ({ tweet, components }: Props) => {
       <div className={s.author}>
         <div className={s.authorLinkText}>
           <span title={tweet.name || tweet.username}>
-            {tweet.name || tweet.username}
+            {tweet.hideUsername ? '' : tweet.name || tweet.username}
           </span>
           {tweet.verified && (
             <svg
@@ -51,7 +51,7 @@ export const TweetHeader = ({ tweet, components }: Props) => {
         </div>
         <div className={s.authorMeta}>
           <span className={s.username} title={`@${tweet.username}`}>
-            @{tweet.username}
+            {tweet.hideUsername ? '' : `@${tweet.username}`}
           </span>
         </div>
       </div>
