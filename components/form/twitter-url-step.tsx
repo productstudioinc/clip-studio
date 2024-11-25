@@ -31,6 +31,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -276,6 +277,24 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                         )}
                                         placeholder="Username"
                                       />
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <Checkbox
+                                        id={`verified-${index}`}
+                                        checked={field.verified}
+                                        onCheckedChange={(checked) => {
+                                          update(index, {
+                                            ...fields[index],
+                                            verified: !!checked
+                                          })
+                                        }}
+                                      />
+                                      <Label
+                                        htmlFor={`verified-${index}`}
+                                        className="text-sm"
+                                      >
+                                        Verified
+                                      </Label>
                                     </div>
                                     <Button
                                       type="button"
