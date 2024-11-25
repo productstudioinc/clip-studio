@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { TikTokAccount } from '@/actions/db/social-media-queries'
 import { createSocialMediaPost } from '@/actions/db/user-queries'
 import { uploadTiktokPost } from '@/actions/tiktok'
-import { State } from '@/utils/helpers/use-rendering'
 import { InfoIcon, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { RenderingState } from '@/types/rendering'
 import {
   Accordion,
   AccordionContent,
@@ -46,7 +46,7 @@ export function TikTokExportDialog({
 }: {
   tiktokAccounts: TikTokAccount[]
   disabled?: boolean
-  state?: State
+  state?: RenderingState
 }) {
   const [selectedAccount, setSelectedAccount] = useState<TikTokAccount | null>(
     null

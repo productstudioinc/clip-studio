@@ -4,10 +4,10 @@ import { useState } from 'react'
 import { YoutubeChannel } from '@/actions/db/social-media-queries'
 import { createSocialMediaPost } from '@/actions/db/user-queries'
 import { postVideoToYoutube } from '@/actions/youtube'
-import { State } from '@/utils/helpers/use-rendering'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { RenderingState } from '@/types/rendering'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -36,7 +36,7 @@ export function YoutubeExportDialog({
 }: {
   youtubeChannels: YoutubeChannel[]
   disabled?: boolean
-  state?: State
+  state?: RenderingState
 }) {
   const [selectedChannel, setSelectedChannel] = useState<YoutubeChannel | null>(
     null

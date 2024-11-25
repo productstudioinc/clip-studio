@@ -2,12 +2,6 @@
 
 import { useEffect } from 'react'
 import {
-  TikTokAccount,
-  YoutubeChannel
-} from '@/actions/db/social-media-queries'
-import { ElevenlabsVoice } from '@/actions/elevenlabs'
-import { SelectBackgroundWithParts, SelectMusic } from '@/db/schema'
-import {
   defaultTextMessageProps,
   TextMessageVideoProps,
   TextMessageVideoSchema,
@@ -26,21 +20,9 @@ import { TwoVoiceStep } from '@/components/form/two-voice-step'
 import { VideoPreview } from '@/components/form/video-preview'
 import { NumberedSteps } from '@/components/numbered-steps'
 
-interface TextMessageFormProps {
-  voices: ElevenlabsVoice[]
-  backgrounds: SelectBackgroundWithParts[]
-  youtubeChannels: YoutubeChannel[]
-  tiktokAccounts: TikTokAccount[]
-  music: SelectMusic[]
-}
+interface TextMessageFormProps {}
 
-export const TextMessageForm: React.FC<TextMessageFormProps> = ({
-  voices,
-  backgrounds,
-  youtubeChannels,
-  tiktokAccounts,
-  music
-}) => {
+export const TextMessageForm: React.FC<TextMessageFormProps> = () => {
   const form = useForm<VideoProps>({
     resolver: zodResolver(TextMessageVideoSchema),
     defaultValues: defaultTextMessageProps
@@ -64,16 +46,12 @@ export const TextMessageForm: React.FC<TextMessageFormProps> = ({
           <NumberedSteps className="col-span-12 lg:col-span-7 space-y-6">
             <TextMessageStep form={form} />
             {/* <VoiceStep form={form} voices={voices} /> */}
-            <TwoVoiceStep form={form} voices={voices} />
+            <TwoVoiceStep form={form} />
             {/* <MusicStep form={form} music={music} /> */}
-            <BackgroundSelectStep form={form} backgrounds={backgrounds} />
+            <BackgroundSelectStep form={form} />
             {/* <CaptionStyleStep form={form} /> */}
             <AspectRatioStep form={form} />
-            <FormSubmit
-              form={form}
-              youtubeChannels={youtubeChannels}
-              tiktokAccounts={tiktokAccounts}
-            />
+            <FormSubmit form={form} />
           </NumberedSteps>
 
           <div className="col-span-12 lg:col-span-5">

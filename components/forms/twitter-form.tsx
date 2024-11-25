@@ -2,12 +2,6 @@
 
 import React, { useEffect } from 'react'
 import {
-  TikTokAccount,
-  YoutubeChannel
-} from '@/actions/db/social-media-queries'
-import { ElevenlabsLibraryVoice, ElevenlabsVoice } from '@/actions/elevenlabs'
-import { SelectBackgroundWithParts, SelectMusic } from '@/db/schema'
-import {
   defaultTwitterProps,
   TwitterVideoProps,
   TwitterVideoSchema,
@@ -28,23 +22,9 @@ import TwitterVoiceStep from '@/components/form/twitter-voice-step'
 import { VideoPreview } from '@/components/form/video-preview'
 import { NumberedSteps } from '@/components/numbered-steps'
 
-interface TwitterFormProps {
-  voices: ElevenlabsVoice[]
-  libraryVoices: ElevenlabsLibraryVoice[]
-  backgrounds: SelectBackgroundWithParts[]
-  youtubeChannels: YoutubeChannel[]
-  tiktokAccounts: TikTokAccount[]
-  music: SelectMusic[]
-}
+interface TwitterFormProps {}
 
-export const TwitterForm: React.FC<TwitterFormProps> = ({
-  voices,
-  libraryVoices,
-  backgrounds,
-  youtubeChannels,
-  tiktokAccounts,
-  music
-}) => {
+export const TwitterForm: React.FC<TwitterFormProps> = () => {
   const form = useForm<VideoProps>({
     resolver: zodResolver(TwitterVideoSchema),
     defaultValues: defaultTwitterProps
@@ -66,19 +46,13 @@ export const TwitterForm: React.FC<TwitterFormProps> = ({
         <div className="grid grid-cols-12 gap-8">
           <NumberedSteps className="col-span-12 lg:col-span-7 space-y-6">
             <TwitterUrlStep form={form} />
-            {/* <VoiceStep form={form} voices={voices} /> */}
             {/* <MusicStep form={form} music={music} /> */}
-            <TwitterVoiceStep form={form} voices={voices} />
-            <BackgroundSelectStep form={form} backgrounds={backgrounds} />
+            <TwitterVoiceStep form={form} />
+            <BackgroundSelectStep form={form} />
             <CaptionStyleStep form={form} />
             <AspectRatioStep form={form} />
-            <FormSubmit
-              form={form}
-              youtubeChannels={youtubeChannels}
-              tiktokAccounts={tiktokAccounts}
-            />
+            <FormSubmit form={form} />
           </NumberedSteps>
-
           <div className="col-span-12 lg:col-span-5">
             <div className="sticky top-8 flex items-center justify-center">
               <VideoPreview form={form} />

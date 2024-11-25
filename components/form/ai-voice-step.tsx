@@ -1,10 +1,8 @@
 'use client'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import {
-  ElevenlabsVoice,
-  generateStructuredVoiceover
-} from '@/actions/elevenlabs'
+import { generateStructuredVoiceover } from '@/actions/elevenlabs'
+import { useAppContext } from '@/contexts/app-context'
 import { Language, VIDEO_FPS, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { Loader2, Mic2, Pause, Play } from 'lucide-react'
@@ -27,10 +25,10 @@ import { Textarea } from '@/components/ui/textarea'
 
 type AIVoiceStepProps = {
   form: UseFormReturn<VideoProps>
-  voices: ElevenlabsVoice[]
 }
 
-export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form, voices }) => {
+export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form }) => {
+  const { voices } = useAppContext()
   const [playingAudio, setPlayingAudio] = useState<string | null>(null)
   const [progress, setProgress] = useState<number>(0)
   const progressInterval = useRef<NodeJS.Timeout | null>(null)

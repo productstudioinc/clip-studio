@@ -1,15 +1,5 @@
 'use client'
 
-import {
-  TikTokAccount,
-  YoutubeChannel
-} from '@/actions/db/social-media-queries'
-import { ElevenlabsLibraryVoice, ElevenlabsVoice } from '@/actions/elevenlabs'
-import {
-  SelectBackgroundWithParts,
-  SelectMusic,
-  SelectTemplates
-} from '@/db/schema'
 import { TemplateSchema, useTemplateStore } from '@/stores/templatestore'
 
 import { TemplateSelect } from '@/components/form/template-select'
@@ -20,48 +10,23 @@ import { SplitScreenForm } from '@/components/forms/split-screen-form'
 import { TextMessageForm } from '@/components/forms/text-message-form'
 import { TwitterForm } from '@/components/forms/twitter-form'
 
-export const RootForm: React.FC<{
-  voices: ElevenlabsVoice[]
-  libraryVoices: ElevenlabsLibraryVoice[]
-  backgrounds: SelectBackgroundWithParts[]
-  youtubeChannels: YoutubeChannel[]
-  tiktokAccounts: TikTokAccount[]
-  music: SelectMusic[]
-  templates: SelectTemplates[]
-}> = ({
-  voices,
-  libraryVoices,
-  backgrounds,
-  youtubeChannels,
-  tiktokAccounts,
-  music,
-  templates
-}) => {
+export const RootForm: React.FC = () => {
   const { selectedTemplate } = useTemplateStore()
-
-  const commonProps = {
-    voices,
-    libraryVoices,
-    backgrounds,
-    youtubeChannels,
-    tiktokAccounts,
-    music
-  }
 
   const form = () => {
     switch (selectedTemplate) {
       case TemplateSchema.Enum.Reddit:
-        return <RedditForm {...commonProps} />
+        return <RedditForm />
       case TemplateSchema.Enum.SplitScreen:
-        return <SplitScreenForm {...commonProps} />
+        return <SplitScreenForm />
       case TemplateSchema.Enum.TextMessage:
-        return <TextMessageForm {...commonProps} />
+        return <TextMessageForm />
       case TemplateSchema.Enum.Clips:
-        return <ClipsForm {...commonProps} />
+        return <ClipsForm />
       case TemplateSchema.Enum.AIVideo:
-        return <AIVideoForm {...commonProps} />
+        return <AIVideoForm />
       case TemplateSchema.Enum.Twitter:
-        return <TwitterForm {...commonProps} />
+        return <TwitterForm />
       default:
         return null
     }
@@ -69,7 +34,7 @@ export const RootForm: React.FC<{
 
   return (
     <>
-      <TemplateSelect templates={templates} />
+      <TemplateSelect />
       {form()}
     </>
   )

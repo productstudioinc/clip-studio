@@ -1,30 +1,8 @@
-import { useCallback, useMemo, useState } from 'react'
-import { VideoProps } from '@/stores/templatestore'
+import { useCallback, useMemo } from 'react'
+import { useRenderingStore } from '@/stores/renderstore'
+import { useTemplateStore } from '@/stores/templatestore'
 import { getProgress, renderVideo } from '@/utils/lambda/api'
-
-export type State =
-  | {
-      status: 'init'
-    }
-  | {
-      status: 'invoking'
-    }
-  | {
-      renderId: string
-      bucketName: string
-      progress: number
-      status: 'rendering'
-    }
-  | {
-      renderId: string | null
-      status: 'error'
-      error: Error
-    }
-  | {
-      url: string
-      size: number
-      status: 'done'
-    }
+import { toast } from 'sonner'
 
 const wait = async (milliSeconds: number) => {
   await new Promise<void>((resolve) => {
@@ -34,79 +12,144 @@ const wait = async (milliSeconds: number) => {
   })
 }
 
-export const useRendering = (id: string, inputProps: VideoProps) => {
-  const [state, setState] = useState<State>({
-    status: 'init'
-  })
+export const useRendering = (providedId?: string) => {
+  const renderId = useMemo(
+    () => providedId || crypto.randomUUID(),
+    [providedId]
+  )
+  const { renders, setRenderState, removeRender } = useRenderingStore()
+  const state = renders[renderId] || { status: 'init' }
+  const {
+    selectedTemplate,
+    splitScreenState,
+    redditState,
+    twitterState,
+    textMessageState,
+    clipsState,
+    aivideoState
+  } = useTemplateStore((state) => ({
+    selectedTemplate: state.selectedTemplate,
+    splitScreenState: state.splitScreenState,
+    redditState: state.redditState,
+    twitterState: state.twitterState,
+    textMessageState: state.textMessageState,
+    clipsState: state.clipsState,
+    aivideoState: state.aiVideoState
+  }))
+
+  const id = selectedTemplate
+
+  const inputProps = (() => {
+    switch (selectedTemplate) {
+      case 'SplitScreen':
+        return splitScreenState
+      case 'Reddit':
+        return redditState
+      case 'Twitter':
+        return twitterState
+      case 'TextMessage':
+        return textMessageState
+      case 'Clips':
+        return clipsState
+      case 'AIVideo':
+        return aivideoState
+      default:
+        return twitterState
+    }
+  })()
 
   const renderMedia = useCallback(async () => {
-    setState({
+    const tid = toast.loading('Initiating video rendering...')
+    setRenderState(renderId, {
       status: 'invoking'
     })
     try {
-      const { renderId, bucketName } = await renderVideo({ id, inputProps })
-      setState({
+      const { renderId: videoId, bucketName } = await renderVideo({
+        id,
+        inputProps
+      })
+      setRenderState(renderId, {
         status: 'rendering',
         progress: 0,
-        renderId: renderId,
+        renderId: videoId,
         bucketName: bucketName
       })
+      toast.loading('Rendering video...', { id: tid })
 
       let pending = true
 
       while (pending) {
         const result = await getProgress({
-          id: renderId,
+          id: videoId,
           bucketName: bucketName
         })
         switch (result.type) {
           case 'error': {
-            setState({
+            setRenderState(renderId, {
               status: 'error',
-              renderId: renderId,
+              renderId: videoId,
               error: new Error(result.message)
             })
+            toast.error(`Rendering failed: ${result.message}`, { id: tid })
             pending = false
             break
           }
           case 'done': {
-            setState({
-              size: result.size,
+            setRenderState(renderId, {
+              status: 'done',
               url: result.url,
-              status: 'done'
+              size: result.size
+            })
+            toast.success('Video rendering completed successfully!', {
+              id: tid
             })
             pending = false
             break
           }
           case 'progress': {
-            setState({
+            setRenderState(renderId, {
               status: 'rendering',
               bucketName: bucketName,
               progress: result.progress,
-              renderId: renderId
+              renderId: videoId
             })
+            toast.loading(
+              `Rendering progress: ${Math.round(result.progress * 100)}%`,
+              { id: tid }
+            )
             await wait(1000)
           }
         }
       }
     } catch (err) {
-      setState({
+      setRenderState(renderId, {
         status: 'error',
         error: err as Error,
         renderId: null
       })
+      toast.error(`An unexpected error occurred: ${(err as Error).message}`, {
+        id: tid
+      })
     }
-  }, [id, inputProps])
+  }, [id, inputProps, renderId, setRenderState])
 
   const undo = useCallback(() => {
-    setState({ status: 'init' })
-  }, [])
+    setRenderState(renderId, { status: 'init' })
+    toast.info('Rendering reset')
+  }, [renderId, setRenderState])
+
+  const isLoading = state.status === 'invoking' || state.status === 'rendering'
+  const isComplete = state.status === 'done'
 
   return useMemo(() => {
     return {
       renderMedia,
       state,
-      undo
+      undo,
+      isLoading,
+      isComplete,
+      inputProps,
+      renderId
     }
-  }, [renderMedia, state, undo])
+  }, [renderMedia, state, undo, isLoading, isComplete, inputProps, renderId])
 }

@@ -2,12 +2,6 @@
 
 import { useEffect } from 'react'
 import {
-  TikTokAccount,
-  YoutubeChannel
-} from '@/actions/db/social-media-queries'
-import { ElevenlabsVoice } from '@/actions/elevenlabs'
-import { SelectBackgroundWithParts, SelectMusic } from '@/db/schema'
-import {
   AIVideoProps,
   AIVideoSchema,
   defaultAIVideoProps,
@@ -27,19 +21,9 @@ import { PromptStep } from '@/components/form/prompt-step'
 import { VideoPreview } from '@/components/form/video-preview'
 import { NumberedSteps } from '@/components/numbered-steps'
 
-interface AIVideoFormProps {
-  voices: ElevenlabsVoice[]
-  backgrounds: SelectBackgroundWithParts[]
-  youtubeChannels: YoutubeChannel[]
-  tiktokAccounts: TikTokAccount[]
-  music: SelectMusic[]
-}
+interface AIVideoFormProps {}
 
-export const AIVideoForm: React.FC<AIVideoFormProps> = ({
-  youtubeChannels,
-  tiktokAccounts,
-  voices
-}) => {
+export const AIVideoForm: React.FC<AIVideoFormProps> = () => {
   const form = useForm<VideoProps>({
     resolver: zodResolver(AIVideoSchema),
     defaultValues: defaultAIVideoProps
@@ -68,17 +52,12 @@ export const AIVideoForm: React.FC<AIVideoFormProps> = ({
             {/* <TranscribeStep form={form} /> */}
             {/* <BackgroundSelectStep form={form} backgrounds={backgrounds} /> */}
             <ImageGenStep form={form} />
-            <AIVoiceStep form={form} voices={voices} />
+            <AIVoiceStep form={form} />
             <CaptionStyleStep form={form} />
             {/* <MusicStep form={form} music={music} /> */}
             <AspectRatioStep form={form} />
-            <FormSubmit
-              form={form}
-              youtubeChannels={youtubeChannels}
-              tiktokAccounts={tiktokAccounts}
-            />
+            <FormSubmit form={form} />
           </NumberedSteps>
-
           <div className="col-span-12 lg:col-span-5">
             <div className="sticky top-8 flex items-center justify-center">
               <VideoPreview form={form} />

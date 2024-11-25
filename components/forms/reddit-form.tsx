@@ -2,12 +2,6 @@
 
 import { useEffect } from 'react'
 import {
-  TikTokAccount,
-  YoutubeChannel
-} from '@/actions/db/social-media-queries'
-import { ElevenlabsVoice } from '@/actions/elevenlabs'
-import { SelectBackgroundWithParts, SelectMusic } from '@/db/schema'
-import {
   defaultRedditProps,
   RedditVideoProps,
   RedditVideoSchema,
@@ -24,25 +18,12 @@ import { CaptionStyleStep } from '@/components/form/caption-style-step'
 import { FormSubmit } from '@/components/form/form-submit'
 // import { MusicStep } from '@/components/form/music-step'
 import { RedditUrlStep } from '@/components/form/reddit-url-step'
+import { RedditVoiceStep } from '@/components/form/reddit-voice-step'
 import { VideoPreview } from '@/components/form/video-preview'
-import { VoiceStep } from '@/components/form/voice-step'
 import { NumberedSteps } from '@/components/numbered-steps'
 
-interface RedditFormProps {
-  voices: ElevenlabsVoice[]
-  backgrounds: SelectBackgroundWithParts[]
-  youtubeChannels: YoutubeChannel[]
-  tiktokAccounts: TikTokAccount[]
-  music: SelectMusic[]
-}
-
-export const RedditForm: React.FC<RedditFormProps> = ({
-  voices,
-  backgrounds,
-  youtubeChannels,
-  tiktokAccounts,
-  music
-}) => {
+interface RedditFormProps {}
+export const RedditForm: React.FC<RedditFormProps> = () => {
   const form = useForm<VideoProps>({
     resolver: zodResolver(RedditVideoSchema),
     defaultValues: defaultRedditProps
@@ -64,16 +45,12 @@ export const RedditForm: React.FC<RedditFormProps> = ({
         <div className="grid grid-cols-12 gap-8">
           <NumberedSteps className="col-span-12 lg:col-span-7 space-y-6">
             <RedditUrlStep form={form} />
-            <VoiceStep form={form} voices={voices} />
+            <RedditVoiceStep form={form} />
             {/* <MusicStep form={form} music={music} /> */}
-            <BackgroundSelectStep form={form} backgrounds={backgrounds} />
+            <BackgroundSelectStep form={form} />
             <CaptionStyleStep form={form} />
             <AspectRatioStep form={form} />
-            <FormSubmit
-              form={form}
-              youtubeChannels={youtubeChannels}
-              tiktokAccounts={tiktokAccounts}
-            />
+            <FormSubmit form={form} />
           </NumberedSteps>
 
           <div className="col-span-12 lg:col-span-5">

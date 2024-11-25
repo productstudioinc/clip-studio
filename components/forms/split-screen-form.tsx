@@ -2,12 +2,6 @@
 
 import { useEffect } from 'react'
 import {
-  TikTokAccount,
-  YoutubeChannel
-} from '@/actions/db/social-media-queries'
-import { ElevenlabsVoice } from '@/actions/elevenlabs'
-import { SelectBackgroundWithParts } from '@/db/schema'
-import {
   defaultSplitScreenProps,
   SplitScreenVideoProps,
   SplitScreenVideoSchema,
@@ -28,18 +22,9 @@ import { CaptionStyleStep } from '../form/caption-style-step'
 import { TranscribeStep } from '../form/transcribe-step'
 import { UploadStep } from '../form/upload-step'
 
-interface SplitScreenFormProps {
-  voices: ElevenlabsVoice[]
-  backgrounds: SelectBackgroundWithParts[]
-  youtubeChannels: YoutubeChannel[]
-  tiktokAccounts: TikTokAccount[]
-}
+interface SplitScreenFormProps {}
 
-export const SplitScreenForm: React.FC<SplitScreenFormProps> = ({
-  backgrounds,
-  youtubeChannels,
-  tiktokAccounts
-}) => {
+export const SplitScreenForm: React.FC<SplitScreenFormProps> = () => {
   const form = useForm<VideoProps>({
     resolver: zodResolver(SplitScreenVideoSchema),
     defaultValues: defaultSplitScreenProps
@@ -68,14 +53,10 @@ export const SplitScreenForm: React.FC<SplitScreenFormProps> = ({
           <NumberedSteps className="col-span-12 lg:col-span-7 space-y-6">
             <UploadStep form={form} />
             <TranscribeStep form={form} />
-            <BackgroundSelectStep form={form} backgrounds={backgrounds} />
+            <BackgroundSelectStep form={form} />
             <CaptionStyleStep form={form} />
             <AspectRatioStep form={form} />
-            <FormSubmit
-              form={form}
-              youtubeChannels={youtubeChannels}
-              tiktokAccounts={tiktokAccounts}
-            />
+            <FormSubmit form={form} />
           </NumberedSteps>
 
           <div className="col-span-12 lg:col-span-5">

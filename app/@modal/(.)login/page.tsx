@@ -1,10 +1,14 @@
-'use client'
+import { getAppData } from '@/actions/get-app-data'
 
-import { useRouter } from 'next/navigation'
+import { AppProvider } from '@/components/app-provider'
 
-import { LoginDrawer } from '@/components/login-drawer'
+import LoginClient from './login-client'
 
-export default function Page() {
-  const router = useRouter()
-  return <LoginDrawer onOpenChange={(open) => !open && router.back()} />
+export default async function Page() {
+  const initialData = await getAppData()
+  return (
+    <AppProvider initialData={initialData}>
+      <LoginClient />
+    </AppProvider>
+  )
 }

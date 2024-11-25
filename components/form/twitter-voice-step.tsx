@@ -1,11 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import {
-  ElevenlabsVoice,
-  generateTwitterVoiceover,
-  getVoice
-} from '@/actions/elevenlabs'
+import { generateTwitterVoiceover, getVoice } from '@/actions/elevenlabs'
+import { useAppContext } from '@/contexts/app-context'
 import { Language, LanguageFlags, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import {
@@ -63,13 +60,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 type TwitterVoiceStepProps = {
   form: UseFormReturn<VideoProps>
-  voices: ElevenlabsVoice[]
 }
 
-export default function TwitterVoiceStep({
-  form,
-  voices
-}: TwitterVoiceStepProps) {
+export default function TwitterVoiceStep({ form }: TwitterVoiceStepProps) {
+  const { voices } = useAppContext()
   const languages = Object.entries(Language).map(([key, value]) => ({
     value,
     label: key,

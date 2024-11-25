@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { usePathname } from 'next/navigation'
+import { useAppContext } from '@/contexts/app-context'
 
 import { useMediaQuery } from '@/lib/hooks/use-media-query'
-import { useUser } from '@/lib/hooks/useUser'
 import {
   Dialog,
   DialogContent,
@@ -32,7 +32,7 @@ export function LoginDrawer({
   open?: boolean
   onOpenChange?: (open: boolean) => void
 }) {
-  const { user } = useUser()
+  const { user } = useAppContext()
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const [isOpen, setIsOpen] = useState(open || false)
   const [isPulsing, setIsPulsing] = useState(false)

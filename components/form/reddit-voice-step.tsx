@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { ElevenlabsVoice, generateRedditVoiceover } from '@/actions/elevenlabs'
+import { useAppContext } from '@/contexts/app-context'
 import { Language, LanguageFlags, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import {
@@ -11,9 +11,8 @@ import {
 } from '@radix-ui/react-icons'
 import { Loader2, Pause, Play } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
-import { toast } from 'sonner'
-import { useServerAction } from 'zsa-react'
 
+import { useRedditVoiceoverGeneration } from '@/lib/hooks/use-reddit-voiceover-generation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -49,12 +48,15 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 
-type VoiceStepProps = {
+type RedditVoiceStepProps = {
   form: UseFormReturn<VideoProps>
-  voices: ElevenlabsVoice[]
 }
 
-export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
+export const RedditVoiceStep: React.FC<RedditVoiceStepProps> = ({ form }) => {
+  const { voices } = useAppContext()
+  const { generateVoiceover, isGeneratingVoiceover } =
+    useRedditVoiceoverGeneration(form)
+
   const languages = Object.entries(Language).map(([key, value]) => ({
     value,
     label: key,
@@ -157,42 +159,6 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
   }, [])
 
   const getAudioElementId = (id: string) => id + '-audio'
-
-  const { isPending, execute } = useServerAction(generateRedditVoiceover)
-
-  const handleGenerate = async () => {
-    const selectedVoice = form.getValues('voice')
-    const language = form.getValues('language')
-    const text = form.getValues('text')
-    const title = form.getValues('title')
-
-    if (!selectedVoice || !text || !title) {
-      toast.error(
-        'Please select a voice, enter a title, and provide text for the voiceover.'
-      )
-      return
-    }
-
-    const [data, err] = await execute({
-      title: title,
-      voiceId: selectedVoice,
-      text: text,
-      language: language
-    })
-
-    if (err) {
-      toast.error(err.message)
-      return
-    }
-
-    form.setValue('durationInFrames', Math.floor(data.endTimestamp * 30))
-    form.setValue('voiceoverUrl', data.signedUrl)
-    form.setValue('voiceoverFrames', data.voiceoverObject)
-    form.setValue('isVoiceoverGenerated', true)
-    form.clearErrors('isVoiceoverGenerated')
-
-    toast.success('Voiceover generated successfully!')
-  }
 
   return (
     <Card>
@@ -394,11 +360,11 @@ export const VoiceStep: React.FC<VoiceStepProps> = ({ form, voices }) => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  onClick={handleGenerate}
-                  disabled={isPending || !form.getValues('voice')}
+                  onClick={generateVoiceover}
+                  disabled={isGeneratingVoiceover || !form.getValues('voice')}
                   className="flex-grow"
                 >
-                  {isPending && (
+                  {isGeneratingVoiceover && (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   )}
                   Generate Voiceover{' '}

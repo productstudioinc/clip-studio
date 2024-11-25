@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { ElevenlabsVoice, generateTextVoiceover } from '@/actions/elevenlabs'
+import { generateTextVoiceover } from '@/actions/elevenlabs'
+import { useAppContext } from '@/contexts/app-context'
 import { Language, LanguageFlags, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
@@ -44,10 +45,10 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 
 type TwoVoiceStepProps = {
   form: UseFormReturn<VideoProps>
-  voices: ElevenlabsVoice[]
 }
 
-export const TwoVoiceStep: React.FC<TwoVoiceStepProps> = ({ form, voices }) => {
+export const TwoVoiceStep: React.FC<TwoVoiceStepProps> = ({ form }) => {
+  const { voices } = useAppContext()
   const [playingAudio, setPlayingAudio] = useState<string | null>(null)
   const [progress, setProgress] = useState<number>(0)
   const progressInterval = useRef<NodeJS.Timeout | null>(null)

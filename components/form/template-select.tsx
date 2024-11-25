@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { useAppContext } from '@/contexts/app-context'
 import { TemplateProps, useTemplateStore } from '@/stores/templatestore'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -9,19 +10,10 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
-type Template = {
-  id: string | number
-  name: string
-  previewUrl: string
-  value: string
-}
+type TemplateSelectProps = {}
 
-type TemplateSelectProps = {
-  templates: Template[]
-}
-export const TemplateSelect: React.FC<TemplateSelectProps> = ({
-  templates
-}) => {
+export const TemplateSelect: React.FC<TemplateSelectProps> = () => {
+  const { templates } = useAppContext()
   const { selectedTemplate, setSelectedTemplate } = useTemplateStore(
     (state) => ({
       selectedTemplate: state.selectedTemplate,

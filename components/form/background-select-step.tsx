@@ -3,6 +3,7 @@
 import type { FC } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { generatePresignedUrl } from '@/actions/generate-presigned-urls'
+import { useAppContext } from '@/contexts/app-context'
 import { SelectBackgroundWithParts } from '@/db/schema'
 import { BackgroundTheme, VideoProps } from '@/stores/templatestore'
 import { Pause, Play, Upload, X } from 'lucide-react'
@@ -24,13 +25,13 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
 type BackgroundSelectStepProps = {
   form: UseFormReturn<VideoProps>
-  backgrounds: SelectBackgroundWithParts[]
 }
 
 export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
-  form,
-  backgrounds
+  form
 }) => {
+  const { backgrounds } = useAppContext()
+
   const [selectedBackground, setSelectedBackground] =
     useState<SelectBackgroundWithParts | null>(null)
   const [isUploading, setIsUploading] = useState(false)

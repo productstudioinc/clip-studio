@@ -2,12 +2,6 @@
 
 import { useEffect } from 'react'
 import {
-  TikTokAccount,
-  YoutubeChannel
-} from '@/actions/db/social-media-queries'
-import { ElevenlabsVoice } from '@/actions/elevenlabs'
-import { SelectBackgroundWithParts, SelectMusic } from '@/db/schema'
-import {
   ClipsVideoProps,
   ClipsVideoSchema,
   defaultClipsProps,
@@ -26,21 +20,9 @@ import { UploadStep } from '@/components/form/upload-step'
 import { VideoPreview } from '@/components/form/video-preview'
 import { NumberedSteps } from '@/components/numbered-steps'
 
-interface ClipsFormProps {
-  voices: ElevenlabsVoice[]
-  backgrounds: SelectBackgroundWithParts[]
-  youtubeChannels: YoutubeChannel[]
-  tiktokAccounts: TikTokAccount[]
-  music: SelectMusic[]
-}
+interface ClipsFormProps {}
 
-export const ClipsForm: React.FC<ClipsFormProps> = ({
-  voices,
-  backgrounds,
-  youtubeChannels,
-  tiktokAccounts,
-  music
-}) => {
+export const ClipsForm: React.FC<ClipsFormProps> = () => {
   const form = useForm<VideoProps>({
     resolver: zodResolver(ClipsVideoSchema),
     defaultValues: defaultClipsProps
@@ -65,13 +47,8 @@ export const ClipsForm: React.FC<ClipsFormProps> = ({
             <TextStep form={form} />
             <CaptionStyleStep form={form} />
             <AspectRatioStep form={form} />
-            <FormSubmit
-              form={form}
-              youtubeChannels={youtubeChannels}
-              tiktokAccounts={tiktokAccounts}
-            />
+            <FormSubmit form={form} />
           </NumberedSteps>
-
           <div className="col-span-12 lg:col-span-5">
             <div className="sticky top-8 flex items-center justify-center">
               <VideoPreview form={form} />

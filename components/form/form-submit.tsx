@@ -1,19 +1,15 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useRouter } from 'next/navigation'
-import {
-  TikTokAccount,
-  YoutubeChannel
-} from '@/actions/db/social-media-queries'
-import { useTemplateStore, VideoProps } from '@/stores/templatestore'
+import { useAppContext } from '@/contexts/app-context'
+import { VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
-import { State, useRendering } from '@/utils/helpers/use-rendering'
+import { useRendering } from '@/utils/helpers/use-rendering'
 import { Loader2 } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { useUser } from '@/lib/hooks/useUser'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -40,12 +36,9 @@ const Megabytes: React.FC<{
   return <span className={cn('opacity-60', className)}>({megabytes})</span>
 }
 
-export const ExportComponent: React.FC<{
-  state: State
-  undo: () => void
-}> = ({ state, undo }) => {
+export const ExportComponent: React.FC<{ id: string }> = ({ id }) => {
+  const { state } = useRendering(id)
   const isDownloadReady = state.status === 'done'
-
   return (
     <div className="w-full">
       {isDownloadReady ? (
@@ -64,63 +57,32 @@ export const ExportComponent: React.FC<{
   )
 }
 
-type FormSubmitProps = {
-  form: UseFormReturn<VideoProps>
-  youtubeChannels: YoutubeChannel[]
-  tiktokAccounts: TikTokAccount[]
+export const RenderProgress: React.FC<{ id: string }> = ({ id }) => {
+  const { state } = useRendering(id)
+  if (state.status !== 'rendering') return null
+  return (
+    <div className="space-y-2 pt-4">
+      <Progress value={state.progress * 100} />
+      <p className="text-sm text-center text-muted-foreground">
+        Rendering: {Math.round(state.progress * 100)}%
+      </p>
+    </div>
+  )
 }
 
-export function FormSubmit({
-  youtubeChannels,
-  tiktokAccounts,
-  form
-}: FormSubmitProps) {
-  const { user } = useUser()
+type FormSubmitProps = {
+  form: UseFormReturn<VideoProps>
+}
+
+export function FormSubmit({ form }: FormSubmitProps) {
+  const { youtubeChannels, tiktokAccounts, user } = useAppContext()
   const router = useRouter()
+  const { renderMedia, state, isLoading, isComplete, inputProps, renderId } =
+    useRendering()
 
-  const {
-    selectedTemplate,
-    splitScreenState,
-    redditState,
-    twitterState,
-    textMessageState,
-    clipsState,
-    aivideoState
-  } = useTemplateStore((state) => ({
-    selectedTemplate: state.selectedTemplate,
-    splitScreenState: state.splitScreenState,
-    redditState: state.redditState,
-    twitterState: state.twitterState,
-    textMessageState: state.textMessageState,
-    clipsState: state.clipsState,
-    aivideoState: state.aiVideoState
-  }))
-
-  const inputProps = (() => {
-    switch (selectedTemplate) {
-      case 'SplitScreen':
-        return splitScreenState
-      case 'Reddit':
-        return redditState
-      case 'Twitter':
-        return twitterState
-      case 'TextMessage':
-        return textMessageState
-      case 'Clips':
-        return clipsState
-      case 'AIVideo':
-        return aivideoState
-      default:
-        return twitterState
-    }
-  })()
-
-  const { renderMedia, state, undo } = useRendering(
-    selectedTemplate,
-    inputProps
-  )
-
-  const handleGenerateVideo = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleGenerateVideo = async (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
     e.preventDefault()
 
     if (!user) {
@@ -138,20 +100,8 @@ export function FormSubmit({
       return
     }
 
-    renderMedia()
+    await renderMedia()
   }
-
-  const isRenderingComplete = state.status === 'done'
-
-  useEffect(() => {
-    if (state.status === 'error') {
-      toast.error(state.error?.message)
-    }
-    if (state.status === 'done') {
-      toast.success('Render completed!')
-    }
-  }, [state])
-  const isLoading = state.status === 'invoking' || state.status === 'rendering'
 
   return (
     <Card className="w-full">
@@ -183,33 +133,30 @@ export function FormSubmit({
           </span>
         </Button>
         <div className="flex flex-col space-y-4">
-          {state.status === 'rendering' && (
-            <div className="space-y-2 pt-4">
-              <Progress value={state.progress * 100} />
-              <p className="text-sm text-center text-muted-foreground">
-                Rendering: {Math.round(state.progress * 100)}%
-              </p>
-            </div>
+          <RenderProgress id={renderId} />
+          <Separator />
+          <ExportComponent id={renderId} />
+          {youtubeChannels && tiktokAccounts && (
+            <>
+              <Separator />
+              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <div className="w-full sm:w-1/2">
+                  <YoutubeExportDialog
+                    youtubeChannels={youtubeChannels ?? []}
+                    disabled={!isComplete}
+                    state={state}
+                  />
+                </div>
+                <div className="w-full sm:w-1/2">
+                  <TikTokExportDialog
+                    tiktokAccounts={tiktokAccounts ?? []}
+                    disabled={!isComplete}
+                    state={state}
+                  />
+                </div>
+              </div>
+            </>
           )}
-          <Separator />
-          <ExportComponent state={state} undo={undo} />
-          <Separator />
-          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-            <div className="w-full sm:w-1/2">
-              <YoutubeExportDialog
-                youtubeChannels={youtubeChannels}
-                disabled={!isRenderingComplete}
-                state={state}
-              />
-            </div>
-            <div className="w-full sm:w-1/2">
-              <TikTokExportDialog
-                tiktokAccounts={tiktokAccounts}
-                disabled={!isRenderingComplete}
-                state={state}
-              />
-            </div>
-          </div>
         </div>
       </CardContent>
     </Card>
