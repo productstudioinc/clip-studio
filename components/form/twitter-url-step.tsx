@@ -168,7 +168,11 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
           }
         })
 
-        update(index, { ...fields[index], [type]: data.readUrl })
+        const currentField = fields[index]
+        update(index, {
+          ...currentField,
+          [type]: data.readUrl
+        })
         toast.success('Image uploaded successfully')
       } catch (error) {
         toast.error(
@@ -415,8 +419,9 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                         id={`verified-${index}`}
                                         checked={field.verified}
                                         onCheckedChange={(checked) => {
+                                          const currentField = fields[index]
                                           update(index, {
-                                            ...fields[index],
+                                            ...currentField,
                                             verified: !!checked
                                           })
                                         }}
