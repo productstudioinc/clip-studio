@@ -92,7 +92,11 @@ export default function TwitterVoiceStep({
 
   const tweets = form.watch('tweets')
   const uniqueUsernames = Array.from(
-    new Set(tweets.map((tweet) => tweet.username))
+    new Set(
+      tweets
+        .filter((tweet) => tweet.username.trim() !== '')
+        .map((tweet) => tweet.username)
+    )
   )
 
   useEffect(() => {
