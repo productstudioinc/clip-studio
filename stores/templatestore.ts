@@ -230,6 +230,7 @@ export const TwitterVideoSchema = BaseVideoSchema.extend({
     z.object({
       id: z.string(),
       username: z.string(),
+      name: z.string().optional(),
       avatar: z.string(),
       content: z.string(),
       image: z.string(),
@@ -452,6 +453,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975277570797673',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -466,6 +468,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975294201278847',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -480,6 +483,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975305647464693',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -494,6 +498,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975310689112483',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -508,6 +513,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975316561125549',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -522,6 +528,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975324190593049',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -536,6 +543,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975329609539655',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -550,6 +558,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975334646898977',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -564,6 +573,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975339612995987',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -578,6 +588,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975345266868671',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -592,6 +603,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975350614622600',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -606,6 +618,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975355819778109',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -620,6 +633,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975360907444541',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -634,6 +648,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975366175490418',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -648,6 +663,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975371380678678',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -662,6 +678,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975376812302833',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:
@@ -676,6 +693,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
     {
       id: '1848975381987995655',
       username: 'Remzsx',
+      name: 'Remz',
       avatar:
         'https://pbs.twimg.com/profile_images/1789648358107136000/4jWTp2LI_normal.jpg',
       content:

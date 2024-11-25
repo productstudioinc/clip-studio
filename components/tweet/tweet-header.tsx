@@ -34,7 +34,9 @@ export const TweetHeader = ({ tweet, components }: Props) => {
       </div>
       <div className={s.author}>
         <div className={s.authorLinkText}>
-          <span title={tweet.username}>{tweet.username}</span>
+          <span title={tweet.name || tweet.username}>
+            {tweet.name || tweet.username}
+          </span>
           {tweet.verified && (
             <svg
               aria-label="Verified Account"
