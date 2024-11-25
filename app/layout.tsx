@@ -20,11 +20,8 @@ import { FacebookPageView } from '@/components/meta/pageview'
 import { FacebookTrackingProvider } from '@/components/meta/tracking-provider'
 import UTMTracker from '@/components/utm-tracker'
 
+import PostHogPageView from './_analytics/ClientOnlyPHPProvider'
 import { PHProvider } from './_analytics/provider'
-
-const PostHogPageView = dynamic(() => import('./_analytics/PostHogPageView'), {
-  ssr: false
-})
 
 export const metadata: Metadata = constructMetadata({
   title: 'Clip Studio | Create viral short-form videos with AI'

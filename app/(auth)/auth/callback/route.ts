@@ -15,7 +15,7 @@ export const GET = withAxiom(async (request: AxiomRequest) => {
   logger.info('Auth callback initiated', { next })
 
   if (code) {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
       logger.info('Successfully exchanged code for session')
