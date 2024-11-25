@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signOut } from '@/actions/auth/user'
@@ -32,6 +33,7 @@ interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
 export function UserAccountMenu({ user }: UserAccountNavProps) {
   const router = useRouter()
   const { theme, setTheme } = useTheme()
+  const [isSigningOut, setIsSigningOut] = useState(false)
 
   return (
     <DropdownMenu>
@@ -121,14 +123,25 @@ export function UserAccountMenu({ user }: UserAccountNavProps) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onSelect={async () => {
-            await signOut()
-            router.refresh()
+          onSelect={async (event) => {
+            event.preventDefault()
+            setIsSigningOut(true)
+            try {
+              await signOut()
+              router.refresh()
+            } finally {
+              setIsSigningOut(false)
+            }
           }}
           className="flex items-center gap-2"
+          disabled={isSigningOut}
         >
-          <LogOut className="h-4 w-4 text-muted-foreground" />
-          Sign out
+          {isSigningOut ? (
+            <Icons.spinner className="h-4 w-4 animate-spin" />
+          ) : (
+            <LogOut className="h-4 w-4 text-muted-foreground" />
+          )}
+          {isSigningOut ? 'Signing out...' : 'Sign out'}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
