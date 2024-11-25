@@ -237,8 +237,6 @@ export default function TwitterVoiceStep({
     const language = form.getValues('language')
     const voiceSettings = form.getValues('voiceSettings') || []
     const voiceSpeed = form.getValues('voiceSpeed') || 1
-    console.log(voiceSettings)
-    console.log(uniqueUsernames)
     if (voiceSettings.length !== uniqueUsernames.length) {
       toast.error('Please assign a voice to each username')
       return
