@@ -369,6 +369,19 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                               `tweets.${index}.username`
                                             )}
                                             placeholder="Username"
+                                            onChange={(e) => {
+                                              const value =
+                                                e.target.value.trim()
+                                              if (value === '') {
+                                                e.preventDefault()
+                                                return
+                                              }
+                                              form
+                                                .register(
+                                                  `tweets.${index}.username`
+                                                )
+                                                .onChange(e)
+                                            }}
                                           />
                                           <Button
                                             type="button"
