@@ -13,6 +13,7 @@ import {
   User as UserIcon
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
+import { usePostHog } from 'posthog-js/react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -31,6 +32,7 @@ interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function UserAccountMenu({ user }: UserAccountNavProps) {
+  const posthog = usePostHog()
   const router = useRouter()
   const { theme, setTheme } = useTheme()
   const [isSigningOut, setIsSigningOut] = useState(false)
@@ -128,6 +130,7 @@ export function UserAccountMenu({ user }: UserAccountNavProps) {
             setIsSigningOut(true)
             try {
               await signOut()
+              posthog.reset()
               router.refresh()
             } finally {
               setIsSigningOut(false)
