@@ -441,7 +441,7 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                     form.getValues('voiceSettings') || []
                   form.setValue('voiceSettings', [
                     ...currentVoiceSettings,
-                    { username: '', voiceId: '' }
+                    { username: newTweet.username, voiceId: '' }
                   ])
                   form.setValue('isVoiceoverGenerated', false)
                 }}

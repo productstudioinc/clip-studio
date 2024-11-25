@@ -688,8 +688,11 @@ export default function TwitterVoiceStep({
             onClick={handleGenerateVoiceover}
             disabled={
               isPending ||
+              !form.getValues('tweets')?.length ||
               !form.getValues('voiceSettings')?.length ||
-              form.getValues('voiceSettings')?.length !== uniqueUsernames.length
+              form
+                .getValues('voiceSettings')
+                ?.some((setting) => !setting.voiceId)
             }
             className="w-full"
             type="button"
