@@ -63,6 +63,8 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
     name: 'tweets'
   })
 
+  const tweets = form.watch('tweets')
+
   const [uploadingStates, setUploadingStates] = useState<{
     [key: string]: boolean
   }>({})
@@ -168,11 +170,7 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
           }
         })
 
-        const currentField = fields[index]
-        update(index, {
-          ...currentField,
-          [type]: data.readUrl
-        })
+        form.setValue(`tweets.${index}.${type}`, data.readUrl)
         toast.success('Image uploaded successfully')
       } catch (error) {
         toast.error(
@@ -430,13 +428,15 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                     <div className="flex items-center gap-2">
                                       <Checkbox
                                         id={`verified-${index}`}
-                                        checked={field.verified}
+                                        checked={
+                                          tweets?.[index]?.verified || false
+                                        }
                                         onCheckedChange={(checked) => {
-                                          const currentField = fields[index]
-                                          update(index, {
-                                            ...currentField,
-                                            verified: !!checked
-                                          })
+                                          form.setValue(
+                                            `tweets.${index}.verified`,
+                                            !!checked,
+                                            { shouldDirty: true }
+                                          )
                                         }}
                                       />
                                       <Label
