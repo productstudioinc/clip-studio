@@ -59,7 +59,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ form }) => {
             compositionWidth={width}
             controls
             loop
-            initiallyMuted
+            clickToPlay
           />
           {isVoiceoverGenerated !== undefined && !isVoiceoverGenerated && (
             <div className="absolute inset-0 bg-black/60 flex items-start justify-center text-center pt-10">
