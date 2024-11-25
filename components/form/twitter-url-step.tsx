@@ -238,9 +238,10 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                 variant="outline"
                 size="sm"
                 onClick={() => {
+                  const randomUsername = `user${Math.floor(Math.random() * 10000)}`
                   const newTweet = {
                     id: Date.now().toString(),
-                    username: `user${Math.floor(Math.random() * 10000)}`,
+                    username: randomUsername,
                     name: '',
                     avatar: '',
                     content: '',
@@ -366,22 +367,26 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                         <div className="flex items-center gap-2">
                                           <Input
                                             {...form.register(
-                                              `tweets.${index}.username`
+                                              `tweets.${index}.username`,
+                                              {
+                                                required: true,
+                                                onChange: (e) => {
+                                                  const value =
+                                                    e.target.value.trim()
+                                                  if (value === '') {
+                                                    e.target.value =
+                                                      field.username
+                                                    return
+                                                  }
+                                                  form
+                                                    .register(
+                                                      `tweets.${index}.username`
+                                                    )
+                                                    .onChange(e)
+                                                }
+                                              }
                                             )}
                                             placeholder="Username"
-                                            onChange={(e) => {
-                                              const value =
-                                                e.target.value.trim()
-                                              if (value === '') {
-                                                e.preventDefault()
-                                                return
-                                              }
-                                              form
-                                                .register(
-                                                  `tweets.${index}.username`
-                                                )
-                                                .onChange(e)
-                                            }}
                                           />
                                           <Button
                                             type="button"
