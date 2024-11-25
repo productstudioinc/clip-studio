@@ -12,7 +12,7 @@ import {
 import { Logger } from 'next-axiom'
 
 export const getUser = cache(async () => {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const {
     data: { user }
@@ -71,7 +71,7 @@ export type GetUserSubscriptionResult = Awaited<
 >
 
 export const signOut = async () => {
-  const supabase = createClient()
+  const supabase = await createClient()
   const logger = new Logger().with({ function: 'signOut' })
   logger.info(startingFunctionString)
   try {

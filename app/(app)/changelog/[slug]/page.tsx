@@ -6,14 +6,13 @@ import { allChangelogs } from 'content-collections'
 import { constructMetadata } from '@/lib/seo-utils'
 
 interface ChangelogPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
-export async function generateMetadata({
-  params
-}: ChangelogPageProps): Promise<Metadata> {
+export async function generateMetadata(props: ChangelogPageProps): Promise<Metadata> {
+  const params = await props.params;
   const page = allChangelogs.find((post) => post.slug === params.slug)
 
   if (!page) {
@@ -27,7 +26,8 @@ export async function generateMetadata({
   })
 }
 
-export default async function ChangelogPage({ params }: ChangelogPageProps) {
+export default async function ChangelogPage(props: ChangelogPageProps) {
+  const params = await props.params;
   const page = allChangelogs.find((post) => post.slug === params.slug)
 
   if (!page) {

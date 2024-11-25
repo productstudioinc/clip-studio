@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { type JSX } from 'react';
 
 import { Facebook } from '@/types/meta'
 import type { FacebookTracking } from '@/lib/meta/tracking'

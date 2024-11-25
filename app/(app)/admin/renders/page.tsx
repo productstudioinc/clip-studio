@@ -8,16 +8,17 @@ import Search from '@/components/table/search'
 import { ViewToggle } from '@/components/table/view-toggle'
 import CustomSkeleton from '@/app/(app)/editor/loading'
 
-export default async function Page({
-  searchParams
-}: {
-  searchParams?: {
-    query?: string
-    page?: string
-    pageSize?: string
-    view?: 'grid' | 'table'
+export default async function Page(
+  props: {
+    searchParams?: Promise<{
+      query?: string
+      page?: string
+      pageSize?: string
+      view?: 'grid' | 'table'
+    }>
   }
-}) {
+) {
+  const searchParams = await props.searchParams;
   const query = searchParams?.query || ''
   const currentPage = Number(searchParams?.page) || 1
   const pageSize = Number(searchParams?.pageSize) || 10

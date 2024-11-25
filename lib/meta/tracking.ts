@@ -162,7 +162,7 @@ export class FacebookTracking {
       custom_properties
     )
 
-    const requestData = !clean ? getRequestData() : undefined
+    const requestData = !clean ? await getRequestData() : undefined
 
     const user = new UserData(
       user_data?.email,

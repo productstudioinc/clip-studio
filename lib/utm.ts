@@ -1,11 +1,11 @@
-import { headers } from 'next/headers'
+import { headers, type UnsafeUnwrappedHeaders } from 'next/headers';
 import { UTM_COOKIE_NAME } from '@/utils/constants'
 import { CookieValueTypes, getCookie } from 'cookies-next'
 
 import { UTMs } from '@/types/utm'
 
 export const getUTM = (key: keyof UTMs): string | null => {
-  const headersList = headers()
+  const headersList = (headers() as unknown as UnsafeUnwrappedHeaders)
   const referer = headersList.get('referer')
 
   // First check referer URL params
