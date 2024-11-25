@@ -237,6 +237,8 @@ export default function TwitterVoiceStep({
     const language = form.getValues('language')
     const voiceSettings = form.getValues('voiceSettings') || []
     const voiceSpeed = form.getValues('voiceSpeed') || 1
+    console.log(voiceSettings)
+    console.log(uniqueUsernames)
     if (voiceSettings.length !== uniqueUsernames.length) {
       toast.error('Please assign a voice to each username')
       return
@@ -688,11 +690,16 @@ export default function TwitterVoiceStep({
             onClick={handleGenerateVoiceover}
             disabled={
               isPending ||
-              !form.getValues('tweets')?.length ||
+              !tweets.length ||
               !form.getValues('voiceSettings')?.length ||
-              form
-                .getValues('voiceSettings')
-                ?.some((setting) => !setting.voiceId)
+              !uniqueUsernames.every((username) =>
+                form
+                  .getValues('voiceSettings')
+                  ?.some(
+                    (setting) =>
+                      setting.username === username && setting.voiceId
+                  )
+              )
             }
             className="w-full"
             type="button"

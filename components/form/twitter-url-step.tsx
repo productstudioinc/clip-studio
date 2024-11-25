@@ -249,8 +249,19 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                     duration: 3
                   }
                   append(newTweet)
-                  const currentVoiceSettings =
+
+                  // Clear any stale voice settings
+                  const currentTweets = [...fields, newTweet]
+                  const currentUsernames = currentTweets.map(
+                    (tweet) => tweet.username
+                  )
+                  const currentVoiceSettings = (
                     form.getValues('voiceSettings') || []
+                  ).filter((setting) =>
+                    currentUsernames.includes(setting.username)
+                  )
+
+                  // Add voice setting for new tweet
                   form.setValue('voiceSettings', [
                     ...currentVoiceSettings,
                     { username: newTweet.username, voiceId: '' }
@@ -359,7 +370,40 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                             type="button"
                                             variant="destructive"
                                             size="sm"
-                                            onClick={() => remove(index)}
+                                            onClick={() => {
+                                              const currentVoiceSettings =
+                                                form.getValues(
+                                                  'voiceSettings'
+                                                ) || []
+
+                                              remove(index)
+
+                                              const remainingTweets =
+                                                fields.filter(
+                                                  (_, i) => i !== index
+                                                )
+                                              const remainingUsernames =
+                                                remainingTweets.map(
+                                                  (tweet) => tweet.username
+                                                )
+
+                                              const updatedVoiceSettings =
+                                                currentVoiceSettings.filter(
+                                                  (setting) =>
+                                                    remainingUsernames.includes(
+                                                      setting.username
+                                                    )
+                                                )
+
+                                              form.setValue(
+                                                'voiceSettings',
+                                                updatedVoiceSettings
+                                              )
+                                              form.setValue(
+                                                'isVoiceoverGenerated',
+                                                false
+                                              )
+                                            }}
                                           >
                                             <Trash2 className="h-4 w-4" />
                                           </Button>
