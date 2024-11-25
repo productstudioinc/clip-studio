@@ -421,6 +421,7 @@ export const defaultRedditProps: RedditVideoProps = {
   durationInFrames: 30 * 30,
   backgroundTheme: BackgroundTheme.Minecraft,
   backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
+  voice: 'WmgbWYyjBPkmuF0hCiy3',
   voiceoverUrl: 'https://assets.clip.studio/reddit_voiceover_sample.mp3',
   voiceoverFrames: alignmentDefault,
   accountName: 'clipstudio',
