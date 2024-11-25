@@ -23,7 +23,7 @@ export const POST = withAxiom(async (req) => {
 
       // Track user signup event in PostHog
       posthog().capture({
-        distinctId: newUser.id,
+        distinctId: newUser.email,
         event: POSTHOG_EVENTS.USER_SIGNUP,
         properties: {
           email: newUser.email
