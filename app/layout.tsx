@@ -46,7 +46,6 @@ export default async function RootLayout({
   children: React.ReactNode
   modal: React.ReactNode
 }>) {
-  'use memo'
   return (
     <html lang="en" suppressHydrationWarning>
       <Script
@@ -59,15 +58,9 @@ export default async function RootLayout({
           <body
             className={`${GeistSans.className} ${monserrat.variable} ${komika.variable}`}
           >
-            <Suspense fallback={<></>}>
-              <ErrorToast />
-            </Suspense>
-            <Suspense fallback={<></>}>
-              <PostHogPageView />
-            </Suspense>
-            <Suspense fallback={<></>}>
-              <FacebookPageView />
-            </Suspense>
+            <ErrorToast />
+            <PostHogPageView />
+            <FacebookPageView />
             <LocalStorageTools />
             <UTMTracker />
             <ThemeProvider

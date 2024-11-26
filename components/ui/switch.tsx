@@ -9,7 +9,6 @@ const Switch = React.forwardRef<
   React.ComponentRef<typeof SwitchPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>
 >(({ className, ...props }, ref) => {
-  'use no memo'
   return (
     <SwitchPrimitives.Root
       className={cn(
