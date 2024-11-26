@@ -6,16 +6,15 @@ import { Pagination } from '@/components/table/pagination'
 import Search from '@/components/table/search'
 import CustomSkeleton from '@/app/(app)/editor/loading'
 
-export default async function Page(
-  props: {
-    searchParams?: Promise<{
-      query?: string
-      page?: string
-      pageSize?: string
-    }>
+export default async function Page({
+  searchParams
+}: {
+  searchParams?: {
+    query?: string
+    page?: string
+    pageSize?: string
   }
-) {
-  const searchParams = await props.searchParams;
+}) {
   const query = searchParams?.query || ''
   const currentPage = Number(searchParams?.page) || 1
   const pageSize = Number(searchParams?.pageSize) || 10

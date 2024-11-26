@@ -479,16 +479,15 @@ const UserChart = async ({
   )
 }
 
-export default async function AdminDashboard(
-  props: {
-    searchParams?: Promise<{
-      from?: string
-      to?: string
-      preset?: string
-    }>
+export default async function AdminDashboard({
+  searchParams
+}: {
+  searchParams?: {
+    from?: string
+    to?: string
+    preset?: string
   }
-) {
-  const searchParams = await props.searchParams;
+}) {
   const { user } = await getUser()
 
   if (!user) {

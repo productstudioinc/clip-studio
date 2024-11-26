@@ -11,12 +11,11 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow'
 }
 
-export default async function SuccessPage(
-  props: {
-    searchParams: Promise<{ session_id: string }>
-  }
-) {
-  const searchParams = await props.searchParams;
+export default async function SuccessPage({
+  searchParams
+}: {
+  searchParams: { session_id: string }
+}) {
   const sessionId = searchParams?.session_id
   if (!sessionId) {
     throw new Error(
