@@ -65,8 +65,16 @@ export const getRenderHistory = async (
   const offset = (page - 1) * pageSize
 
   const renderHistory = await db
-    .select()
+    .select({
+      id: pastRenders.id,
+      userId: pastRenders.userId,
+      videoUrl: pastRenders.videoUrl,
+      templateName: pastRenders.templateName,
+      createdAt: pastRenders.createdAt,
+      userEmail: users.email
+    })
     .from(pastRenders)
+    .leftJoin(users, eq(pastRenders.userId, users.id))
     .where(
       filter
         ? sql`${pastRenders.templateName} ILIKE ${`%${filter}%`}`
@@ -93,6 +101,10 @@ export const getRenderHistory = async (
     currentPage: page
   }
 }
+
+export type RenderHistoryForAdmin = Awaited<
+  ReturnType<typeof getRenderHistory>
+>['renderHistory'][number]
 
 export const getRenderById = async (id: string) => {
   await authenticateAdmin()
