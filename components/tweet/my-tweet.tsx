@@ -18,7 +18,7 @@ export const MyTweet = ({ tweet, components, className }: Props) => {
   return (
     <TweetContainer className={cn('dark', className)}>
       <TweetHeader tweet={tweet} components={components} />
-      <TweetBody tweet={tweet} />
+      {!tweet.hideText && <TweetBody tweet={tweet} />}
       {tweet.image ? (
         <TweetMedia tweet={tweet} components={components} />
       ) : null}

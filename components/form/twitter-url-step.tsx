@@ -101,7 +101,8 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
             ? (fields[fields.length - 1]?.from ?? 0) +
               (fields[fields.length - 1]?.duration ?? 0)
             : 0,
-        duration: 3
+        duration: 3,
+        hideText: false
       })
       form.setValue('isVoiceoverGenerated', false)
 
@@ -248,6 +249,7 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                     image: '',
                     verified: false,
                     hideUsername: false,
+                    hideText: false,
                     likes: 0,
                     comments: 0,
                     from: 0,
@@ -462,6 +464,25 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                         className="text-sm"
                                       >
                                         Hide Username
+                                      </Label>
+                                      <Checkbox
+                                        id={`hideText-${index}`}
+                                        checked={
+                                          tweets?.[index]?.hideText || false
+                                        }
+                                        onCheckedChange={(checked) => {
+                                          form.setValue(
+                                            `tweets.${index}.hideText`,
+                                            !!checked,
+                                            { shouldDirty: true }
+                                          )
+                                        }}
+                                      />
+                                      <Label
+                                        htmlFor={`hideText-${index}`}
+                                        className="text-sm"
+                                      >
+                                        Hide Text
                                       </Label>
                                     </div>
                                   </div>

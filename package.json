@@ -98,6 +98,7 @@
     "recharts": "^2.13.3",
     "remotion": "4.0.231",
     "s3-url-parser": "^1.0.3",
+    "sharp": "^0.33.5",
     "sonner": "^1.7.0",
     "stripe": "^16.12.0",
     "tailwind-merge": "^2.5.5",
