@@ -15,7 +15,6 @@ type Props = {
 }
 
 export const MyTweet = ({ tweet, components, className }: Props) => {
-  'use no memo'
   return (
     <TweetContainer className={cn('dark', className)}>
       <TweetHeader tweet={tweet} components={components} />
