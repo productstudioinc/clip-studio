@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { generatePresignedUrl } from '@/actions/generate-presigned-urls'
 import { fetchTweet } from '@/actions/twitter'
 import { defaultTwitterProps, VideoProps } from '@/stores/templatestore'
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import {
   GripVertical,
   Loader2,
@@ -13,7 +14,6 @@ import {
   Upload,
   User
 } from 'lucide-react'
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import { useFieldArray, UseFormReturn, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
