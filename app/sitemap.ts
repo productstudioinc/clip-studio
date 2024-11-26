@@ -1,9 +1,9 @@
 import { MetadataRoute } from 'next'
-import { headers, type UnsafeUnwrappedHeaders } from 'next/headers';
+import { headers } from 'next/headers'
 import { allChangelogs, allPages } from 'content-collections'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const headersList = (headers() as unknown as UnsafeUnwrappedHeaders)
+  const headersList = headers()
   let domain = headersList.get('host') as string
   let protocol = 'https'
 

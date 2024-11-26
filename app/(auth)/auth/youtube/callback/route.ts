@@ -41,7 +41,7 @@ export const GET = withAxiom(async (request: AxiomRequest) => {
       }
 
       const { customUrl, accessToken, channelId } = channelInfo
-      const supabase = await createClient()
+      const supabase = createClient()
       const currentUser = await supabase.auth.getUser()
       const userId = currentUser.data.user?.id
 

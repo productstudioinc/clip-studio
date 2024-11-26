@@ -7,12 +7,11 @@ import { Download } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 
-export default async function RenderPage(
-  props: {
-    params: Promise<{ id: string }>
-  }
-) {
-  const params = await props.params;
+export default async function RenderPage({
+  params
+}: {
+  params: { id: string }
+}) {
   const render = await getRenderById(params.id)
 
   if (!render) {

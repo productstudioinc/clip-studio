@@ -74,8 +74,8 @@ export const checkoutWithStripe = createServerAction()
         success_url: getURL(input.redirectPath),
         metadata: {
           tolt_referral: input.referralId ?? null,
-          fbc: (await getFbc()) ?? null,
-          fbp: (await getFbp()) ?? null,
+          fbc: getFbc() ?? null,
+          fbp: getFbp() ?? null,
           utm_source: getUTM('utm_source') ?? null,
           utm_medium: getUTM('utm_medium') ?? null,
           utm_campaign: getUTM('utm_campaign') ?? null,

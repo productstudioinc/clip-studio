@@ -3,12 +3,17 @@
 import React, { useEffect } from 'react'
 import { TextMessageVideoProps, VideoProps } from '@/stores/templatestore'
 import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult
+} from '@hello-pangea/dnd'
+import {
   GripVertical,
   MessageSquareIcon,
   PlusCircle,
   Trash2
 } from 'lucide-react'
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import { useFieldArray, UseFormReturn, useWatch } from 'react-hook-form'
 
 import {
@@ -91,7 +96,7 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
     name: 'messages'
   })
 
-  const onDragEnd = (result: any) => {
+  const onDragEnd = (result: DropResult) => {
     if (!result.destination) return
     move(result.source.index, result.destination.index)
   }
