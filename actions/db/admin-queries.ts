@@ -176,6 +176,7 @@ export const getFeedbackForAdmin = async (
       user: {
         id: users.id,
         fullName: users.fullName,
+        email: users.email,
         avatarUrl: users.avatarUrl
       }
     })

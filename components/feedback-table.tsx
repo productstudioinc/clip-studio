@@ -28,6 +28,7 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead>User</TableHead>
+            <TableHead>Email</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Rating</TableHead>
             <TableHead>Comment</TableHead>
@@ -49,9 +50,14 @@ export function FeedbackTable({ feedback }: FeedbackTableProps) {
                   {item.user?.fullName || 'Anonymous'}
                 </div>
               </TableCell>
+              <TableCell>{item.user?.email || 'N/A'}</TableCell>
               <TableCell>{item.feedbackType}</TableCell>
               <TableCell>{item.rating || 'N/A'}</TableCell>
-              <TableCell>{item.comment || 'No comment'}</TableCell>
+              <TableCell className="overflow-x-auto max-w-xs">
+                <div className="overflow-x-auto">
+                  {item.comment || 'No comment'}
+                </div>
+              </TableCell>
               <TableCell>
                 {formatDistanceToNow(new Date(item.createdAt), {
                   addSuffix: true,
