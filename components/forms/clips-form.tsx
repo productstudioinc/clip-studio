@@ -9,7 +9,7 @@ import {
   VideoProps
 } from '@/stores/templatestore'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 
 import { Form } from '@/components/ui/form'
 import { AspectRatioStep } from '@/components/form/aspect-ratio-step'
@@ -30,13 +30,13 @@ export const ClipsForm: React.FC<ClipsFormProps> = () => {
 
   const setClipsState = useTemplateStore((state) => state.setClipsState)
 
-  // Add this effect to update the store when form values change
+  const formValues = useWatch({
+    control: form.control
+  })
+
   useEffect(() => {
-    const subscription = form.watch((value) => {
-      setClipsState(value as Partial<ClipsVideoProps>)
-    })
-    return () => subscription.unsubscribe()
-  }, [form, setClipsState])
+    setClipsState(formValues as Partial<ClipsVideoProps>)
+  }, [formValues, setClipsState])
 
   return (
     <Form {...form}>

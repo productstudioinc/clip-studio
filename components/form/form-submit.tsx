@@ -7,7 +7,7 @@ import { VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { useRendering } from '@/utils/helpers/use-rendering'
 import { Loader2 } from 'lucide-react'
-import { UseFormReturn } from 'react-hook-form'
+import { UseFormReturn, useFormState } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { cn } from '@/lib/utils'
@@ -80,6 +80,10 @@ export function FormSubmit({ form }: FormSubmitProps) {
   const { renderMedia, state, isLoading, isComplete, inputProps, renderId } =
     useRendering()
 
+  const { isSubmitting, isValid, errors } = useFormState({
+    control: form.control
+  })
+
   const handleGenerateVideo = async (
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
@@ -109,7 +113,7 @@ export function FormSubmit({ form }: FormSubmitProps) {
         <CardTitle>Generate Video</CardTitle>
       </CardHeader>
       <CardContent>
-        {Object.entries(form.formState.errors).map(([key, error]) => (
+        {Object.entries(errors).map(([key, error]) => (
           <div key={key} className="text-red-500 mb-4">
             Error: {error.message}
           </div>
@@ -117,10 +121,7 @@ export function FormSubmit({ form }: FormSubmitProps) {
         <Button
           variant={'rainbow'}
           disabled={
-            isLoading ||
-            state.status === 'done' ||
-            form.formState.isSubmitting ||
-            !form.formState.isValid
+            isLoading || state.status === 'done' || isSubmitting || !isValid
           }
           onClick={handleGenerateVideo}
           size="lg"

@@ -42,7 +42,12 @@ const nextConfig = {
       }
     ]
   },
-  skipTrailingSlashRedirect: true
+  skipTrailingSlashRedirect: true,
+  experimental: {
+    reactCompiler: {
+      compilationMode: 'annotation'
+    }
+  }
 }
 
 export default withContentCollections(withAxiom(nextConfig))

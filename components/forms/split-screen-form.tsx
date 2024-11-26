@@ -9,7 +9,7 @@ import {
   VideoProps
 } from '@/stores/templatestore'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 
 import { Form } from '@/components/ui/form'
 import { AspectRatioStep } from '@/components/form/aspect-ratio-step'
@@ -34,13 +34,13 @@ export const SplitScreenForm: React.FC<SplitScreenFormProps> = () => {
     (state) => state.setSplitScreenState
   )
 
-  // Add this effect to update the store when form values change
+  const formValues = useWatch({
+    control: form.control
+  })
+
   useEffect(() => {
-    const subscription = form.watch((value) => {
-      setSplitScreenState(value as Partial<SplitScreenVideoProps>)
-    })
-    return () => subscription.unsubscribe()
-  }, [form, setSplitScreenState])
+    setSplitScreenState(formValues as Partial<SplitScreenVideoProps>)
+  }, [formValues, setSplitScreenState])
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()

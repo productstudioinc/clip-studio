@@ -12,7 +12,7 @@ import {
 } from '@radix-ui/react-icons'
 import { Voice } from 'elevenlabs/api'
 import { Loader2, Mic2, Pause, Play } from 'lucide-react'
-import { UseFormReturn } from 'react-hook-form'
+import { UseFormReturn, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
 
@@ -84,7 +84,10 @@ export default function TwitterVoiceStep({ form }: TwitterVoiceStepProps) {
 
   const [customVoice, setCustomVoice] = useState<Voice | null>(null)
 
-  const tweets = form.watch('tweets')
+  const tweets = useWatch({
+    control: form.control,
+    name: 'tweets'
+  })
   const uniqueUsernames = Array.from(
     new Set(
       tweets

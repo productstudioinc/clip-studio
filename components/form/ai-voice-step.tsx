@@ -6,7 +6,7 @@ import { useAppContext } from '@/contexts/app-context'
 import { Language, VIDEO_FPS, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { Loader2, Mic2, Pause, Play } from 'lucide-react'
-import { UseFormReturn } from 'react-hook-form'
+import { UseFormReturn, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
 
@@ -156,6 +156,11 @@ export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form }) => {
     }
   }
 
+  const videoStructure = useWatch({
+    control: form.control,
+    name: 'videoStructure'
+  })
+
   return (
     <Card>
       <CardHeader>
@@ -163,7 +168,7 @@ export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form }) => {
       </CardHeader>
       <CardContent>
         <div className="mb-8">
-          {form.watch('videoStructure').map((section, index) => (
+          {videoStructure.map((section, index) => (
             <FormField
               key={index}
               control={form.control}
