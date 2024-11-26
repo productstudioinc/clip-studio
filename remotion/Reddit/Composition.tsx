@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { AbsoluteFill, Audio, OffthreadVideo, Sequence, Series } from 'remotion'
+import { AbsoluteFill, Audio, Sequence, Series, Video } from 'remotion'
 
 import { RedditCard } from '../../components/reddit-card'
 import { RedditVideoProps } from '../../stores/templatestore'
-import { LoopedOffthreadVideo } from '../Shared/LoopedOffthreadVideo'
 import Subtitle from '../Shared/Subtitle'
 
 export type SubtitleProp = {
@@ -81,10 +80,12 @@ export const RedditComposition = ({
       <Audio src={voiceoverUrl} pauseWhenBuffering volume={voiceVolume / 100} />
       <AbsoluteFill className="w-full h-full">
         {backgroundUrls.length === 1 ? (
-          <LoopedOffthreadVideo
+          <Video
             src={backgroundUrls[0]}
             className="absolute w-full h-full object-cover"
             startFrom={0}
+            muted
+            loop
           />
         ) : (
           <Series>
@@ -93,13 +94,13 @@ export const RedditComposition = ({
                 durationInFrames={BACKGROUND_VIDEO_DURATION}
                 key={index}
               >
-                <OffthreadVideo
+                <Video
                   src={part}
+                  className="absolute w-full h-full object-cover"
                   startFrom={0}
                   endAt={BACKGROUND_VIDEO_DURATION}
-                  className="absolute w-full h-full object-cover"
                   muted
-                  pauseWhenBuffering
+                  loop
                 />
               </Series.Sequence>
             ))}
