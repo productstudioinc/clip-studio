@@ -210,6 +210,7 @@ export const generateRedditPost = createServerAction()
         - The story must be in the style of a reddit post.
         - The subreddit should not have a "r/" prefix.
         - Likes and comments should be viral numbers.
+        - Don't include a TLDR.
         
         Additional context: 
         ${input}
