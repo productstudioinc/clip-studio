@@ -27,7 +27,7 @@ export const GET = withAxiom(async (request: AxiomRequest) => {
       logger.warn('Error in TikTok auth callback', { error })
       return NextResponse.redirect(`${origin}/account?error=${error}`)
     } else if (code) {
-      const supabase = await createClient()
+      const supabase = createClient()
       const {
         data: { user }
       } = await supabase.auth.getUser()

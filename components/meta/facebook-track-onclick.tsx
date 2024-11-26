@@ -1,12 +1,11 @@
-'use client';
+'use client'
+
 import { Slot } from '@radix-ui/react-slot'
 import { uuidv7 } from 'uuidv7'
 
 import type { Facebook } from '@/types/meta'
 
 import { useFacebookPixel } from './pixel-provider'
-
-import type { JSX } from "react";
 
 /**
  * Component to track onClick events using Facebook Pixel.
