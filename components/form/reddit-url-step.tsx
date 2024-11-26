@@ -58,6 +58,7 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
         form.setValue('text', data.text)
         form.setValue('likes', data.likes)
         form.setValue('comments', data.comments)
+        form.setValue('isVoiceoverGenerated', false)
         toast.success('Reddit post generated successfully', { id })
       }
     } catch (error) {
@@ -82,6 +83,7 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
         form.setValue('text', data.text)
         form.setValue('likes', data.likes)
         form.setValue('comments', data.comments)
+        form.setValue('isVoiceoverGenerated', false)
         toast.success('Reddit post data fetched successfully', { id })
         setPostUrl('')
       }
@@ -94,17 +96,6 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
       }
     }
   }
-
-  const fieldsToWatch = useWatch({
-    control: form.control,
-    name: ['title', 'subreddit', 'accountName', 'text', 'likes', 'comments']
-  })
-
-  useEffect(() => {
-    if (fieldsToWatch.some((field) => field !== undefined)) {
-      form.setValue('isVoiceoverGenerated', false)
-    }
-  }, [fieldsToWatch, form])
 
   return (
     <Card>
