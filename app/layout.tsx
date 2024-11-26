@@ -49,12 +49,6 @@ export default async function RootLayout({
   'use memo'
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <script
-          src="https://unpkg.com/react-scan/dist/auto.global.js"
-          async
-        ></script>
-      </head>
       <Script
         src="https://cdn.tolt.io/tolt.js"
         data-tolt="4196373f-07fe-4d9a-927b-5aa9c7952153"
