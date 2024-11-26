@@ -38,7 +38,8 @@ const { functionName, alreadyExisted: functionAlreadyExisted } =
     memorySizeInMb: RAM,
     region: REGION,
     timeoutInSeconds: TIMEOUT,
-    runtimePreference: 'apple-emojis'
+    runtimePreference: 'apple-emojis',
+    enableV5Runtime: true
   })
 console.log(
   functionName,
