@@ -1,21 +1,29 @@
+import { useEffect, useState } from 'react'
+import { getVideoMetadata } from '@remotion/media-utils'
 import { Loop, OffthreadVideo, useVideoConfig } from 'remotion'
 
 export const LoopedOffthreadVideo: React.FC<{
-  durationInSeconds: number | null
   src: string
   className?: string
   startFrom?: number
   endAt?: number
   style?: React.CSSProperties
-}> = ({ durationInSeconds, src, className, startFrom, endAt, style }) => {
+}> = ({ src, className, startFrom, endAt, style }) => {
   const { fps } = useVideoConfig()
+  const [videoDuration, setVideoDuration] = useState<number | null>(null)
 
-  if (durationInSeconds === null) {
+  useEffect(() => {
+    getVideoMetadata(src).then(({ durationInSeconds }) => {
+      setVideoDuration(durationInSeconds)
+    })
+  }, [src])
+
+  if (!videoDuration) {
     return null
   }
 
   return (
-    <Loop durationInFrames={Math.floor(fps * durationInSeconds)}>
+    <Loop durationInFrames={Math.floor(fps * videoDuration)}>
       <OffthreadVideo
         src={src}
         className={className}

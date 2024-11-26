@@ -30,7 +30,6 @@ export const TextMessageComposition = (props: TextMessageVideoProps) => {
         {props.backgroundUrls.length === 1 ? (
           <LoopedOffthreadVideo
             src={props.backgroundUrls[0]}
-            durationInSeconds={BACKGROUND_VIDEO_DURATION / FPS}
             className="absolute w-full h-full object-cover"
             startFrom={0}
           />

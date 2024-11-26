@@ -83,7 +83,6 @@ export const RedditComposition = ({
         {backgroundUrls.length === 1 ? (
           <LoopedOffthreadVideo
             src={backgroundUrls[0]}
-            durationInSeconds={BACKGROUND_VIDEO_DURATION / FPS}
             className="absolute w-full h-full object-cover"
             startFrom={0}
           />

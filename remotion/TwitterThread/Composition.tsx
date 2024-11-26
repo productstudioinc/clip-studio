@@ -23,7 +23,6 @@ export const TwitterComposition = ({
       {backgroundUrls.length === 1 ? (
         <LoopedOffthreadVideo
           src={backgroundUrls[0]}
-          durationInSeconds={60}
           className="absolute w-full h-full object-cover"
           startFrom={0}
         />

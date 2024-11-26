@@ -90,7 +90,6 @@ export const SplitScreenComposition = ({
         {backgroundUrls.length === 1 ? (
           <LoopedOffthreadVideo
             src={backgroundUrls[0]}
-            durationInSeconds={60}
             style={videoStyle}
             startFrom={0}
           />
