@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { VideoProps, visualStyles } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { Loader2, RefreshCcw, Wand2 } from 'lucide-react'
-import { UseFormReturn } from 'react-hook-form'
+import { UseFormReturn, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -32,6 +32,15 @@ type ImageGenStepProps = {
 export function ImageGenStep({ form }: ImageGenStepProps) {
   const [generatingImages, setGeneratingImages] = React.useState<number[]>([])
   const [isGeneratingAll, setIsGeneratingAll] = React.useState(false)
+
+  const videoStructure = useWatch({
+    control: form.control,
+    name: 'videoStructure'
+  })
+  useWatch({
+    control: form.control,
+    name: 'visualStyle'
+  })
 
   const generateSingleImage = async (index: number) => {
     const description = form.getValues(
@@ -113,12 +122,9 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
     }
   }
 
-  const canGenerateMore = form
-    .watch('videoStructure')
-    .some(
-      (item, index) =>
-        item.imageDescription && !generatingImages.includes(index)
-    )
+  const canGenerateMore = videoStructure?.some(
+    (item, index) => item.imageDescription && !generatingImages.includes(index)
+  )
 
   return (
     <Card>
@@ -186,14 +192,14 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
               <span className="text-muted-foreground ml-1">
                 ~{' '}
                 {CREDIT_CONVERSIONS.IMAGE_GENERATION *
-                  form.watch('videoStructure').length}{' '}
+                  (videoStructure?.length || 0)}{' '}
                 credits
               </span>
             </Button>
           </div>
           <ScrollArea className="h-[400px] w-full border rounded-md">
             <div className="p-4 space-y-4">
-              {form.watch('videoStructure').map((item, index) => (
+              {videoStructure?.map((item, index) => (
                 <div key={index} className="flex space-x-4">
                   <div className="flex-shrink-0">
                     {generatingImages.includes(index) ? (

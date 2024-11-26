@@ -9,7 +9,7 @@ import {
   VideoProps
 } from '@/stores/templatestore'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 
 import { Form } from '@/components/ui/form'
 import { AIVoiceStep } from '@/components/form/ai-voice-step'
@@ -31,13 +31,13 @@ export const AIVideoForm: React.FC<AIVideoFormProps> = () => {
 
   const setAIVideoState = useTemplateStore((state) => state.setAIVideoState)
 
-  // Add this effect to update the store when form values change
+  const formValues = useWatch({
+    control: form.control
+  })
+
   useEffect(() => {
-    const subscription = form.watch((value) => {
-      setAIVideoState(value as Partial<AIVideoProps>)
-    })
-    return () => subscription.unsubscribe()
-  }, [form, setAIVideoState])
+    setAIVideoState(formValues as Partial<AIVideoProps>)
+  }, [formValues, setAIVideoState])
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()

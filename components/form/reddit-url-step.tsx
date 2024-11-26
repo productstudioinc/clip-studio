@@ -5,7 +5,7 @@ import { generateRedditPost } from '@/actions/aiActions'
 import { getRedditInfo } from '@/actions/reddit'
 import { VideoProps } from '@/stores/templatestore'
 import { Loader2 } from 'lucide-react'
-import { UseFormReturn } from 'react-hook-form'
+import { UseFormReturn, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useServerAction } from 'zsa-react'
@@ -95,24 +95,16 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
     }
   }
 
+  const fieldsToWatch = useWatch({
+    control: form.control,
+    name: ['title', 'subreddit', 'accountName', 'text', 'likes', 'comments']
+  })
+
   useEffect(() => {
-    const fieldsToWatch = [
-      'title',
-      'subreddit',
-      'accountName',
-      'text',
-      'likes',
-      'comments'
-    ]
-
-    const subscription = form.watch((value, { name }) => {
-      if (fieldsToWatch.includes(name as string)) {
-        form.setValue('isVoiceoverGenerated', false)
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [form])
+    if (fieldsToWatch.some((field) => field !== undefined)) {
+      form.setValue('isVoiceoverGenerated', false)
+    }
+  }, [fieldsToWatch, form])
 
   return (
     <Card>

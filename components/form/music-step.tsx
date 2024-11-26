@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { SelectMusic } from '@/db/schema'
 import { VideoProps } from '@/stores/templatestore'
 import { Pause, Play, VolumeX } from 'lucide-react'
-import { UseFormReturn } from 'react-hook-form'
+import { UseFormReturn, useWatch } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -34,6 +34,12 @@ export const MusicStep: React.FC<MusicStepProps> = ({ form, music }) => {
   const progressInterval = useRef<NodeJS.Timeout | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
+  const musicVolume = useWatch({
+    control: form.control,
+    name: 'musicVolume',
+    defaultValue: DEFAULT_MUSIC_VOLUME
+  })
+
   const handleAudioPlay = useCallback(
     (id: string) => {
       if (playing === id) {
@@ -54,10 +60,7 @@ export const MusicStep: React.FC<MusicStepProps> = ({ form, music }) => {
         }
 
         const audio = new Audio(selectedMusic.audioUrl)
-        const volume = form.getValues('musicVolume')
-          ? form.getValues('musicVolume') / 100
-          : DEFAULT_MUSIC_VOLUME / 100
-        audio.volume = volume
+        audio.volume = musicVolume / 100
         audioRef.current = audio
 
         audio.addEventListener('loadedmetadata', () => {
@@ -90,7 +93,7 @@ export const MusicStep: React.FC<MusicStepProps> = ({ form, music }) => {
         })
       }
     },
-    [playing, music, form]
+    [playing, music, musicVolume]
   )
 
   useEffect(() => {
@@ -99,8 +102,6 @@ export const MusicStep: React.FC<MusicStepProps> = ({ form, music }) => {
       clearInterval(progressInterval.current!)
     }
   }, [])
-
-  const musicVolume = form.watch('musicVolume')
 
   useEffect(() => {
     if (audioRef.current) {
@@ -220,7 +221,12 @@ export const MusicStep: React.FC<MusicStepProps> = ({ form, music }) => {
                       onValueChange={(value) => field.onChange(value[0])}
                       max={100}
                       step={10}
-                      disabled={form.watch('music') === 'none'}
+                      disabled={
+                        useWatch({
+                          control: form.control,
+                          name: 'music'
+                        }) === 'none'
+                      }
                       className="flex-grow"
                     />
                     <span className="text-sm text-muted-foreground w-10 text-right">

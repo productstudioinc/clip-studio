@@ -9,7 +9,7 @@ import {
   VideoProps
 } from '@/stores/templatestore'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 
 import { Form } from '@/components/ui/form'
 import { AspectRatioStep } from '@/components/form/aspect-ratio-step'
@@ -32,13 +32,13 @@ export const TwitterForm: React.FC<TwitterFormProps> = () => {
 
   const setTwitterState = useTemplateStore((state) => state.setTwitterState)
 
-  // Add this effect to update the store when form values change
+  const formValues = useWatch({
+    control: form.control
+  })
+
   useEffect(() => {
-    const subscription = form.watch((value) => {
-      setTwitterState(value as Partial<TwitterVideoProps>)
-    })
-    return () => subscription.unsubscribe()
-  }, [form, setTwitterState])
+    setTwitterState(formValues as Partial<TwitterVideoProps>)
+  }, [formValues, setTwitterState])
 
   return (
     <Form {...form}>

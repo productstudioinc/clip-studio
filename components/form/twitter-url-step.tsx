@@ -14,7 +14,7 @@ import {
   User
 } from 'lucide-react'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
-import { useFieldArray, UseFormReturn } from 'react-hook-form'
+import { useFieldArray, UseFormReturn, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -63,7 +63,7 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
     name: 'tweets'
   })
 
-  const tweets = form.watch('tweets')
+  const tweets = useWatch({ control: form.control, name: 'tweets' })
 
   const [uploadingStates, setUploadingStates] = useState<{
     [key: string]: boolean

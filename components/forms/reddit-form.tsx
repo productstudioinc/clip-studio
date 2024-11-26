@@ -9,7 +9,7 @@ import {
   VideoProps
 } from '@/stores/templatestore'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 
 import { Form } from '@/components/ui/form'
 import { AspectRatioStep } from '@/components/form/aspect-ratio-step'
@@ -31,13 +31,13 @@ export const RedditForm: React.FC<RedditFormProps> = () => {
 
   const setRedditState = useTemplateStore((state) => state.setRedditState)
 
-  // Add this effect to update the store when form values change
+  const formValues = useWatch({
+    control: form.control
+  })
+
   useEffect(() => {
-    const subscription = form.watch((value) => {
-      setRedditState(value as Partial<RedditVideoProps>)
-    })
-    return () => subscription.unsubscribe()
-  }, [form, setRedditState])
+    setRedditState(formValues as Partial<RedditVideoProps>)
+  }, [formValues, setRedditState])
 
   return (
     <Form {...form}>
