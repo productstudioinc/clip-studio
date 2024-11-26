@@ -19,7 +19,7 @@ const getCachedTemplates = unstable_cache(
             ? eq(templates.active, true)
             : undefined
         )
-        .orderBy(asc(templates.name))
+        .orderBy(asc(templates.id))
       return response
     } catch (error) {
       logger.error('Error fetching templates', {
