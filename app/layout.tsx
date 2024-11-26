@@ -58,9 +58,15 @@ export default async function RootLayout({
           <body
             className={`${GeistSans.className} ${monserrat.variable} ${komika.variable}`}
           >
-            <ErrorToast />
-            <PostHogPageView />
-            <FacebookPageView />
+            <Suspense>
+              <ErrorToast />
+            </Suspense>
+            <Suspense>
+              <PostHogPageView />
+            </Suspense>
+            <Suspense>
+              <FacebookPageView />
+            </Suspense>
             <LocalStorageTools />
             <UTMTracker />
             <ThemeProvider
