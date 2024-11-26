@@ -108,6 +108,7 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
       serveUrl: SITE_NAME,
       composition: body.id,
       inputProps: body.inputProps,
+      concurrencyPerLambda: 1,
       logLevel: 'verbose',
       overwrite: true,
       downloadBehavior: {
