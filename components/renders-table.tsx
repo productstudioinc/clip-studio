@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { RenderHistoryForAdmin } from '@/actions/db/admin-queries'
+import { SelectPastRenders } from '@/db/schema'
 import { formatDistanceToNow } from 'date-fns'
 import { Download } from 'lucide-react'
 
@@ -16,7 +17,7 @@ import {
 } from '@/components/ui/table'
 
 interface RendersTableProps {
-  renderHistory: RenderHistoryForAdmin[]
+  renderHistory: RenderHistoryForAdmin[] | SelectPastRenders[]
 }
 
 export async function RendersTable({ renderHistory }: RendersTableProps) {
