@@ -47,7 +47,11 @@ export const PromptStep: React.FC<PromptStepProps> = ({ form }) => {
     if (error) {
       toast.error(`Error generating script: ${error.message}`)
     } else {
-      const updatedData = data.map((item) => ({ ...item, imageUrl: null }))
+      const updatedData = data.map((item) => ({
+        ...item,
+        imageUrl: null,
+        duration: 5
+      }))
       form.setValue('videoStructure', updatedData)
     }
   }
