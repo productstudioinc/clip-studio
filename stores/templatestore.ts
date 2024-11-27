@@ -333,7 +333,7 @@ export const AIVideoSchema = z.object({
       text: z.string(),
       imageDescription: z.string(),
       imageUrl: z.string().nullable(),
-      duration: z.number().optional() // Make duration optional
+      duration: z.number().default(5)
     })
   ),
   voiceId: z.string(),

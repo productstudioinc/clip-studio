@@ -98,7 +98,10 @@ export const AIVideoComposition = ({
   const imageDurations = videoStructure.reduce(
     (acc, item, index) => {
       const startFrame = acc.length > 0 ? acc[acc.length - 1].endFrame : 0
-      const durationInFrames = Math.floor((item.duration || 0) * FPS)
+      const durationInFrames = Math.max(
+        1,
+        Math.floor((item.duration || 5) * FPS)
+      )
       acc.push({
         startFrame,
         endFrame: startFrame + durationInFrames,
