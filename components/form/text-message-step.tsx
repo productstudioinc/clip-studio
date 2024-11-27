@@ -184,16 +184,6 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
                       className="space-y-2 py-2"
                     >
                       {fields.map((field, index) => {
-                        const messageSender = useWatch({
-                          control: form.control,
-                          name: `messages.${index}.sender`
-                        })
-
-                        const messageContentType = useWatch({
-                          control: form.control,
-                          name: `messages.${index}.content.type`
-                        })
-
                         return (
                           <Draggable
                             key={field.id}
@@ -215,7 +205,9 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
                                     <Button
                                       type="button"
                                       variant={
-                                        messageSender === 'receiver'
+                                        form.watch(
+                                          `messages.${index}.sender`
+                                        ) === 'receiver'
                                           ? 'default'
                                           : 'outline'
                                       }
@@ -234,7 +226,9 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
                                     <Button
                                       type="button"
                                       variant={
-                                        messageSender === 'sender'
+                                        form.watch(
+                                          `messages.${index}.sender`
+                                        ) === 'sender'
                                           ? 'default'
                                           : 'outline'
                                       }
@@ -258,7 +252,9 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
                                         value as 'text' | 'image'
                                       )
                                     }
-                                    value={messageContentType}
+                                    value={form.watch(
+                                      `messages.${index}.content.type`
+                                    )}
                                   >
                                     <SelectTrigger className="w-fit">
                                       <SelectValue placeholder="Select type" />
@@ -270,7 +266,9 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
                                       </SelectItem>
                                     </SelectContent>
                                   </Select>
-                                  {messageContentType === 'text' ? (
+                                  {form.watch(
+                                    `messages.${index}.content.type`
+                                  ) === 'text' ? (
                                     <Input
                                       {...form.register(
                                         `messages.${index}.content.value`
