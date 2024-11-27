@@ -116,6 +116,35 @@ export default function TwitterVoiceStep({ form }: TwitterVoiceStepProps) {
     fetchDurations()
   }, [voices])
 
+  useEffect(() => {
+    // Sync voice settings with current usernames
+    const currentVoiceSettings = form.getValues('voiceSettings') || []
+    const updatedVoiceSettings = uniqueUsernames.map((username) => {
+      const existingSetting = currentVoiceSettings.find(
+        (s) => s.username === username
+      )
+      return existingSetting || { username, voiceId: '' }
+    })
+
+    // Only update if the voice settings have actually changed
+    const hasChanged =
+      JSON.stringify(currentVoiceSettings) !==
+      JSON.stringify(updatedVoiceSettings)
+
+    if (hasChanged) {
+      form.setValue('voiceSettings', updatedVoiceSettings, {
+        shouldDirty: true
+      })
+    }
+
+    // Update selected user if current selection is no longer valid
+    if (selectedUser && !uniqueUsernames.includes(selectedUser)) {
+      setSelectedUser(uniqueUsernames[0] || null)
+    } else if (!selectedUser && uniqueUsernames.length > 0) {
+      setSelectedUser(uniqueUsernames[0])
+    }
+  }, [uniqueUsernames, selectedUser, form.setValue])
+
   const getDuration = (audioUrl: string): Promise<number> => {
     return new Promise((resolve) => {
       const audio = new Audio(audioUrl)
@@ -238,6 +267,8 @@ export default function TwitterVoiceStep({ form }: TwitterVoiceStepProps) {
     const language = form.getValues('language')
     const voiceSettings = form.getValues('voiceSettings') || []
     const voiceSpeed = form.getValues('voiceSpeed') || 1
+    console.log(voiceSettings)
+    console.log(uniqueUsernames)
     if (voiceSettings.length !== uniqueUsernames.length) {
       toast.error('Please assign a voice to each username')
       return

@@ -377,6 +377,38 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                                     value.trim() !== '' ||
                                                     'Username cannot be empty'
                                                   )
+                                                },
+                                                onChange: (e) => {
+                                                  const newUsername =
+                                                    e.target.value
+                                                  const oldUsername =
+                                                    tweets[index].username
+
+                                                  const currentVoiceSettings =
+                                                    form.getValues(
+                                                      'voiceSettings'
+                                                    ) || []
+                                                  const updatedVoiceSettings =
+                                                    currentVoiceSettings.map(
+                                                      (setting) =>
+                                                        setting.username ===
+                                                        oldUsername
+                                                          ? {
+                                                              ...setting,
+                                                              username:
+                                                                newUsername
+                                                            }
+                                                          : setting
+                                                    )
+
+                                                  form.setValue(
+                                                    'voiceSettings',
+                                                    updatedVoiceSettings
+                                                  )
+                                                  form.setValue(
+                                                    'isVoiceoverGenerated',
+                                                    false
+                                                  )
                                                 }
                                               }
                                             )}
