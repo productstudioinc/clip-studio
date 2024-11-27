@@ -4,12 +4,7 @@ import React, { useState } from 'react'
 import { generatePresignedUrl } from '@/actions/generate-presigned-urls'
 import { fetchTweet } from '@/actions/twitter'
 import { defaultTwitterProps, VideoProps } from '@/stores/templatestore'
-import {
-  DragDropContext,
-  Draggable,
-  DraggableProvided,
-  Droppable
-} from '@hello-pangea/dnd'
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import {
   GripVertical,
   Loader2,
@@ -19,16 +14,10 @@ import {
   Upload,
   User
 } from 'lucide-react'
-import { FieldArrayWithId, useFieldArray, UseFormReturn } from 'react-hook-form'
+import { useFieldArray, UseFormReturn, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger
-} from '@/components/ui/accordion'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,20 +41,6 @@ type TwitterUrlStepProps = {
   form: UseFormReturn<VideoProps>
 }
 
-type TweetCardProps = {
-  field: FieldArrayWithId<VideoProps, 'tweets', 'id'>
-  index: number
-  form: UseFormReturn<VideoProps>
-  remove: (index: number) => void
-  provided: DraggableProvided
-}
-
-type ImageUploadProps = {
-  type: 'avatar' | 'image'
-  index: number
-  form: UseFormReturn<VideoProps>
-}
-
 const twitterUrlSchema = z
   .string()
   .url()
@@ -73,62 +48,26 @@ const twitterUrlSchema = z
     (url) =>
       (url.includes('twitter.com') && url.includes('/status/')) ||
       (url.includes('x.com') && url.includes('/status/')),
-    { message: 'Invalid Twitter tweet URL' }
+    {
+      message: 'Invalid Twitter tweet URL'
+    }
   )
 
 export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
-  const { fields, append, remove, move } = useFieldArray({
-    control: form.control,
-    name: 'tweets'
-  })
   const [tweetUrl, setTweetUrl] = useState('')
   const [urlError, setUrlError] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
 
-  const generateFakeTweets = () => {
-    remove()
-    defaultTwitterProps.tweets.forEach((tweet) => append(tweet))
-    form.clearErrors()
-    form.setValue('isVoiceoverGenerated', true)
-  }
+  const { fields, append, remove, move, update } = useFieldArray({
+    control: form.control,
+    name: 'tweets'
+  })
 
-  const clearAllTweets = () => {
-    remove()
-    form.setValue('voiceSettings', [])
-    form.setValue('isVoiceoverGenerated', false)
-  }
+  const tweets = useWatch({ control: form.control, name: 'tweets' })
 
-  const handleAddTweet = () => {
-    const randomUsername = `user${Math.floor(Math.random() * 10000)}`
-    const newTweet = {
-      id: Date.now().toString(),
-      username: randomUsername,
-      name: '',
-      avatar: '',
-      content: '',
-      image: '',
-      verified: false,
-      hideUsername: false,
-      hideText: false,
-      likes: 0,
-      comments: 0,
-      from: 0,
-      duration: 3
-    }
-    append(newTweet)
-
-    const currentTweets = form.getValues('tweets') || []
-    const currentUsernames = currentTweets.map((tweet) => tweet.username)
-    const currentVoiceSettings = (form.getValues('voiceSettings') || []).filter(
-      (setting) => currentUsernames.includes(setting.username)
-    )
-
-    form.setValue('voiceSettings', [
-      ...currentVoiceSettings,
-      { username: newTweet.username, voiceId: '' }
-    ])
-    form.setValue('isVoiceoverGenerated', false)
-  }
+  const [uploadingStates, setUploadingStates] = useState<{
+    [key: string]: boolean
+  }>({})
 
   const handleFetchTweet = async () => {
     try {
@@ -157,7 +96,11 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
         hideUsername: false,
         likes: tweetData.favorite_count,
         comments: tweetData.conversation_count,
-        from: 0,
+        from:
+          fields.length > 0
+            ? (fields[fields.length - 1]?.from ?? 0) +
+              (fields[fields.length - 1]?.duration ?? 0)
+            : 0,
         duration: 3,
         hideText: false
       })
@@ -193,352 +136,464 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
     move(result.source.index, result.destination.index)
   }
 
+  const handleImageUpload = (index: number, type: 'avatar' | 'image') => {
+    return async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0]
+      if (!file) return
+
+      const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10mb
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error('File size exceeds 10mb')
+        return
+      }
+
+      const uploadKey = `${type}-${index}`
+      setUploadingStates((prev) => ({ ...prev, [uploadKey]: true }))
+
+      try {
+        const contentType = file.type || 'application/octet-stream'
+        const arrayBuffer = await file.arrayBuffer()
+        const contentLength = arrayBuffer.byteLength
+
+        const [data, err] = await generatePresignedUrl({
+          contentType,
+          contentLength
+        })
+
+        if (err) {
+          throw new Error(err.message)
+        }
+
+        await fetch(data.presignedUrl, {
+          method: 'PUT',
+          body: arrayBuffer,
+          headers: {
+            'Content-Type': contentType
+          }
+        })
+
+        form.setValue(`tweets.${index}.${type}`, data.readUrl)
+        toast.success('Image uploaded successfully')
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : 'An error occurred during upload'
+        )
+      } finally {
+        setUploadingStates((prev) => ({ ...prev, [uploadKey]: false }))
+      }
+    }
+  }
+
+  const generateFakeTweets = () => {
+    remove()
+    defaultTwitterProps.tweets.forEach((tweet) => append(tweet))
+    form.clearErrors()
+    form.setValue('isVoiceoverGenerated', true)
+  }
+
   return (
-    <Card className="w-full">
+    <Card>
       <CardHeader>
         <CardTitle>Twitter Tweets</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-grow space-y-2">
-            <Label htmlFor="twitterTweetUrl">Fetch Tweet by URL</Label>
-            <div className="flex space-x-2">
-              <Input
-                id="twitterTweetUrl"
-                type="text"
-                value={tweetUrl}
-                onChange={(e) => {
-                  setTweetUrl(e.target.value)
-                  setUrlError(null)
-                }}
-                placeholder="https://twitter.com/username/status/..."
-                disabled={isPending}
-              />
-              <Button
-                onClick={handleFetchTweet}
-                disabled={isPending || !tweetUrl}
-              >
-                {isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Fetching...
-                  </>
-                ) : (
-                  'Fetch Tweet'
-                )}
-              </Button>
-            </div>
-            {urlError && <p className="text-sm text-red-500">{urlError}</p>}
-          </div>
-          <div className="flex flex-col sm:flex-row gap-2 sm:items-end">
-            <Button type="button" onClick={handleAddTweet}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add New Tweet
-            </Button>
+        <div className="space-y-2">
+          <Label htmlFor="twitterTweetUrl">Fetch Tweet by URL</Label>
+          <div className="flex space-x-2">
+            <Input
+              id="twitterTweetUrl"
+              type="text"
+              value={tweetUrl}
+              onChange={(e) => {
+                setTweetUrl(e.target.value)
+                setUrlError(null)
+              }}
+              placeholder="https://twitter.com/username/status/..."
+              disabled={isPending}
+            />
             <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              onClick={generateFakeTweets}
+              onClick={handleFetchTweet}
+              disabled={isPending || !tweetUrl}
             >
-              <RefreshCw className="h-4 w-4" />
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Fetching...
+                </>
+              ) : (
+                'Fetch Tweet'
+              )}
             </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button type="button" variant="outline" size="icon">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Clear all tweets?</AlertDialogTitle>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={clearAllTweets}>
-                    Continue
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
           </div>
+          {urlError && <p className="text-sm text-red-500">{urlError}</p>}
         </div>
 
-        <ScrollArea className="h-[500px] border rounded-md">
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="tweets">
-              {(provided) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  className="p-4 space-y-4"
-                >
-                  {fields.map((field, index) => (
-                    <Draggable
-                      key={field.id}
-                      draggableId={field.id}
-                      index={index}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-base">Tweets</Label>
+            <div className="flex space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const randomUsername = `user${Math.floor(Math.random() * 10000)}`
+                  const newTweet = {
+                    id: Date.now().toString(),
+                    username: randomUsername,
+                    name: '',
+                    avatar: '',
+                    content: '',
+                    image: '',
+                    verified: false,
+                    hideUsername: false,
+                    hideText: false,
+                    likes: 0,
+                    comments: 0,
+                    from: 0,
+                    duration: 3
+                  }
+                  append(newTweet)
+
+                  // Clear any stale voice settings
+                  const currentTweets = [...fields, newTweet]
+                  const currentUsernames = currentTweets.map(
+                    (tweet) => tweet.username
+                  )
+                  const currentVoiceSettings = (
+                    form.getValues('voiceSettings') || []
+                  ).filter((setting) =>
+                    currentUsernames.includes(setting.username)
+                  )
+
+                  // Add voice setting for new tweet
+                  form.setValue('voiceSettings', [
+                    ...currentVoiceSettings,
+                    { username: newTweet.username, voiceId: '' }
+                  ])
+                  form.setValue('isVoiceoverGenerated', false)
+                }}
+              >
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Tweet
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={generateFakeTweets}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Sample
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button type="button" variant="outline" size="sm">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Clear
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Clear all tweets?</AlertDialogTitle>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        remove()
+                        form.setValue('voiceSettings', [])
+                        form.setValue('isVoiceoverGenerated', false)
+                      }}
                     >
-                      {(provided) => (
-                        <TweetCard
-                          key={field.id}
-                          field={field}
-                          index={index}
-                          form={form}
-                          remove={remove}
-                          provided={provided}
-                        />
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        </ScrollArea>
-      </CardContent>
-    </Card>
-  )
-}
-
-const TweetCard = ({
-  field,
-  index,
-  form,
-  remove,
-  provided
-}: TweetCardProps) => {
-  return (
-    <Accordion type="single" collapsible className="w-full">
-      <AccordionItem value={`item-${index}`}>
-        <Card
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          className="p-4"
-        >
-          <div className="flex gap-4">
-            <div {...provided.dragHandleProps} className="mt-4 cursor-move">
-              <GripVertical className="text-muted-foreground" />
-            </div>
-            <div className="flex-grow space-y-4">
-              <div className="flex items-start gap-4">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={field.avatar} />
-                  <AvatarFallback>
-                    <User className="h-6 w-6" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-grow">
-                  <Input
-                    {...form.register(`tweets.${index}.name`)}
-                    placeholder="Display Name"
-                    className="mb-2"
-                  />
-                  <div className="flex items-center gap-2">
-                    <Input
-                      {...form.register(`tweets.${index}.username`, {
-                        required: true
-                      })}
-                      placeholder="Username"
-                    />
-                    <AccordionTrigger className="border p-2 rounded-md" />
-                  </div>
-                </div>
-              </div>
-              <AccordionContent>
-                <div className="space-y-6 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor={`tweet-content-${index}`}>
-                      Tweet Content
-                    </Label>
-                    <Textarea
-                      id={`tweet-content-${index}`}
-                      {...form.register(`tweets.${index}.content`)}
-                      placeholder="Tweet content"
-                      className="h-24 resize-none"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor={`likes-${index}`}>Likes</Label>
-                      <Input
-                        id={`likes-${index}`}
-                        {...form.register(`tweets.${index}.likes`)}
-                        type="number"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`comments-${index}`}>Comments</Label>
-                      <Input
-                        id={`comments-${index}`}
-                        {...form.register(`tweets.${index}.comments`)}
-                        type="number"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Tweet Options</Label>
-                    <div className="flex flex-wrap gap-4">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`verified-${index}`}
-                          checked={field.verified}
-                          onCheckedChange={(checked) =>
-                            form.setValue(
-                              `tweets.${index}.verified`,
-                              !!checked,
-                              { shouldDirty: true }
-                            )
-                          }
-                        />
-                        <Label htmlFor={`verified-${index}`}>Verified</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`hideUsername-${index}`}
-                          checked={field.hideUsername}
-                          onCheckedChange={(checked) =>
-                            form.setValue(
-                              `tweets.${index}.hideUsername`,
-                              !!checked,
-                              { shouldDirty: true }
-                            )
-                          }
-                        />
-                        <Label htmlFor={`hideUsername-${index}`}>
-                          Hide Username
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`hideText-${index}`}
-                          checked={field.hideText}
-                          onCheckedChange={(checked) =>
-                            form.setValue(
-                              `tweets.${index}.hideText`,
-                              !!checked,
-                              { shouldDirty: true }
-                            )
-                          }
-                        />
-                        <Label htmlFor={`hideText-${index}`}>Hide Text</Label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Images</Label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <ImageUpload type="avatar" index={index} form={form} />
-                      <ImageUpload type="image" index={index} form={form} />
-                    </div>
-                  </div>
-
-                  {field.image && (
-                    <div className="space-y-2">
-                      <Label>Tweet Image Preview</Label>
-                      <img
-                        src={field.image}
-                        alt="Tweet"
-                        className="rounded-md max-h-48 object-cover"
-                      />
-                    </div>
-                  )}
-
-                  <div className="pt-4">
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() => remove(index)}
-                    >
-                      Remove Tweet
-                    </Button>
-                  </div>
-                </div>
-              </AccordionContent>
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
-        </Card>
-      </AccordionItem>
-    </Accordion>
-  )
-}
 
-const ImageUpload = ({ type, index, form }: ImageUploadProps) => {
-  const [isUploading, setIsUploading] = useState(false)
+          <ScrollArea className="h-[500px] border rounded-md">
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable droppableId="tweets">
+                {(provided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="p-4 space-y-4"
+                  >
+                    {fields.map((field, index) => (
+                      <Draggable
+                        key={field.id}
+                        draggableId={field.id}
+                        index={index}
+                      >
+                        {(provided) => (
+                          <Card
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            className="p-4"
+                          >
+                            <div className="flex gap-4">
+                              <div
+                                {...provided.dragHandleProps}
+                                className="mt-4 cursor-move"
+                              >
+                                <GripVertical className="text-muted-foreground" />
+                              </div>
 
-  const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+                              <div className="flex-grow space-y-4">
+                                <div className="flex items-start gap-4">
+                                  <Avatar className="h-12 w-12">
+                                    <AvatarImage src={field.avatar} />
+                                    <AvatarFallback>
+                                      <User className="h-6 w-6" />
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-grow grid gap-4">
+                                    <div className="grid sm:grid-cols-2 gap-4">
+                                      <div className="space-y-2">
+                                        <Label>Display Name</Label>
+                                        <Input
+                                          {...form.register(
+                                            `tweets.${index}.name`
+                                          )}
+                                          placeholder="Display Name"
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label>Username</Label>
+                                        <div className="flex items-center gap-2">
+                                          <Input
+                                            {...form.register(
+                                              `tweets.${index}.username`,
+                                              {
+                                                required: true,
+                                                validate: (value) => {
+                                                  return (
+                                                    value.trim() !== '' ||
+                                                    'Username cannot be empty'
+                                                  )
+                                                }
+                                              }
+                                            )}
+                                            placeholder="Username"
+                                          />
+                                          <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={() => {
+                                              const currentVoiceSettings =
+                                                form.getValues(
+                                                  'voiceSettings'
+                                                ) || []
 
-    const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10mb
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error('File size exceeds 10mb')
-      return
-    }
+                                              remove(index)
 
-    setIsUploading(true)
+                                              const remainingTweets =
+                                                fields.filter(
+                                                  (_, i) => i !== index
+                                                )
+                                              const remainingUsernames =
+                                                remainingTweets.map(
+                                                  (tweet) => tweet.username
+                                                )
 
-    try {
-      const contentType = file.type || 'application/octet-stream'
-      const arrayBuffer = await file.arrayBuffer()
-      const contentLength = arrayBuffer.byteLength
+                                              const updatedVoiceSettings =
+                                                currentVoiceSettings.filter(
+                                                  (setting) =>
+                                                    remainingUsernames.includes(
+                                                      setting.username
+                                                    )
+                                                )
 
-      const [data, err] = await generatePresignedUrl({
-        contentType,
-        contentLength
-      })
+                                              form.setValue(
+                                                'voiceSettings',
+                                                updatedVoiceSettings
+                                              )
+                                              form.setValue(
+                                                'isVoiceoverGenerated',
+                                                false
+                                              )
+                                            }}
+                                          >
+                                            <Trash2 className="h-4 w-4" />
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Checkbox
+                                        id={`verified-${index}`}
+                                        checked={
+                                          tweets?.[index]?.verified || false
+                                        }
+                                        onCheckedChange={(checked) => {
+                                          form.setValue(
+                                            `tweets.${index}.verified`,
+                                            !!checked,
+                                            { shouldDirty: true }
+                                          )
+                                        }}
+                                      />
+                                      <Label
+                                        htmlFor={`verified-${index}`}
+                                        className="text-sm"
+                                      >
+                                        Verified Account
+                                      </Label>
+                                      <Checkbox
+                                        id={`hideUsername-${index}`}
+                                        checked={
+                                          tweets?.[index]?.hideUsername || false
+                                        }
+                                        onCheckedChange={(checked) => {
+                                          form.setValue(
+                                            `tweets.${index}.hideUsername`,
+                                            !!checked,
+                                            { shouldDirty: true }
+                                          )
+                                        }}
+                                      />
+                                      <Label
+                                        htmlFor={`hideUsername-${index}`}
+                                        className="text-sm"
+                                      >
+                                        Hide Username
+                                      </Label>
+                                      <Checkbox
+                                        id={`hideText-${index}`}
+                                        checked={
+                                          tweets?.[index]?.hideText || false
+                                        }
+                                        onCheckedChange={(checked) => {
+                                          form.setValue(
+                                            `tweets.${index}.hideText`,
+                                            !!checked,
+                                            { shouldDirty: true }
+                                          )
+                                        }}
+                                      />
+                                      <Label
+                                        htmlFor={`hideText-${index}`}
+                                        className="text-sm"
+                                      >
+                                        Hide Text
+                                      </Label>
+                                    </div>
+                                  </div>
+                                </div>
 
-      if (err) {
-        throw new Error(err.message)
-      }
+                                <div className="space-y-2">
+                                  <Label>Tweet Content</Label>
+                                  <Textarea
+                                    {...form.register(
+                                      `tweets.${index}.content`
+                                    )}
+                                    placeholder="Tweet content"
+                                    className="h-24 resize-none"
+                                  />
+                                </div>
 
-      await fetch(data.presignedUrl, {
-        method: 'PUT',
-        body: arrayBuffer,
-        headers: {
-          'Content-Type': contentType
-        }
-      })
+                                <div className="grid sm:grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label>Likes</Label>
+                                    <Input
+                                      {...form.register(
+                                        `tweets.${index}.likes`
+                                      )}
+                                      placeholder="Number of likes"
+                                      type="number"
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Comments</Label>
+                                    <Input
+                                      {...form.register(
+                                        `tweets.${index}.comments`
+                                      )}
+                                      placeholder="Number of comments"
+                                      type="number"
+                                    />
+                                  </div>
+                                </div>
 
-      form.setValue(`tweets.${index}.${type}`, data.readUrl)
-      toast.success('Image uploaded successfully')
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : 'An error occurred during upload'
-      )
-    } finally {
-      setIsUploading(false)
-    }
-  }
+                                <div className="grid sm:grid-cols-2 gap-4">
+                                  <div>
+                                    <Input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={(e) =>
+                                        handleImageUpload(index, 'avatar')(e)
+                                      }
+                                      className="hidden"
+                                      id={`avatar-upload-${index}`}
+                                    />
+                                    <Label
+                                      htmlFor={`avatar-upload-${index}`}
+                                      className="cursor-pointer inline-flex items-center justify-center w-full px-4 py-2 text-sm border rounded-md hover:bg-accent"
+                                    >
+                                      {uploadingStates[`avatar-${index}`] ? (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      ) : (
+                                        <Upload className="mr-2 h-4 w-4" />
+                                      )}
+                                      Change Avatar
+                                    </Label>
+                                  </div>
+                                  <div>
+                                    <Input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={(e) =>
+                                        handleImageUpload(index, 'image')(e)
+                                      }
+                                      className="hidden"
+                                      id={`image-upload-${index}`}
+                                    />
+                                    <Label
+                                      htmlFor={`image-upload-${index}`}
+                                      className="cursor-pointer inline-flex items-center justify-center w-full px-4 py-2 text-sm border rounded-md hover:bg-accent"
+                                    >
+                                      {uploadingStates[`image-${index}`] ? (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      ) : (
+                                        <Upload className="mr-2 h-4 w-4" />
+                                      )}
+                                      {field.image
+                                        ? 'Change Image'
+                                        : 'Upload Image'}
+                                    </Label>
+                                  </div>
+                                </div>
 
-  return (
-    <div>
-      <Input
-        type="file"
-        accept="image/*"
-        onChange={handleImageUpload}
-        className="hidden"
-        id={`${type}-upload-${index}`}
-      />
-      <Label
-        htmlFor={`${type}-upload-${index}`}
-        className="cursor-pointer inline-flex items-center justify-center w-full px-4 py-2 text-sm border rounded-md hover:bg-accent"
-      >
-        {isUploading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <Upload className="mr-2 h-4 w-4" />
-        )}
-        {type === 'avatar' ? 'Change Avatar' : 'Upload Image'}
-      </Label>
-    </div>
+                                {field.image && (
+                                  <div className="mt-2">
+                                    <img
+                                      src={field.image}
+                                      alt="Tweet"
+                                      className="rounded-md max-h-48 object-cover"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </Card>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </ScrollArea>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
