@@ -6,7 +6,7 @@ import { useAppContext } from '@/contexts/app-context'
 import { VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { useRendering } from '@/utils/helpers/use-rendering'
-import { Loader2 } from 'lucide-react'
+import { Loader2, RefreshCw, RotateCcw, Undo } from 'lucide-react'
 import { UseFormReturn, useFormState } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -37,22 +37,29 @@ const Megabytes: React.FC<{
 }
 
 export const ExportComponent: React.FC<{ id: string }> = ({ id }) => {
-  const { state } = useRendering(id)
+  const { state, undo } = useRendering(id)
   const isDownloadReady = state.status === 'done'
   return (
-    <div className="w-full">
-      {isDownloadReady ? (
-        <a href={state.url}>
-          <Button className="w-full h-12 text-md" type="button">
+    <div className="w-full space-y-4">
+      <div className="flex gap-2">
+        {isDownloadReady ? (
+          <>
+            <a href={state.url} className="flex-1">
+              <Button className="w-full h-12 text-md" type="button">
+                Download
+                <Megabytes sizeInBytes={state.size} className="ml-1" />
+              </Button>
+            </a>
+            <Button className="h-12 w-12" onClick={undo} size="icon">
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+          </>
+        ) : (
+          <Button disabled className="w-full h-12 text-md">
             Download
-            <Megabytes sizeInBytes={state.size} className="ml-1" />
           </Button>
-        </a>
-      ) : (
-        <Button disabled className="w-full h-12 text-md">
-          Download
-        </Button>
-      )}
+        )}
+      </div>
     </div>
   )
 }
@@ -77,8 +84,15 @@ type FormSubmitProps = {
 export function FormSubmit({ form }: FormSubmitProps) {
   const { youtubeChannels, tiktokAccounts, user } = useAppContext()
   const router = useRouter()
-  const { renderMedia, state, isLoading, isComplete, inputProps, renderId } =
-    useRendering()
+  const {
+    renderMedia,
+    state,
+    isLoading,
+    isComplete,
+    inputProps,
+    renderId,
+    undo
+  } = useRendering()
 
   const { isSubmitting, isValid, errors } = useFormState({
     control: form.control
