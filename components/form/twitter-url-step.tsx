@@ -536,7 +536,14 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                     <Label>Likes</Label>
                                     <Input
                                       {...form.register(
-                                        `tweets.${index}.likes`
+                                        `tweets.${index}.likes`,
+                                        {
+                                          valueAsNumber: true,
+                                          setValueAs: (value) =>
+                                            value === ''
+                                              ? 0
+                                              : parseInt(value, 10)
+                                        }
                                       )}
                                       placeholder="Number of likes"
                                       type="number"
@@ -546,7 +553,14 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                     <Label>Comments</Label>
                                     <Input
                                       {...form.register(
-                                        `tweets.${index}.comments`
+                                        `tweets.${index}.comments`,
+                                        {
+                                          valueAsNumber: true,
+                                          setValueAs: (value) =>
+                                            value === ''
+                                              ? 0
+                                              : parseInt(value, 10)
+                                        }
                                       )}
                                       placeholder="Number of comments"
                                       type="number"
