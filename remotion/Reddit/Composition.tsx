@@ -26,7 +26,8 @@ export const RedditComposition = ({
   titleEnd,
   backgroundUrls,
   voiceVolume,
-  captionStyle
+  captionStyle,
+  voiceSpeed
 }: RedditVideoProps) => {
   const [subtitles, setSubtitles] = useState<SubtitleProp[]>([])
 
@@ -78,7 +79,12 @@ export const RedditComposition = ({
   const titleEndFrame = Math.floor(titleEnd * FPS)
   return (
     <>
-      <Audio src={voiceoverUrl} pauseWhenBuffering volume={voiceVolume / 100} />
+      <Audio
+        src={voiceoverUrl}
+        pauseWhenBuffering
+        volume={voiceVolume / 100}
+        playbackRate={voiceSpeed}
+      />
       <AbsoluteFill className="w-full h-full">
         {backgroundUrls.length === 1 ? (
           <LoopedOffthreadVideo
@@ -106,7 +112,7 @@ export const RedditComposition = ({
           </Series>
         )}
         <AbsoluteFill className="flex justify-center items-center">
-          <Sequence durationInFrames={titleEndFrame}>
+          <Sequence durationInFrames={Math.floor(titleEndFrame / voiceSpeed)}>
             <AbsoluteFill className="flex justify-center items-center">
               <RedditCard
                 title={title}
@@ -117,11 +123,15 @@ export const RedditComposition = ({
               />
             </AbsoluteFill>
           </Sequence>
-          {subtitles.map((subtitle, index) =>
-            subtitle.startFrame < subtitle.endFrame ? (
+          {subtitles.map((subtitle, index) => {
+            const durationInFrames = Math.floor(
+              (subtitle.endFrame - subtitle.startFrame) / voiceSpeed
+            )
+            const safeDurationInFrames = Math.max(1, durationInFrames)
+            return subtitle.startFrame < subtitle.endFrame ? (
               <Sequence
-                from={subtitle.startFrame}
-                durationInFrames={subtitle.endFrame - subtitle.startFrame}
+                from={Math.floor(subtitle.startFrame / voiceSpeed)}
+                durationInFrames={safeDurationInFrames}
                 key={index}
               >
                 <Subtitle
@@ -131,7 +141,7 @@ export const RedditComposition = ({
                 />
               </Sequence>
             ) : null
-          )}
+          })}
         </AbsoluteFill>
       </AbsoluteFill>
     </>

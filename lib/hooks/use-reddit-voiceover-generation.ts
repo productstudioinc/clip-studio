@@ -14,6 +14,7 @@ export const useRedditVoiceoverGeneration = (
     const language = form.getValues('language')
     const text = form.getValues('text')
     const title = form.getValues('title')
+    const voiceSpeed = form.getValues('voiceSpeed')
 
     if (!selectedVoice || !text || !title) {
       toast.error(
@@ -36,7 +37,10 @@ export const useRedditVoiceoverGeneration = (
       return false
     }
 
-    form.setValue('durationInFrames', Math.floor(data.endTimestamp * 30))
+    form.setValue(
+      'durationInFrames',
+      Math.floor((data.endTimestamp * 30) / voiceSpeed)
+    )
     form.setValue('voiceoverUrl', data.signedUrl)
     form.setValue('voiceoverFrames', data.voiceoverObject)
     form.setValue('isVoiceoverGenerated', true)
