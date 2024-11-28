@@ -40,7 +40,11 @@ export default async function ChangelogPage({ params }: ChangelogPageProps) {
         <header className="mb-8">
           <h1 className="text-4xl tracking-tight mb-2">{page.title}</h1>
           <time className="text-sm text-muted-foreground">
-            {new Date(page.updatedAt).toLocaleDateString()}
+            {new Date(page.updatedAt).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
           </time>
         </header>
         <div className="prose dark:prose-invert text-base sm:text-lg">
