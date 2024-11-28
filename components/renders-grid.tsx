@@ -1,6 +1,4 @@
 import Link from 'next/link'
-import { RenderHistoryForAdmin } from '@/actions/db/admin-queries'
-import { SelectPastRenders } from '@/db/schema'
 import { formatDistanceToNow } from 'date-fns'
 import { Download } from 'lucide-react'
 
@@ -8,7 +6,14 @@ import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 
 interface RendersGridProps {
-  renderHistory: RenderHistoryForAdmin[] | SelectPastRenders[]
+  renderHistory: Array<{
+    id: string
+    userId: string
+    email?: string | null
+    videoUrl: string | null
+    templateName: string
+    createdAt: Date
+  }>
 }
 
 export async function RendersGrid({ renderHistory }: RendersGridProps) {
@@ -30,6 +35,9 @@ export async function RendersGrid({ renderHistory }: RendersGridProps) {
               <p className="text-sm text-gray-500 mb-2">
                 {formatDistanceToNow(render.createdAt, { addSuffix: true })}
               </p>
+              {render.email && (
+                <p className="text-sm text-gray-500 mb-2">{render.email}</p>
+              )}
 
               <div className="flex flex-col gap-2">
                 <Link

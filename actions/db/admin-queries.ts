@@ -72,6 +72,7 @@ export const getRenderHistory = async (
     .select({
       id: pastRenders.id,
       userId: pastRenders.userId,
+      email: users.email,
       videoUrl: pastRenders.videoUrl,
       templateName: pastRenders.templateName,
       createdAt: pastRenders.createdAt
