@@ -1,8 +1,8 @@
 .root {
-  font-size: 1.25rem;
-  font-weight: 400;
+  font-size: 1.125rem;
   line-height: 1.5rem;
   margin: 0;
   overflow-wrap: break-word;
   white-space: pre-wrap;
+  padding-bottom: 1rem;
 }
