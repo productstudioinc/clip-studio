@@ -51,7 +51,7 @@ export const generatePresignedUrl = createServerAction()
       })
 
       const presignedPutUrl = await getSignedUrl(R2, putCommand, {
-        expiresIn: 1800
+        expiresIn: 60 * 60 * 24
       })
 
       const getCommand = new GetObjectCommand({
