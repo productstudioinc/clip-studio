@@ -1,38 +1,32 @@
 import { TwitterVideoProps } from '@/stores/templatestore'
 import clsx from 'clsx'
 import { TwitterComponents } from 'react-tweet'
-import { MediaDetails } from 'react-tweet/api'
 
 import { MediaImg } from './media-img'
 import s from './tweet-media.module.css'
-
-const getSkeletonStyle = (media: MediaDetails, itemCount: number) => {
-  let paddingBottom = 56.25 // default of 16x9
-
-  if (itemCount === 1)
-    paddingBottom =
-      (100 / media.original_info.width) * media.original_info.height
-
-  // if we have 2 items, double the default to be 16x9 total
-  if (itemCount === 2) paddingBottom = paddingBottom * 2
-
-  return {
-    width: media.type === 'photo' ? undefined : 'unset',
-    paddingBottom: `${paddingBottom}%`
-  }
-}
+import { tweetTheme } from './tweet-theme'
 
 type Props = {
   tweet: TwitterVideoProps['tweets'][number]
   components?: TwitterComponents
+  mode?: 'light' | 'dark'
   quoted?: boolean
 }
 
-export const TweetMedia = ({ tweet, components, quoted }: Props) => {
+export const TweetMedia = ({
+  tweet,
+  components,
+  mode = 'dark',
+  quoted
+}: Props) => {
   const Img = components?.MediaImg ?? MediaImg
+  const currentTheme = mode === 'dark' ? tweetTheme.dark : tweetTheme.light
 
   return tweet.image ? (
-    <div className={clsx(s.root, !quoted && s.rounded)}>
+    <div
+      className={clsx(s.root, !quoted && s.rounded)}
+      style={{ borderColor: currentTheme.border }}
+    >
       <div className={s.mediaWrapper}>
         <div className={s.mediaContainer}>
           <div

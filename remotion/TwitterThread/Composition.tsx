@@ -11,7 +11,8 @@ export const TwitterComposition = ({
   tweets,
   voiceoverUrl,
   voiceVolume,
-  voiceSpeed
+  voiceSpeed,
+  mode
 }: TwitterVideoProps) => {
   return (
     <>
@@ -52,7 +53,7 @@ export const TwitterComposition = ({
           key={`tweet-${index}`}
           className="flex justify-center items-center"
         >
-          <MyTweet tweet={tweet} className="h-fit" />
+          <MyTweet tweet={tweet} className="h-fit" mode={mode} />
         </Sequence>
       ))}
     </>

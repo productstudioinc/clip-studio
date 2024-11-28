@@ -6,10 +6,12 @@ import { MyTweet } from './my-tweet'
 
 export const UserTweet = ({
   tweet,
+  mode,
   className
 }: {
   tweet: TwitterVideoProps['tweets'][number]
+  mode?: 'light' | 'dark'
   className?: string
 }) => {
-  return <MyTweet tweet={tweet} className={className} />
+  return <MyTweet tweet={tweet} mode={mode} className={className} />
 }

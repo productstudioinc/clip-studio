@@ -2,17 +2,26 @@ import { TwitterVideoProps } from '@/stores/templatestore'
 import { formatNumber } from 'react-tweet'
 
 import s from './tweet-actions.module.css'
+import { tweetTheme } from './tweet-theme'
 
-export const TweetActions = ({
-  tweet
-}: {
+type Props = {
   tweet: TwitterVideoProps['tweets'][number]
-}) => {
+  mode?: 'light' | 'dark'
+}
+
+export const TweetActions = ({ tweet, mode = 'dark' }: Props) => {
+  const currentTheme = mode === 'dark' ? tweetTheme.dark : tweetTheme.light
   const favoriteCount = formatNumber(tweet.likes || 0)
   const commentCount = formatNumber(tweet.comments || 0)
 
   return (
-    <div className={s.actions}>
+    <div
+      className={s.actions}
+      style={{
+        color: currentTheme.textSecondary,
+        borderColor: currentTheme.border
+      }}
+    >
       <div className={s.likeIconWrapper}>
         <svg viewBox="0 0 24 24" className={s.likeIcon} aria-hidden="true">
           <g>

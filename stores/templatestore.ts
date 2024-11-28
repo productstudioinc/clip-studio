@@ -230,20 +230,20 @@ export const TwitterVideoSchema = BaseVideoSchema.extend({
     z.object({
       id: z.string(),
       username: z.string(),
-      name: z.string().optional(),
+      name: z.string(),
       avatar: z.string(),
       content: z.string(),
-      image: z.string(),
-      likes: z.number().optional(),
-      retweets: z.number().optional(),
-      comments: z.number().optional(),
-      verified: z.boolean().optional().default(true),
-      hideUsername: z.boolean().optional().default(false),
-      hideText: z.boolean().optional().default(false),
-      duration: z.number().optional(),
-      from: z.number().optional()
+      image: z.string().optional(),
+      verified: z.boolean(),
+      hideUsername: z.boolean(),
+      likes: z.number(),
+      comments: z.number(),
+      from: z.number(),
+      duration: z.number(),
+      hideText: z.boolean()
     })
   ),
+  mode: z.enum(['light', 'dark']).default('dark'),
   backgroundUrls: z.array(z.string()).min(1),
   voiceoverUrl: z.string(),
   voiceSettings: z
@@ -745,7 +745,8 @@ export const defaultTwitterProps: TwitterVideoProps = {
   ],
   voiceSettings: [],
   isVoiceoverGenerated: true,
-  voiceSpeed: 1.1
+  voiceSpeed: 1.1,
+  mode: 'dark'
 }
 
 export const defaultTextMessageProps: TextMessageVideoProps = {
