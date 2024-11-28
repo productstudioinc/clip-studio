@@ -3,6 +3,7 @@ import { AbsoluteFill, Audio, Sequence, Series, Video } from 'remotion'
 
 import { RedditCard } from '../../components/reddit-card'
 import { RedditVideoProps } from '../../stores/templatestore'
+import { LoopedOffthreadVideo } from '../Shared/LoopedOffthreadVideo'
 import Subtitle from '../Shared/Subtitle'
 
 export type SubtitleProp = {
@@ -80,12 +81,10 @@ export const RedditComposition = ({
       <Audio src={voiceoverUrl} pauseWhenBuffering volume={voiceVolume / 100} />
       <AbsoluteFill className="w-full h-full">
         {backgroundUrls.length === 1 ? (
-          <Video
+          <LoopedOffthreadVideo
             src={backgroundUrls[0]}
             className="absolute w-full h-full object-cover"
             startFrom={0}
-            muted
-            loop
           />
         ) : (
           <Series>
