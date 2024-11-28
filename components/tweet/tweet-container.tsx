@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 
-import { cn } from '@/lib/utils'
-
+import { cn } from '../../lib/utils'
 import s from './tweet-container.module.css'
 import { tweetTheme } from './tweet-theme'
 
