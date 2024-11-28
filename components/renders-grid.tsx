@@ -30,16 +30,6 @@ export async function RendersGrid({ renderHistory }: RendersGridProps) {
               <p className="text-sm text-gray-500 mb-2">
                 {formatDistanceToNow(render.createdAt, { addSuffix: true })}
               </p>
-              {'userEmail' in render && render.userEmail && (
-                <>
-                  <p className="text-sm text-muted-foreground">
-                    {render.userEmail}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {render.userId}
-                  </p>
-                </>
-              )}
 
               <div className="flex flex-col gap-2">
                 <Link
@@ -62,7 +52,16 @@ export async function RendersGrid({ renderHistory }: RendersGridProps) {
                     'w-full'
                   )}
                 >
-                  View
+                  View Render
+                </Link>
+                <Link
+                  href={`/admin/users/${render.userId}`}
+                  className={cn(
+                    buttonVariants({ variant: 'outline', size: 'sm' }),
+                    'w-full'
+                  )}
+                >
+                  View User
                 </Link>
               </div>
             </div>

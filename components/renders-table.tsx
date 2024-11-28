@@ -33,33 +33,41 @@ export async function RendersTable({ renderHistory }: RendersTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {renderHistory.map((render) => (
-            <TableRow key={render.id}>
-              <TableCell>{render.templateName}</TableCell>
-              <TableCell>{render.userId}</TableCell>
-              <TableCell>
-                {formatDistanceToNow(render.createdAt, {
-                  addSuffix: true,
-                  includeSeconds: true
-                })}
-              </TableCell>
-              <TableCell>
-                <Link
-                  href={render.videoUrl || '#'}
-                  target="_blank"
-                  className={cn(
-                    buttonVariants({
-                      variant: 'outline',
-                      size: 'sm'
-                    }),
-                    'w-full'
-                  )}
-                >
-                  <Download className="mr-2 h-4 w-4" /> Download
-                </Link>
+          {renderHistory.length > 0 ? (
+            renderHistory.map((render) => (
+              <TableRow key={render.id}>
+                <TableCell>{render.templateName}</TableCell>
+                <TableCell>{render.userId}</TableCell>
+                <TableCell>
+                  {formatDistanceToNow(render.createdAt, {
+                    addSuffix: true,
+                    includeSeconds: true
+                  })}
+                </TableCell>
+                <TableCell>
+                  <Link
+                    href={render.videoUrl || '#'}
+                    target="_blank"
+                    className={cn(
+                      buttonVariants({
+                        variant: 'outline',
+                        size: 'sm'
+                      }),
+                      'w-full'
+                    )}
+                  >
+                    <Download className="mr-2 h-4 w-4" /> Download
+                  </Link>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center">
+                No render history available
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </Card>

@@ -1,10 +1,14 @@
+'use server'
+
 import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
 import { getUser } from '@/actions/auth/user'
 import { db } from '@/db'
 import {
+  customers,
   feedback,
   pastRenders,
+  subscriptions,
   tiktokAccounts,
   tiktokPosts,
   users,
@@ -70,8 +74,7 @@ export const getRenderHistory = async (
       userId: pastRenders.userId,
       videoUrl: pastRenders.videoUrl,
       templateName: pastRenders.templateName,
-      createdAt: pastRenders.createdAt,
-      userEmail: users.email
+      createdAt: pastRenders.createdAt
     })
     .from(pastRenders)
     .leftJoin(users, eq(pastRenders.userId, users.id))
@@ -181,16 +184,11 @@ export const getFeedbackForAdmin = async (
   const feedbackWithUser = await db
     .select({
       id: feedback.id,
+      userId: feedback.userId,
       feedbackType: feedback.feedbackType,
       rating: feedback.rating,
       comment: feedback.comment,
-      createdAt: feedback.createdAt,
-      user: {
-        id: users.id,
-        fullName: users.fullName,
-        email: users.email,
-        avatarUrl: users.avatarUrl
-      }
+      createdAt: feedback.createdAt
     })
     .from(feedback)
     .leftJoin(users, eq(feedback.userId, users.id))
@@ -528,3 +526,79 @@ export const getYoutubePostsPerDay = (startDate: Date, endDate: Date) => {
     cacheOptions
   )()
 }
+
+export async function getUserProfileForAdmin(
+  userId: string,
+  page: number = 1,
+  pageSize: number = 10
+) {
+  await authenticateAdmin()
+
+  const user = await db
+    .select({
+      id: users.id,
+      fullName: users.fullName,
+      email: users.email,
+      avatarUrl: users.avatarUrl,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
+      role: users.role,
+      usage: {
+        creditsLeft: userUsage.creditsLeft,
+        connectedAccountsLeft: userUsage.connectedAccountsLeft
+      },
+      subscription: {
+        id: subscriptions.id,
+        priceId: subscriptions.priceId
+      },
+      stripeCustomerId: customers.stripeCustomerId
+    })
+    .from(users)
+    .leftJoin(userUsage, eq(users.id, userUsage.userId))
+    .leftJoin(subscriptions, eq(users.id, subscriptions.userId))
+    .leftJoin(customers, eq(users.id, customers.id))
+    .where(eq(users.id, userId))
+    .limit(1)
+
+  if (!user[0]) {
+    throw new Error('User not found')
+  }
+
+  const userRenders = await db
+    .select({
+      id: pastRenders.id,
+      userId: pastRenders.userId,
+      videoUrl: pastRenders.videoUrl,
+      templateName: pastRenders.templateName,
+      createdAt: pastRenders.createdAt
+    })
+    .from(pastRenders)
+    .where(eq(pastRenders.userId, userId))
+    .orderBy(desc(pastRenders.createdAt))
+    .limit(10)
+
+  const userFeedback = await db
+    .select({
+      id: feedback.id,
+      userId: feedback.userId,
+      feedbackType: feedback.feedbackType,
+      rating: feedback.rating,
+      comment: feedback.comment,
+      createdAt: feedback.createdAt
+    })
+    .from(feedback)
+    .where(eq(feedback.userId, userId))
+    .orderBy(desc(feedback.createdAt))
+    .limit(10)
+
+  return {
+    user: user[0],
+    renders: userRenders,
+    feedback: userFeedback,
+    totalPages: Math.ceil(userRenders.length / pageSize)
+  }
+}
+
+export type UserProfileForAdmin = Awaited<
+  ReturnType<typeof getUserProfileForAdmin>
+>

@@ -15,7 +15,7 @@ import {
 interface PaginationProps {
   currentPage: number
   totalPages: number
-  query: string
+  query?: string
   pageSize: number
   view?: 'grid' | 'table'
 }
@@ -34,7 +34,7 @@ export function Pagination({
     const newPageSize = Number(value)
     const searchParams = new URLSearchParams({
       page: '1',
-      query,
+      query: query || '',
       pageSize: newPageSize.toString(),
       view
     })
