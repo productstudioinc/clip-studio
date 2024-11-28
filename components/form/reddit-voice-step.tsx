@@ -40,6 +40,13 @@ import {
 } from '@/components/ui/popover'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
 import {
   Tooltip,
@@ -67,6 +74,7 @@ export const RedditVoiceStep: React.FC<RedditVoiceStepProps> = ({ form }) => {
   const progressInterval = useRef<NodeJS.Timeout | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const startTimeRef = useRef<number | null>(null)
+  const originalDurationRef = useRef<number | null>(null)
   const [audioDurations, setAudioDurations] = useState<Record<string, number>>(
     {}
   )
@@ -119,6 +127,9 @@ export const RedditVoiceStep: React.FC<RedditVoiceStepProps> = ({ form }) => {
         audioRef.current = new Audio(previewUrl)
         audioRef.current.volume = 0.4
 
+        const speed = form.getValues('voiceSpeed') || 1
+        audioRef.current.playbackRate = speed
+
         // Use a user interaction to trigger audio playback
         audioRef.current.play().catch((error) => {
           console.error('Could not play audio:', error)
@@ -127,11 +138,11 @@ export const RedditVoiceStep: React.FC<RedditVoiceStepProps> = ({ form }) => {
 
         // Simulate progress only if play() was successful
         if (audioRef.current.paused === false) {
-          simulateProgress(audioDurations[voiceId])
+          simulateProgress(audioDurations[voiceId] / speed)
         }
       }
     },
-    [playingAudio, audioDurations]
+    [playingAudio, audioDurations, form]
   )
 
   const simulateProgress = useCallback((duration: number) => {
@@ -166,87 +177,137 @@ export const RedditVoiceStep: React.FC<RedditVoiceStepProps> = ({ form }) => {
         <CardTitle>Choose a Narrator Voice</CardTitle>
       </CardHeader>
       <CardContent>
-        <FormField
-          control={form.control}
-          name="language"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Language</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className={cn(
-                        'w-[200px] justify-between flex items-center',
-                        !field.value && 'text-muted-foreground'
-                      )}
-                    >
-                      {field.value ? (
-                        <>
-                          <span className="mr-2 text-2xl">
+        <div className="flex gap-4">
+          <FormField
+            control={form.control}
+            name="language"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Language</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          'w-full justify-between flex items-center',
+                          !field.value && 'text-muted-foreground'
+                        )}
+                      >
+                        {field.value ? (
+                          <>
+                            <span className="mr-2 text-2xl">
+                              {
+                                languages.find(
+                                  (lang) => lang.value === field.value
+                                )?.flag
+                              }
+                            </span>
                             {
                               languages.find(
                                 (lang) => lang.value === field.value
-                              )?.flag
+                              )?.label
                             }
-                          </span>
-                          {
-                            languages.find((lang) => lang.value === field.value)
-                              ?.label
-                          }
-                        </>
-                      ) : (
-                        'Select language'
-                      )}
-                      <CaretSortIcon className="h-4 w-4 shrink-0 opacity-50 ml-auto" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0">
-                  <Command>
-                    <CommandInput
-                      placeholder="Search language..."
-                      className="h-9"
-                    />
-                    <CommandList>
-                      <CommandEmpty>No language found.</CommandEmpty>
-                      <CommandGroup>
-                        {languages.map((language) => (
-                          <CommandItem
-                            value={language.label}
-                            key={language.value}
-                            onSelect={() => {
-                              form.setValue('language', language.value)
-                            }}
-                          >
-                            <span className="mr-2 text-2xl">
-                              {language.flag}
-                            </span>
-                            {language.label}
-                            <CheckIcon
-                              className={cn(
-                                'ml-auto h-4 w-4',
-                                language.value === field.value
-                                  ? 'opacity-100'
-                                  : 'opacity-0'
-                              )}
-                            />
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-              <FormDescription>
-                This is the language that will be used in the video.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                          </>
+                        ) : (
+                          'Select language'
+                        )}
+                        <CaretSortIcon className="h-4 w-4 shrink-0 opacity-50 ml-auto" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[200px] p-0">
+                    <Command>
+                      <CommandInput
+                        placeholder="Search language..."
+                        className="h-9"
+                      />
+                      <CommandList>
+                        <CommandEmpty>No language found.</CommandEmpty>
+                        <CommandGroup>
+                          {languages.map((language) => (
+                            <CommandItem
+                              value={language.label}
+                              key={language.value}
+                              onSelect={() => {
+                                form.setValue('language', language.value)
+                              }}
+                            >
+                              <span className="mr-2 text-2xl">
+                                {language.flag}
+                              </span>
+                              {language.label}
+                              <CheckIcon
+                                className={cn(
+                                  'ml-auto h-4 w-4',
+                                  language.value === field.value
+                                    ? 'opacity-100'
+                                    : 'opacity-0'
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <FormDescription>
+                  This is the language that will be used in the video.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="voiceSpeed"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Voice Speed</FormLabel>
+                <Select
+                  onValueChange={(value) => {
+                    const newSpeed = parseFloat(value)
+                    field.onChange(newSpeed)
+
+                    const currentDurationInFrames =
+                      form.getValues('durationInFrames')
+                    if (currentDurationInFrames) {
+                      if (originalDurationRef.current === null) {
+                        originalDurationRef.current = currentDurationInFrames
+                      }
+
+                      const newDuration = Math.floor(
+                        originalDurationRef.current! / newSpeed
+                      )
+                      form.setValue('durationInFrames', newDuration)
+                    }
+                  }}
+                  value={field.value?.toString() || '1'}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select speed" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0.5">Slow (0.5x)</SelectItem>
+                    <SelectItem value="1">Normal (1x)</SelectItem>
+                    <SelectItem value="1.1">Fast (1.1x)</SelectItem>
+                    <SelectItem value="1.25">Fast (1.25x)</SelectItem>
+                    <SelectItem value="1.5">Fast (1.5x)</SelectItem>
+                    <SelectItem value="1.75">Fast (1.75x)</SelectItem>
+                    <SelectItem value="2">Fast (2x)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Adjust the playback speed of the voice
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+        </div>
+
         <ScrollArea className="h-[300px] p-4 mt-4 border rounded-md">
           <FormField
             control={form.control}

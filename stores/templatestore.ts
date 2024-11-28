@@ -1,7 +1,7 @@
 /* eslint-disable unused-imports/no-unused-vars */
 import { z } from 'zod'
 import { create } from 'zustand'
-import { createJSONStorage, devtools, persist } from 'zustand/middleware'
+import { devtools } from 'zustand/middleware'
 
 import { aiVoiceoverFrames } from './aivideo_voiceover'
 import { alignmentDefault } from './alignmenttext'
@@ -222,7 +222,8 @@ export const RedditVideoSchema = BaseVideoSchema.extend({
   voiceoverFrames: VoiceoverFramesSchema,
   titleEnd: z.number(),
   backgroundUrls: z.array(z.string()),
-  isVoiceoverGenerated: z.boolean().default(false) // a flag to generate a voiceover
+  isVoiceoverGenerated: z.boolean().default(false), // a flag to generate a voiceover
+  voiceSpeed: z.number().min(0.5).max(3).default(1.25)
 })
 
 export const TwitterVideoSchema = BaseVideoSchema.extend({
@@ -255,7 +256,7 @@ export const TwitterVideoSchema = BaseVideoSchema.extend({
     )
     .optional(),
   isVoiceoverGenerated: z.boolean().default(false),
-  voiceSpeed: z.number().min(0.5).max(3).default(1.1)
+  voiceSpeed: z.number().min(0.5).max(3).default(1.25)
 })
 
 export const SplitScreenVideoSchema = BaseVideoSchema.extend({
@@ -436,7 +437,8 @@ export const defaultRedditProps: RedditVideoProps = {
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
   captionStyle: CaptionStyle.Default,
-  isVoiceoverGenerated: true
+  isVoiceoverGenerated: true,
+  voiceSpeed: 1.25
 }
 
 export const defaultTwitterProps: TwitterVideoProps = {
@@ -745,7 +747,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
   ],
   voiceSettings: [],
   isVoiceoverGenerated: true,
-  voiceSpeed: 1.1,
+  voiceSpeed: 1.25,
   mode: 'dark'
 }
 
