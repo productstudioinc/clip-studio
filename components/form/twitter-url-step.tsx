@@ -237,6 +237,7 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
               <Button
                 onClick={handleFetchTweet}
                 disabled={isPending || !tweetUrl}
+                type="button"
               >
                 {isPending ? (
                   <>
