@@ -75,7 +75,9 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
     name: 'mode'
   })
 
-  const handleFetchTweet = async () => {
+  const handleFetchTweet = async (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault()
+
     try {
       setIsPending(true)
       twitterUrlSchema.parse(tweetUrl)
