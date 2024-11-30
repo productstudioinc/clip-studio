@@ -518,7 +518,9 @@ export default function TwitterVoiceStep({ form }: TwitterVoiceStepProps) {
                           value={
                             field.value?.find(
                               (s) => s.username === selectedUser
-                            )?.voiceId || ''
+                            )?.voiceId || voices.length > 0
+                              ? voices[0].voice_id
+                              : ''
                           }
                           className="space-y-1 p-4"
                         >
