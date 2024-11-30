@@ -1,8 +1,7 @@
-import { Audio, OffthreadVideo, Sequence, Series } from 'remotion'
+import { Audio, Sequence, Series, Video } from 'remotion'
 
 import { MyTweet } from '../../components/tweet/my-tweet'
 import { TwitterVideoProps } from '../../stores/templatestore'
-import { LoopedOffthreadVideo } from '../Shared/LoopedOffthreadVideo'
 
 const FPS = 30
 
@@ -22,21 +21,24 @@ export const TwitterComposition = ({
         playbackRate={voiceSpeed}
       />
       {backgroundUrls.length === 1 ? (
-        <LoopedOffthreadVideo
+        <Video
           src={backgroundUrls[0]}
           className="absolute w-full h-full object-cover"
           startFrom={0}
+          muted
+          loop
         />
       ) : (
         <Series>
           {backgroundUrls.map((part, index) => (
             <Series.Sequence durationInFrames={60 * FPS} key={index}>
-              <OffthreadVideo
+              <Video
                 src={part}
                 startFrom={0}
                 endAt={60 * FPS}
                 className="absolute w-full h-full object-cover"
                 muted
+                loop
               />
             </Series.Sequence>
           ))}
