@@ -317,8 +317,7 @@ export const RedditVoiceStep: React.FC<RedditVoiceStepProps> = ({ form }) => {
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
-                    value={field.value}
-                    defaultValue={voices.length > 0 ? voices[0].voice_id : ''}
+                    defaultValue={field.value}
                     className="space-y-1"
                   >
                     {voices.map((voice) => (
