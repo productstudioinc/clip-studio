@@ -75,7 +75,7 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
     name: 'mode'
   })
 
-  const handleFetchTweet = async (e: React.FormEvent<HTMLInputElement>) => {
+  const handleFetchTweet = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
 
     try {
