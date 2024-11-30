@@ -3,7 +3,7 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { useAppContext } from '@/contexts/app-context'
-import { VideoProps } from '@/stores/templatestore'
+import { useTemplateStore, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { useRendering } from '@/utils/helpers/use-rendering'
 import { Loader2, RefreshCw, RotateCcw, Undo } from 'lucide-react'
@@ -98,24 +98,26 @@ export function FormSubmit({ form }: FormSubmitProps) {
     control: form.control
   })
 
+  const { selectedTemplate } = useTemplateStore((state) => ({
+    selectedTemplate: state.selectedTemplate
+  }))
+
   const handleGenerateVideo = async (
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault()
 
-    if (!user) {
-      return router.push('/login')
-    }
+    if (selectedTemplate !== 'Clips') {
+      const isVoiceoverGenerated = form.getValues('isVoiceoverGenerated')
 
-    const isVoiceoverGenerated = form.getValues('isVoiceoverGenerated')
-
-    if (!isVoiceoverGenerated) {
-      toast.error('You must generate a voiceover first.')
-      form.setError('isVoiceoverGenerated', {
-        type: 'manual',
-        message: 'You must generate a voiceover first.'
-      })
-      return
+      if (!isVoiceoverGenerated) {
+        toast.error('You must generate a voiceover first.')
+        form.setError('isVoiceoverGenerated', {
+          type: 'manual',
+          message: 'You must generate a voiceover first.'
+        })
+        return
+      }
     }
 
     await renderMedia()
