@@ -10,7 +10,6 @@
   "rules": {
     "no-unused-vars": "off",
     "unused-imports/no-unused-imports": "error",
-    "@next/next/no-img-element": "off",
     "unused-imports/no-unused-vars": [
       "warn",
       {

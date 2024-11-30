@@ -15,7 +15,7 @@ type Props = {
   media: MediaAnimatedGif | MediaVideo
 }
 
-export const TweetMediaVideo = ({ media }: Props) => {
+export const TweetMediaVideo = ({ tweet, media }: Props) => {
   const mp4Video = getMp4Video(media)
 
   return (

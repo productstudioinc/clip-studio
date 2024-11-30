@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { generateRedditPost } from '@/actions/aiActions'
 import { getRedditInfo } from '@/actions/reddit'
 import { VideoProps } from '@/stores/templatestore'
 import { Loader2 } from 'lucide-react'
-import { UseFormReturn } from 'react-hook-form'
+import { UseFormReturn, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useServerAction } from 'zsa-react'
