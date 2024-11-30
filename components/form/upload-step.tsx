@@ -178,13 +178,13 @@ export const UploadStep: React.FC<UploadStepProps> = ({ form }) => {
                           or drag and drop
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          MP4, MOV, or AVI (MAX. 200mb)
+                          MP4 or WebM (MAX. 200mb)
                         </p>
                       </div>
                       <Input
                         id="video-upload"
                         type="file"
-                        accept="video/*"
+                        accept="video/mp4,video/webm"
                         className="hidden"
                         onChange={handleFileChange}
                         disabled={isUploading}
