@@ -23,10 +23,15 @@ export const SplitScreenComposition = ({
 }: SplitScreenVideoProps) => {
   const requiredSegments = useMemo(() => {
     const totalMinutes = Math.ceil(durationInFrames / (FPS * 60))
-    return backgroundUrls.slice(
-      backgroundStartIndex,
-      backgroundStartIndex + totalMinutes
-    )
+    const totalRequiredSegments = totalMinutes
+    const segments = []
+
+    for (let i = 0; i < totalRequiredSegments; i++) {
+      const segmentIndex = (backgroundStartIndex + i) % backgroundUrls.length
+      segments.push(backgroundUrls[segmentIndex])
+    }
+
+    return segments
   }, [backgroundUrls, durationInFrames, backgroundStartIndex])
 
   const [subtitles, setSubtitles] = useState<SubtitleProp[]>([])
