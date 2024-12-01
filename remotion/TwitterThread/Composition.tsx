@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Audio, Sequence, Series, Video } from 'remotion'
 
 import { MyTweet } from '../../components/tweet/my-tweet'
@@ -7,12 +8,22 @@ const FPS = 30
 
 export const TwitterComposition = ({
   backgroundUrls,
+  durationInFrames,
+  backgroundStartIndex,
   tweets,
   voiceoverUrl,
   voiceVolume,
   voiceSpeed,
   mode
 }: TwitterVideoProps) => {
+  const requiredSegments = useMemo(() => {
+    const totalMinutes = Math.ceil(durationInFrames / (FPS * 60))
+    return backgroundUrls.slice(
+      backgroundStartIndex,
+      backgroundStartIndex + totalMinutes
+    )
+  }, [backgroundUrls, durationInFrames, backgroundStartIndex])
+
   return (
     <>
       <Audio
@@ -20,30 +31,20 @@ export const TwitterComposition = ({
         volume={voiceVolume / 100}
         playbackRate={voiceSpeed}
       />
-      {backgroundUrls.length === 1 ? (
-        <Video
-          src={backgroundUrls[0]}
-          className="absolute w-full h-full object-cover"
-          startFrom={0}
-          muted
-          loop
-        />
-      ) : (
-        <Series>
-          {backgroundUrls.map((part, index) => (
-            <Series.Sequence durationInFrames={60 * FPS} key={index}>
-              <Video
-                src={part}
-                startFrom={0}
-                endAt={60 * FPS}
-                className="absolute w-full h-full object-cover"
-                muted
-                loop
-              />
-            </Series.Sequence>
-          ))}
-        </Series>
-      )}
+      <Series>
+        {requiredSegments.map((url, index) => (
+          <Series.Sequence durationInFrames={60 * FPS} key={index}>
+            <Video
+              src={url}
+              startFrom={0}
+              endAt={60 * FPS}
+              className="absolute w-full h-full object-cover"
+              muted
+              loop
+            />
+          </Series.Sequence>
+        ))}
+      </Series>
       {tweets.map((tweet, index) => (
         <Sequence
           from={Math.floor(((tweets[index].from || 0) * FPS) / voiceSpeed)}

@@ -192,7 +192,8 @@ const BaseVideoSchema = z.object({
   durationInFrames: z.number().min(1).default(DEFAULT_DURATION_IN_FRAMES),
   backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
   backgroundUrls: z.array(z.string()).optional(),
-  captionStyle: z.nativeEnum(CaptionStyle).default(CaptionStyle.Default)
+  captionStyle: z.nativeEnum(CaptionStyle).default(CaptionStyle.Default),
+  backgroundStartIndex: z.number().default(0)
 })
 
 const VoiceoverFramesSchema = z.object({
@@ -411,7 +412,8 @@ export const defaultSplitScreenProps: SplitScreenVideoProps = {
   width: VIDEO_WIDTH,
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
-  captionStyle: CaptionStyle.Default
+  captionStyle: CaptionStyle.Default,
+  backgroundStartIndex: 0
 }
 
 export const defaultRedditProps: RedditVideoProps = {
@@ -438,7 +440,8 @@ export const defaultRedditProps: RedditVideoProps = {
   fps: VIDEO_FPS,
   captionStyle: CaptionStyle.Default,
   isVoiceoverGenerated: true,
-  voiceSpeed: 1.25
+  voiceSpeed: 1.25,
+  backgroundStartIndex: 0
 }
 
 export const defaultTwitterProps: TwitterVideoProps = {
@@ -454,6 +457,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
   captionStyle: CaptionStyle.Default,
+  backgroundStartIndex: 0,
   tweets: [
     {
       id: '1848975277570797673',
@@ -761,6 +765,7 @@ export const defaultTextMessageProps: TextMessageVideoProps = {
     image: '',
     voiceId: 'EXAVITQu4vr4xnSDxMaL'
   },
+  backgroundStartIndex: 0,
   messages: [
     {
       sender: 'sender',
@@ -836,7 +841,8 @@ export const defaultClipsProps: ClipsVideoProps = {
   title: 'Jasontheween hits 100k subscribers',
   subtitle: '',
   voiceVolume: 70,
-  musicVolume: 30
+  musicVolume: 30,
+  backgroundStartIndex: 0
 }
 
 export const defaultAIVideoProps: AIVideoProps = {
@@ -963,7 +969,8 @@ const initialState = {
   backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
   captionStyle: CaptionStyle.Default,
   clipsState: defaultClipsProps,
-  aiVideoState: defaultAIVideoProps
+  aiVideoState: defaultAIVideoProps,
+  backgroundStartIndex: 0
 }
 
 type State = {
@@ -990,6 +997,8 @@ type State = {
   aiVideoState: AIVideoProps
   setAIVideoState: (state: Partial<AIVideoProps>) => void
   reset: () => void
+  backgroundStartIndex: number
+  setBackgroundStartIndex: (index: number) => void
 }
 
 export const useTemplateStore = create<State>()(
@@ -1084,6 +1093,21 @@ export const useTemplateStore = create<State>()(
       set((prevState) => ({
         aiVideoState: { ...prevState.aiVideoState, ...state }
       })),
-    reset: () => set(initialState)
+    reset: () => set(initialState),
+    setBackgroundStartIndex: (index) =>
+      set((state) => ({
+        backgroundStartIndex: index,
+        splitScreenState: {
+          ...state.splitScreenState,
+          backgroundStartIndex: index
+        },
+        redditState: { ...state.redditState, backgroundStartIndex: index },
+        twitterState: { ...state.twitterState, backgroundStartIndex: index },
+        textMessageState: {
+          ...state.textMessageState,
+          backgroundStartIndex: index
+        },
+        aiVideoState: { ...state.aiVideoState, backgroundStartIndex: index }
+      }))
   }))
 )

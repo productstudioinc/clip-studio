@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { TextMessageVideoProps } from '@/stores/templatestore'
 import { loadFont as loadRobotoFont } from '@remotion/google-fonts/Roboto'
 import { AbsoluteFill, Audio, Sequence, Series, Video } from 'remotion'
@@ -18,6 +19,14 @@ const FPS = 30
 const BACKGROUND_VIDEO_DURATION = 60 * FPS
 
 export const TextMessageComposition = (props: TextMessageVideoProps) => {
+  const requiredSegments = useMemo(() => {
+    const totalMinutes = Math.ceil(props.durationInFrames / (FPS * 60))
+    return props.backgroundUrls.slice(
+      props.backgroundStartIndex,
+      props.backgroundStartIndex + totalMinutes
+    )
+  }, [props.backgroundUrls, props.durationInFrames, props.backgroundStartIndex])
+
   return (
     <>
       <Audio
@@ -26,33 +35,23 @@ export const TextMessageComposition = (props: TextMessageVideoProps) => {
         volume={props.voiceVolume / 100}
       />
       <AbsoluteFill className="w-full h-full">
-        {props.backgroundUrls.length === 1 ? (
-          <Video
-            src={props.backgroundUrls[0]}
-            className="absolute w-full h-full object-cover"
-            startFrom={0}
-            muted
-            loop
-          />
-        ) : (
-          <Series>
-            {props.backgroundUrls.map((part, index) => (
-              <Series.Sequence
-                durationInFrames={BACKGROUND_VIDEO_DURATION}
-                key={index}
-              >
-                <Video
-                  src={part}
-                  startFrom={0}
-                  endAt={BACKGROUND_VIDEO_DURATION}
-                  className="absolute w-full h-full object-cover"
-                  muted
-                  loop
-                />
-              </Series.Sequence>
-            ))}
-          </Series>
-        )}
+        <Series>
+          {requiredSegments.map((url, index) => (
+            <Series.Sequence
+              durationInFrames={BACKGROUND_VIDEO_DURATION}
+              key={index}
+            >
+              <Video
+                src={url}
+                startFrom={0}
+                endAt={BACKGROUND_VIDEO_DURATION}
+                className="absolute w-full h-full object-cover"
+                muted
+                loop
+              />
+            </Series.Sequence>
+          ))}
+        </Series>
         <AbsoluteFill className="flex justify-center items-center">
           {props.messages.map((message, index) => {
             const startIndex = Math.max(0, index - 5)

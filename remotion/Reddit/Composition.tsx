@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AbsoluteFill, Audio, Sequence, Series, Video } from 'remotion'
 
 import { RedditCard } from '../../components/reddit-card'
@@ -26,7 +26,9 @@ export const RedditComposition = ({
   backgroundUrls,
   voiceVolume,
   captionStyle,
-  voiceSpeed
+  voiceSpeed,
+  durationInFrames,
+  backgroundStartIndex
 }: RedditVideoProps) => {
   const [subtitles, setSubtitles] = useState<SubtitleProp[]>([])
 
@@ -76,6 +78,15 @@ export const RedditComposition = ({
   }, [generateSubtitles])
 
   const titleEndFrame = Math.floor(titleEnd * FPS)
+
+  const requiredSegments = useMemo(() => {
+    const totalMinutes = Math.ceil(durationInFrames / (FPS * 60))
+    return backgroundUrls.slice(
+      backgroundStartIndex,
+      backgroundStartIndex + totalMinutes
+    )
+  }, [backgroundUrls, durationInFrames, backgroundStartIndex])
+
   return (
     <>
       <Audio
@@ -85,33 +96,23 @@ export const RedditComposition = ({
         playbackRate={voiceSpeed}
       />
       <AbsoluteFill className="w-full h-full">
-        {backgroundUrls.length === 1 ? (
-          <Video
-            src={backgroundUrls[0]}
-            className="absolute w-full h-full object-cover"
-            startFrom={0}
-            muted
-            loop
-          />
-        ) : (
-          <Series>
-            {backgroundUrls.map((part, index) => (
-              <Series.Sequence
-                durationInFrames={BACKGROUND_VIDEO_DURATION}
-                key={index}
-              >
-                <Video
-                  src={part}
-                  className="absolute w-full h-full object-cover"
-                  startFrom={0}
-                  endAt={BACKGROUND_VIDEO_DURATION}
-                  muted
-                  loop
-                />
-              </Series.Sequence>
-            ))}
-          </Series>
-        )}
+        <Series>
+          {requiredSegments.map((url, index) => (
+            <Series.Sequence
+              durationInFrames={BACKGROUND_VIDEO_DURATION}
+              key={index}
+            >
+              <Video
+                src={url}
+                className="absolute w-full h-full object-cover"
+                startFrom={0}
+                endAt={BACKGROUND_VIDEO_DURATION}
+                muted
+                loop
+              />
+            </Series.Sequence>
+          ))}
+        </Series>
         <AbsoluteFill className="flex justify-center items-center">
           <Sequence durationInFrames={Math.floor(titleEndFrame / voiceSpeed)}>
             <AbsoluteFill className="flex justify-center items-center">
