@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { Audio, Sequence, Series, Video } from 'remotion'
+import { loadFont } from '@remotion/fonts'
+import { Audio, Sequence, Series, staticFile, Video } from 'remotion'
 
 import { MyTweet } from '../../components/tweet/my-tweet'
 import { TwitterVideoProps } from '../../stores/templatestore'

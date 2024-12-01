@@ -42,6 +42,27 @@ const komika = localFont({
   variable: '--font-komika'
 })
 
+const chirp = localFont({
+  src: [
+    {
+      path: './Chirp-Regular.ttf',
+      weight: '400',
+      style: 'normal'
+    },
+    {
+      path: './Chirp-Medium.ttf',
+      weight: '500',
+      style: 'normal'
+    },
+    {
+      path: './Chirp-Bold.ttf',
+      weight: '700',
+      style: 'normal'
+    }
+  ],
+  variable: '--font-chirp'
+})
+
 export default async function RootLayout({
   children,
   modal
@@ -59,7 +80,7 @@ export default async function RootLayout({
       <FacebookTrackingProvider client={facebook}>
         <PHProvider>
           <body
-            className={`${GeistSans.className} ${monserrat.variable} ${komika.variable}`}
+            className={`${GeistSans.className} ${monserrat.variable} ${komika.variable} ${chirp.variable}`}
           >
             <Suspense>
               <ErrorToast />
