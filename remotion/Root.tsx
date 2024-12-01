@@ -17,6 +17,7 @@ import {
 } from '../stores/templatestore'
 import { AIVideoComposition } from './AIVideo/Composition'
 import { ClipsComposition } from './Clips/Composition'
+import { EditorComposition } from './Editor/Composition'
 import { RedditComposition } from './Reddit/Composition'
 import { SplitScreenComposition } from './SplitScreen/Composition'
 import { TextMessageComposition } from './TextMessage/Composition'
@@ -42,6 +43,23 @@ export const RemotionRoot: React.FC = () => {
 
   return (
     <>
+      <Composition
+        id="Editor"
+        component={EditorComposition}
+        defaultProps={{
+          tracks: [],
+          captions: [],
+          captionStyles: {},
+          selectedItem: null,
+          setSelectedItem: () => {},
+          changeItem: () => {}
+        }}
+        durationInFrames={1000}
+        fps={VIDEO_FPS}
+        width={VIDEO_WIDTH}
+        height={VIDEO_HEIGHT}
+      />
+
       <Composition
         id="AIVideo"
         component={AIVideoComposition}
