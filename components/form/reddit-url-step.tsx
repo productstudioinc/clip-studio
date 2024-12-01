@@ -46,8 +46,8 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
     )
 
   const generatePost = async () => {
+    const id = toast.loading('Generating Reddit post...')
     try {
-      const id = toast.loading('Generating Reddit post...')
       const [data, error] = await generate(prompt)
       if (error) {
         toast.error(error.message, { id })
@@ -63,7 +63,7 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
       }
     } catch (error) {
       console.error('Error generating Reddit post:', error)
-      toast.error('Error generating Reddit post')
+      toast.error('Error generating Reddit post', { id })
     }
   }
 
