@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
-import Marquee from '@/components/magicui/marquee'
+import { Marquee } from '@/components/magicui/marquee'
 
 const ease = [0.16, 1, 0.3, 1]
 
