@@ -224,7 +224,16 @@ export const RedditVideoSchema = BaseVideoSchema.extend({
   titleEnd: z.number(),
   backgroundUrls: z.array(z.string()),
   isVoiceoverGenerated: z.boolean().default(false), // a flag to generate a voiceover
-  voiceSpeed: z.number().min(0.5).max(3).default(1.25)
+  voiceSpeed: z.number().min(0.5).max(3).default(1.25),
+  captions: z.array(
+    z.object({
+      text: z.string(),
+      startMs: z.number(),
+      endMs: z.number(),
+      timestampMs: z.number().nullable(),
+      confidence: z.number().nullable()
+    })
+  )
 })
 
 export const TwitterVideoSchema = BaseVideoSchema.extend({
@@ -454,7 +463,8 @@ export const defaultRedditProps: RedditVideoProps = {
   captionStyle: CaptionStyle.Default,
   isVoiceoverGenerated: true,
   voiceSpeed: 1.25,
-  backgroundStartIndex: 0
+  backgroundStartIndex: 0,
+  captions: []
 }
 
 export const defaultTwitterProps: TwitterVideoProps = {
@@ -989,6 +999,14 @@ export const defaultHopeCoreProps: HopeCoreVideoProps = {
   isVoiceoverGenerated: true,
   voiceSpeed: 1.25,
   backgroundStartIndex: 0
+}
+
+export type Caption = {
+  text: string
+  startMs: number
+  endMs: number
+  timestampMs: number | null
+  confidence: number | null
 }
 
 const initialState = {

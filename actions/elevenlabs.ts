@@ -5,6 +5,7 @@ import { db } from '@/db'
 import { userUsage } from '@/db/schema'
 import {
   AIVideoSchema,
+  Caption,
   Language,
   TextMessageVideoSchema,
   VIDEO_FPS
@@ -100,6 +101,58 @@ export const getLibraryVoices = createServerAction()
     }
   })
 
+type AudioResponse = {
+  audio_base64: string
+  alignment: Alignment
+  normalized_alignment: Alignment
+}
+
+type Alignment = {
+  characters: string[]
+  character_start_times_seconds: number[]
+  character_end_times_seconds: number[]
+}
+
+function convertAlignmentToCaptions(
+  text: string,
+  alignment: Alignment,
+  startOffset: number = 0
+): Caption[] {
+  const words = text.split(' ')
+  const captions: Caption[] = []
+  let currentWordIndex = 0
+  let currentWord = ''
+  let startIndex = 0
+
+  for (let i = 0; i < alignment.characters.length; i++) {
+    currentWord += alignment.characters[i]
+
+    if (
+      currentWord.trim() === words[currentWordIndex] ||
+      i === alignment.characters.length - 1
+    ) {
+      captions.push({
+        text: currentWord.trim(),
+        startMs:
+          Math.round(
+            alignment.character_start_times_seconds[startIndex] * 1000
+          ) + startOffset,
+        endMs:
+          Math.round(alignment.character_end_times_seconds[i] * 1000) +
+          startOffset,
+        timestampMs: null,
+        confidence: null
+      })
+
+      currentWordIndex++
+      currentWord = ''
+      startIndex = i + 1
+    }
+  }
+
+  return captions
+}
+
 export const generateRedditVoiceover = createServerAction()
   .input(
     z.object({
@@ -167,6 +220,11 @@ export const generateRedditVoiceover = createServerAction()
               language_code: input.language
             }
           )) as AudioResponse
+
+        const captions = convertAlignmentToCaptions(
+          fullText,
+          audio.normalized_alignment
+        )
 
         const audioBuffer = Buffer.from(audio.audio_base64, 'base64')
         const s3Key = `voiceovers/${input.voiceId}/${crypto.randomUUID()}.mp3`
@@ -236,7 +294,7 @@ export const generateRedditVoiceover = createServerAction()
           signedUrl,
           endTimestamp:
             audio.normalized_alignment.character_end_times_seconds.slice(-1)[0],
-          voiceoverObject: audio.normalized_alignment,
+          captions,
           titleEnd
         }
       })
@@ -326,6 +384,35 @@ export const generateTextVoiceover = createServerAction()
           })
           .where(eq(userUsage.userId, user.id))
 
+        const captions: Caption[] = []
+        let currentOffset = 0
+
+        for (const message of messages) {
+          if (message.content.type === 'text') {
+            const audioResponse =
+              (await elevenLabsClient.textToSpeech.convertWithTimestamps(
+                message.sender === 'sender' ? senderVoiceId : receiverVoiceId,
+                {
+                  model_id: 'eleven_turbo_v2_5',
+                  text: message.content.value as string,
+                  language_code: language
+                }
+              )) as AudioResponse
+
+            const messageCaptions = convertAlignmentToCaptions(
+              message.content.value as string,
+              audioResponse.normalized_alignment,
+              currentOffset
+            )
+            captions.push(...messageCaptions)
+
+            currentOffset +=
+              audioResponse.normalized_alignment.character_end_times_seconds.slice(
+                -1
+              )[0] * 1000
+          }
+        }
+
         const audioBuffers: Buffer[] = []
         const sections: Array<{ from: number; duration: number }> = []
 
@@ -397,7 +484,8 @@ export const generateTextVoiceover = createServerAction()
         return {
           signedUrl,
           sections,
-          durationInFrames
+          durationInFrames,
+          captions
         }
       })
 
@@ -740,15 +828,3 @@ export type ElevenlabsVoice = Awaited<ReturnType<typeof getVoices>>[number]
 export type ElevenlabsLibraryVoice = Awaited<
   ReturnType<typeof getLibraryVoices>
 >[number]
-
-type AudioResponse = {
-  audio_base64: string
-  alignment: Alignment
-  normalized_alignment: Alignment
-}
-
-type Alignment = {
-  characters: string[]
-  character_start_times_seconds: number[]
-  character_end_times_seconds: number[]
-}

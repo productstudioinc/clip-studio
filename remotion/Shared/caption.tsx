@@ -16,7 +16,9 @@ type CaptionComponentProps = {
 
 export const CaptionComponent: React.FC<CaptionComponentProps> = ({
   captions,
-  styles
+  styles = {
+    fontFamily: 'inherit'
+  }
 }) => {
   const { pages } = createTikTokStyleCaptions({
     captions,
