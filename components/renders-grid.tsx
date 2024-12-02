@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { getUser } from '@/actions/auth/user'
+import { isAdmin } from '@/actions/db/admin-queries'
 import { formatDistanceToNow } from 'date-fns'
 import { Download } from 'lucide-react'
 
@@ -17,6 +19,8 @@ interface RendersGridProps {
 }
 
 export async function RendersGrid({ renderHistory }: RendersGridProps) {
+  const { user } = await getUser()
+  const admin = user ? await isAdmin(user.id) : false
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -53,24 +57,28 @@ export async function RendersGrid({ renderHistory }: RendersGridProps) {
                 >
                   <Download className="mr-2 h-4 w-4" /> Download
                 </Link>
-                <Link
-                  href={`/admin/renders/${render.id}`}
-                  className={cn(
-                    buttonVariants({ variant: 'outline', size: 'sm' }),
-                    'w-full'
-                  )}
-                >
-                  View Render
-                </Link>
-                <Link
-                  href={`/admin/users/${render.userId}`}
-                  className={cn(
-                    buttonVariants({ variant: 'outline', size: 'sm' }),
-                    'w-full'
-                  )}
-                >
-                  View User
-                </Link>
+                {admin && (
+                  <>
+                    <Link
+                      href={`/admin/renders/${render.id}`}
+                      className={cn(
+                        buttonVariants({ variant: 'outline', size: 'sm' }),
+                        'w-full'
+                      )}
+                    >
+                      View Render
+                    </Link>
+                    <Link
+                      href={`/admin/users/${render.userId}`}
+                      className={cn(
+                        buttonVariants({ variant: 'outline', size: 'sm' }),
+                        'w-full'
+                      )}
+                    >
+                      View User
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
