@@ -415,7 +415,7 @@ export const generateHopeCoreStory = createServerAction()
       await checkAndDeductCredits(user.id, CREDIT_CONVERSIONS.SCRIPT_GENERATION)
 
       const result = await generateObject({
-        model: openai('gpt-4o-mini', {
+        model: openai('gpt-4o', {
           structuredOutputs: true
         }),
         schemaName: 'hopecore_story',
@@ -424,20 +424,19 @@ export const generateHopeCoreStory = createServerAction()
           story: z.string()
         }),
         prompt: `
-        Generate a hopecore story or quote
-        
-        Definition:
-        Hopecore is a trend that involves actively seeking joy and positivity in the world around you. It's a countermeasure to the strain of crisis fatigue, and is often seen on TikTok as a way to promote feelings of hopefulness
-
-        It should be 20-40 words or less
+        Generate a single 20-80 word passage by a Romantic author which is relatable and understandable in current day. Examples of some but not all Romantic authors include:
+        - Jane Austen
+        - Lord Byron
+        - William Wordsworth
+        - John Keats
+        - William Blake
+        - Mary Shelley
 
         Rules:
-        - Make it Gen Z
         - no #, @ or quotes
-        - Don't use definition of hopecore in the output
         - Should be third person
         
-        Context for the story:
+        Context for the passage:
         ${input}
         `
       })
