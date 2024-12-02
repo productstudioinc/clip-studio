@@ -1,6 +1,6 @@
 import { AIVideoComposition } from '../remotion/AIVideo/Composition'
 import { ClipsComposition } from '../remotion/Clips/Composition'
-import { HopelessCoreComposition } from '../remotion/HopelessCore/Composition'
+import { HopeCoreComposition } from '../remotion/HopeCore/Composition'
 import { RedditComposition } from '../remotion/Reddit/Composition'
 import { SplitScreenComposition } from '../remotion/SplitScreen/Composition'
 import { TextMessageComposition } from '../remotion/TextMessage/Composition'
@@ -16,7 +16,7 @@ const useTemplateConfig = () => {
     clipsState,
     textMessageState,
     aiVideoState,
-    hopelessCoreState
+    hopeCoreState
   } = useTemplateStore((state) => ({
     selectedTemplate: state.selectedTemplate,
     splitScreenState: state.splitScreenState,
@@ -25,7 +25,7 @@ const useTemplateConfig = () => {
     clipsState: state.clipsState,
     textMessageState: state.textMessageState,
     aiVideoState: state.aiVideoState,
-    hopelessCoreState: state.hopelessCoreState
+    hopeCoreState: state.hopeCoreState
   }))
 
   const templateConfig = {
@@ -59,10 +59,10 @@ const useTemplateConfig = () => {
       state: aiVideoState,
       durationInFrames: aiVideoState.durationInFrames
     },
-    HopelessCore: {
-      component: HopelessCoreComposition,
-      state: hopelessCoreState,
-      durationInFrames: hopelessCoreState.durationInFrames
+    HopeCore: {
+      component: HopeCoreComposition,
+      state: hopeCoreState,
+      durationInFrames: hopeCoreState.durationInFrames
     }
   }
 

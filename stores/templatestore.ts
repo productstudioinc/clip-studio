@@ -349,7 +349,7 @@ export const AIVideoSchema = z.object({
 
 export type AIVideoProps = z.infer<typeof AIVideoSchema>
 
-export const HopelessCoreVideoSchema = BaseVideoSchema.extend({
+export const HopeCoreVideoSchema = BaseVideoSchema.extend({
   title: z.string(),
   content: z.string(),
   voiceoverUrl: z.string(),
@@ -358,7 +358,7 @@ export const HopelessCoreVideoSchema = BaseVideoSchema.extend({
   voiceSpeed: z.number().min(0.5).max(3).default(1.25)
 })
 
-export type HopelessCoreVideoProps = z.infer<typeof HopelessCoreVideoSchema>
+export type HopeCoreVideoProps = z.infer<typeof HopeCoreVideoSchema>
 
 export const VideoSchema = z.union([
   SplitScreenVideoSchema,
@@ -367,7 +367,7 @@ export const VideoSchema = z.union([
   ClipsVideoSchema,
   TextMessageVideoSchema,
   AIVideoSchema,
-  HopelessCoreVideoSchema
+  HopeCoreVideoSchema
 ])
 
 export const TemplateSchema = z.enum([
@@ -377,7 +377,7 @@ export const TemplateSchema = z.enum([
   'Clips',
   'TextMessage',
   'AIVideo',
-  'HopelessCore'
+  'HopeCore'
 ])
 export type TemplateProps = z.infer<typeof TemplateSchema>
 
@@ -971,7 +971,7 @@ export const defaultAIVideoProps: AIVideoProps = {
   ]
 }
 
-export const defaultHopelessCoreProps: HopelessCoreVideoProps = {
+export const defaultHopeCoreProps: HopeCoreVideoProps = {
   title: 'Welcome to Hopeless Core',
   content: 'This is a sample hopeless core video.',
   language: Language.English,
@@ -1003,7 +1003,7 @@ const initialState = {
   captionStyle: CaptionStyle.Default,
   clipsState: defaultClipsProps,
   aiVideoState: defaultAIVideoProps,
-  hopelessCoreState: defaultHopelessCoreProps,
+  hopeCoreState: defaultHopeCoreProps,
   backgroundStartIndex: 0
 }
 
@@ -1030,8 +1030,8 @@ type State = {
   setClipsState: (state: Partial<ClipsVideoProps>) => void
   aiVideoState: AIVideoProps
   setAIVideoState: (state: Partial<AIVideoProps>) => void
-  hopelessCoreState: HopelessCoreVideoProps
-  setHopelessCoreState: (state: Partial<HopelessCoreVideoProps>) => void
+  hopeCoreState: HopeCoreVideoProps
+  setHopeCoreState: (state: Partial<HopeCoreVideoProps>) => void
   reset: () => void
   backgroundStartIndex: number
   setBackgroundStartIndex: (index: number) => void
@@ -1072,8 +1072,8 @@ export const useTemplateStore = create<State>()(
           durationInFrames: length
         },
         aiVideoState: { ...state.aiVideoState, durationInFrames: length },
-        hopelessCoreState: {
-          ...state.hopelessCoreState,
+        hopeCoreState: {
+          ...state.hopeCoreState,
           durationInFrames: length
         }
       })),
@@ -1092,8 +1092,8 @@ export const useTemplateStore = create<State>()(
           backgroundTheme: theme
         },
         aiVideoState: { ...state.aiVideoState, backgroundTheme: theme },
-        hopelessCoreState: {
-          ...state.hopelessCoreState,
+        hopeCoreState: {
+          ...state.hopeCoreState,
           backgroundTheme: theme
         }
       })),
@@ -1112,7 +1112,7 @@ export const useTemplateStore = create<State>()(
           backgroundUrls: urls
         },
         aiVideoState: { ...state.aiVideoState, backgroundUrls: urls },
-        hopelessCoreState: { ...state.hopelessCoreState, backgroundUrls: urls }
+        hopeCoreState: { ...state.hopeCoreState, backgroundUrls: urls }
       })),
     setCaptionStyle: (style) =>
       set((state) => ({
@@ -1129,7 +1129,7 @@ export const useTemplateStore = create<State>()(
           captionStyle: style
         },
         aiVideoState: { ...state.aiVideoState, captionStyle: style },
-        hopelessCoreState: { ...state.hopelessCoreState, captionStyle: style }
+        hopeCoreState: { ...state.hopeCoreState, captionStyle: style }
       })),
     setClipsState: (state) =>
       set((prevState) => ({
@@ -1139,9 +1139,9 @@ export const useTemplateStore = create<State>()(
       set((prevState) => ({
         aiVideoState: { ...prevState.aiVideoState, ...state }
       })),
-    setHopelessCoreState: (state) =>
+    setHopeCoreState: (state) =>
       set((prevState) => ({
-        hopelessCoreState: { ...prevState.hopelessCoreState, ...state }
+        hopeCoreState: { ...prevState.hopeCoreState, ...state }
       })),
     reset: () => set(initialState),
     setBackgroundStartIndex: (index) =>
@@ -1158,8 +1158,8 @@ export const useTemplateStore = create<State>()(
           backgroundStartIndex: index
         },
         aiVideoState: { ...state.aiVideoState, backgroundStartIndex: index },
-        hopelessCoreState: {
-          ...state.hopelessCoreState,
+        hopeCoreState: {
+          ...state.hopeCoreState,
           backgroundStartIndex: index
         }
       }))

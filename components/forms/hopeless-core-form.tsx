@@ -2,9 +2,9 @@
 
 import { useEffect } from 'react'
 import {
-  defaultHopelessCoreProps,
-  HopelessCoreVideoProps,
-  HopelessCoreVideoSchema,
+  defaultHopeCoreProps,
+  HopeCoreVideoProps,
+  HopeCoreVideoSchema,
   useTemplateStore,
   VideoProps
 } from '@/stores/templatestore'
@@ -19,25 +19,23 @@ import { UploadStep } from '@/components/form/upload-step'
 import { VideoPreview } from '@/components/form/video-preview'
 import { NumberedSteps } from '@/components/numbered-steps'
 
-interface HopelessCoreFormProps {}
+interface HopeCoreFormProps {}
 
-export const HopelessCoreForm: React.FC<HopelessCoreFormProps> = () => {
+export const HopeCoreForm: React.FC<HopeCoreFormProps> = () => {
   const form = useForm<VideoProps>({
-    resolver: zodResolver(HopelessCoreVideoSchema),
-    defaultValues: defaultHopelessCoreProps
+    resolver: zodResolver(HopeCoreVideoSchema),
+    defaultValues: defaultHopeCoreProps
   })
 
-  const setHopelessCoreState = useTemplateStore(
-    (state) => state.setHopelessCoreState
-  )
+  const setHopeCoreState = useTemplateStore((state) => state.setHopeCoreState)
 
   const formValues = useWatch({
     control: form.control
   })
 
   useEffect(() => {
-    setHopelessCoreState(formValues as Partial<HopelessCoreVideoProps>)
-  }, [formValues, setHopelessCoreState])
+    setHopeCoreState(formValues as Partial<HopeCoreVideoProps>)
+  }, [formValues, setHopeCoreState])
 
   return (
     <Form {...form}>

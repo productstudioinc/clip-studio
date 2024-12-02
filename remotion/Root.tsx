@@ -6,7 +6,7 @@ import { Composition } from 'remotion'
 import {
   AIVideoSchema,
   ClipsVideoSchema,
-  HopelessCoreVideoSchema,
+  HopeCoreVideoSchema,
   RedditVideoSchema,
   SplitScreenVideoSchema,
   TextMessageVideoSchema,
@@ -19,7 +19,7 @@ import {
 import { AIVideoComposition } from './AIVideo/Composition'
 import { ClipsComposition } from './Clips/Composition'
 import { EditorComposition } from './Editor/Composition'
-import { HopelessCoreComposition } from './HopelessCore/Composition'
+import { HopeCoreComposition } from './HopeCore/Composition'
 import { RedditComposition } from './Reddit/Composition'
 import { SplitScreenComposition } from './SplitScreen/Composition'
 import { TextMessageComposition } from './TextMessage/Composition'
@@ -33,7 +33,7 @@ export const RemotionRoot: React.FC = () => {
     clipsState,
     textMessageState,
     aiVideoState,
-    hopelessCoreState
+    hopeCoreState
   } = useTemplateStore((state) => ({
     selectedTemplate: state.selectedTemplate,
     splitScreenState: state.splitScreenState,
@@ -42,7 +42,7 @@ export const RemotionRoot: React.FC = () => {
     clipsState: state.clipsState,
     textMessageState: state.textMessageState,
     aiVideoState: state.aiVideoState,
-    hopelessCoreState: state.hopelessCoreState
+    hopeCoreState: state.hopeCoreState
   }))
 
   return (
@@ -157,14 +157,14 @@ export const RemotionRoot: React.FC = () => {
         }}
       />
       <Composition
-        id="HopelessCore"
-        component={HopelessCoreComposition}
-        durationInFrames={hopelessCoreState.durationInFrames}
+        id="HopeCore"
+        component={HopeCoreComposition}
+        durationInFrames={hopeCoreState.durationInFrames}
         fps={VIDEO_FPS}
         width={VIDEO_WIDTH}
         height={VIDEO_HEIGHT}
-        schema={HopelessCoreVideoSchema}
-        defaultProps={hopelessCoreState as any}
+        schema={HopeCoreVideoSchema}
+        defaultProps={hopeCoreState as any}
         calculateMetadata={async ({ props }) => {
           return {
             durationInFrames: props.durationInFrames
