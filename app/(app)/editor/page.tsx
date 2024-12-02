@@ -81,7 +81,7 @@ export default function Page() {
   const [loop, setLoop] = useState(true)
   const playerRef = useRef<PlayerRef>(null)
   const [currentFrame, setCurrentFrame] = useState(0)
-  const durationInFrames = 300
+  const durationInFrames = 450
   const [selectedFont, setSelectedFont] = useState<string | null>(null)
 
   const [tracks, setTracks] = useState<Track[]>([
@@ -90,7 +90,7 @@ export default function Page() {
       items: [
         {
           type: 'video',
-          src: 'https://assets.clip.studio/reddit_preview.webm',
+          src: 'https://assets.clip.studio/textmessage_preview.webm',
           aspectRatio: 9 / 16,
           maintainAspectRatio: true,
           volume: 0,
@@ -121,6 +121,23 @@ export default function Page() {
           id: '1',
           color: '#ccc',
           isDragging: false
+        },
+        {
+          type: 'video',
+          src: 'https://assets.clip.studio/reddit_preview.webm',
+          volume: 0,
+          aspectRatio: 9 / 16,
+          maintainAspectRatio: true,
+          left: 0,
+          top: 0,
+          width: 1080,
+          height: 1920,
+          rotation: 0,
+          durationInFrames: 150,
+          from: 200,
+          id: '2',
+          color: '#ccc',
+          isDragging: false
         }
       ]
     },
@@ -131,7 +148,7 @@ export default function Page() {
           type: 'audio',
           src: 'https://assets.clip.studio/music/QKthr.mp3',
           volume: 1,
-          durationInFrames: 300,
+          durationInFrames: 450,
           from: 0,
           id: '0'
         }
