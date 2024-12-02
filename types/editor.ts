@@ -2,18 +2,17 @@ type BaseItem = {
   from: number
   durationInFrames: number
   id: string
-  height: number
-  left: number
-  top: number
-  width: number
-  color: string
-  rotation: number
-  isDragging: boolean
 }
 
 export type SolidItem = BaseItem & {
   type: 'solid'
   color: string
+  height: number
+  left: number
+  top: number
+  width: number
+  rotation: number
+  isDragging: boolean
 }
 
 export type TextItem = BaseItem & {
@@ -25,6 +24,14 @@ export type TextItem = BaseItem & {
 export type VideoItem = BaseItem & {
   type: 'video'
   src: string
+  volume: number
+  height: number
+  left: number
+  top: number
+  width: number
+  color: string
+  rotation: number
+  isDragging: boolean
   aspectRatio: number
   maintainAspectRatio: boolean
 }

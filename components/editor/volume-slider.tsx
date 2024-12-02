@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { PlayerRef } from '@remotion/player'
-import { Volume2 } from 'lucide-react'
+import { Volume2, VolumeX } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -15,6 +15,7 @@ export const VolumeSlider: React.FC<{
 }> = ({ playerRef }) => {
   const [volume, setVolume] = useState(playerRef.current?.getVolume() ?? 1)
   const [muted, setMuted] = useState(playerRef.current?.isMuted() ?? false)
+  const [isVolumePopoverOpen, setIsVolumePopoverOpen] = useState(false)
 
   useEffect(() => {
     const { current } = playerRef
@@ -46,29 +47,75 @@ export const VolumeSlider: React.FC<{
       }
 
       const newVolume = value[0]
-      if (newVolume > 0 && playerRef.current.isMuted()) {
-        playerRef.current.unmute()
-      }
-
       playerRef.current.setVolume(newVolume)
+      if (muted) {
+        playerRef.current.unmute()
+        setMuted(false)
+      }
     },
-    [playerRef]
+    [playerRef, muted]
   )
+
+  const toggleMute = useCallback(() => {
+    if (!playerRef.current) {
+      return
+    }
+
+    if (muted) {
+      playerRef.current.unmute()
+    } else {
+      playerRef.current.mute()
+    }
+    setMuted(!muted)
+  }, [muted, playerRef])
+
+  const openVolumePopover = useCallback(() => {
+    setIsVolumePopoverOpen(true)
+  }, [])
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === 'v') {
+        openVolumePopover()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress)
+    }
+  }, [openVolumePopover])
+
   return (
-    <Popover>
+    <Popover open={isVolumePopoverOpen} onOpenChange={setIsVolumePopoverOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Volume2 className="h-4 w-4" />
+        <Button variant="outline" size="icon" onClick={openVolumePopover}>
+          {muted ? (
+            <VolumeX className="h-4 w-4" />
+          ) : (
+            <Volume2 className="h-4 w-4" />
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" side="top">
-        <Slider
-          value={[muted ? 0 : volume]}
-          min={0}
-          max={1}
-          step={0.01}
-          onValueChange={onChange}
-        />
+        <div className="flex items-center space-x-4">
+          <Button variant="outline" size="icon" onClick={toggleMute}>
+            {muted ? (
+              <VolumeX className="h-4 w-4" />
+            ) : (
+              <Volume2 className="h-4 w-4" />
+            )}
+          </Button>
+          <Slider
+            value={[muted ? 0 : volume]}
+            min={0}
+            max={1}
+            step={0.01}
+            onValueChange={onChange}
+            className="flex-grow"
+          />
+        </div>
       </PopoverContent>
     </Popover>
   )

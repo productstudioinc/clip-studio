@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Repeat } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,20 @@ export const LoopButton: React.FC<{
 }> = ({ loop, setLoop }) => {
   const onClick = React.useCallback(() => {
     setLoop((prev) => !prev)
+  }, [setLoop])
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === 'l') {
+        setLoop((prev) => !prev)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress)
+    }
   }, [setLoop])
 
   return (

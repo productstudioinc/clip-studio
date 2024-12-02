@@ -41,7 +41,7 @@ export const FullscreenButton: React.FC<{
     )
   }, [])
 
-  const onClick = useCallback(() => {
+  const toggleFullscreen = useCallback(() => {
     const { current } = playerRef
     if (!current) {
       return
@@ -54,6 +54,20 @@ export const FullscreenButton: React.FC<{
     }
   }, [isFullscreen, playerRef])
 
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === 'f') {
+        toggleFullscreen()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress)
+    }
+  }, [toggleFullscreen])
+
   if (!supportsFullscreen) {
     return null
   }
@@ -62,7 +76,7 @@ export const FullscreenButton: React.FC<{
     <Button
       variant="outline"
       size="icon"
-      onClick={onClick}
+      onClick={toggleFullscreen}
       aria-label={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
     >
       {isFullscreen ? (
