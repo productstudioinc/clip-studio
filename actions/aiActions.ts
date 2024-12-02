@@ -424,14 +424,18 @@ export const generateHopeCoreStory = createServerAction()
           story: z.string()
         }),
         prompt: `
-        Generate a hopecore story.
+        Generate a hopecore story or quote
         
+        Definition:
         Hopecore is a trend that involves actively seeking joy and positivity in the world around you. It's a countermeasure to the strain of crisis fatigue, and is often seen on TikTok as a way to promote feelings of hopefulness
 
-        It should be 30 words or less.
+        It should be 20-40 words or less
 
         Rules:
-        - Make it Gen Z.
+        - Make it Gen Z
+        - no #, @ or quotes
+        - Don't use definition of hopecore in the output
+        - Should be third person
         
         Context for the story:
         ${input}
