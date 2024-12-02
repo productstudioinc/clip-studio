@@ -4,7 +4,12 @@ import { Caption } from '@remotion/captions'
 import { TransitionSeries } from '@remotion/transitions'
 import { AbsoluteFill, Audio, Video } from 'remotion'
 
-import type { Item, Track } from '@/types/editor'
+import {
+  isPositionedItem,
+  PositionedItem,
+  type Item,
+  type Track
+} from '@/types/editor'
 
 import { SortedOutlines } from '../Shared/sorted-outlines'
 
@@ -89,10 +94,13 @@ const Track: React.FC<{
 type EditorCompositionProps = {
   tracks: Track[]
   captions: Caption[]
-  captionStyles: { [key: string]: React.CSSProperties }
+  captionStyles: React.CSSProperties
   selectedItem: string | null
   setSelectedItem: React.Dispatch<React.SetStateAction<string | null>>
-  changeItem: (itemId: string, updater: (item: Item) => Item) => void
+  changeItem: (
+    itemId: string,
+    updater: (item: PositionedItem) => PositionedItem
+  ) => void
 }
 
 const outer: React.CSSProperties = {
@@ -121,8 +129,10 @@ export const EditorComposition: React.FC<EditorCompositionProps> = ({
     },
     [setSelectedItem]
   )
-
-  const items = tracks.flatMap((track) => track.items)
+  // In your component, replace the filter with:
+  const positionedItems = tracks
+    .flatMap((track) => track.items)
+    .filter(isPositionedItem)
 
   return (
     <AbsoluteFill style={outer} onPointerDown={onPointerDown}>
@@ -141,7 +151,7 @@ export const EditorComposition: React.FC<EditorCompositionProps> = ({
       </AbsoluteFill>
       <SortedOutlines
         selectedItem={selectedItem}
-        items={items}
+        items={positionedItems}
         setSelectedItem={setSelectedItem}
         changeItem={changeItem}
       />

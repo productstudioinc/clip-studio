@@ -6,7 +6,7 @@ import { Caption } from '@remotion/captions'
 import type { PlayerRef } from '@remotion/player'
 import { Player } from '@remotion/player'
 
-import { Item, Track } from '@/types/editor'
+import { isPositionedItem, PositionedItem, Track } from '@/types/editor'
 import { FullscreenButton } from '@/components/editor/fullscreen-button'
 import { LoopButton } from '@/components/editor/loop-button'
 import { PlayPauseButton } from '@/components/editor/play-pause-button'
@@ -142,12 +142,12 @@ export default function Page() {
   const [selectedItem, setSelectedItem] = useState<string | null>(null)
 
   const changeItem = useCallback(
-    (itemId: string, updater: (item: Item) => Item) => {
+    (itemId: string, updater: (item: PositionedItem) => PositionedItem) => {
       setTracks((oldTracks) => {
         return oldTracks.map((track) => ({
           ...track,
           items: track.items.map((item) => {
-            if (item.id === itemId) {
+            if (item.id === itemId && isPositionedItem(item)) {
               return updater(item)
             }
             return item
@@ -160,11 +160,9 @@ export default function Page() {
 
   const captionStyles = useMemo(() => {
     return {
-      style: {
-        fontFamily: selectedFont ?? 'inherit',
-        fontSize: '100px'
-      }
-    }
+      fontFamily: selectedFont ?? 'inherit',
+      fontSize: '100px'
+    } as React.CSSProperties
   }, [selectedFont])
 
   const inputProps = useMemo(() => {

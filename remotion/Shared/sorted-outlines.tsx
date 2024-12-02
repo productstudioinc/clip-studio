@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react'
 import { Sequence } from 'remotion'
 
-import type { Item } from '@/types/editor'
+import type { PositionedItem } from '@/types/editor'
 
 import { SelectionOutline } from './selection-outline'
 
 const displaySelectedItemOnTop = (
-  items: Item[],
+  items: PositionedItem[],
   selectedItem: string | null
-): Item[] => {
+): PositionedItem[] => {
   const selectedItems = items.filter((item) => item.id === selectedItem)
   const unselectedItems = items.filter((item) => item.id !== selectedItem)
 
@@ -48,9 +48,12 @@ const CenteringLines: React.FC = () => {
 }
 
 export const SortedOutlines: React.FC<{
-  items: Item[]
+  items: PositionedItem[]
   selectedItem: string | null
-  changeItem: (itemId: string, updater: (item: Item) => Item) => void
+  changeItem: (
+    itemId: string,
+    updater: (item: PositionedItem) => PositionedItem
+  ) => void
   setSelectedItem: React.Dispatch<React.SetStateAction<string | null>>
 }> = ({ items, selectedItem, changeItem, setSelectedItem }) => {
   const itemsToDisplay = useMemo(

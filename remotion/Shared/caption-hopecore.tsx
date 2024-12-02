@@ -1,15 +1,9 @@
 import { Caption, createTikTokStyleCaptions } from '@remotion/captions'
-import {
-  random,
-  Sequence,
-  spring,
-  useCurrentFrame,
-  useVideoConfig
-} from 'remotion'
+import { random, Sequence, useCurrentFrame, useVideoConfig } from 'remotion'
 
 type CaptionComponentProps = {
   captions: Caption[]
-  styles: { [key: string]: React.CSSProperties }
+  styles: React.CSSProperties
   seed: number
 }
 
@@ -133,6 +127,7 @@ export const CaptionHopecoreComponent: React.FC<CaptionComponentProps> = ({
                     (token.fromMs / 1000) * fps
                   )
                   const tokenEndFrame = Math.round((token.toMs / 1000) * fps)
+                  const isVisible = currentFrame >= tokenStartFrame
                   const isHighlighted =
                     currentFrame >= tokenStartFrame &&
                     currentFrame < tokenEndFrame
@@ -166,16 +161,6 @@ export const CaptionHopecoreComponent: React.FC<CaptionComponentProps> = ({
                     height: wordHeight
                   })
 
-                  const scale = spring({
-                    fps,
-                    frame: currentFrame - tokenStartFrame,
-                    config: {
-                      damping: 12,
-                      stiffness: 200,
-                      mass: 0.8
-                    }
-                  })
-
                   return (
                     <div
                       key={tokenIndex}
@@ -183,7 +168,6 @@ export const CaptionHopecoreComponent: React.FC<CaptionComponentProps> = ({
                         position: 'absolute',
                         left: position.x,
                         top: position.y,
-                        transform: `scale(${scale})`,
                         fontSize: `${fontSize}px`,
                         fontWeight: '900',
                         color: isHighlighted ? '#FFD700' : 'white',
@@ -197,8 +181,8 @@ export const CaptionHopecoreComponent: React.FC<CaptionComponentProps> = ({
                         transition: 'color 0.1s ease-in-out',
                         whiteSpace: 'nowrap',
                         zIndex: isHighlighted ? 2 : 1,
-                        opacity: scale,
-                        transformOrigin: 'center center'
+                        opacity: isVisible ? 1 : 0,
+                        display: isVisible ? 'block' : 'none'
                       }}
                     >
                       {token.text}
