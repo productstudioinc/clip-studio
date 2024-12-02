@@ -101,7 +101,7 @@ export default function Page() {
           rotation: 0,
           durationInFrames: 150,
           from: 0,
-          id: '0',
+          id: '5',
           color: '#ccc',
           isDragging: false
         },
@@ -118,7 +118,7 @@ export default function Page() {
           rotation: 0,
           durationInFrames: 150,
           from: 100,
-          id: '1',
+          id: '4',
           color: '#ccc',
           isDragging: false
         },
@@ -135,8 +135,26 @@ export default function Page() {
           rotation: 0,
           durationInFrames: 150,
           from: 200,
-          id: '2',
+          id: '3',
           color: '#ccc',
+          isDragging: false
+        }
+      ]
+    },
+    {
+      name: 'Solid',
+      items: [
+        {
+          type: 'solid',
+          color: '#000',
+          left: 0,
+          top: 0,
+          width: 1080,
+          height: 1920,
+          durationInFrames: 450,
+          from: 0,
+          id: '2',
+          rotation: 0,
           isDragging: false
         }
       ]
@@ -150,7 +168,7 @@ export default function Page() {
           volume: 1,
           durationInFrames: 450,
           from: 0,
-          id: '0'
+          id: '1'
         }
       ]
     }
@@ -183,10 +201,12 @@ export default function Page() {
   }, [selectedFont])
 
   const inputProps = useMemo(() => {
+    const visibleTracks = tracks.filter((track) => track.visible !== false)
+
     return {
       captions,
       captionStyles,
-      tracks,
+      tracks: visibleTracks,
       setSelectedItem,
       changeItem,
       selectedItem,
@@ -198,6 +218,16 @@ export default function Page() {
     setCurrentFrame(frame)
     playerRef.current?.seekTo(frame)
   }
+
+  const handleTrackVisibilityChange = useCallback((trackIndex: number) => {
+    setTracks((prevTracks) =>
+      prevTracks.map((track, index) =>
+        index === trackIndex
+          ? { ...track, visible: track.visible === false ? true : false }
+          : track
+      )
+    )
+  }, [])
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -252,6 +282,7 @@ export default function Page() {
             currentFrame={currentFrame}
             onSeek={handleSeek}
             durationInFrames={durationInFrames}
+            onTrackVisibilityChange={handleTrackVisibilityChange}
           />
         </div>
       </div>

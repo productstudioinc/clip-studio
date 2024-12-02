@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Caption } from '@remotion/captions'
+import { Eye, EyeOff } from 'lucide-react'
 
 import { Item, Track } from '@/types/editor'
 
@@ -10,13 +11,15 @@ export const Timeline: React.FC<{
   currentFrame: number
   onSeek: (frame: number) => void
   durationInFrames: number
+  onTrackVisibilityChange?: (trackIndex: number) => void
 }> = ({
   captions,
   tracks,
   setTracks,
   currentFrame,
   onSeek,
-  durationInFrames
+  durationInFrames,
+  onTrackVisibilityChange
 }) => {
   const [draggingItem, setDraggingItem] = useState<Item | null>(null)
   const [dragStartX, setDragStartX] = useState(0)
@@ -100,7 +103,17 @@ export const Timeline: React.FC<{
             key={track.name}
             className="flex items-center border-b border-border py-2"
           >
-            <div className="w-32 px-4 font-medium text-sm whitespace-nowrap text-muted-foreground absolute z-10 select-none">
+            <div className="w-32 px-4 font-medium text-sm whitespace-nowrap text-muted-foreground absolute z-10 select-none flex items-center gap-2">
+              <button
+                onClick={() => onTrackVisibilityChange?.(trackIndex)}
+                className="hover:text-foreground"
+              >
+                {track.visible === false ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
               {track.name}
             </div>
             <div

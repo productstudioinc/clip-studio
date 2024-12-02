@@ -138,11 +138,11 @@ export const CaptionHopecoreComponent: React.FC<CaptionComponentProps> = ({
                     maxFontSize,
                     (width - 2 * safeMargin) / token.text.length
                   )
-                  const fontSize = baseFontSize * 0.9 // Slightly reduced font size
+                  const fontSize = baseFontSize * 1.5 // Slightly reduced font size
 
                   // Estimate word dimensions (approximate)
                   const wordWidth = token.text.length * fontSize * 0.6
-                  const wordHeight = fontSize * 1.2
+                  const wordHeight = fontSize * 1.3
 
                   // Find a position that doesn't overlap and is within screen bounds
                   const position = findValidPosition(

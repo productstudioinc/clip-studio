@@ -47,6 +47,9 @@ export type PositionedItem = VideoItem | SolidItem | TextItem
 export type Track = {
   name: string
   items: Item[]
+  visible?: boolean
+  muted?: boolean
+  volume?: number
 }
 
 // Type predicate function
