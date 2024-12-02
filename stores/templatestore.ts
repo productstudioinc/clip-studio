@@ -349,13 +349,25 @@ export const AIVideoSchema = z.object({
 
 export type AIVideoProps = z.infer<typeof AIVideoSchema>
 
+export const HopelessCoreVideoSchema = BaseVideoSchema.extend({
+  title: z.string(),
+  content: z.string(),
+  voiceoverUrl: z.string(),
+  voiceId: z.string().optional(),
+  isVoiceoverGenerated: z.boolean().default(false),
+  voiceSpeed: z.number().min(0.5).max(3).default(1.25)
+})
+
+export type HopelessCoreVideoProps = z.infer<typeof HopelessCoreVideoSchema>
+
 export const VideoSchema = z.union([
   SplitScreenVideoSchema,
   RedditVideoSchema,
   TwitterVideoSchema,
   ClipsVideoSchema,
   TextMessageVideoSchema,
-  AIVideoSchema
+  AIVideoSchema,
+  HopelessCoreVideoSchema
 ])
 
 export const TemplateSchema = z.enum([
@@ -364,7 +376,8 @@ export const TemplateSchema = z.enum([
   'Twitter',
   'Clips',
   'TextMessage',
-  'AIVideo'
+  'AIVideo',
+  'HopelessCore'
 ])
 export type TemplateProps = z.infer<typeof TemplateSchema>
 
@@ -958,6 +971,26 @@ export const defaultAIVideoProps: AIVideoProps = {
   ]
 }
 
+export const defaultHopelessCoreProps: HopelessCoreVideoProps = {
+  title: 'Welcome to Hopeless Core',
+  content: 'This is a sample hopeless core video.',
+  language: Language.English,
+  voiceVolume: 70,
+  musicVolume: 30,
+  aspectRatio: AspectRatio.Vertical,
+  width: VIDEO_WIDTH,
+  height: VIDEO_HEIGHT,
+  fps: VIDEO_FPS,
+  durationInFrames: DEFAULT_DURATION_IN_FRAMES,
+  backgroundTheme: BackgroundTheme.Minecraft,
+  backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
+  captionStyle: CaptionStyle.Default,
+  voiceoverUrl: '',
+  isVoiceoverGenerated: true,
+  voiceSpeed: 1.25,
+  backgroundStartIndex: 0
+}
+
 const initialState = {
   selectedTemplate: 'Reddit' as TemplateProps,
   splitScreenState: defaultSplitScreenProps,
@@ -970,6 +1003,7 @@ const initialState = {
   captionStyle: CaptionStyle.Default,
   clipsState: defaultClipsProps,
   aiVideoState: defaultAIVideoProps,
+  hopelessCoreState: defaultHopelessCoreProps,
   backgroundStartIndex: 0
 }
 
@@ -996,6 +1030,8 @@ type State = {
   setClipsState: (state: Partial<ClipsVideoProps>) => void
   aiVideoState: AIVideoProps
   setAIVideoState: (state: Partial<AIVideoProps>) => void
+  hopelessCoreState: HopelessCoreVideoProps
+  setHopelessCoreState: (state: Partial<HopelessCoreVideoProps>) => void
   reset: () => void
   backgroundStartIndex: number
   setBackgroundStartIndex: (index: number) => void
@@ -1035,7 +1071,11 @@ export const useTemplateStore = create<State>()(
           ...state.textMessageState,
           durationInFrames: length
         },
-        aiVideoState: { ...state.aiVideoState, durationInFrames: length }
+        aiVideoState: { ...state.aiVideoState, durationInFrames: length },
+        hopelessCoreState: {
+          ...state.hopelessCoreState,
+          durationInFrames: length
+        }
       })),
     setBackgroundTheme: (theme) =>
       set((state) => ({
@@ -1051,7 +1091,11 @@ export const useTemplateStore = create<State>()(
           ...state.textMessageState,
           backgroundTheme: theme
         },
-        aiVideoState: { ...state.aiVideoState, backgroundTheme: theme }
+        aiVideoState: { ...state.aiVideoState, backgroundTheme: theme },
+        hopelessCoreState: {
+          ...state.hopelessCoreState,
+          backgroundTheme: theme
+        }
       })),
     setBackgroundUrls: (urls) =>
       set((state) => ({
@@ -1067,7 +1111,8 @@ export const useTemplateStore = create<State>()(
           ...state.textMessageState,
           backgroundUrls: urls
         },
-        aiVideoState: { ...state.aiVideoState, backgroundUrls: urls }
+        aiVideoState: { ...state.aiVideoState, backgroundUrls: urls },
+        hopelessCoreState: { ...state.hopelessCoreState, backgroundUrls: urls }
       })),
     setCaptionStyle: (style) =>
       set((state) => ({
@@ -1083,7 +1128,8 @@ export const useTemplateStore = create<State>()(
           ...state.textMessageState,
           captionStyle: style
         },
-        aiVideoState: { ...state.aiVideoState, captionStyle: style }
+        aiVideoState: { ...state.aiVideoState, captionStyle: style },
+        hopelessCoreState: { ...state.hopelessCoreState, captionStyle: style }
       })),
     setClipsState: (state) =>
       set((prevState) => ({
@@ -1092,6 +1138,10 @@ export const useTemplateStore = create<State>()(
     setAIVideoState: (state) =>
       set((prevState) => ({
         aiVideoState: { ...prevState.aiVideoState, ...state }
+      })),
+    setHopelessCoreState: (state) =>
+      set((prevState) => ({
+        hopelessCoreState: { ...prevState.hopelessCoreState, ...state }
       })),
     reset: () => set(initialState),
     setBackgroundStartIndex: (index) =>
@@ -1107,7 +1157,11 @@ export const useTemplateStore = create<State>()(
           ...state.textMessageState,
           backgroundStartIndex: index
         },
-        aiVideoState: { ...state.aiVideoState, backgroundStartIndex: index }
+        aiVideoState: { ...state.aiVideoState, backgroundStartIndex: index },
+        hopelessCoreState: {
+          ...state.hopelessCoreState,
+          backgroundStartIndex: index
+        }
       }))
   }))
 )

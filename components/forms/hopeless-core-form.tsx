@@ -1,0 +1,61 @@
+'use client'
+
+import { useEffect } from 'react'
+import {
+  defaultHopelessCoreProps,
+  HopelessCoreVideoProps,
+  HopelessCoreVideoSchema,
+  useTemplateStore,
+  VideoProps
+} from '@/stores/templatestore'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm, useWatch } from 'react-hook-form'
+
+import { Form } from '@/components/ui/form'
+import { AspectRatioStep } from '@/components/form/aspect-ratio-step'
+import { CaptionStyleStep } from '@/components/form/caption-style-step'
+import { FormSubmit } from '@/components/form/form-submit'
+import { UploadStep } from '@/components/form/upload-step'
+import { VideoPreview } from '@/components/form/video-preview'
+import { NumberedSteps } from '@/components/numbered-steps'
+
+interface HopelessCoreFormProps {}
+
+export const HopelessCoreForm: React.FC<HopelessCoreFormProps> = () => {
+  const form = useForm<VideoProps>({
+    resolver: zodResolver(HopelessCoreVideoSchema),
+    defaultValues: defaultHopelessCoreProps
+  })
+
+  const setHopelessCoreState = useTemplateStore(
+    (state) => state.setHopelessCoreState
+  )
+
+  const formValues = useWatch({
+    control: form.control
+  })
+
+  useEffect(() => {
+    setHopelessCoreState(formValues as Partial<HopelessCoreVideoProps>)
+  }, [formValues, setHopelessCoreState])
+
+  return (
+    <Form {...form}>
+      <form className="w-full space-y-6">
+        <div className="grid grid-cols-12 gap-8">
+          <NumberedSteps className="col-span-12 lg:col-span-7 space-y-6">
+            <UploadStep form={form} />
+            <CaptionStyleStep form={form} />
+            <AspectRatioStep form={form} />
+            <FormSubmit form={form} />
+          </NumberedSteps>
+          <div className="col-span-12 lg:col-span-5">
+            <div className="sticky top-8 flex items-center justify-center">
+              <VideoPreview form={form} />
+            </div>
+          </div>
+        </div>
+      </form>
+    </Form>
+  )
+}

@@ -6,6 +6,7 @@ import { Composition } from 'remotion'
 import {
   AIVideoSchema,
   ClipsVideoSchema,
+  HopelessCoreVideoSchema,
   RedditVideoSchema,
   SplitScreenVideoSchema,
   TextMessageVideoSchema,
@@ -18,6 +19,7 @@ import {
 import { AIVideoComposition } from './AIVideo/Composition'
 import { ClipsComposition } from './Clips/Composition'
 import { EditorComposition } from './Editor/Composition'
+import { HopelessCoreComposition } from './HopelessCore/Composition'
 import { RedditComposition } from './Reddit/Composition'
 import { SplitScreenComposition } from './SplitScreen/Composition'
 import { TextMessageComposition } from './TextMessage/Composition'
@@ -30,7 +32,8 @@ export const RemotionRoot: React.FC = () => {
     twitterState,
     clipsState,
     textMessageState,
-    aiVideoState
+    aiVideoState,
+    hopelessCoreState
   } = useTemplateStore((state) => ({
     selectedTemplate: state.selectedTemplate,
     splitScreenState: state.splitScreenState,
@@ -38,7 +41,8 @@ export const RemotionRoot: React.FC = () => {
     twitterState: state.twitterState,
     clipsState: state.clipsState,
     textMessageState: state.textMessageState,
-    aiVideoState: state.aiVideoState
+    aiVideoState: state.aiVideoState,
+    hopelessCoreState: state.hopelessCoreState
   }))
 
   return (
@@ -146,6 +150,21 @@ export const RemotionRoot: React.FC = () => {
         height={VIDEO_HEIGHT}
         schema={ClipsVideoSchema}
         defaultProps={clipsState as any}
+        calculateMetadata={async ({ props }) => {
+          return {
+            durationInFrames: props.durationInFrames
+          }
+        }}
+      />
+      <Composition
+        id="HopelessCore"
+        component={HopelessCoreComposition}
+        durationInFrames={hopelessCoreState.durationInFrames}
+        fps={VIDEO_FPS}
+        width={VIDEO_WIDTH}
+        height={VIDEO_HEIGHT}
+        schema={HopelessCoreVideoSchema}
+        defaultProps={hopelessCoreState as any}
         calculateMetadata={async ({ props }) => {
           return {
             durationInFrames: props.durationInFrames
