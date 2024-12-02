@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { generateHopecoreVoiceover } from '@/actions/elevenlabs'
 import { useAppContext } from '@/contexts/app-context'
 import { Language, LanguageFlags, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
@@ -11,8 +12,9 @@ import {
 } from '@radix-ui/react-icons'
 import { Loader2, Pause, Play } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
+import { toast } from 'sonner'
+import { useServerAction } from 'zsa-react'
 
-import { useRedditVoiceoverGeneration } from '@/lib/hooks/use-reddit-voiceover-generation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -55,14 +57,55 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 
-type RedditVoiceStepProps = {
+type HopecoreVoiceStepProps = {
   form: UseFormReturn<VideoProps>
 }
 
-export const RedditVoiceStep: React.FC<RedditVoiceStepProps> = ({ form }) => {
+export const HopecoreVoiceStep: React.FC<HopecoreVoiceStepProps> = ({
+  form
+}) => {
   const { voices } = useAppContext()
-  const { generateVoiceover, isGeneratingVoiceover } =
-    useRedditVoiceoverGeneration(form)
+  const { isPending: isGeneratingVoiceover, execute } = useServerAction(
+    generateHopecoreVoiceover
+  )
+
+  const generateVoiceover = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    const selectedVoice = form.getValues('voice')
+    const language = form.getValues('language')
+    const text = form.getValues('text')
+    const voiceSpeed = form.getValues('voiceSpeed')
+
+    if (!selectedVoice || !text) {
+      toast.error('Please select a voice and provide text for the voiceover.')
+      return false
+    }
+
+    const tid = toast.loading('Generating voiceover...')
+
+    const [data, err] = await execute({
+      voiceId: selectedVoice,
+      text,
+      language
+    })
+
+    if (err) {
+      toast.error(err.message, { id: tid })
+      return false
+    }
+
+    // form.setValue(
+    //   'durationInFrames',
+    //   Math.floor((data.endTimestamp * 30) / voiceSpeed)
+    // )
+    // form.setValue('voiceoverUrl', data.signedUrl)
+    // form.setValue('voiceoverFrames', data.voiceoverObject)
+    form.setValue('isVoiceoverGenerated', true)
+    form.clearErrors('isVoiceoverGenerated')
+
+    toast.success('Voiceover generated successfully!', { id: tid })
+    return true
+  }
 
   const languages = Object.entries(Language).map(([key, value]) => ({
     value,

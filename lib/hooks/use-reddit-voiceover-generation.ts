@@ -9,7 +9,8 @@ export const useRedditVoiceoverGeneration = (
 ) => {
   const { isPending, execute } = useServerAction(generateRedditVoiceover)
 
-  const generateVoiceover = async () => {
+  const generateVoiceover = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
     const selectedVoice = form.getValues('voice')
     const language = form.getValues('language')
     const text = form.getValues('text')

@@ -100,6 +100,41 @@ export const getLibraryVoices = createServerAction()
     }
   })
 
+export const generateHopecoreVoiceover = createServerAction()
+  .input(
+    z.object({
+      text: z.string(),
+      voiceId: z.string(),
+      language: z.string()
+    })
+  )
+  .handler(async ({ input }) => {
+    const logger = new Logger().with({
+      function: 'generateHopecoreVoiceover',
+      ...input
+    })
+    logger.info(startingFunctionString)
+
+    const { user } = await getUser()
+    if (!user) {
+      logger.error(errorString, { error: 'User not authorized' })
+      await logger.flush()
+      throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
+    }
+
+    const { text, voiceId, language } = input
+
+    const fullText = `${text} <break time="0.7s" />`
+
+    // TODO: Implement voiceover generation
+    // Must return remotion Caption type so that it can be used by this function
+    // https://www.remotion.dev/docs/captions/create-tiktok-style-captions
+
+    return {
+      fullText
+    }
+  })
+
 export const generateRedditVoiceover = createServerAction()
   .input(
     z.object({

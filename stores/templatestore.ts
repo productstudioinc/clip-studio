@@ -183,7 +183,7 @@ const BaseVideoSchema = z.object({
   language: z.nativeEnum(Language).default(Language.English),
   voice: z.string().optional(),
   voiceVolume: z.number().min(0).max(100).default(70),
-  music: z.string().optional(),
+  musicUrl: z.string().optional(),
   musicVolume: z.number().min(0).max(100).default(30),
   aspectRatio: z.nativeEnum(AspectRatio).default(AspectRatio.Vertical),
   width: z.number().min(1).default(VIDEO_WIDTH),
@@ -347,7 +347,15 @@ export const AIVideoSchema = z.object({
   captionStyle: z.nativeEnum(CaptionStyle).default(CaptionStyle.Default)
 })
 
-export type AIVideoProps = z.infer<typeof AIVideoSchema>
+export const HopeCoreVideoSchema = BaseVideoSchema.extend({
+  text: z.string(),
+  voiceoverUrl: z.string(),
+  voiceoverFrames: VoiceoverFramesSchema,
+  voice: z.string(),
+  titleEnd: z.number(),
+  isVoiceoverGenerated: z.boolean().default(false),
+  voiceSpeed: z.number().min(0.5).max(3).default(1)
+})
 
 export const VideoSchema = z.union([
   SplitScreenVideoSchema,
@@ -355,7 +363,8 @@ export const VideoSchema = z.union([
   TwitterVideoSchema,
   ClipsVideoSchema,
   TextMessageVideoSchema,
-  AIVideoSchema
+  AIVideoSchema,
+  HopeCoreVideoSchema
 ])
 
 export const TemplateSchema = z.enum([
@@ -364,7 +373,8 @@ export const TemplateSchema = z.enum([
   'Twitter',
   'Clips',
   'TextMessage',
-  'AIVideo'
+  'AIVideo',
+  'HopeCore'
 ])
 export type TemplateProps = z.infer<typeof TemplateSchema>
 
@@ -376,6 +386,8 @@ export type TwitterVideoProps = z.infer<typeof TwitterVideoSchema>
 export type SplitScreenVideoProps = z.infer<typeof SplitScreenVideoSchema>
 export type TextMessageVideoProps = z.infer<typeof TextMessageVideoSchema>
 export type ClipsVideoProps = z.infer<typeof ClipsVideoSchema>
+export type AIVideoProps = z.infer<typeof AIVideoSchema>
+export type HopeCoreVideoProps = z.infer<typeof HopeCoreVideoSchema>
 
 // Default Props
 const generateMinecraftBackgrounds = (count: number) => {
@@ -958,6 +970,29 @@ export const defaultAIVideoProps: AIVideoProps = {
   ]
 }
 
+export const defaultHopeCoreProps: HopeCoreVideoProps = {
+  text: 'Share your inspiring story here...',
+  durationInFrames: 30 * 30,
+  backgroundTheme: BackgroundTheme.Minecraft,
+  backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
+  voice: 'WmgbWYyjBPkmuF0hCiy3',
+  voiceoverUrl: '',
+  voiceoverFrames: alignmentDefault,
+  titleEnd: 5.0,
+  language: Language.English,
+  voiceVolume: 80,
+  musicVolume: 60,
+  musicUrl: 'https://assets.clip.studio/music/QKthr.mp3',
+  aspectRatio: AspectRatio.Vertical,
+  width: VIDEO_WIDTH,
+  height: VIDEO_HEIGHT,
+  fps: VIDEO_FPS,
+  captionStyle: CaptionStyle.Default,
+  isVoiceoverGenerated: true,
+  voiceSpeed: 0.9,
+  backgroundStartIndex: 0
+}
+
 const initialState = {
   selectedTemplate: 'Reddit' as TemplateProps,
   splitScreenState: defaultSplitScreenProps,
@@ -970,6 +1005,7 @@ const initialState = {
   captionStyle: CaptionStyle.Default,
   clipsState: defaultClipsProps,
   aiVideoState: defaultAIVideoProps,
+  hopeCoreState: defaultHopeCoreProps,
   backgroundStartIndex: 0
 }
 
@@ -996,6 +1032,8 @@ type State = {
   setClipsState: (state: Partial<ClipsVideoProps>) => void
   aiVideoState: AIVideoProps
   setAIVideoState: (state: Partial<AIVideoProps>) => void
+  hopeCoreState: HopeCoreVideoProps
+  setHopeCoreState: (state: Partial<HopeCoreVideoProps>) => void
   reset: () => void
   backgroundStartIndex: number
   setBackgroundStartIndex: (index: number) => void
@@ -1021,6 +1059,10 @@ export const useTemplateStore = create<State>()(
       set((prevState) => ({
         textMessageState: { ...prevState.textMessageState, ...state }
       })),
+    setHopeCoreState: (state) =>
+      set((prevState) => ({
+        hopeCoreState: { ...prevState.hopeCoreState, ...state }
+      })),
     setDurationInFrames: (length) =>
       set((state) => ({
         durationInFrames: length,
@@ -1035,7 +1077,8 @@ export const useTemplateStore = create<State>()(
           ...state.textMessageState,
           durationInFrames: length
         },
-        aiVideoState: { ...state.aiVideoState, durationInFrames: length }
+        aiVideoState: { ...state.aiVideoState, durationInFrames: length },
+        hopeCoreState: { ...state.hopeCoreState, durationInFrames: length }
       })),
     setBackgroundTheme: (theme) =>
       set((state) => ({
@@ -1051,7 +1094,8 @@ export const useTemplateStore = create<State>()(
           ...state.textMessageState,
           backgroundTheme: theme
         },
-        aiVideoState: { ...state.aiVideoState, backgroundTheme: theme }
+        aiVideoState: { ...state.aiVideoState, backgroundTheme: theme },
+        hopeCoreState: { ...state.hopeCoreState, backgroundTheme: theme }
       })),
     setBackgroundUrls: (urls) =>
       set((state) => ({
@@ -1067,7 +1111,8 @@ export const useTemplateStore = create<State>()(
           ...state.textMessageState,
           backgroundUrls: urls
         },
-        aiVideoState: { ...state.aiVideoState, backgroundUrls: urls }
+        aiVideoState: { ...state.aiVideoState, backgroundUrls: urls },
+        hopeCoreState: { ...state.hopeCoreState, backgroundUrls: urls }
       })),
     setCaptionStyle: (style) =>
       set((state) => ({
@@ -1083,7 +1128,8 @@ export const useTemplateStore = create<State>()(
           ...state.textMessageState,
           captionStyle: style
         },
-        aiVideoState: { ...state.aiVideoState, captionStyle: style }
+        aiVideoState: { ...state.aiVideoState, captionStyle: style },
+        hopeCoreState: { ...state.hopeCoreState, captionStyle: style }
       })),
     setClipsState: (state) =>
       set((prevState) => ({
@@ -1107,7 +1153,8 @@ export const useTemplateStore = create<State>()(
           ...state.textMessageState,
           backgroundStartIndex: index
         },
-        aiVideoState: { ...state.aiVideoState, backgroundStartIndex: index }
+        aiVideoState: { ...state.aiVideoState, backgroundStartIndex: index },
+        hopeCoreState: { ...state.hopeCoreState, backgroundStartIndex: index }
       }))
   }))
 )

@@ -396,3 +396,67 @@ export const generateTweets = createServerAction()
       )
     }
   })
+
+export const generateHopeCoreStory = createServerAction()
+  .input(z.string())
+  .output(
+    z.object({
+      story: z.string()
+    })
+  )
+  .handler(async ({ input }) => {
+    const { user } = await getUser()
+
+    if (!user) {
+      throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
+    }
+
+    try {
+      await checkAndDeductCredits(user.id, CREDIT_CONVERSIONS.SCRIPT_GENERATION)
+
+      const result = await generateObject({
+        model: openai('gpt-4o-mini', {
+          structuredOutputs: true
+        }),
+        schemaName: 'hopecore_story',
+        schemaDescription: 'A hopecore story.',
+        schema: z.object({
+          story: z.string()
+        }),
+        prompt: `
+        Generate a hopecore story.
+        
+        Hopecore is a trend that involves actively seeking joy and positivity in the world around you. It's a countermeasure to the strain of crisis fatigue, and is often seen on TikTok as a way to promote feelings of hopefulness
+
+        It should be 30 words or less.
+
+        Rules:
+        - Make it Gen Z.
+        
+        Context for the story:
+        ${input}
+        `
+      })
+
+      logger.info('HopeCore story generated successfully', {
+        userId: user.id,
+        promptLength: input.length
+      })
+
+      return result.object
+    } catch (error) {
+      logger.error('Error in generateHopeCoreStory', {
+        error: error instanceof Error ? error.message : String(error),
+        userId: user.id
+      })
+
+      if (error instanceof ZSAError) {
+        throw error
+      }
+
+      throw new ZSAError(
+        'INTERNAL_SERVER_ERROR',
+        'An error occurred while generating the hopecore story.'
+      )
+    }
+  })

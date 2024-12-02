@@ -6,6 +6,7 @@ import { Composition } from 'remotion'
 import {
   AIVideoSchema,
   ClipsVideoSchema,
+  HopeCoreVideoSchema,
   RedditVideoSchema,
   SplitScreenVideoSchema,
   TextMessageVideoSchema,
@@ -18,6 +19,7 @@ import {
 import { AIVideoComposition } from './AIVideo/Composition'
 import { ClipsComposition } from './Clips/Composition'
 import { EditorComposition } from './Editor/Composition'
+import { HopeCoreComposition } from './HopeCore/Composition'
 import { RedditComposition } from './Reddit/Composition'
 import { SplitScreenComposition } from './SplitScreen/Composition'
 import { TextMessageComposition } from './TextMessage/Composition'
@@ -30,7 +32,8 @@ export const RemotionRoot: React.FC = () => {
     twitterState,
     clipsState,
     textMessageState,
-    aiVideoState
+    aiVideoState,
+    hopeCoreState
   } = useTemplateStore((state) => ({
     selectedTemplate: state.selectedTemplate,
     splitScreenState: state.splitScreenState,
@@ -38,7 +41,8 @@ export const RemotionRoot: React.FC = () => {
     twitterState: state.twitterState,
     clipsState: state.clipsState,
     textMessageState: state.textMessageState,
-    aiVideoState: state.aiVideoState
+    aiVideoState: state.aiVideoState,
+    hopeCoreState: state.hopeCoreState
   }))
 
   return (
@@ -58,6 +62,17 @@ export const RemotionRoot: React.FC = () => {
         fps={VIDEO_FPS}
         width={VIDEO_WIDTH}
         height={VIDEO_HEIGHT}
+      />
+
+      <Composition
+        id="HopeCore"
+        component={HopeCoreComposition}
+        durationInFrames={hopeCoreState.durationInFrames}
+        fps={VIDEO_FPS}
+        width={VIDEO_WIDTH}
+        height={VIDEO_HEIGHT}
+        schema={HopeCoreVideoSchema}
+        defaultProps={hopeCoreState as any}
       />
 
       <Composition

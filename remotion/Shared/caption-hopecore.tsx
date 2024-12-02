@@ -3,8 +3,8 @@ import { random, Sequence, useCurrentFrame, useVideoConfig } from 'remotion'
 
 type CaptionComponentProps = {
   captions: Caption[]
-  styles: React.CSSProperties
-  seed: number
+  styles?: React.CSSProperties
+  seed?: number
 }
 
 interface WordBox {
@@ -14,10 +14,10 @@ interface WordBox {
   height: number
 }
 
-export const CaptionHopecoreComponent: React.FC<CaptionComponentProps> = ({
+export const CaptionHopecore: React.FC<CaptionComponentProps> = ({
   captions,
   styles,
-  seed
+  seed = 0
 }) => {
   const { pages } = createTikTokStyleCaptions({
     captions,
@@ -160,7 +160,6 @@ export const CaptionHopecoreComponent: React.FC<CaptionComponentProps> = ({
                     width: wordWidth,
                     height: wordHeight
                   })
-
                   return (
                     <div
                       key={tokenIndex}
@@ -182,7 +181,8 @@ export const CaptionHopecoreComponent: React.FC<CaptionComponentProps> = ({
                         whiteSpace: 'nowrap',
                         zIndex: isHighlighted ? 2 : 1,
                         opacity: isVisible ? 1 : 0,
-                        display: isVisible ? 'block' : 'none'
+                        display: isVisible ? 'block' : 'none',
+                        ...styles
                       }}
                     >
                       {token.text}
