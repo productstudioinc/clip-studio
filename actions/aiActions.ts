@@ -238,3 +238,161 @@ export const generateRedditPost = createServerAction()
       )
     }
   })
+
+export const generateTextMessages = createServerAction()
+  .input(z.string())
+  .output(
+    z.object({
+      senderName: z.string(),
+      receiverName: z.string(),
+      messages: z.array(z.any())
+    })
+  )
+  .handler(async ({ input }) => {
+    const { user } = await getUser()
+
+    if (!user) {
+      throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
+    }
+
+    try {
+      await checkAndDeductCredits(user.id, CREDIT_CONVERSIONS.SCRIPT_GENERATION)
+
+      const result = await generateObject({
+        model: openai('gpt-4o-mini', {
+          structuredOutputs: true
+        }),
+        schemaName: 'text_messages',
+        schemaDescription: 'A text message conversation between two people.',
+        schema: z.object({
+          senderName: z.string(),
+          receiverName: z.string(),
+          messages: z.array(
+            z.object({
+              sender: z.enum(['sender', 'receiver']),
+              content: z.object({
+                type: z.literal('text'),
+                value: z.string()
+              }),
+              duration: z.number(),
+              from: z.number()
+            })
+          )
+        }),
+        prompt: `
+        Generate a spicy text message conversation between two people. Something that would hook the reader in.
+
+        Rules:
+        - Each message should be relatively short (under 100 characters)
+        - Make the conversation realistic.
+        - Make it Gen Z.
+        
+        Context for the conversation:
+        ${input}
+        `
+      })
+
+      logger.info('Text messages generated successfully', {
+        userId: user.id,
+        promptLength: input.length
+      })
+
+      return result.object
+    } catch (error) {
+      logger.error('Error in generateTextMessages', {
+        error: error instanceof Error ? error.message : String(error),
+        userId: user.id
+      })
+
+      if (error instanceof ZSAError) {
+        throw error
+      }
+
+      throw new ZSAError(
+        'INTERNAL_SERVER_ERROR',
+        'An error occurred while generating the text messages.'
+      )
+    }
+  })
+
+export const generateTweets = createServerAction()
+  .input(z.string())
+  .output(
+    z.object({
+      tweets: z.array(
+        z.object({
+          username: z.string(),
+          name: z.string(),
+          content: z.string(),
+          image: z.string(),
+          verified: z.boolean(),
+          likes: z.number(),
+          comments: z.number()
+        })
+      )
+    })
+  )
+  .handler(async ({ input }) => {
+    const { user } = await getUser()
+    if (!user) {
+      throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
+    }
+
+    try {
+      await checkAndDeductCredits(user.id, CREDIT_CONVERSIONS.SCRIPT_GENERATION)
+
+      const result = await generateObject({
+        model: openai('gpt-4o-mini', {
+          structuredOutputs: true
+        }),
+        schemaName: 'tweets',
+        schemaDescription: 'A series of tweets in a thread format.',
+        schema: z.object({
+          tweets: z.array(
+            z.object({
+              username: z.string(),
+              name: z.string(),
+              content: z.string(),
+              image: z.string(),
+              verified: z.boolean(),
+              likes: z.number(),
+              comments: z.number()
+            })
+          )
+        }),
+        prompt: `
+        Generate a viral tweet thread that would get a lot of engagement. Each subsequent tweet should be a reply to the previous tweet.
+
+        Rules:
+        - Each tweet should be under 280 characters
+        - Extremely rarely use hashtags
+        - Generate 2-5 tweets
+        - no @ in username
+        
+        Context for the tweets:
+        ${input}
+        `
+      })
+
+      logger.info('Tweets generated successfully', {
+        userId: user.id,
+        promptLength: input.length
+      })
+
+      return result.object
+    } catch (error) {
+      logger.error('Error in generateTweets', {
+        error: error instanceof Error ? error.message : String(error),
+        userId: user.id
+      })
+
+      if (error instanceof ZSAError) {
+        throw error
+      }
+
+      throw new ZSAError(
+        'INTERNAL_SERVER_ERROR',
+        'An error occurred while generating the tweets.'
+      )
+    }
+  })

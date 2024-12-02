@@ -1,14 +1,17 @@
 import React, { useCallback, useMemo } from 'react'
 import { useCurrentScale } from 'remotion'
 
-import { Item } from '@/types/editor'
+import { PositionedItem } from '@/types/editor'
 
 const HANDLE_SIZE = 8
 
 export const ResizeHandle: React.FC<{
   type: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
-  setItem: (itemId: string, updater: (item: Item) => Item) => void
-  item: Item
+  setItem: (
+    itemId: string,
+    updater: (item: PositionedItem) => PositionedItem
+  ) => void
+  item: PositionedItem
 }> = ({ type, setItem, item }) => {
   const scale = useCurrentScale()
   const size = Math.round(HANDLE_SIZE / scale)

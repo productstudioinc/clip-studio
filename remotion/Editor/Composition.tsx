@@ -1,40 +1,48 @@
 import React, { useCallback, useMemo } from 'react'
+import { CaptionHopecoreComponent } from '@/remotion/Shared/caption-hopecore'
 import { Caption } from '@remotion/captions'
 import { TransitionSeries } from '@remotion/transitions'
-import { AbsoluteFill, Video } from 'remotion'
+import { AbsoluteFill, Audio, Video } from 'remotion'
 
-import type { Item, Track } from '@/types/editor'
+import {
+  isPositionedItem,
+  PositionedItem,
+  type Item,
+  type Track
+} from '@/types/editor'
 
-import { CaptionComponent } from '../Shared/caption'
 import { SortedOutlines } from '../Shared/sorted-outlines'
 
 const ItemComp: React.FC<{
   item: Item
 }> = ({ item }) => {
   const style: React.CSSProperties = useMemo(() => {
-    const baseStyle: React.CSSProperties = {
-      backgroundColor: item.color,
-      position: 'absolute',
-      left: item.left,
-      top: item.top,
-      width: item.width,
-      height: item.height,
-      transform: `rotate(${item.rotation}deg)`
-    }
-
-    if (item.type === 'video' && item.maintainAspectRatio) {
-      // Calculate dimensions based on aspect ratio
-      const currentAspectRatio = item.width / item.height
-      if (currentAspectRatio > item.aspectRatio) {
-        // Width is too large, adjust it
-        baseStyle.width = item.height * item.aspectRatio
-      } else if (currentAspectRatio < item.aspectRatio) {
-        // Height is too large, adjust it
-        baseStyle.height = item.width / item.aspectRatio
+    if (item.type === 'video' || item.type === 'solid') {
+      const baseStyle: React.CSSProperties = {
+        backgroundColor: item.color,
+        position: 'absolute',
+        left: item.left,
+        top: item.top,
+        width: item.width,
+        height: item.height,
+        transform: `rotate(${item.rotation}deg)`
       }
-    }
 
-    return baseStyle
+      if (item.type === 'video' && item.maintainAspectRatio) {
+        // Calculate dimensions based on aspect ratio
+        const currentAspectRatio = item.width / item.height
+        if (currentAspectRatio > item.aspectRatio) {
+          // Width is too large, adjust it
+          baseStyle.width = item.height * item.aspectRatio
+        } else if (currentAspectRatio < item.aspectRatio) {
+          // Height is too large, adjust it
+          baseStyle.height = item.width / item.aspectRatio
+        }
+      }
+
+      return baseStyle
+    }
+    return {}
   }, [item])
 
   if (item.type === 'solid') {
@@ -42,19 +50,24 @@ const ItemComp: React.FC<{
   }
 
   if (item.type === 'text') {
-    return <div style={style}>{item.text}</div>
+    return <div>{item.text}</div>
   }
 
   if (item.type === 'video') {
     return (
       <Video
         src={item.src}
+        volume={item.volume}
         style={{
           ...style,
           objectFit: item.maintainAspectRatio ? 'contain' : 'fill'
         }}
       />
     )
+  }
+
+  if (item.type === 'audio') {
+    return <Audio src={item.src} volume={item.volume} pauseWhenBuffering />
   }
 
   throw new Error(`Unknown item type: ${JSON.stringify(item)}`)
@@ -81,10 +94,13 @@ const Track: React.FC<{
 type EditorCompositionProps = {
   tracks: Track[]
   captions: Caption[]
-  captionStyles: { [key: string]: React.CSSProperties }
+  captionStyles: React.CSSProperties
   selectedItem: string | null
   setSelectedItem: React.Dispatch<React.SetStateAction<string | null>>
-  changeItem: (itemId: string, updater: (item: Item) => Item) => void
+  changeItem: (
+    itemId: string,
+    updater: (item: PositionedItem) => PositionedItem
+  ) => void
 }
 
 const outer: React.CSSProperties = {
@@ -113,8 +129,10 @@ export const EditorComposition: React.FC<EditorCompositionProps> = ({
     },
     [setSelectedItem]
   )
-
-  const items = tracks.flatMap((track) => track.items)
+  // In your component, replace the filter with:
+  const positionedItems = tracks
+    .flatMap((track) => track.items)
+    .filter(isPositionedItem)
 
   return (
     <AbsoluteFill style={outer} onPointerDown={onPointerDown}>
@@ -125,11 +143,15 @@ export const EditorComposition: React.FC<EditorCompositionProps> = ({
       </AbsoluteFill>
 
       <AbsoluteFill>
-        <CaptionComponent captions={captions} styles={captionStyles} />
+        <CaptionHopecoreComponent
+          captions={captions}
+          styles={captionStyles}
+          seed={5}
+        />
       </AbsoluteFill>
       <SortedOutlines
         selectedItem={selectedItem}
-        items={items}
+        items={positionedItems}
         setSelectedItem={setSelectedItem}
         changeItem={changeItem}
       />

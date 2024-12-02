@@ -134,7 +134,9 @@ export const Timeline: React.FC<{
                           ? item.color
                           : item.type === 'text'
                             ? '#4CAF50'
-                            : '#2196F3',
+                            : item.type === 'audio'
+                              ? '#FF9800'
+                              : '#2196F3',
                       borderWidth: '1px',
                       borderStyle: 'solid',
                       borderColor:
@@ -142,7 +144,9 @@ export const Timeline: React.FC<{
                           ? item.color
                           : item.type === 'text'
                             ? '#388E3C'
-                            : '#1976D2'
+                            : item.type === 'audio'
+                              ? '#F57C00'
+                              : '#1976D2'
                     }}
                     onMouseDown={(e) => handleDragStart(e, item, 'move')}
                   >
@@ -151,7 +155,9 @@ export const Timeline: React.FC<{
                         ? item.text
                         : item.type === 'video'
                           ? 'Video'
-                          : 'Solid'}
+                          : item.type === 'audio'
+                            ? 'Audio'
+                            : 'Solid'}
                     </div>
                     <div
                       className="absolute left-0 top-0 w-1 h-full bg-background opacity-0 group-hover:opacity-50 cursor-w-resize"

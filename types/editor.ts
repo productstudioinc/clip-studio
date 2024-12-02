@@ -1,43 +1,55 @@
-type BaseItem = {
-  from: number
-  durationInFrames: number
+interface BaseItem {
   id: string
-  height: number
+  type: string
+  durationInFrames: number
+  from: number
+}
+
+// Define positioned item properties
+interface PositionedItemProperties {
   left: number
   top: number
   width: number
+  height: number
   color: string
   rotation: number
   isDragging: boolean
 }
 
-export type SolidItem = BaseItem & {
-  type: 'solid'
-  color: string
-}
-
-export type TextItem = BaseItem & {
-  type: 'text'
-  text: string
-  color: string
-}
-
-export type VideoItem = BaseItem & {
+// Redefine your item types with proper discrimination
+interface VideoItem extends BaseItem, PositionedItemProperties {
   type: 'video'
   src: string
-  aspectRatio: number
+  volume: number
   maintainAspectRatio: boolean
+  aspectRatio: number
 }
 
-export type AudioItem = BaseItem & {
+interface SolidItem extends BaseItem, PositionedItemProperties {
+  type: 'solid'
+}
+
+interface TextItem extends BaseItem, PositionedItemProperties {
+  type: 'text'
+  text: string
+}
+
+interface AudioItem extends BaseItem {
   type: 'audio'
   src: string
   volume: number
 }
 
-export type Item = SolidItem | TextItem | VideoItem | AudioItem
+// Create the union type
+export type Item = VideoItem | SolidItem | TextItem | AudioItem
+export type PositionedItem = VideoItem | SolidItem | TextItem
 
 export type Track = {
   name: string
   items: Item[]
+}
+
+// Type predicate function
+export function isPositionedItem(item: Item): item is PositionedItem {
+  return item.type === 'video' || item.type === 'solid' || item.type === 'text'
 }

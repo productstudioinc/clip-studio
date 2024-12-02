@@ -6,7 +6,7 @@ import { Caption } from '@remotion/captions'
 import type { PlayerRef } from '@remotion/player'
 import { Player } from '@remotion/player'
 
-import { Item, Track } from '@/types/editor'
+import { isPositionedItem, PositionedItem, Track } from '@/types/editor'
 import { FullscreenButton } from '@/components/editor/fullscreen-button'
 import { LoopButton } from '@/components/editor/loop-button'
 import { PlayPauseButton } from '@/components/editor/play-pause-button'
@@ -81,7 +81,7 @@ export default function Page() {
   const [loop, setLoop] = useState(true)
   const playerRef = useRef<PlayerRef>(null)
   const [currentFrame, setCurrentFrame] = useState(0)
-  const durationInFrames = 200
+  const durationInFrames = 450
   const [selectedFont, setSelectedFont] = useState<string | null>(null)
 
   const [tracks, setTracks] = useState<Track[]>([
@@ -90,15 +90,16 @@ export default function Page() {
       items: [
         {
           type: 'video',
-          src: 'https://assets.clip.studio/reddit_preview.webm',
+          src: 'https://assets.clip.studio/textmessage_preview.webm',
           aspectRatio: 9 / 16,
           maintainAspectRatio: true,
+          volume: 0,
           left: 0,
           top: 0,
           width: 1080,
           height: 1920,
           rotation: 0,
-          durationInFrames: 100,
+          durationInFrames: 150,
           from: 0,
           id: '0',
           color: '#ccc',
@@ -107,6 +108,7 @@ export default function Page() {
         {
           type: 'video',
           src: 'https://assets.clip.studio/twitter_preview.webm',
+          volume: 0,
           aspectRatio: 9 / 16,
           maintainAspectRatio: true,
           left: 0,
@@ -114,11 +116,41 @@ export default function Page() {
           width: 1080,
           height: 1920,
           rotation: 0,
-          durationInFrames: 100,
+          durationInFrames: 150,
           from: 100,
           id: '1',
           color: '#ccc',
           isDragging: false
+        },
+        {
+          type: 'video',
+          src: 'https://assets.clip.studio/reddit_preview.webm',
+          volume: 0,
+          aspectRatio: 9 / 16,
+          maintainAspectRatio: true,
+          left: 0,
+          top: 0,
+          width: 1080,
+          height: 1920,
+          rotation: 0,
+          durationInFrames: 150,
+          from: 200,
+          id: '2',
+          color: '#ccc',
+          isDragging: false
+        }
+      ]
+    },
+    {
+      name: 'Audio',
+      items: [
+        {
+          type: 'audio',
+          src: 'https://assets.clip.studio/music/QKthr.mp3',
+          volume: 1,
+          durationInFrames: 450,
+          from: 0,
+          id: '0'
         }
       ]
     }
@@ -127,12 +159,12 @@ export default function Page() {
   const [selectedItem, setSelectedItem] = useState<string | null>(null)
 
   const changeItem = useCallback(
-    (itemId: string, updater: (item: Item) => Item) => {
+    (itemId: string, updater: (item: PositionedItem) => PositionedItem) => {
       setTracks((oldTracks) => {
         return oldTracks.map((track) => ({
           ...track,
           items: track.items.map((item) => {
-            if (item.id === itemId) {
+            if (item.id === itemId && isPositionedItem(item)) {
               return updater(item)
             }
             return item
@@ -145,11 +177,9 @@ export default function Page() {
 
   const captionStyles = useMemo(() => {
     return {
-      style: {
-        fontFamily: selectedFont ?? 'inherit',
-        fontSize: '100px'
-      }
-    }
+      fontFamily: selectedFont ?? 'inherit',
+      fontSize: '100px'
+    } as React.CSSProperties
   }, [selectedFont])
 
   const inputProps = useMemo(() => {

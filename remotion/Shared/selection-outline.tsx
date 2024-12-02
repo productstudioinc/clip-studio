@@ -1,15 +1,18 @@
 import React, { useCallback, useMemo } from 'react'
 import { useCurrentScale, useVideoConfig } from 'remotion'
 
-import type { Item } from '@/types/editor'
+import type { PositionedItem } from '@/types/editor'
 
 import { ResizeHandle } from '../../components/editor/resize-handle'
 
 const SNAP_THRESHOLD = 10 // pixels
 
 export const SelectionOutline: React.FC<{
-  item: Item
-  changeItem: (itemId: string, updater: (item: Item) => Item) => void
+  item: PositionedItem
+  changeItem: (
+    itemId: string,
+    updater: (item: PositionedItem) => PositionedItem
+  ) => void
   setSelectedItem: React.Dispatch<React.SetStateAction<string | null>>
   selectedItem: string | null
   isDragging: boolean

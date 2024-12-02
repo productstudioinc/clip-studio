@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { generateRedditPost } from '@/actions/aiActions'
 import { getRedditInfo } from '@/actions/reddit'
 import { VideoProps } from '@/stores/templatestore'
 import { Loader2 } from 'lucide-react'
-import { UseFormReturn, useWatch } from 'react-hook-form'
+import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useServerAction } from 'zsa-react'
@@ -46,8 +46,8 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
     )
 
   const generatePost = async () => {
+    const id = toast.loading('Generating Reddit post...')
     try {
-      const id = toast.loading('Generating Reddit post...')
       const [data, error] = await generate(prompt)
       if (error) {
         toast.error(error.message, { id })
@@ -63,7 +63,7 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
       }
     } catch (error) {
       console.error('Error generating Reddit post:', error)
-      toast.error('Error generating Reddit post')
+      toast.error('Error generating Reddit post', { id })
     }
   }
 

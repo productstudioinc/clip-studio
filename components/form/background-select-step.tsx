@@ -50,40 +50,17 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
     }
   }, [form, backgrounds])
 
-  const selectBackgroundSection = useCallback(
-    (background: SelectBackgroundWithParts) => {
-      const totalParts = background.backgroundParts.length
-      const partsNeeded = 5
-      const maxStartIndex = totalParts - partsNeeded
-      const startIndex = Math.floor(Math.random() * (maxStartIndex + 1))
-
-      const selectedParts = background.backgroundParts.slice(
-        startIndex,
-        startIndex + partsNeeded
-      )
-
-      form.setValue(
-        'backgroundUrls',
-        selectedParts.map((part) => part.partUrl)
-      )
-    },
-    [form]
-  )
-
   const handleSelect = useCallback(
     (background: SelectBackgroundWithParts) => {
       form.setValue('backgroundTheme', background.name as BackgroundTheme)
       setSelectedBackground(background)
-      selectBackgroundSection(background)
+      form.setValue(
+        'backgroundUrls',
+        background.backgroundParts.map((part) => part.partUrl)
+      )
     },
-    [form, selectBackgroundSection]
+    [form]
   )
-
-  const handleNewSection = useCallback(() => {
-    if (selectedBackground) {
-      selectBackgroundSection(selectedBackground)
-    }
-  }, [selectedBackground, selectBackgroundSection])
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -153,6 +130,22 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
     form.setValue('backgroundUrls', previousBackground.urls)
   }
 
+  const handleNewSection = useCallback(() => {
+    const totalMinutes = Math.ceil(
+      form.getValues('durationInFrames') / (30 * 60)
+    )
+    const currentUrls = form.getValues('backgroundUrls') || []
+    const maxStartIndex = currentUrls.length - totalMinutes
+
+    if (maxStartIndex <= 0) {
+      toast.error('Not enough background segments available')
+      return
+    }
+
+    const newStartIndex = Math.floor(Math.random() * maxStartIndex)
+    form.setValue('backgroundStartIndex', newStartIndex)
+  }, [form])
+
   const uploadContent = uploadPreviewUrl ? (
     <div className="relative w-full h-full bg-black rounded-lg overflow-hidden">
       <video
@@ -217,7 +210,17 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Choose a Background</CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle>Choose a Background</CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleNewSection}
+            type="button"
+          >
+            Choose New Section
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <ScrollArea className="w-full whitespace-nowrap pb-4">
@@ -276,14 +279,6 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
           />
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
-        <Button
-          onClick={handleNewSection}
-          className="mt-4"
-          disabled={!selectedBackground}
-          type="button"
-        >
-          Choose New Section
-        </Button>
       </CardContent>
     </Card>
   )

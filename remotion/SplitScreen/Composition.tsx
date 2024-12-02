@@ -1,4 +1,4 @@
-import { CSSProperties, useCallback, useEffect, useState } from 'react'
+import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { AbsoluteFill, Sequence, Series, Video } from 'remotion'
 
 import { SplitScreenVideoProps } from '../../stores/templatestore'
@@ -16,9 +16,24 @@ export const SplitScreenComposition = ({
   videoUrl,
   type,
   backgroundUrls,
+  backgroundStartIndex,
+  durationInFrames,
   transcription,
   captionStyle
 }: SplitScreenVideoProps) => {
+  const requiredSegments = useMemo(() => {
+    const totalMinutes = Math.ceil(durationInFrames / (FPS * 60))
+    const totalRequiredSegments = totalMinutes
+    const segments = []
+
+    for (let i = 0; i < totalRequiredSegments; i++) {
+      const segmentIndex = (backgroundStartIndex + i) % backgroundUrls.length
+      segments.push(backgroundUrls[segmentIndex])
+    }
+
+    return segments
+  }, [backgroundUrls, durationInFrames, backgroundStartIndex])
+
   const [subtitles, setSubtitles] = useState<SubtitleProp[]>([])
 
   const generateSubtitles = useCallback(() => {
@@ -86,30 +101,20 @@ export const SplitScreenComposition = ({
           height: '50%'
         }}
       >
-        {backgroundUrls.length === 1 ? (
-          <Video
-            src={backgroundUrls[0]}
-            style={videoStyle}
-            startFrom={0}
-            muted
-            loop
-          />
-        ) : (
-          <Series>
-            {backgroundUrls.map((part, index) => (
-              <Series.Sequence durationInFrames={FPS * 60} key={index}>
-                <Video
-                  src={part}
-                  startFrom={0}
-                  endAt={FPS * 60}
-                  style={videoStyle}
-                  muted
-                  loop
-                />
-              </Series.Sequence>
-            ))}
-          </Series>
-        )}
+        <Series>
+          {requiredSegments.map((url, index) => (
+            <Series.Sequence durationInFrames={FPS * 60} key={index}>
+              <Video
+                src={url}
+                startFrom={0}
+                endAt={FPS * 60}
+                style={videoStyle}
+                muted
+                loop
+              />
+            </Series.Sequence>
+          ))}
+        </Series>
       </div>
       {subtitles.map((subtitle, index) =>
         subtitle.startFrame < subtitle.endFrame ? (

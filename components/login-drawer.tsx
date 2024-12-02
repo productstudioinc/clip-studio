@@ -85,7 +85,7 @@ export function LoginDrawer({
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={handleOpenChange} dismissible={false}>
+    <Drawer open={isOpen} onOpenChange={handleOpenChange}>
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle hidden>Login</DrawerTitle>
