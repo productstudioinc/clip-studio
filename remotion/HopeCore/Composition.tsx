@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react'
-import { CaptionHopecore } from '@/remotion/Shared/caption-hopecore'
-import { CRTOverlay } from '@/remotion/Shared/crt-overlay'
-import { TVFrame } from '@/remotion/Shared/tv-frame'
 import { Caption } from '@remotion/captions'
 import { AbsoluteFill, Audio, Sequence, Series, Video } from 'remotion'
 
 import { HopeCoreVideoProps } from '../../stores/templatestore'
+import { CaptionHopecore } from '../Shared/caption-hopecore'
+import { CRTOverlay } from '../Shared/crt-overlay'
 import Subtitle from '../Shared/Subtitle'
+import { TVFrame } from '../Shared/tv-frame'
 
 export type SubtitleProp = {
   startFrame: number

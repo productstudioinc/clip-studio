@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react'
-import { CaptionHopecore } from '@/remotion/Shared/caption-hopecore'
 import { Caption } from '@remotion/captions'
 import { TransitionSeries } from '@remotion/transitions'
 import { AbsoluteFill, Audio, Video } from 'remotion'
@@ -11,6 +10,7 @@ import {
   type Track
 } from '@/types/editor'
 
+import { CaptionHopecore } from '../Shared/caption-hopecore'
 import { CRTOverlay } from '../Shared/crt-overlay'
 import { SortedOutlines } from '../Shared/sorted-outlines'
 import { TVFrame } from '../Shared/tv-frame'
