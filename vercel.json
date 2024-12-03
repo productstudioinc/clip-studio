@@ -9,5 +9,6 @@
       "path": "/api/cron/refresh-tiktok-tokens",
       "schedule": "0 17 * * *"
     }
-  ]
+  ],
+  "buildCommand": "sh vercel.sh"
 }
