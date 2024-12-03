@@ -8,8 +8,7 @@ import {
   PositionedItem,
   type Item,
   type Track
-} from '@/types/editor'
-
+} from '../../types/editor'
 import { CaptionHopecore } from '../Shared/caption-hopecore'
 import { CRTOverlay } from '../Shared/crt-overlay'
 import { SortedOutlines } from '../Shared/sorted-outlines'

@@ -1,9 +1,8 @@
 import React, { useCallback, useMemo } from 'react'
 import { useCurrentScale, useVideoConfig } from 'remotion'
 
-import type { PositionedItem } from '@/types/editor'
-
 import { ResizeHandle } from '../../components/editor/resize-handle'
+import type { PositionedItem } from '../../types/editor'
 
 const SNAP_THRESHOLD = 10 // pixels
 

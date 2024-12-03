@@ -1,8 +1,7 @@
 import React, { useMemo } from 'react'
 import { Sequence } from 'remotion'
 
-import type { PositionedItem } from '@/types/editor'
-
+import type { PositionedItem } from '../../types/editor'
 import { SelectionOutline } from './selection-outline'
 
 const displaySelectedItemOnTop = (
