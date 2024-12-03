@@ -236,14 +236,6 @@ export const generateRedditVoiceover = createServerAction()
       textAudioResponse.normalized_alignment
     )
 
-    const fs = require('fs')
-    const path = require('path')
-    await fs.promises.writeFile(
-      path.join(process.cwd(), 'voiceover.json'),
-      JSON.stringify(voiceoverObject, null, 2),
-      'utf-8'
-    )
-
     const s3Key = `voiceovers/${input.voiceId}/${crypto.randomUUID()}.mp3`
     const putObjectCommand = new PutObjectCommand({
       Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
