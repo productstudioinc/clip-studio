@@ -22,7 +22,7 @@ export const CaptionComponent: React.FC<CaptionComponentProps> = ({
 }) => {
   const { pages } = createTikTokStyleCaptions({
     captions,
-    combineTokensWithinMilliseconds: 1200
+    combineTokensWithinMilliseconds: 800
   })
 
   const currentFrame = useCurrentFrame()
@@ -73,28 +73,19 @@ export const CaptionComponent: React.FC<CaptionComponentProps> = ({
                 transform: `scale(${scale}) rotate(${randomRotation}deg)`,
                 transformOrigin: 'center center',
                 textShadow: `
-                  0px -6px 0 #212121,  
-                  0px -6px 0 #212121,
-                  0px  6px 0 #212121,
-                  0px  6px 0 #212121,
-                  -6px  0px 0 #212121,  
-                  6px  0px 0 #212121,
-                  -6px  0px 0 #212121,
-                  6px  0px 0 #212121,
-                  -6px -6px 0 #212121,  
-                  6px -6px 0 #212121,
-                  -6px  6px 0 #212121,
-                  6px  6px 0 #212121,
-                  -6px  18px 0 #212121,
-                  0px  18px 0 #212121,
-                  6px  18px 0 #212121,
-                  0 19px 1px rgba(0,0,0,.1),
-                  0 0 6px rgba(0,0,0,.1),
-                  0 6px 3px rgba(0,0,0,.3),
-                  0 12px 6px rgba(0,0,0,.2),
-                  0 18px 18px rgba(0,0,0,.25),
-                  0 24px 24px rgba(0,0,0,.2),
-                  0 36px 36px rgba(0,0,0,.15)`,
+                  -1px -1px 0 #212121,
+                   1px -1px 0 #212121,
+                  -1px  1px 0 #212121,
+                   1px  1px 0 #212121,
+                   2px 2px 0 #212121,
+                   3px 3px 0 #212121,
+                   4px 4px 0 #212121,
+                   5px 5px 0 #212121,
+                   6px 6px 0 #212121,
+                   7px 7px 0 #212121,
+                   8px 8px 0 #212121,
+                   9px 9px 0 #212121,
+                  10px 10px 0 #212121`,
                 letterSpacing: '1px',
                 ...styles
               }}
@@ -152,11 +143,11 @@ export const CaptionComponent: React.FC<CaptionComponentProps> = ({
                       <span
                         style={{
                           position: 'absolute',
-                          top: '55%',
-                          left: '50%',
+                          top: '57%',
+                          left: '53%',
                           transform: `translate(-50%, -50%) scale(${backgroundScale})`,
                           backgroundColor: '#32CD32',
-                          borderRadius: '20px',
+                          borderRadius: '10px',
                           zIndex: -1,
                           width: '100%',
                           height: '100%',

@@ -3,10 +3,12 @@
 import React, { CSSProperties } from 'react'
 import {
   CaptionStyle,
+  captionStyleSchema,
   useTemplateStore,
   VideoProps
 } from '@/stores/templatestore'
 import { UseFormReturn } from 'react-hook-form'
+import { z } from 'zod'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -23,14 +25,7 @@ type CaptionStyleStepProps = {
   form: UseFormReturn<VideoProps>
 }
 
-export type CaptionStyleType = {
-  id: CaptionStyle
-  name: string
-  className: string
-  style: React.CSSProperties
-}
-
-const captionStyles: CaptionStyleType[] = [
+const captionStyles: z.infer<typeof captionStyleSchema>[] = [
   {
     id: CaptionStyle.Default,
     name: 'Default',
@@ -65,7 +60,6 @@ const captionStyles: CaptionStyleType[] = [
     className: 'font-arial text-white',
     style: {
       fontFamily: 'Arial'
-      // Add any additional styles specific to the animated style here
     } as CSSProperties
   }
 ]
@@ -73,9 +67,12 @@ const captionStyles: CaptionStyleType[] = [
 export const CaptionStyleStep: React.FC<CaptionStyleStepProps> = ({ form }) => {
   const setCaptionStyle = useTemplateStore((state) => state.setCaptionStyle)
 
-  const handleCaptionStyleChange = (value: CaptionStyle) => {
-    form.setValue('captionStyle', value)
-    setCaptionStyle(value)
+  const handleCaptionStyleChange = (value: string) => {
+    const selectedStyle = captionStyles.find((style) => style.id === value)
+    if (selectedStyle) {
+      form.setValue('captionStyle', selectedStyle)
+      setCaptionStyle(selectedStyle)
+    }
   }
 
   return (
@@ -93,7 +90,7 @@ export const CaptionStyleStep: React.FC<CaptionStyleStepProps> = ({ form }) => {
                 <FormControl>
                   <RadioGroup
                     onValueChange={handleCaptionStyleChange}
-                    defaultValue={field.value}
+                    defaultValue={field.value.id}
                     className="flex space-x-4"
                   >
                     {captionStyles.map((style) => (

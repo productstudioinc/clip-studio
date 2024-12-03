@@ -18,11 +18,11 @@ export const RedditComposition = ({
   titleEnd,
   backgroundUrls,
   voiceVolume,
-  captions,
   voiceSpeed,
   durationInFrames,
   backgroundStartIndex,
-  captionStyle
+  captionStyle,
+  subtitles
 }: RedditVideoProps) => {
   const titleEndFrame = Math.floor(titleEnd * FPS)
 
@@ -34,13 +34,13 @@ export const RedditComposition = ({
     )
   }, [backgroundUrls, durationInFrames, backgroundStartIndex])
 
-  const adjustedCaptions = useMemo(() => {
-    return captions.map((caption) => ({
-      ...caption,
-      startMs: caption.startMs / voiceSpeed,
-      endMs: caption.endMs / voiceSpeed
+  const adjustedSubtitles = useMemo(() => {
+    return subtitles.map((subtitle) => ({
+      ...subtitle,
+      startMs: subtitle.startMs / voiceSpeed,
+      endMs: subtitle.endMs / voiceSpeed
     }))
-  }, [captions, voiceSpeed])
+  }, [subtitles, voiceSpeed])
 
   return (
     <>
@@ -83,7 +83,7 @@ export const RedditComposition = ({
 
           <AbsoluteFill>
             <CaptionComponent
-              captions={adjustedCaptions}
+              captions={adjustedSubtitles}
               styles={captionStyle.style}
             />
           </AbsoluteFill>
