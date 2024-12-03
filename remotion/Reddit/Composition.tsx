@@ -21,7 +21,8 @@ export const RedditComposition = ({
   captions,
   voiceSpeed,
   durationInFrames,
-  backgroundStartIndex
+  backgroundStartIndex,
+  captionStyle
 }: RedditVideoProps) => {
   const titleEndFrame = Math.floor(titleEnd * FPS)
 
@@ -81,7 +82,10 @@ export const RedditComposition = ({
           </Sequence>
 
           <AbsoluteFill>
-            <CaptionComponent captions={adjustedCaptions} />
+            <CaptionComponent
+              captions={adjustedCaptions}
+              styles={captionStyle.style}
+            />
           </AbsoluteFill>
         </AbsoluteFill>
       </AbsoluteFill>

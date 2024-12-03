@@ -17,9 +17,7 @@ interface CaptionComponentProps {
 
 export const CaptionComponent: React.FC<CaptionComponentProps> = ({
   captions,
-  styles = {
-    fontFamily: 'Arial'
-  },
+  styles,
   playbackRate = 1
 }) => {
   const { pages } = createTikTokStyleCaptions({

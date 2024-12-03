@@ -23,11 +23,11 @@ type CaptionStyleStepProps = {
   form: UseFormReturn<VideoProps>
 }
 
-type CaptionStyleType = {
+export type CaptionStyleType = {
   id: CaptionStyle
   name: string
   className: string
-  style: CSSProperties
+  style: React.CSSProperties
 }
 
 const captionStyles: CaptionStyleType[] = [
@@ -47,16 +47,25 @@ const captionStyles: CaptionStyleType[] = [
     } as CSSProperties
   },
   {
-    id: CaptionStyle.KomikaAxis,
+    id: CaptionStyle.Comic,
     name: 'Comic',
-    className: 'font-komika text-yellow',
+    className: 'font-montserrat text-yellow',
     style: {
       color: 'yellow',
       fontSize: '28px',
-      fontFamily: 'Komika Axis, sans-serif',
+      fontFamily: 'Montserrat, sans-serif',
       textTransform: 'uppercase',
       textAlign: 'center',
       lineHeight: '1.2'
+    } as CSSProperties
+  },
+  {
+    id: CaptionStyle.Animated,
+    name: 'Animated',
+    className: 'font-arial text-white',
+    style: {
+      fontFamily: 'Arial'
+      // Add any additional styles specific to the animated style here
     } as CSSProperties
   }
 ]
