@@ -158,142 +158,116 @@ export const generateRedditVoiceover = createServerAction()
       throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
     }
 
-    const fullText = `${input.title} <break time="0.7s" /> ${input.text}`
-    const characterCount = fullText.length
-    const requiredCredits = Math.ceil(
-      characterCount / CREDIT_CONVERSIONS.VOICEOVER_CHARACTERS
+    const [titleAudioResponse, textAudioResponse] = await Promise.all([
+      elevenLabsClient.textToSpeech.convertWithTimestamps(input.voiceId, {
+        model_id: 'eleven_multilingual_v2',
+        text: input.title + ' <break time="0.4s" />'
+      }) as Promise<AudioResponse>,
+
+      elevenLabsClient.textToSpeech.convertWithTimestamps(input.voiceId, {
+        model_id: 'eleven_multilingual_v2',
+        text: input.text
+      }) as Promise<AudioResponse>
+    ])
+
+    const titleAudioBuffer = Buffer.from(
+      titleAudioResponse.audio_base64,
+      'base64'
+    )
+    const textAudioBuffer = Buffer.from(
+      textAudioResponse.audio_base64,
+      'base64'
     )
 
-    try {
-      const result = await db.transaction(async (tx) => {
-        const userUsageRecord = await tx
-          .select({ creditsLeft: userUsage.creditsLeft })
-          .from(userUsage)
-          .where(eq(userUsage.userId, user.id))
-          .for('update')
+    const combinedAudioBuffer = Buffer.concat([
+      titleAudioBuffer,
+      textAudioBuffer
+    ])
 
-        if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
-          throw new ZSAError(
-            'INTERNAL_SERVER_ERROR',
-            'You need an active subscription to use this feature.'
-          )
+    const titleDuration =
+      titleAudioResponse.normalized_alignment.character_end_times_seconds.slice(
+        -1
+      )[0]
+
+    const textDuration =
+      textAudioResponse.normalized_alignment.character_end_times_seconds.slice(
+        -1
+      )[0]
+
+    const totalDuration = titleDuration + textDuration
+
+    const calculateWordTimestamps = (alignment: Alignment) => {
+      const words: string[] = []
+      const wordStartTimes: number[] = []
+      const wordEndTimes: number[] = []
+
+      let currentWord = ''
+      let currentWordStartTime: number | null = null
+
+      alignment.characters.forEach((char, index) => {
+        if (currentWordStartTime === null) {
+          currentWordStartTime = alignment.character_start_times_seconds[index]
         }
 
-        if (userUsageRecord[0].creditsLeft < requiredCredits) {
-          throw new ZSAError(
-            'INSUFFICIENT_CREDITS',
-            `You don't have enough credits to generate this voiceover.`
-          )
-        }
+        currentWord += char
 
-        await tx
-          .update(userUsage)
-          .set({
-            creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
-          })
-          .where(eq(userUsage.userId, user.id))
-
-        const audio =
-          (await elevenLabsClient.textToSpeech.convertWithTimestamps(
-            input.voiceId,
-            {
-              model_id: 'eleven_turbo_v2_5',
-              text: fullText,
-              language_code: input.language
-            }
-          )) as AudioResponse
-
-        const audioBuffer = Buffer.from(audio.audio_base64, 'base64')
-        const s3Key = `voiceovers/${input.voiceId}/${crypto.randomUUID()}.mp3`
-
-        const putObjectCommand = new PutObjectCommand({
-          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-          Key: s3Key,
-          Body: audioBuffer,
-          ContentType: 'audio/mpeg'
-        })
-
-        await R2.send(putObjectCommand)
-
-        const getObjectCommand = new GetObjectCommand({
-          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-          Key: s3Key
-        })
-
-        const signedUrl = await getSignedUrl(R2, getObjectCommand, {
-          expiresIn: 3600
-        })
-
-        const normalizedTitle = input.title.toLowerCase()
-        const normalizedCharacters = audio.normalized_alignment.characters.map(
-          (char) => char.toLowerCase()
-        )
-
-        let titleEndIndex = -1
-        for (
-          let i = 0;
-          i <= normalizedCharacters.length - normalizedTitle.length;
-          i++
-        ) {
-          if (
-            normalizedCharacters
-              .slice(i, i + normalizedTitle.length)
-              .join('') === normalizedTitle
-          ) {
-            titleEndIndex = i + normalizedTitle.length - 1
-            break
+        if (char === ' ' || index === alignment.characters.length - 1) {
+          if (currentWord.trim() !== '') {
+            const cleanedWord = ' ' + currentWord.trim().replace(/[^\w\s]/g, '')
+            words.push(cleanedWord)
+            wordStartTimes.push(currentWordStartTime!)
+            wordEndTimes.push(alignment.character_end_times_seconds[index])
           }
-        }
-
-        let actualTitleEndIndex = titleEndIndex
-        while (
-          actualTitleEndIndex < normalizedCharacters.length &&
-          normalizedCharacters[actualTitleEndIndex] !== ' '
-        ) {
-          actualTitleEndIndex++
-        }
-
-        while (
-          actualTitleEndIndex < normalizedCharacters.length &&
-          normalizedCharacters[actualTitleEndIndex] === ' '
-        ) {
-          actualTitleEndIndex++
-        }
-
-        const titleEnd =
-          actualTitleEndIndex >= 0
-            ? audio.normalized_alignment.character_end_times_seconds[
-                actualTitleEndIndex
-              ]
-            : 0
-
-        return {
-          signedUrl,
-          endTimestamp:
-            audio.normalized_alignment.character_end_times_seconds.slice(-1)[0],
-          voiceoverObject: audio.normalized_alignment,
-          titleEnd
+          currentWord = ''
+          currentWordStartTime = null
         }
       })
 
-      logger.info('Voiceover generated successfully', {
-        signedUrl: result.signedUrl,
-        endTimestamp: result.endTimestamp,
-        titleEnd: result.titleEnd
-      })
-      await logger.flush()
-      return result
-    } catch (error) {
-      logger.error(errorString, { error })
+      return words.map((word, index) => ({
+        text: word,
+        startMs: wordStartTimes[index] * 1000 + titleDuration * 1000,
+        endMs: wordEndTimes[index] * 1000 + titleDuration * 1000,
+        timestampMs: null,
+        confidence: null
+      }))
+    }
 
-      if (error instanceof ZSAError) {
-        throw error
-      }
+    const voiceoverObject = calculateWordTimestamps(
+      textAudioResponse.normalized_alignment
+    )
 
-      throw new ZSAError(
-        'INTERNAL_SERVER_ERROR',
-        'An error occurred while generating the voiceover.'
-      )
+    const fs = require('fs')
+    const path = require('path')
+    await fs.promises.writeFile(
+      path.join(process.cwd(), 'voiceover.json'),
+      JSON.stringify(voiceoverObject, null, 2),
+      'utf-8'
+    )
+
+    const s3Key = `voiceovers/${input.voiceId}/${crypto.randomUUID()}.mp3`
+    const putObjectCommand = new PutObjectCommand({
+      Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+      Key: s3Key,
+      Body: combinedAudioBuffer,
+      ContentType: 'audio/mpeg'
+    })
+
+    await R2.send(putObjectCommand)
+
+    const getObjectCommand = new GetObjectCommand({
+      Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+      Key: s3Key
+    })
+
+    const signedUrl = await getSignedUrl(R2, getObjectCommand, {
+      expiresIn: 3600
+    })
+    console.log(signedUrl)
+    console.log(totalDuration)
+    return {
+      signedUrl,
+      voiceoverObject,
+      endTimestamp: totalDuration
     }
   })
 
@@ -378,9 +352,8 @@ export const generateTextVoiceover = createServerAction()
               (await elevenLabsClient.textToSpeech.convertWithTimestamps(
                 voiceId,
                 {
-                  model_id: 'eleven_turbo_v2_5',
-                  text: fullMessageText,
-                  language_code: language
+                  model_id: 'eleven_multilingual_v2',
+                  text: fullMessageText
                 }
               )) as AudioResponse
 
@@ -520,7 +493,7 @@ export const generateStructuredVoiceover = createServerAction()
 
         const audio =
           (await elevenLabsClient.textToSpeech.convertWithTimestamps(voiceId, {
-            model_id: 'eleven_turbo_v2_5',
+            model_id: 'eleven_multilingual_v2',
             text: fullText,
             language_code: language
           })) as AudioResponse
@@ -693,7 +666,7 @@ export const generateTwitterVoiceover = createServerAction()
             (await elevenLabsClient.textToSpeech.convertWithTimestamps(
               voiceSetting.voiceId,
               {
-                model_id: 'eleven_turbo_v2_5',
+                model_id: 'eleven_multilingual_v2',
                 text: tweetText,
                 language_code: input.language
               }

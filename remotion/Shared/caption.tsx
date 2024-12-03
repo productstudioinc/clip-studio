@@ -9,14 +9,18 @@ import {
   useVideoConfig
 } from 'remotion'
 
-type CaptionComponentProps = {
+interface CaptionComponentProps {
   captions: Caption[]
-  styles: { [key: string]: React.CSSProperties }
+  styles?: React.CSSProperties
+  playbackRate?: number
 }
 
 export const CaptionComponent: React.FC<CaptionComponentProps> = ({
   captions,
-  styles
+  styles = {
+    fontFamily: 'Arial'
+  },
+  playbackRate = 1
 }) => {
   const { pages } = createTikTokStyleCaptions({
     captions,
@@ -29,11 +33,22 @@ export const CaptionComponent: React.FC<CaptionComponentProps> = ({
   return (
     <>
       {pages.map((page, index) => {
-        const startFrame = Math.round((page.startMs / 1000) * fps)
-        const duration = Math.round(
-          ((page.tokens[page.tokens.length - 1].toMs - page.startMs) / 1000) *
-            fps
-        )
+        const startMs =
+          index === 0
+            ? page.startMs
+            : pages[0].startMs +
+              (page.startMs - pages[0].startMs) * playbackRate
+
+        const endMs =
+          index === 0
+            ? page.tokens[page.tokens.length - 1].toMs
+            : pages[0].startMs +
+              (page.tokens[page.tokens.length - 1].toMs - pages[0].startMs) *
+                playbackRate
+
+        const startFrame = Math.round((startMs / 1000) * fps)
+        const endFrame = Math.round((endMs / 1000) * fps)
+        const duration = Math.max(endFrame - startFrame, 1)
         const scale = spring({
           fps,
           frame: currentFrame - startFrame,
@@ -44,7 +59,6 @@ export const CaptionComponent: React.FC<CaptionComponentProps> = ({
           }
         })
 
-        // Generate a random rotation between -3 and 3 degrees
         const randomRotation = random(index) * 6 - 3
 
         return (
@@ -88,21 +102,32 @@ export const CaptionComponent: React.FC<CaptionComponentProps> = ({
               }}
             >
               {page.tokens.map((token, tokenIndex) => {
-                const tokenStartFrame = Math.round((token.fromMs / 1000) * fps)
-                const tokenEndFrame = Math.round((token.toMs / 1000) * fps)
+                const tokenStartFrame = Math.round(
+                  ((token.fromMs / 1000) * fps) / playbackRate
+                )
+                const tokenEndFrame = Math.round(
+                  ((token.toMs / 1000) * fps) / playbackRate
+                )
+
+                const adjustedEndFrame = Math.max(
+                  tokenEndFrame,
+                  tokenStartFrame + 2
+                )
+
                 const isHighlighted =
                   currentFrame >= tokenStartFrame &&
-                  currentFrame < tokenEndFrame
+                  currentFrame < adjustedEndFrame
 
                 const progress = interpolate(
                   currentFrame,
-                  [tokenStartFrame, tokenEndFrame - 1],
+                  [tokenStartFrame, adjustedEndFrame - 1],
                   [0, 1],
                   {
                     extrapolateLeft: 'clamp',
                     extrapolateRight: 'clamp'
                   }
                 )
+
                 const backgroundScale = interpolate(
                   progress,
                   [0, 1],
@@ -113,6 +138,7 @@ export const CaptionComponent: React.FC<CaptionComponentProps> = ({
                     easing: Easing.out(Easing.exp)
                   }
                 )
+
                 return (
                   <span
                     key={tokenIndex}

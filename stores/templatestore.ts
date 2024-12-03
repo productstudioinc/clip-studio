@@ -5,6 +5,7 @@ import { devtools } from 'zustand/middleware'
 
 import { aiVoiceoverFrames } from './aivideo_voiceover'
 import { alignmentDefault } from './alignmenttext'
+import { defaultRedditVoiceover } from './reddit_default_voiceover'
 import { splitScreenTranscriptionDefault } from './splitscreentranscription'
 
 // Enums
@@ -212,6 +213,16 @@ export const TranscriptionSchema = z.object({
   )
 })
 
+const captionSchema = z.array(
+  z.object({
+    text: z.string(),
+    startMs: z.number(),
+    endMs: z.number(),
+    timestampMs: z.number().nullable(),
+    confidence: z.number().nullable()
+  })
+)
+
 export const RedditVideoSchema = BaseVideoSchema.extend({
   title: z.string(),
   text: z.string(),
@@ -220,7 +231,7 @@ export const RedditVideoSchema = BaseVideoSchema.extend({
   likes: z.number(),
   comments: z.number(),
   voiceoverUrl: z.string(),
-  voiceoverFrames: VoiceoverFramesSchema,
+  captions: captionSchema,
   titleEnd: z.number(),
   backgroundUrls: z.array(z.string()),
   isVoiceoverGenerated: z.boolean().default(false), // a flag to generate a voiceover
@@ -435,12 +446,12 @@ export const defaultRedditProps: RedditVideoProps = {
   subreddit: 'NuclearRevenge',
   likes: 4200,
   comments: 366,
-  durationInFrames: 30 * 30,
+  durationInFrames: Math.floor(61.625 * VIDEO_FPS),
   backgroundTheme: BackgroundTheme.Minecraft,
   backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
   voice: 'WmgbWYyjBPkmuF0hCiy3',
   voiceoverUrl: 'https://assets.clip.studio/reddit_voiceover_sample.mp3',
-  voiceoverFrames: alignmentDefault,
+  captions: defaultRedditVoiceover,
   accountName: 'clipstudio',
   titleEnd: 5.097,
   language: Language.English,
