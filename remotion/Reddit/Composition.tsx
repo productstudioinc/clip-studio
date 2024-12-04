@@ -80,6 +80,9 @@ export const RedditComposition = ({
   const titleEndFrame = Math.floor(titleEnd * FPS)
 
   const requiredSegments = useMemo(() => {
+    if (backgroundUrls.length === 1) {
+      return backgroundUrls
+    }
     const totalMinutes = Math.ceil(durationInFrames / (FPS * 60))
     return backgroundUrls.slice(
       backgroundStartIndex,

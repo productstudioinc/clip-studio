@@ -18,6 +18,9 @@ export const TwitterComposition = ({
   mode
 }: TwitterVideoProps) => {
   const requiredSegments = useMemo(() => {
+    if (backgroundUrls.length === 1) {
+      return backgroundUrls
+    }
     const totalMinutes = Math.ceil(durationInFrames / (FPS * 60))
     const totalRequiredSegments = totalMinutes
     const segments = []

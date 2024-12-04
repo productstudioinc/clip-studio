@@ -20,6 +20,9 @@ const BACKGROUND_VIDEO_DURATION = 60 * FPS
 
 export const TextMessageComposition = (props: TextMessageVideoProps) => {
   const requiredSegments = useMemo(() => {
+    if (props.backgroundUrls.length === 1) {
+      return props.backgroundUrls
+    }
     const totalMinutes = Math.ceil(props.durationInFrames / (FPS * 60))
     const totalRequiredSegments = totalMinutes
     const segments = []
