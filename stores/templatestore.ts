@@ -258,7 +258,7 @@ const VoiceoverFramesSchema = z.object({
   character_end_times_seconds: z.array(z.number())
 })
 
-const subtitleSchema = z.array(
+export const subtitleSchema = z.array(
   z.object({
     text: z.string(),
     startMs: z.number(),

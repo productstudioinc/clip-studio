@@ -157,12 +157,17 @@ async def get_completion(request: Request):
     
     transcription = result[0]
     
-    formatted_result = {
-        "text": transcription["text"],
-        "chunks": transcription["chunks"]
-    }
+    formatted_chunks = []
+    for chunk in transcription["chunks"]:
+        formatted_chunks.append({
+            "text": chunk["text"],
+            "startMs": int(chunk["timestamp"][0] * 1000),   
+            "endMs": int(chunk["timestamp"][1] * 1000),   
+            "timestampMs": None,  
+            "confidence": None   
+        })
     
-    return formatted_result
+    return formatted_chunks
 
 @app.function(allow_concurrent_inputs=4, image=image)
 @asgi_app()

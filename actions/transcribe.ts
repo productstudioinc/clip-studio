@@ -3,7 +3,7 @@
 import { getUser } from '@/actions/auth/user'
 import { db } from '@/db'
 import { userUsage } from '@/db/schema'
-import { TranscriptionSchema } from '@/stores/templatestore'
+import { subtitleSchema } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { eq, sql } from 'drizzle-orm'
 import { Logger } from 'next-axiom'
@@ -124,7 +124,7 @@ export const getTranscription = createServerAction()
   .output(
     z.object({
       status: z.enum(['done', 'processing']),
-      data: TranscriptionSchema.optional()
+      data: subtitleSchema.optional()
     })
   )
   .handler(async ({ input }) => {
@@ -167,13 +167,8 @@ export const getTranscription = createServerAction()
           )
         }
 
-        const result = TranscriptionSchema.safeParse(data)
+        const result = subtitleSchema.safeParse(data)
         if (result.success) {
-          // clean up text in each chunk
-          result.data.chunks = result.data.chunks.map((chunk) => ({
-            ...chunk,
-            text: chunk.text.trim().replace(/^[^\w\s]|[^\w\s]$/g, '')
-          }))
           logger.info('Transcription fetched successfully', { result })
           return {
             status: 'done',
