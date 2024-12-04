@@ -124,7 +124,8 @@ const defaultCaptionStyle = {
       boxed: false,
       wordColor: '#FFD700',
       boxColor: '#32CD32',
-      boxBorderRadius: '10px'
+      boxBorderRadius: '10px',
+      boxInset: '0px'
     },
     textColor: 'white',
     rotation: true,
@@ -226,7 +227,8 @@ export const captionStyleSchema = z.object({
       boxed: z.boolean(),
       wordColor: z.string(),
       boxColor: z.string(),
-      boxBorderRadius: z.string()
+      boxBorderRadius: z.string(),
+      boxInset: z.string()
     }),
     textColor: z.string(),
     rotation: z.boolean(),

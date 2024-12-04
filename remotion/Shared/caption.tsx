@@ -133,7 +133,6 @@ export const CaptionComponent: React.FC<CaptionComponentProps> = ({
                     easing: Easing.out(Easing.exp)
                   }
                 )
-
                 return (
                   <span
                     key={tokenIndex}
@@ -151,7 +150,7 @@ export const CaptionComponent: React.FC<CaptionComponentProps> = ({
                       <span
                         style={{
                           position: 'absolute',
-                          inset: '8px',
+                          inset: options.highlighted.boxInset || '0px',
                           backgroundColor:
                             options.highlighted.boxColor || '#32CD32',
                           borderRadius:

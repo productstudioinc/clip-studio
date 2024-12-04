@@ -1,18 +1,26 @@
 'use client'
 
-import React, { CSSProperties, useEffect, useState } from 'react'
+import React, { CSSProperties } from 'react'
+import { CaptionComponent } from '@/remotion/Shared/caption'
 import {
   CaptionStyle,
   captionStyleSchema,
   useTemplateStore,
   VideoProps
 } from '@/stores/templatestore'
-import { motion, useAnimation } from 'framer-motion'
+import { Caption } from '@remotion/captions'
+import { Player } from '@remotion/player'
 import { Check, ChevronDown, Paintbrush, Type, Wand2 } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 
 import { cn } from '@/lib/utils'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -30,13 +38,6 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
@@ -54,7 +55,8 @@ const captionStyles: z.infer<typeof captionStyleSchema>[] = [
         boxed: false,
         wordColor: '#FFD700',
         boxColor: '#32CD32',
-        boxBorderRadius: '10px'
+        boxBorderRadius: '10px',
+        boxInset: '0%'
       },
       textColor: 'white',
       rotation: false,
@@ -89,10 +91,11 @@ const captionStyles: z.infer<typeof captionStyleSchema>[] = [
     options: {
       highlighted: {
         word: true,
-        boxed: false,
+        boxed: true,
         wordColor: '#FFD700',
         boxColor: '#32CD32',
-        boxBorderRadius: '10px'
+        boxBorderRadius: '10px',
+        boxInset: '10% 3% -10% 3%'
       },
       textColor: 'white',
       rotation: false,
@@ -184,93 +187,105 @@ const ColorPicker = ({
     </Popover>
   )
 }
-
 const CaptionPreview: React.FC<{
   style: z.infer<typeof captionStyleSchema>
 }> = ({ style }) => {
-  const words = ['Caption', 'Preview', 'Example']
-
+  const captions: Caption[] = [
+    {
+      text: 'Using',
+      startMs: 0,
+      endMs: 500,
+      timestampMs: 250,
+      confidence: null
+    },
+    {
+      text: ' clip studio',
+      startMs: 500,
+      endMs: 1000,
+      timestampMs: 750,
+      confidence: null
+    },
+    {
+      text: ' you ',
+      startMs: 1000,
+      endMs: 1250,
+      timestampMs: 1125,
+      confidence: null
+    },
+    {
+      text: ' can ',
+      startMs: 1250,
+      endMs: 1500,
+      timestampMs: 1375,
+      confidence: null
+    },
+    {
+      text: ' make ',
+      startMs: 1500,
+      endMs: 2000,
+      timestampMs: 1750,
+      confidence: null
+    },
+    {
+      text: ' some',
+      startMs: 2000,
+      endMs: 2500,
+      timestampMs: 2250,
+      confidence: null
+    },
+    {
+      text: ' dope',
+      startMs: 2500,
+      endMs: 3000,
+      timestampMs: 2750,
+      confidence: null
+    },
+    {
+      text: ' videos',
+      startMs: 3000,
+      endMs: 3500,
+      timestampMs: 3250,
+      confidence: null
+    }
+  ]
   return (
-    <div className="bg-background p-4 rounded-md flex items-center justify-center h-24 overflow-hidden">
-      <div
+    <div className="w-full h-full aspect-video rounded-md overflow-hidden">
+      <Player
+        component={CaptionComponent as any}
+        durationInFrames={110}
+        fps={30}
+        autoPlay
+        loop
+        controls
+        compositionWidth={16 * 50}
+        compositionHeight={9 * 30}
         style={{
-          ...style.style,
-          color: style.options.textColor,
-          textShadow: `
-            -2px -2px 0 #000,  
-             2px -2px 0 #000,
-            -2px  2px 0 #000,
-             2px  2px 0 #000,
-            -2px  0   0 #000,
-             2px  0   0 #000,
-             0   -2px 0 #000,
-             0    2px 0 #000,
-             3px 3px 6px rgba(0,0,0,0.3),
-             4px 4px 8px rgba(0,0,0,0.2)
-          `
+          width: '100%',
+          height: '100%',
+          backgroundImage:
+            'linear-gradient(45deg, #e0e0e0 25%, transparent 25%), linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e0e0e0 75%), linear-gradient(-45deg, transparent 75%, #e0e0e0 75%)',
+          backgroundSize: '20px 20px',
+          backgroundColor: '#fff',
+          backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
         }}
-      >
-        {words.map((word, index) => (
-          <span
-            key={index}
-            style={{
-              position: 'relative',
-              display: 'inline-block',
-              color: style.options.highlighted.word
-                ? style.options.highlighted.wordColor
-                : style.options.textColor,
-              marginRight: '0.2em',
-              padding: '0.2em'
-            }}
-          >
-            {style.options.highlighted.boxed && (
-              <span
-                style={{
-                  position: 'absolute',
-                  inset: '8px',
-                  backgroundColor: style.options.highlighted.boxColor,
-                  borderRadius: style.options.highlighted.boxBorderRadius,
-                  zIndex: -1,
-                  display: 'block',
-                  padding: 0
-                }}
-              />
-            )}
-            {word}
-          </span>
-        ))}
-      </div>
+        inputProps={{
+          captions,
+          styles: style.style,
+          options: style.options
+        }}
+      />
     </div>
   )
 }
 
 export const CaptionStyleStep: React.FC<CaptionStyleStepProps> = ({ form }) => {
   const setCaptionStyle = useTemplateStore((state) => state.setCaptionStyle)
-  const [activeSection, setActiveSection] = useState<string>('style')
 
   const handleCaptionStyleChange = (value: string) => {
     const selectedStyle = captionStyles.find((style) => style.id === value)
     if (selectedStyle) {
-      const currentStyle = form.getValues('captionStyle')
-      const styleWithPreservedOptions = {
-        ...selectedStyle,
-        options: {
-          ...selectedStyle.options,
-          rotation: currentStyle.options.rotation,
-          scale: currentStyle.options.scale,
-          highlighted: {
-            ...selectedStyle.options.highlighted,
-            word: currentStyle.options.highlighted.word,
-            boxed: currentStyle.options.highlighted.boxed,
-            wordColor: currentStyle.options.highlighted.wordColor,
-            boxColor: currentStyle.options.highlighted.boxColor,
-            boxBorderRadius: currentStyle.options.highlighted.boxBorderRadius
-          },
-          textColor: currentStyle.options.textColor
-        }
-      }
-      form.setValue('captionStyle', styleWithPreservedOptions)
-      setCaptionStyle(styleWithPreservedOptions)
+      form.setValue('captionStyle', selectedStyle)
+      setCaptionStyle(selectedStyle)
     }
   }
 
@@ -349,207 +364,212 @@ export const CaptionStyleStep: React.FC<CaptionStyleStepProps> = ({ form }) => {
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto">
+    <Card className="w-full max-w-3xl">
       <CardHeader>
         <CardTitle>Caption Style</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <Select
-            value={activeSection}
-            onValueChange={(value) => setActiveSection(value)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a section" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="style">
+          <Accordion type="single" collapsible>
+            <AccordionItem value="style">
+              <AccordionTrigger>
                 <span className="flex items-center">
                   <Type className="w-4 h-4 mr-2" />
                   Style
                 </span>
-              </SelectItem>
-              <SelectItem value="highlight">
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="captionStyle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Choose a font</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={handleCaptionStyleChange}
+                            defaultValue={field.value.id}
+                            className="grid grid-cols-2 gap-4"
+                          >
+                            {captionStyles.map((style) => (
+                              <Label
+                                key={style.id}
+                                className={cn(
+                                  'flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer',
+                                  field.value.id === style.id &&
+                                    'border-primary'
+                                )}
+                              >
+                                <RadioGroupItem
+                                  value={style.id}
+                                  className="sr-only"
+                                />
+                                <span
+                                  className="text-2xl mb-2"
+                                  style={style.style}
+                                >
+                                  {style.name}
+                                </span>
+                              </Label>
+                            ))}
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="textColor">Text Color</Label>
+                    <ColorPicker
+                      color={form.getValues('captionStyle').options.textColor}
+                      onChange={(color) =>
+                        handleColorChange('textColor', color)
+                      }
+                    />
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="highlight">
+              <AccordionTrigger>
                 <span className="flex items-center">
                   <Paintbrush className="w-4 h-4 mr-2" />
                   Highlight
                 </span>
-              </SelectItem>
-              <SelectItem value="effects">
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="word-highlight">Word Highlighting</Label>
+                      <Switch
+                        id="word-highlight"
+                        checked={
+                          form.getValues('captionStyle').options.highlighted
+                            .word
+                        }
+                        onCheckedChange={(checked) =>
+                          handleHighlightingChange('word', checked)
+                        }
+                      />
+                    </div>
+                    {form.getValues('captionStyle').options.highlighted
+                      .word && (
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="wordColor">Word Color</Label>
+                        <ColorPicker
+                          color={
+                            form.getValues('captionStyle').options.highlighted
+                              .wordColor
+                          }
+                          onChange={(color) =>
+                            handleColorChange('wordColor', color)
+                          }
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <Separator />
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="box-highlight">Box Highlighting</Label>
+                      <Switch
+                        id="box-highlight"
+                        checked={
+                          form.getValues('captionStyle').options.highlighted
+                            .boxed
+                        }
+                        onCheckedChange={(checked) =>
+                          handleHighlightingChange('boxed', checked)
+                        }
+                      />
+                    </div>
+                    {form.getValues('captionStyle').options.highlighted
+                      .boxed && (
+                      <>
+                        <div className="flex items-center justify-between pl-4">
+                          <Label htmlFor="boxColor">Box Color</Label>
+                          <ColorPicker
+                            color={
+                              form.getValues('captionStyle').options.highlighted
+                                .boxColor
+                            }
+                            onChange={(color) =>
+                              handleColorChange('boxColor', color)
+                            }
+                          />
+                        </div>
+                        <div className="space-y-2 pl-4">
+                          <Label htmlFor="boxBorderRadius">
+                            Box Border Radius
+                          </Label>
+                          <div className="flex items-center space-x-2">
+                            <Slider
+                              id="boxBorderRadius"
+                              min={0}
+                              max={20}
+                              step={1}
+                              value={[
+                                parseInt(
+                                  form.getValues('captionStyle').options
+                                    .highlighted.boxBorderRadius
+                                )
+                              ]}
+                              onValueChange={([value]) =>
+                                handleBorderRadiusChange(value)
+                              }
+                              className="flex-grow"
+                            />
+                            <span className="w-12 text-center">
+                              {
+                                form.getValues('captionStyle').options
+                                  .highlighted.boxBorderRadius
+                              }
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="effects">
+              <AccordionTrigger>
                 <span className="flex items-center">
                   <Wand2 className="w-4 h-4 mr-2" />
                   Effects
                 </span>
-              </SelectItem>
-            </SelectContent>
-          </Select>
-
-          {activeSection === 'style' && (
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="captionStyle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Choose a font</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={handleCaptionStyleChange}
-                        defaultValue={field.value.id}
-                        className="grid grid-cols-2 gap-4"
-                      >
-                        {captionStyles.map((style) => (
-                          <Label
-                            key={style.id}
-                            className={cn(
-                              'flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer',
-                              field.value.id === style.id && 'border-primary'
-                            )}
-                          >
-                            <RadioGroupItem
-                              value={style.id}
-                              className="sr-only"
-                            />
-                            <span className="text-2xl mb-2" style={style.style}>
-                              Caption Style
-                            </span>
-                            <span className="text-sm font-medium">
-                              {style.name}
-                            </span>
-                          </Label>
-                        ))}
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="flex items-center justify-between">
-                <Label htmlFor="textColor">Text Color</Label>
-                <ColorPicker
-                  color={form.getValues('captionStyle').options.textColor}
-                  onChange={(color) => handleColorChange('textColor', color)}
-                />
-              </div>
-            </div>
-          )}
-
-          {activeSection === 'highlight' && (
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="word-highlight">Word Highlighting</Label>
-                  <Switch
-                    id="word-highlight"
-                    checked={
-                      form.getValues('captionStyle').options.highlighted.word
-                    }
-                    onCheckedChange={(checked) =>
-                      handleHighlightingChange('word', checked)
-                    }
-                  />
-                </div>
-                {form.getValues('captionStyle').options.highlighted.word && (
-                  <div className="flex items-center justify-between pl-4">
-                    <Label htmlFor="wordColor">Word Color</Label>
-                    <ColorPicker
-                      color={
-                        form.getValues('captionStyle').options.highlighted
-                          .wordColor
-                      }
-                      onChange={(color) =>
-                        handleColorChange('wordColor', color)
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="rotation">Rotation Effects</Label>
+                    <Switch
+                      id="rotation"
+                      checked={form.getValues('captionStyle').options.rotation}
+                      onCheckedChange={(checked) =>
+                        handleToggleOption('rotation', checked)
                       }
                     />
                   </div>
-                )}
-              </div>
-              <Separator />
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="box-highlight">Box Highlighting</Label>
-                  <Switch
-                    id="box-highlight"
-                    checked={
-                      form.getValues('captionStyle').options.highlighted.boxed
-                    }
-                    onCheckedChange={(checked) =>
-                      handleHighlightingChange('boxed', checked)
-                    }
-                  />
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="scale">Scale Effects</Label>
+                    <Switch
+                      id="scale"
+                      checked={form.getValues('captionStyle').options.scale}
+                      onCheckedChange={(checked) =>
+                        handleToggleOption('scale', checked)
+                      }
+                    />
+                  </div>
                 </div>
-                {form.getValues('captionStyle').options.highlighted.boxed && (
-                  <>
-                    <div className="flex items-center justify-between pl-4">
-                      <Label htmlFor="boxColor">Box Color</Label>
-                      <ColorPicker
-                        color={
-                          form.getValues('captionStyle').options.highlighted
-                            .boxColor
-                        }
-                        onChange={(color) =>
-                          handleColorChange('boxColor', color)
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2 pl-4">
-                      <Label htmlFor="boxBorderRadius">Box Border Radius</Label>
-                      <div className="flex items-center space-x-2">
-                        <Slider
-                          id="boxBorderRadius"
-                          min={0}
-                          max={20}
-                          step={1}
-                          value={[
-                            parseInt(
-                              form.getValues('captionStyle').options.highlighted
-                                .boxBorderRadius
-                            )
-                          ]}
-                          onValueChange={([value]) =>
-                            handleBorderRadiusChange(value)
-                          }
-                          className="flex-grow"
-                        />
-                        <span className="w-12 text-center">
-                          {
-                            form.getValues('captionStyle').options.highlighted
-                              .boxBorderRadius
-                          }
-                        </span>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-
-          {activeSection === 'effects' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="rotation">Rotation Effects</Label>
-                <Switch
-                  id="rotation"
-                  checked={form.getValues('captionStyle').options.rotation}
-                  onCheckedChange={(checked) =>
-                    handleToggleOption('rotation', checked)
-                  }
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="scale">Scale Effects</Label>
-                <Switch
-                  id="scale"
-                  checked={form.getValues('captionStyle').options.scale}
-                  onCheckedChange={(checked) =>
-                    handleToggleOption('scale', checked)
-                  }
-                />
-              </div>
-            </div>
-          )}
-
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
           <CaptionPreview style={form.getValues('captionStyle')} />
         </div>
       </CardContent>
