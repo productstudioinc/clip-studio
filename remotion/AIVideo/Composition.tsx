@@ -1,22 +1,15 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import {
   AbsoluteFill,
   Audio,
   Img,
   interpolate,
   Sequence,
-  useCurrentFrame,
-  useVideoConfig
+  useCurrentFrame
 } from 'remotion'
 
 import { AIVideoProps } from '../../stores/templatestore'
-import Subtitle from '../Shared/Subtitle'
-
-export type SubtitleProp = {
-  startFrame: number
-  endFrame: number
-  text: string
-}
+import { CaptionComponent } from '../Shared/caption'
 
 const FPS = 30
 
@@ -44,79 +37,35 @@ const ImageAnimation: React.FC<{ src: string; durationInFrames: number }> = ({
 
 export const AIVideoComposition = ({
   captionStyle,
-  voiceoverFrames,
   voiceoverUrl,
   voiceVolume,
-  videoStructure
+  videoStructure,
+  subtitles
 }: AIVideoProps) => {
-  const videoConfig = useVideoConfig()
-  const [subtitles, setSubtitles] = useState<SubtitleProp[]>([])
-
-  const generateSubtitles = useCallback(() => {
-    try {
-      const {
-        characters,
-        character_start_times_seconds,
-        character_end_times_seconds
-      } = voiceoverFrames
-      const subtitlesData: SubtitleProp[] = []
-      let currentWord = ''
-      let wordStartIndex = 0
-
-      for (let i = 0; i < characters.length; i++) {
-        if (characters[i] === ' ' || i === characters.length - 1) {
-          if (currentWord) {
-            const startFrame = Math.floor(
-              character_start_times_seconds[wordStartIndex] * FPS
-            )
-            const endFrame = Math.floor(character_end_times_seconds[i] * FPS)
-
-            subtitlesData.push({
-              startFrame,
-              endFrame,
-              text: currentWord.trim()
-            })
-
-            currentWord = ''
-            wordStartIndex = i + 1
-          }
-        } else {
-          currentWord += characters[i]
-        }
-      }
-      setSubtitles(subtitlesData)
-    } catch (e) {
-      console.error('Error in generateSubtitles:', e)
-    }
-  }, [voiceoverFrames])
-
-  useEffect(() => {
-    generateSubtitles()
-  }, [generateSubtitles])
-
-  // Calculate cumulative durations for image sequences
-  const imageDurations = videoStructure.reduce(
-    (acc, item, index) => {
-      const startFrame = acc.length > 0 ? acc[acc.length - 1].endFrame : 0
-      const durationInFrames = Math.max(
-        1,
-        Math.floor((item.duration || 5) * FPS)
-      )
-      acc.push({
-        startFrame,
-        endFrame: startFrame + durationInFrames,
-        imageUrl: item.imageUrl,
-        durationInFrames
-      })
-      return acc
-    },
-    [] as Array<{
-      startFrame: number
-      endFrame: number
-      imageUrl: string | null
-      durationInFrames: number
-    }>
-  )
+  const imageDurations = useMemo(() => {
+    return videoStructure.reduce(
+      (acc, item) => {
+        const startFrame = acc.length > 0 ? acc[acc.length - 1].endFrame : 0
+        const durationInFrames = Math.max(
+          1,
+          Math.floor((item.duration || 5) * FPS)
+        )
+        acc.push({
+          startFrame,
+          endFrame: startFrame + durationInFrames,
+          imageUrl: item.imageUrl,
+          durationInFrames
+        })
+        return acc
+      },
+      [] as Array<{
+        startFrame: number
+        endFrame: number
+        imageUrl: string | null
+        durationInFrames: number
+      }>
+    )
+  }, [videoStructure])
 
   return (
     <>
@@ -146,22 +95,14 @@ export const AIVideoComposition = ({
             background:
               'linear-gradient(to bottom, transparent, rgba(0,0,0,0.7))'
           }}
-        ></div>
-        {subtitles.map((subtitle, index) =>
-          subtitle.startFrame < subtitle.endFrame ? (
-            <Sequence
-              from={subtitle.startFrame}
-              durationInFrames={subtitle.endFrame - subtitle.startFrame}
-              key={`subtitle-${index}`}
-            >
-              <Subtitle
-                text={subtitle.text}
-                captionStyle={captionStyle}
-                style={{ top: '50%', position: 'absolute' }}
-              />
-            </Sequence>
-          ) : null
-        )}
+        />
+        <AbsoluteFill>
+          <CaptionComponent
+            captions={subtitles}
+            styles={captionStyle.style}
+            options={captionStyle.options}
+          />
+        </AbsoluteFill>
       </AbsoluteFill>
     </>
   )

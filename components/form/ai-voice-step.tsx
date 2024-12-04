@@ -133,7 +133,7 @@ export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form }) => {
       form.setValue('isVoiceoverGenerated', false)
     } else {
       form.setValue('voiceoverUrl', data.signedUrl)
-      form.setValue('voiceoverFrames', data.voiceoverObject)
+      form.setValue('subtitles', data.voiceoverObject)
       form.setValue(
         'durationInFrames',
         Math.floor(data.endTimestamp * VIDEO_FPS)

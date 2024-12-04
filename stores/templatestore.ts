@@ -5,6 +5,7 @@ import { devtools } from 'zustand/middleware'
 
 import { aiVoiceoverFrames } from './aivideo_voiceover'
 import { alignmentDefault } from './alignmenttext'
+import { defaultRedditVoiceover } from './reddit_default_voiceover'
 import { splitScreenTranscriptionDefault } from './splitscreentranscription'
 
 // Enums
@@ -88,11 +89,48 @@ export enum BackgroundTheme {
 
 export enum CaptionStyle {
   Default = 'default',
-  KomikaAxis = 'komikaAxis',
-  Futuristic = 'futuristic',
-  Handwritten = 'handwritten',
-  Montserrat = 'montserrat'
+  Comic = 'comic',
+  Animated = 'animated'
 }
+
+const defaultCaptionStyle = {
+  id: CaptionStyle.Default,
+  name: 'Default',
+  style: {
+    color: 'white',
+    textShadow: `
+        -3px -3px 0 #000,  
+         3px -3px 0 #000,
+        -3px  3px 0 #000,
+         3px  3px 0 #000,
+        -3px  0   0 #000,
+         3px  0   0 #000,
+         0   -3px 0 #000,
+         0    3px 0 #000,
+         4px 4px 0px #555,
+         5px 5px 0px #444,
+         6px 6px 0px #333,
+         7px 7px 8px rgba(0,0,0,0.4)
+      `,
+    fontSize: '28px',
+    fontFamily: 'Montserrat, sans-serif',
+    textTransform: 'uppercase',
+    textAlign: 'center',
+    lineHeight: '1.2'
+  },
+  options: {
+    highlighted: {
+      word: true,
+      boxed: false,
+      wordColor: '#FFD700',
+      boxColor: '#32CD32',
+      boxBorderRadius: '10px'
+    },
+    textColor: 'white',
+    rotation: true,
+    scale: true
+  }
+} satisfies z.infer<typeof captionStyleSchema>
 
 export enum VisualStyle {
   Realistic = 'Realistic',
@@ -178,6 +216,24 @@ export const VIDEO_HEIGHT = 1280
 export const VIDEO_FPS = 30
 export const DEFAULT_DURATION_IN_FRAMES = 900
 
+export const captionStyleSchema = z.object({
+  id: z.nativeEnum(CaptionStyle),
+  name: z.string(),
+  style: z.custom<React.CSSProperties>(),
+  options: z.object({
+    highlighted: z.object({
+      word: z.boolean(),
+      boxed: z.boolean(),
+      wordColor: z.string(),
+      boxColor: z.string(),
+      boxBorderRadius: z.string()
+    }),
+    textColor: z.string(),
+    rotation: z.boolean(),
+    scale: z.boolean()
+  })
+})
+
 // Zod Schemas
 const BaseVideoSchema = z.object({
   language: z.nativeEnum(Language).default(Language.English),
@@ -192,7 +248,7 @@ const BaseVideoSchema = z.object({
   durationInFrames: z.number().min(1).default(DEFAULT_DURATION_IN_FRAMES),
   backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
   backgroundUrls: z.array(z.string()).optional(),
-  captionStyle: z.nativeEnum(CaptionStyle).default(CaptionStyle.Default),
+  captionStyle: captionStyleSchema.default(defaultCaptionStyle),
   backgroundStartIndex: z.number().default(0)
 })
 
@@ -202,15 +258,15 @@ const VoiceoverFramesSchema = z.object({
   character_end_times_seconds: z.array(z.number())
 })
 
-export const TranscriptionSchema = z.object({
-  text: z.string(),
-  chunks: z.array(
-    z.object({
-      timestamp: z.array(z.number()),
-      text: z.string()
-    })
-  )
-})
+const subtitleSchema = z.array(
+  z.object({
+    text: z.string(),
+    startMs: z.number(),
+    endMs: z.number(),
+    timestampMs: z.number().nullable(),
+    confidence: z.number().nullable()
+  })
+)
 
 export const RedditVideoSchema = BaseVideoSchema.extend({
   title: z.string(),
@@ -220,11 +276,11 @@ export const RedditVideoSchema = BaseVideoSchema.extend({
   likes: z.number(),
   comments: z.number(),
   voiceoverUrl: z.string(),
-  voiceoverFrames: VoiceoverFramesSchema,
   titleEnd: z.number(),
   backgroundUrls: z.array(z.string()),
   isVoiceoverGenerated: z.boolean().default(false), // a flag to generate a voiceover
-  voiceSpeed: z.number().min(0.5).max(3).default(1.25)
+  voiceSpeed: z.number().min(0.5).max(3).default(1.25),
+  subtitles: subtitleSchema
 })
 
 export const TwitterVideoSchema = BaseVideoSchema.extend({
@@ -264,7 +320,7 @@ export const SplitScreenVideoSchema = BaseVideoSchema.extend({
   videoUrl: z.string(),
   type: z.enum(['blob', 'cloud']),
   transcriptionId: z.string(),
-  transcription: TranscriptionSchema,
+  transcription: subtitleSchema,
   backgroundUrls: z.array(z.string())
 })
 
@@ -341,10 +397,10 @@ export const AIVideoSchema = z.object({
   voiceId: z.string(),
   voiceoverUrl: z.string(),
   visualStyle: z.nativeEnum(VisualStyle).default(VisualStyle.Realistic),
-  voiceoverFrames: VoiceoverFramesSchema,
   backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
   backgroundUrls: z.array(z.string()).optional(),
-  captionStyle: z.nativeEnum(CaptionStyle).default(CaptionStyle.Default)
+  subtitles: subtitleSchema,
+  captionStyle: captionStyleSchema
 })
 
 export const HopeCoreVideoSchema = BaseVideoSchema.extend({
@@ -424,7 +480,7 @@ export const defaultSplitScreenProps: SplitScreenVideoProps = {
   width: VIDEO_WIDTH,
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
-  captionStyle: CaptionStyle.Default,
+  captionStyle: defaultCaptionStyle,
   backgroundStartIndex: 0
 }
 
@@ -435,12 +491,13 @@ export const defaultRedditProps: RedditVideoProps = {
   subreddit: 'NuclearRevenge',
   likes: 4200,
   comments: 366,
-  durationInFrames: 30 * 30,
+  durationInFrames: Math.floor(61.625 * VIDEO_FPS),
   backgroundTheme: BackgroundTheme.Minecraft,
   backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
   voice: 'WmgbWYyjBPkmuF0hCiy3',
   voiceoverUrl: 'https://assets.clip.studio/reddit_voiceover_sample.mp3',
-  voiceoverFrames: alignmentDefault,
+  captionStyle: defaultCaptionStyle,
+  subtitles: defaultRedditVoiceover,
   accountName: 'clipstudio',
   titleEnd: 5.097,
   language: Language.English,
@@ -450,7 +507,6 @@ export const defaultRedditProps: RedditVideoProps = {
   width: VIDEO_WIDTH,
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
-  captionStyle: CaptionStyle.Default,
   isVoiceoverGenerated: true,
   voiceSpeed: 1.25,
   backgroundStartIndex: 0
@@ -468,7 +524,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
   width: VIDEO_WIDTH,
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
-  captionStyle: CaptionStyle.Default,
+  captionStyle: defaultCaptionStyle,
   backgroundStartIndex: 0,
   tweets: [
     {
@@ -586,6 +642,7 @@ export const defaultTwitterProps: TwitterVideoProps = {
       hideUsername: false,
       likes: 12674,
       comments: 3,
+
       duration: 15.789,
       from: 89.768,
       hideText: false
@@ -831,7 +888,7 @@ export const defaultTextMessageProps: TextMessageVideoProps = {
   durationInFrames: 521,
   backgroundTheme: BackgroundTheme.Minecraft,
   backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
-  captionStyle: CaptionStyle.Default,
+  captionStyle: defaultCaptionStyle,
   voiceoverUrl: 'https://assets.clip.studio/messages_voiceover_sample.mp3',
   isVoiceoverGenerated: true
 }
@@ -845,7 +902,7 @@ export const defaultClipsProps: ClipsVideoProps = {
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
   durationInFrames: DEFAULT_DURATION_IN_FRAMES,
-  captionStyle: CaptionStyle.Default,
+  captionStyle: defaultCaptionStyle,
   titlePosition: 20,
   subtitlePosition: 80,
   videoPosition: 50,
@@ -867,9 +924,9 @@ export const defaultAIVideoProps: AIVideoProps = {
   fps: VIDEO_FPS,
   durationInFrames: DEFAULT_DURATION_IN_FRAMES,
   prompt: 'A story about Julius Caesar',
-  captionStyle: CaptionStyle.Default,
+  captionStyle: defaultCaptionStyle,
   voiceoverUrl: 'https://assets.clip.studio/aivideo_voiceover.mp3',
-  voiceoverFrames: aiVoiceoverFrames,
+  subtitles: aiVoiceoverFrames,
   voiceId: 'EXAVITQu4vr4xnSDxMaL',
   storyLength: 'short',
   range: '1-2',
@@ -987,7 +1044,7 @@ export const defaultHopeCoreProps: HopeCoreVideoProps = {
   width: VIDEO_WIDTH,
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,
-  captionStyle: CaptionStyle.Default,
+  captionStyle: defaultCaptionStyle,
   isVoiceoverGenerated: true,
   voiceSpeed: 0.9,
   backgroundStartIndex: 0
@@ -1002,7 +1059,7 @@ const initialState = {
   durationInFrames: DEFAULT_DURATION_IN_FRAMES,
   backgroundTheme: BackgroundTheme.Minecraft,
   backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
-  captionStyle: CaptionStyle.Default,
+  captionStyle: defaultCaptionStyle,
   clipsState: defaultClipsProps,
   aiVideoState: defaultAIVideoProps,
   hopeCoreState: defaultHopeCoreProps,
@@ -1026,8 +1083,8 @@ type State = {
   setBackgroundTheme: (theme: BackgroundTheme) => void
   backgroundUrls: string[]
   setBackgroundUrls: (urls: string[]) => void
-  captionStyle: CaptionStyle
-  setCaptionStyle: (style: CaptionStyle) => void
+  captionStyle: z.infer<typeof captionStyleSchema>
+  setCaptionStyle: (style: z.infer<typeof captionStyleSchema>) => void
   clipsState: ClipsVideoProps
   setClipsState: (state: Partial<ClipsVideoProps>) => void
   aiVideoState: AIVideoProps
@@ -1121,15 +1178,30 @@ export const useTemplateStore = create<State>()(
           ...state.splitScreenState,
           captionStyle: style
         },
-        redditState: { ...state.redditState, captionStyle: style },
-        twitterState: { ...state.twitterState, captionStyle: style },
-        clipsState: { ...state.clipsState, captionStyle: style },
+        redditState: {
+          ...state.redditState,
+          captionStyle: style
+        },
+        twitterState: {
+          ...state.twitterState,
+          captionStyle: style
+        },
+        clipsState: {
+          ...state.clipsState,
+          captionStyle: style
+        },
         textMessageState: {
           ...state.textMessageState,
           captionStyle: style
         },
-        aiVideoState: { ...state.aiVideoState, captionStyle: style },
-        hopeCoreState: { ...state.hopeCoreState, captionStyle: style }
+        aiVideoState: {
+          ...state.aiVideoState,
+          captionStyle: style
+        },
+        hopeCoreState: {
+          ...state.hopeCoreState,
+          captionStyle: style
+        }
       })),
     setClipsState: (state) =>
       set((prevState) => ({

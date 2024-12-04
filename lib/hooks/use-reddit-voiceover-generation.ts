@@ -43,7 +43,7 @@ export const useRedditVoiceoverGeneration = (
       Math.floor((data.endTimestamp * 30) / voiceSpeed)
     )
     form.setValue('voiceoverUrl', data.signedUrl)
-    form.setValue('voiceoverFrames', data.voiceoverObject)
+    form.setValue('captions', data.voiceoverObject)
     form.setValue('isVoiceoverGenerated', true)
     form.clearErrors('isVoiceoverGenerated')
 

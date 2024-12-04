@@ -8,19 +8,28 @@ import {
   useCurrentFrame,
   useVideoConfig
 } from 'remotion'
+import { z } from 'zod'
 
-type CaptionComponentProps = {
+import '../Shared/font.css'
+
+import { captionStyleSchema } from '../../stores/templatestore'
+
+interface CaptionComponentProps {
   captions: Caption[]
-  styles: { [key: string]: React.CSSProperties }
+  styles?: React.CSSProperties
+  options?: z.infer<typeof captionStyleSchema>['options']
+  playbackRate?: number
 }
 
 export const CaptionComponent: React.FC<CaptionComponentProps> = ({
   captions,
-  styles
+  styles,
+  options,
+  playbackRate = 1
 }) => {
   const { pages } = createTikTokStyleCaptions({
     captions,
-    combineTokensWithinMilliseconds: 1200
+    combineTokensWithinMilliseconds: 800
   })
 
   const currentFrame = useCurrentFrame()
@@ -29,80 +38,91 @@ export const CaptionComponent: React.FC<CaptionComponentProps> = ({
   return (
     <>
       {pages.map((page, index) => {
-        const startFrame = Math.round((page.startMs / 1000) * fps)
-        const duration = Math.round(
-          ((page.tokens[page.tokens.length - 1].toMs - page.startMs) / 1000) *
-            fps
-        )
-        const scale = spring({
-          fps,
-          frame: currentFrame - startFrame,
-          config: {
-            damping: 15,
-            stiffness: 300,
-            mass: 0.4
-          }
-        })
+        const startMs =
+          index === 0
+            ? page.startMs
+            : pages[0].startMs +
+              (page.startMs - pages[0].startMs) * playbackRate
 
-        // Generate a random rotation between -3 and 3 degrees
-        const randomRotation = random(index) * 6 - 3
+        const endMs =
+          index === 0
+            ? page.tokens[page.tokens.length - 1].toMs
+            : pages[0].startMs +
+              (page.tokens[page.tokens.length - 1].toMs - pages[0].startMs) *
+                playbackRate
+
+        const startFrame = Math.round((startMs / 1000) * fps)
+        const endFrame = Math.round((endMs / 1000) * fps)
+        const duration = Math.max(endFrame - startFrame, 1)
+        const scale = options?.scale
+          ? spring({
+              fps,
+              frame: currentFrame - startFrame,
+              config: {
+                damping: 15,
+                stiffness: 300,
+                mass: 0.4
+              }
+            })
+          : 1
+
+        const randomRotation = options?.rotation ? random(index) * 6 - 3 : 0
 
         return (
           <Sequence key={index} from={startFrame} durationInFrames={duration}>
             <div
               className="absolute top-1/2 -translate-y-1/2 left-0 right-0 text-center text-white"
               style={{
-                fontSize: `${width / 12}px`,
-                fontWeight: '900',
-                lineHeight: 1.1,
-                maxWidth: '95%',
+                ...styles,
+                transform: `scale(${scale}) rotate(${randomRotation}deg)`,
+                textShadow:
+                  styles?.textShadow ||
+                  `
+                  -3px -3px 0 #000,  
+                   3px -3px 0 #000,
+                  -3px  3px 0 #000,
+                   3px  3px 0 #000,
+                  -3px  0   0 #000,
+                   3px  0   0 #000,
+                   0   -3px 0 #000,
+                   0    3px 0 #000,
+                   4px 4px 0px #555,
+                   5px 5px 0px #444,
+                   6px 6px 0px #333,
+                   7px 7px 8px rgba(0,0,0,0.4)
+                `,
+                maxWidth: '90%',
                 margin: '0 auto',
                 wordWrap: 'break-word',
-                transform: `scale(${scale}) rotate(${randomRotation}deg)`,
-                transformOrigin: 'center center',
-                textShadow: `
-                  0px -6px 0 #212121,  
-                  0px -6px 0 #212121,
-                  0px  6px 0 #212121,
-                  0px  6px 0 #212121,
-                  -6px  0px 0 #212121,  
-                  6px  0px 0 #212121,
-                  -6px  0px 0 #212121,
-                  6px  0px 0 #212121,
-                  -6px -6px 0 #212121,  
-                  6px -6px 0 #212121,
-                  -6px  6px 0 #212121,
-                  6px  6px 0 #212121,
-                  -6px  18px 0 #212121,
-                  0px  18px 0 #212121,
-                  6px  18px 0 #212121,
-                  0 19px 1px rgba(0,0,0,.1),
-                  0 0 6px rgba(0,0,0,.1),
-                  0 6px 3px rgba(0,0,0,.3),
-                  0 12px 6px rgba(0,0,0,.2),
-                  0 18px 18px rgba(0,0,0,.25),
-                  0 24px 24px rgba(0,0,0,.2),
-                  0 36px 36px rgba(0,0,0,.15)`,
-                letterSpacing: '1px',
-                ...styles
+                whiteSpace: 'pre-wrap',
+                fontSize: '3.5em'
               }}
             >
               {page.tokens.map((token, tokenIndex) => {
-                const tokenStartFrame = Math.round((token.fromMs / 1000) * fps)
-                const tokenEndFrame = Math.round((token.toMs / 1000) * fps)
+                const tokenStartFrame = Math.round(
+                  ((token.fromMs / 1000) * fps) / playbackRate
+                )
+                const tokenEndFrame = Math.round(
+                  ((token.toMs / 1000) * fps) / playbackRate
+                )
+                const adjustedEndFrame = Math.max(
+                  tokenEndFrame,
+                  tokenStartFrame + 2
+                )
                 const isHighlighted =
                   currentFrame >= tokenStartFrame &&
-                  currentFrame < tokenEndFrame
+                  currentFrame < adjustedEndFrame
 
                 const progress = interpolate(
                   currentFrame,
-                  [tokenStartFrame, tokenEndFrame - 1],
+                  [tokenStartFrame, adjustedEndFrame - 1],
                   [0, 1],
                   {
                     extrapolateLeft: 'clamp',
                     extrapolateRight: 'clamp'
                   }
                 )
+
                 const backgroundScale = interpolate(
                   progress,
                   [0, 1],
@@ -113,30 +133,34 @@ export const CaptionComponent: React.FC<CaptionComponentProps> = ({
                     easing: Easing.out(Easing.exp)
                   }
                 )
+
                 return (
                   <span
                     key={tokenIndex}
                     style={{
                       position: 'relative',
                       display: 'inline-block',
-                      color: isHighlighted ? '#FFD700' : 'white',
-                      transition: 'color 0.1s ease-in-out',
-                      marginRight: '0.2em'
+                      color:
+                        isHighlighted && options?.highlighted.word
+                          ? options.highlighted.wordColor
+                          : options?.textColor || 'white',
+                      marginRight: '-0.3em'
                     }}
                   >
-                    {isHighlighted && (
+                    {isHighlighted && options?.highlighted.boxed && (
                       <span
                         style={{
                           position: 'absolute',
-                          top: '55%',
-                          left: '50%',
-                          transform: `translate(-50%, -50%) scale(${backgroundScale})`,
-                          backgroundColor: '#32CD32',
-                          borderRadius: '20px',
+                          inset: '8px',
+                          backgroundColor:
+                            options.highlighted.boxColor || '#32CD32',
+                          borderRadius:
+                            options.highlighted.boxBorderRadius || '10px',
                           zIndex: -1,
-                          width: '100%',
-                          height: '100%',
-                          transformOrigin: 'center center'
+                          display: 'block',
+                          padding: 0,
+                          transformOrigin: 'center center',
+                          transform: `scale(${backgroundScale})`
                         }}
                       />
                     )}
