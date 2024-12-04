@@ -246,16 +246,6 @@ const VoiceoverFramesSchema = z.object({
   character_end_times_seconds: z.array(z.number())
 })
 
-export const TranscriptionSchema = z.object({
-  text: z.string(),
-  chunks: z.array(
-    z.object({
-      timestamp: z.array(z.number()),
-      text: z.string()
-    })
-  )
-})
-
 const subtitleSchema = z.array(
   z.object({
     text: z.string(),
@@ -318,7 +308,7 @@ export const SplitScreenVideoSchema = BaseVideoSchema.extend({
   videoUrl: z.string(),
   type: z.enum(['blob', 'cloud']),
   transcriptionId: z.string(),
-  transcription: TranscriptionSchema,
+  transcription: subtitleSchema,
   backgroundUrls: z.array(z.string())
 })
 
@@ -395,9 +385,9 @@ export const AIVideoSchema = z.object({
   voiceId: z.string(),
   voiceoverUrl: z.string(),
   visualStyle: z.nativeEnum(VisualStyle).default(VisualStyle.Realistic),
-  voiceoverFrames: VoiceoverFramesSchema,
   backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
   backgroundUrls: z.array(z.string()).optional(),
+  subtitles: subtitleSchema,
   captionStyle: captionStyleSchema
 })
 
@@ -924,7 +914,7 @@ export const defaultAIVideoProps: AIVideoProps = {
   prompt: 'A story about Julius Caesar',
   captionStyle: defaultCaptionStyle,
   voiceoverUrl: 'https://assets.clip.studio/aivideo_voiceover.mp3',
-  voiceoverFrames: aiVoiceoverFrames,
+  subtitles: aiVoiceoverFrames,
   voiceId: 'EXAVITQu4vr4xnSDxMaL',
   storyLength: 'short',
   range: '1-2',

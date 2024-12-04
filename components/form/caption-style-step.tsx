@@ -190,9 +190,17 @@ const CaptionPreview: React.FC<{
 }> = ({ style }) => {
   const controls = useAnimation()
   const [currentWord, setCurrentWord] = useState(0)
+  const [isMounted, setIsMounted] = useState(false)
   const words = ['Caption', 'Preview', 'Example']
 
   useEffect(() => {
+    setIsMounted(true)
+    return () => setIsMounted(false)
+  }, [])
+
+  useEffect(() => {
+    if (!isMounted) return
+
     const sequence = async () => {
       controls.set({ scale: 1, rotate: 0 })
 
@@ -224,7 +232,13 @@ const CaptionPreview: React.FC<{
 
     sequence()
     return () => controls.stop()
-  }, [controls, style.options.scale, style.options.rotation, words.length])
+  }, [
+    controls,
+    style.options.scale,
+    style.options.rotation,
+    words.length,
+    isMounted
+  ])
 
   return (
     <div className="bg-background p-4 rounded-md flex items-center justify-center h-24 overflow-hidden">

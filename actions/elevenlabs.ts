@@ -422,6 +422,45 @@ export const generateTextVoiceover = createServerAction()
     }
   })
 
+function calculateWordTimestamps(
+  alignment: Alignment,
+  titleDuration: number = 0
+) {
+  const words: string[] = []
+  const wordStartTimes: number[] = []
+  const wordEndTimes: number[] = []
+
+  let currentWord = ''
+  let currentWordStartTime: number | null = null
+
+  alignment.characters.forEach((char, index) => {
+    if (currentWordStartTime === null) {
+      currentWordStartTime = alignment.character_start_times_seconds[index]
+    }
+
+    currentWord += char
+
+    if (char === ' ' || index === alignment.characters.length - 1) {
+      if (currentWord.trim() !== '') {
+        const cleanedWord = ' ' + currentWord.trim().replace(/[^\w\s]/g, '')
+        words.push(cleanedWord)
+        wordStartTimes.push(currentWordStartTime!)
+        wordEndTimes.push(alignment.character_end_times_seconds[index])
+      }
+      currentWord = ''
+      currentWordStartTime = null
+    }
+  })
+
+  return words.map((word, index) => ({
+    text: word,
+    startMs: wordStartTimes[index] * 1000 + titleDuration * 1000,
+    endMs: wordEndTimes[index] * 1000 + titleDuration * 1000,
+    timestampMs: null,
+    confidence: null
+  }))
+}
+
 export const generateStructuredVoiceover = createServerAction()
   .input(
     z.object({
@@ -486,8 +525,7 @@ export const generateStructuredVoiceover = createServerAction()
         const audio =
           (await elevenLabsClient.textToSpeech.convertWithTimestamps(voiceId, {
             model_id: 'eleven_multilingual_v2',
-            text: fullText,
-            language_code: language
+            text: fullText
           })) as AudioResponse
 
         const alignment = audio.normalized_alignment
@@ -495,6 +533,8 @@ export const generateStructuredVoiceover = createServerAction()
           alignment.character_end_times_seconds[
             alignment.character_end_times_seconds.length - 1
           ]
+
+        const voiceoverObject = calculateWordTimestamps(alignment)
 
         const segmentDurations = []
         let currentPosition = 0
@@ -540,7 +580,7 @@ export const generateStructuredVoiceover = createServerAction()
         return {
           signedUrl,
           endTimestamp: totalDuration,
-          voiceoverObject: alignment,
+          voiceoverObject,
           segmentDurations
         }
       })
@@ -554,6 +594,8 @@ export const generateStructuredVoiceover = createServerAction()
     } catch (error) {
       logger.error(errorString, { error })
       await logger.flush()
+
+      console.error(error)
 
       if (error instanceof ZSAError) {
         throw error

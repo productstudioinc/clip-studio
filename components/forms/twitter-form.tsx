@@ -14,7 +14,6 @@ import { useForm, useWatch } from 'react-hook-form'
 import { Form } from '@/components/ui/form'
 import { AspectRatioStep } from '@/components/form/aspect-ratio-step'
 import { BackgroundSelectStep } from '@/components/form/background-select-step'
-import { CaptionStyleStep } from '@/components/form/caption-style-step'
 import { FormSubmit } from '@/components/form/form-submit'
 // import { MusicStep } from '@/components/form/music-step'
 import { TwitterUrlStep } from '@/components/form/twitter-url-step'
@@ -49,7 +48,6 @@ export const TwitterForm: React.FC<TwitterFormProps> = () => {
             {/* <MusicStep form={form} music={music} /> */}
             <TwitterVoiceStep form={form} />
             <BackgroundSelectStep form={form} />
-            <CaptionStyleStep form={form} />
             <AspectRatioStep form={form} />
             <FormSubmit form={form} />
           </NumberedSteps>
