@@ -338,7 +338,7 @@ export const generateTextVoiceover = createServerAction()
 
           if (message.content.type === 'text') {
             const messageText = message.content.value as string
-            const fullMessageText = `${messageText} <break time="0.7s" />`
+            const fullMessageText = `${messageText} <break time="0.3s" />`
 
             const audioResponse =
               (await elevenLabsClient.textToSpeech.convertWithTimestamps(
