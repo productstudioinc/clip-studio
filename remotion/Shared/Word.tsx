@@ -44,28 +44,16 @@ export const Word: React.FC<{
 
   const getStyleProperties = (style: CaptionStyle) => {
     switch (style) {
-      case CaptionStyle.KomikaAxis:
+      case CaptionStyle.Comic:
         return {
           fontFamily: komikaFontFamily,
           color: 'yellow',
           textTransform: 'uppercase' as const
         }
-      case CaptionStyle.Montserrat:
+      case CaptionStyle.Default:
         return {
           fontFamily: montserratFont.fontFamily,
           color: 'white',
-          textTransform: 'uppercase' as const
-        }
-      case CaptionStyle.Handwritten:
-        return {
-          fontFamily: permanentMarkerFont.fontFamily,
-          color: 'white',
-          textTransform: 'none' as const
-        }
-      case CaptionStyle.Futuristic:
-        return {
-          fontFamily: robotoFont.fontFamily,
-          color: '#00ffff',
           textTransform: 'uppercase' as const
         }
       default:

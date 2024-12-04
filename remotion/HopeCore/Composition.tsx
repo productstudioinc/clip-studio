@@ -149,7 +149,7 @@ export const HopeCoreComposition = ({
               >
                 <Subtitle
                   text={subtitle.text}
-                  captionStyle={captionStyle}
+                  captionStyle={captionStyle.id}
                   style={{ top: '50%' }}
                 />
               </Sequence>

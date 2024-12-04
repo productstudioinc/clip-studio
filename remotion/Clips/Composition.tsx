@@ -56,7 +56,7 @@ export const ClipsComposition = ({
       {title && (
         <Subtitle
           text={title}
-          captionStyle={captionStyle}
+          captionStyle={captionStyle.id}
           className={`absolute ${aspectRatio === AspectRatio.Vertical ? 'text-2xl' : 'text-4xl'}`}
           style={{
             top: `${titlePosition}%`
@@ -68,7 +68,7 @@ export const ClipsComposition = ({
       {subtitle && (
         <Subtitle
           text={subtitle}
-          captionStyle={captionStyle}
+          captionStyle={captionStyle.id}
           className={`absolute ${aspectRatio === AspectRatio.Vertical ? 'text-2xl' : 'text-4xl'}`}
           style={{
             bottom: `${100 - subtitlePosition}%`

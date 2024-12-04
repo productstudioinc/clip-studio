@@ -23,11 +23,26 @@ export const TranscribeStep: React.FC<TranscribeStepProps> = ({ form }) => {
   const handleTranscriptionChange = (
     index: number,
     field: string,
-    value: string
+    value: string | number
   ) => {
-    const newChunks = [...form.getValues('transcription.chunks')]
-    newChunks[index] = { ...newChunks[index], [field]: value }
-    form.setValue('transcription.chunks', newChunks)
+    const newTranscription = [...form.getValues('transcription')]
+    newTranscription[index] = {
+      ...newTranscription[index],
+      [field]: field.includes('Ms') ? Number(value) : value
+    }
+    form.setValue('transcription', newTranscription)
+  }
+
+  const msToTimestamp = (ms: number) => {
+    const seconds = Math.floor(ms / 1000)
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
+  }
+
+  const timestampToMs = (timestamp: string) => {
+    const [minutes, seconds] = timestamp.split(':').map(Number)
+    return (minutes * 60 + seconds) * 1000
   }
 
   const handleTranscribeClick = async () => {
@@ -71,8 +86,8 @@ export const TranscribeStep: React.FC<TranscribeStepProps> = ({ form }) => {
   }
 
   const renderTranscription = () => {
-    const chunks = form.getValues('transcription.chunks')
-    if (!chunks) return null
+    const transcription = form.getValues('transcription')
+    if (!transcription) return null
 
     return (
       <ScrollArea className="h-[400px] w-full rounded-md border">
@@ -83,19 +98,19 @@ export const TranscribeStep: React.FC<TranscribeStepProps> = ({ form }) => {
             <div>Transcription</div>
           </div>
           <ul className="space-y-3">
-            {chunks.map((chunk, index) => (
+            {transcription.map((segment, index) => (
               <li
                 key={index}
                 className="grid grid-cols-[100px_100px_1fr] gap-2 items-center"
               >
                 <div className="flex items-center space-x-2">
                   <Input
-                    value={chunk.timestamp[0]}
+                    value={msToTimestamp(segment.startMs)}
                     onChange={(e) =>
                       handleTranscriptionChange(
                         index,
-                        'timestamp[0]',
-                        e.target.value
+                        'startMs',
+                        timestampToMs(e.target.value)
                       )
                     }
                     className="w-full"
@@ -104,12 +119,12 @@ export const TranscribeStep: React.FC<TranscribeStepProps> = ({ form }) => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Input
-                    value={chunk.timestamp[1]}
+                    value={msToTimestamp(segment.endMs)}
                     onChange={(e) =>
                       handleTranscriptionChange(
                         index,
-                        'timestamp[1]',
-                        e.target.value
+                        'endMs',
+                        timestampToMs(e.target.value)
                       )
                     }
                     className="w-full"
@@ -117,7 +132,7 @@ export const TranscribeStep: React.FC<TranscribeStepProps> = ({ form }) => {
                   />
                 </div>
                 <Input
-                  value={chunk.text}
+                  value={segment.text}
                   onChange={(e) =>
                     handleTranscriptionChange(index, 'text', e.target.value)
                   }

@@ -84,7 +84,7 @@ export const UploadStep: React.FC<UploadStepProps> = ({ form }) => {
       setValue('videoUrl', data.readUrl)
       setValue('durationInFrames', Math.floor(durationInSeconds * 30))
       setValue('transcriptionId', '')
-      setValue('transcription', { text: '', chunks: [] })
+      setValue('transcription', [])
 
       URL.revokeObjectURL(blobUrl)
       toast.success('Video uploaded successfully')
