@@ -338,7 +338,7 @@ export const generateTextVoiceover = createServerAction()
 
           if (message.content.type === 'text') {
             const messageText = message.content.value as string
-            const fullMessageText = `${messageText} ——`
+            const fullMessageText = `${messageText} <break time="0.7s" />`
 
             const audioResponse =
               (await elevenLabsClient.textToSpeech.convertWithTimestamps(
@@ -640,8 +640,6 @@ export const generateTwitterVoiceover = createServerAction()
       throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
     }
 
-    console.log(input)
-
     const fullText = input.tweets.map((tweet) => tweet.content).join(' ')
     const characterCount = fullText.length
     const requiredCredits = Math.ceil(
@@ -677,10 +675,7 @@ export const generateTwitterVoiceover = createServerAction()
           })
           .where(eq(userUsage.userId, user.id))
 
-        const audioBuffers: Buffer[] = []
-        const sections: Array<{ from: number; duration: number }> = []
-        let currentTime = 0
-
+        const audioResults = []
         for (const tweet of input.tweets) {
           const voiceSetting = input.voiceSettings.find(
             (vs) => vs.username === tweet.username
@@ -694,30 +689,46 @@ export const generateTwitterVoiceover = createServerAction()
             .replace(/\s+/g, ' ')
             .trim()
 
-          const tweetText = `${cleanContent} ---`
+          const tweetText = `${cleanContent}<break time="0.7s" />`
 
-          const audioResponse =
-            (await elevenLabsClient.textToSpeech.convertWithTimestamps(
-              voiceSetting.voiceId,
-              {
-                model_id: 'eleven_multilingual_v2',
-                text: tweetText,
-                language_code: input.language
-              }
-            )) as AudioResponse
+          try {
+            const audioResponse =
+              (await elevenLabsClient.textToSpeech.convertWithTimestamps(
+                voiceSetting.voiceId,
+                {
+                  model_id: 'eleven_multilingual_v2',
+                  text: tweetText
+                }
+              )) as AudioResponse
 
-          const audioBuffer = Buffer.from(audioResponse.audio_base64, 'base64')
-          audioBuffers.push(audioBuffer)
-
-          const endTimestamp =
-            audioResponse.normalized_alignment.character_end_times_seconds.slice(
-              -1
-            )[0]
-          const duration = endTimestamp
-
-          sections.push({ duration, from: currentTime })
-          currentTime += duration
+            audioResults.push({
+              audio: Buffer.from(audioResponse.audio_base64, 'base64'),
+              endTimestamp:
+                audioResponse.normalized_alignment.character_end_times_seconds.slice(
+                  -1
+                )[0]
+            })
+          } catch (error) {
+            logger.error('Failed to generate audio for tweet', {
+              username: tweet.username,
+              error: error instanceof Error ? error.message : String(error)
+            })
+            throw error
+          }
         }
+
+        const audioBuffers: Buffer[] = []
+        const sections: Array<{ from: number; duration: number }> = []
+        let currentTime = 0
+
+        audioResults.forEach((result) => {
+          audioBuffers.push(result.audio)
+          sections.push({
+            duration: result.endTimestamp,
+            from: currentTime
+          })
+          currentTime += result.endTimestamp
+        })
 
         const totalDuration = sections.reduce(
           (sum, section) => sum + section.duration,
@@ -764,6 +775,7 @@ export const generateTwitterVoiceover = createServerAction()
     } catch (error) {
       logger.error(errorString, { error })
       await logger.flush()
+
       console.error(error)
 
       if (error instanceof ZSAError) {
