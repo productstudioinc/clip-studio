@@ -105,7 +105,7 @@ export const SplitScreenComposition = ({
         }}
       >
         {backgroundUrls.length === 1 ? (
-          <Video src={url} style={videoStyle} muted loop />
+          <Video src={backgroundUrls[0]} style={videoStyle} muted loop />
         ) : (
           <Series>
             {requiredSegments.map((url, index) => (
