@@ -104,20 +104,24 @@ export const SplitScreenComposition = ({
           height: '50%'
         }}
       >
-        <Series>
-          {requiredSegments.map((url, index) => (
-            <Series.Sequence durationInFrames={FPS * 60} key={index}>
-              <Video
-                src={url}
-                startFrom={0}
-                endAt={FPS * 60}
-                style={videoStyle}
-                muted
-                loop
-              />
-            </Series.Sequence>
-          ))}
-        </Series>
+        {backgroundUrls.length === 1 ? (
+          <Video src={url} style={videoStyle} muted loop />
+        ) : (
+          <Series>
+            {requiredSegments.map((url, index) => (
+              <Series.Sequence durationInFrames={FPS * 60} key={index}>
+                <Video
+                  src={url}
+                  startFrom={0}
+                  endAt={FPS * 60}
+                  style={videoStyle}
+                  muted
+                  loop
+                />
+              </Series.Sequence>
+            ))}
+          </Series>
+        )}
       </div>
       {subtitles.map((subtitle, index) =>
         subtitle.startFrame < subtitle.endFrame ? (

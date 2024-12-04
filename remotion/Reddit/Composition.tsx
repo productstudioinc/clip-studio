@@ -99,23 +99,32 @@ export const RedditComposition = ({
         playbackRate={voiceSpeed}
       />
       <AbsoluteFill className="w-full h-full">
-        <Series>
-          {requiredSegments.map((url, index) => (
-            <Series.Sequence
-              durationInFrames={BACKGROUND_VIDEO_DURATION}
-              key={index}
-            >
-              <Video
-                src={url}
-                className="absolute w-full h-full object-cover"
-                startFrom={0}
-                endAt={BACKGROUND_VIDEO_DURATION}
-                muted
-                loop
-              />
-            </Series.Sequence>
-          ))}
-        </Series>
+        {backgroundUrls.length === 1 ? (
+          <Video
+            src={backgroundUrls[0]}
+            className="absolute w-full h-full object-cover"
+            muted
+            loop
+          />
+        ) : (
+          <Series>
+            {requiredSegments.map((url, index) => (
+              <Series.Sequence
+                durationInFrames={BACKGROUND_VIDEO_DURATION}
+                key={index}
+              >
+                <Video
+                  src={url}
+                  className="absolute w-full h-full object-cover"
+                  startFrom={0}
+                  endAt={BACKGROUND_VIDEO_DURATION}
+                  muted
+                  loop
+                />
+              </Series.Sequence>
+            ))}
+          </Series>
+        )}
         <AbsoluteFill className="flex justify-center items-center">
           <Sequence durationInFrames={Math.floor(titleEndFrame / voiceSpeed)}>
             <AbsoluteFill className="flex justify-center items-center">

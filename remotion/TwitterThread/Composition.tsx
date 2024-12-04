@@ -40,20 +40,29 @@ export const TwitterComposition = ({
         volume={voiceVolume / 100}
         playbackRate={voiceSpeed}
       />
-      <Series>
-        {requiredSegments.map((url, index) => (
-          <Series.Sequence durationInFrames={60 * FPS} key={index}>
-            <Video
-              src={url}
-              startFrom={0}
-              endAt={60 * FPS}
-              className="absolute w-full h-full object-cover"
-              muted
-              loop
-            />
-          </Series.Sequence>
-        ))}
-      </Series>
+      {backgroundUrls.length === 1 ? (
+        <Video
+          src={backgroundUrls[0]}
+          className="absolute w-full h-full object-cover"
+          muted
+          loop
+        />
+      ) : (
+        <Series>
+          {requiredSegments.map((url, index) => (
+            <Series.Sequence durationInFrames={60 * FPS} key={index}>
+              <Video
+                src={url}
+                className="absolute w-full h-full object-cover"
+                startFrom={0}
+                endAt={60 * FPS}
+                muted
+                loop
+              />
+            </Series.Sequence>
+          ))}
+        </Series>
+      )}
       {tweets.map((tweet, index) => (
         <Sequence
           from={Math.floor(((tweets[index].from || 0) * FPS) / voiceSpeed)}

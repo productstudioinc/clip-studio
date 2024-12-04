@@ -44,23 +44,32 @@ export const TextMessageComposition = (props: TextMessageVideoProps) => {
         volume={props.voiceVolume / 100}
       />
       <AbsoluteFill className="w-full h-full">
-        <Series>
-          {requiredSegments.map((url, index) => (
-            <Series.Sequence
-              durationInFrames={BACKGROUND_VIDEO_DURATION}
-              key={index}
-            >
-              <Video
-                src={url}
-                startFrom={0}
-                endAt={BACKGROUND_VIDEO_DURATION}
-                className="absolute w-full h-full object-cover"
-                muted
-                loop
-              />
-            </Series.Sequence>
-          ))}
-        </Series>
+        {props.backgroundUrls.length === 1 ? (
+          <Video
+            src={props.backgroundUrls[0]}
+            className="absolute w-full h-full object-cover"
+            muted
+            loop
+          />
+        ) : (
+          <Series>
+            {requiredSegments.map((url, index) => (
+              <Series.Sequence
+                durationInFrames={BACKGROUND_VIDEO_DURATION}
+                key={index}
+              >
+                <Video
+                  src={url}
+                  className="absolute w-full h-full object-cover"
+                  startFrom={0}
+                  endAt={BACKGROUND_VIDEO_DURATION}
+                  muted
+                  loop
+                />
+              </Series.Sequence>
+            ))}
+          </Series>
+        )}
         <AbsoluteFill className="flex justify-center items-center">
           {props.messages.map((message, index) => {
             const startIndex = Math.max(0, index - 5)
