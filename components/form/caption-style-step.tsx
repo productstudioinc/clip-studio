@@ -188,62 +188,11 @@ const ColorPicker = ({
 const CaptionPreview: React.FC<{
   style: z.infer<typeof captionStyleSchema>
 }> = ({ style }) => {
-  const controls = useAnimation()
-  const [currentWord, setCurrentWord] = useState(0)
-  const [isMounted, setIsMounted] = useState(false)
   const words = ['Caption', 'Preview', 'Example']
-
-  useEffect(() => {
-    setIsMounted(true)
-    return () => setIsMounted(false)
-  }, [])
-
-  useEffect(() => {
-    if (!isMounted) return
-
-    const sequence = async () => {
-      controls.set({ scale: 1, rotate: 0 })
-
-      while (true) {
-        for (let i = 0; i < words.length; i++) {
-          setCurrentWord(i)
-
-          if (!style.options.scale && !style.options.rotation) {
-            await new Promise((resolve) => setTimeout(resolve, 2000))
-            continue
-          }
-
-          await controls.start({
-            scale: style.options.scale ? 1.2 : 1,
-            rotate: style.options.rotation ? Math.random() * 6 - 3 : 0,
-            transition: { duration: 0.5 }
-          })
-
-          await new Promise((resolve) => setTimeout(resolve, 2000))
-
-          await controls.start({
-            scale: 1,
-            rotate: 0,
-            transition: { duration: 0.5 }
-          })
-        }
-      }
-    }
-
-    sequence()
-    return () => controls.stop()
-  }, [
-    controls,
-    style.options.scale,
-    style.options.rotation,
-    words.length,
-    isMounted
-  ])
 
   return (
     <div className="bg-background p-4 rounded-md flex items-center justify-center h-24 overflow-hidden">
-      <motion.div
-        animate={controls}
+      <div
         style={{
           ...style.style,
           color: style.options.textColor,
@@ -267,19 +216,15 @@ const CaptionPreview: React.FC<{
             style={{
               position: 'relative',
               display: 'inline-block',
-              color:
-                currentWord === index && style.options.highlighted.word
-                  ? style.options.highlighted.wordColor
-                  : style.options.textColor,
+              color: style.options.highlighted.word
+                ? style.options.highlighted.wordColor
+                : style.options.textColor,
               marginRight: '0.2em',
               padding: '0.2em'
             }}
           >
-            {currentWord === index && style.options.highlighted.boxed && (
-              <motion.span
-                initial={{ scale: 1 }}
-                animate={{ scale: 1.2 }}
-                transition={{ duration: 0.3 }}
+            {style.options.highlighted.boxed && (
+              <span
                 style={{
                   position: 'absolute',
                   inset: '8px',
@@ -294,7 +239,7 @@ const CaptionPreview: React.FC<{
             {word}
           </span>
         ))}
-      </motion.div>
+      </div>
     </div>
   )
 }
