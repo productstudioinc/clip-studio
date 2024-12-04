@@ -306,21 +306,26 @@ export const CaptionStyleStep: React.FC<CaptionStyleStepProps> = ({ form }) => {
   const handleCaptionStyleChange = (value: string) => {
     const selectedStyle = captionStyles.find((style) => style.id === value)
     if (selectedStyle) {
-      const styleWithDefaultOptions = {
+      const currentStyle = form.getValues('captionStyle')
+      const styleWithPreservedOptions = {
         ...selectedStyle,
         options: {
           ...selectedStyle.options,
-          rotation: false,
-          scale: false,
+          rotation: currentStyle.options.rotation,
+          scale: currentStyle.options.scale,
           highlighted: {
             ...selectedStyle.options.highlighted,
-            word: false,
-            boxed: false
-          }
+            word: currentStyle.options.highlighted.word,
+            boxed: currentStyle.options.highlighted.boxed,
+            wordColor: currentStyle.options.highlighted.wordColor,
+            boxColor: currentStyle.options.highlighted.boxColor,
+            boxBorderRadius: currentStyle.options.highlighted.boxBorderRadius
+          },
+          textColor: currentStyle.options.textColor
         }
       }
-      form.setValue('captionStyle', styleWithDefaultOptions)
-      setCaptionStyle(styleWithDefaultOptions)
+      form.setValue('captionStyle', styleWithPreservedOptions)
+      setCaptionStyle(styleWithPreservedOptions)
     }
   }
 

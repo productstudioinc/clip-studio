@@ -98,8 +98,20 @@ const defaultCaptionStyle = {
   name: 'Default',
   style: {
     color: 'white',
-    textShadow:
-      '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000',
+    textShadow: `
+        -3px -3px 0 #000,  
+         3px -3px 0 #000,
+        -3px  3px 0 #000,
+         3px  3px 0 #000,
+        -3px  0   0 #000,
+         3px  0   0 #000,
+         0   -3px 0 #000,
+         0    3px 0 #000,
+         4px 4px 0px #555,
+         5px 5px 0px #444,
+         6px 6px 0px #333,
+         7px 7px 8px rgba(0,0,0,0.4)
+      `,
     fontSize: '28px',
     fontFamily: 'Montserrat, sans-serif',
     textTransform: 'uppercase',
@@ -109,7 +121,7 @@ const defaultCaptionStyle = {
   options: {
     highlighted: {
       word: true,
-      boxed: true,
+      boxed: false,
       wordColor: '#FFD700',
       boxColor: '#32CD32',
       boxBorderRadius: '10px'
