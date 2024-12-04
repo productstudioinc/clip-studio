@@ -29,7 +29,7 @@ export const CaptionComponent: React.FC<CaptionComponentProps> = ({
 }) => {
   const { pages } = createTikTokStyleCaptions({
     captions,
-    combineTokensWithinMilliseconds: 800
+    combineTokensWithinMilliseconds: 600
   })
 
   const currentFrame = useCurrentFrame()
