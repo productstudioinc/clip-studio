@@ -85,6 +85,7 @@ export const RedditComposition = ({
             <CaptionComponent
               captions={adjustedSubtitles}
               styles={captionStyle.style}
+              options={captionStyle.options}
             />
           </AbsoluteFill>
         </AbsoluteFill>

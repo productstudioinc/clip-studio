@@ -8,16 +8,23 @@ import {
   useCurrentFrame,
   useVideoConfig
 } from 'remotion'
+import { z } from 'zod'
+
+import '../Shared/font.css'
+
+import { captionStyleSchema } from '../../stores/templatestore'
 
 interface CaptionComponentProps {
   captions: Caption[]
   styles?: React.CSSProperties
+  options?: z.infer<typeof captionStyleSchema>['options']
   playbackRate?: number
 }
 
 export const CaptionComponent: React.FC<CaptionComponentProps> = ({
   captions,
   styles,
+  options,
   playbackRate = 1
 }) => {
   const { pages } = createTikTokStyleCaptions({
@@ -47,47 +54,48 @@ export const CaptionComponent: React.FC<CaptionComponentProps> = ({
         const startFrame = Math.round((startMs / 1000) * fps)
         const endFrame = Math.round((endMs / 1000) * fps)
         const duration = Math.max(endFrame - startFrame, 1)
-        const scale = spring({
-          fps,
-          frame: currentFrame - startFrame,
-          config: {
-            damping: 15,
-            stiffness: 300,
-            mass: 0.4
-          }
-        })
+        const scale = options?.scale
+          ? spring({
+              fps,
+              frame: currentFrame - startFrame,
+              config: {
+                damping: 15,
+                stiffness: 300,
+                mass: 0.4
+              }
+            })
+          : 1
 
-        const randomRotation = random(index) * 6 - 3
+        const randomRotation = options?.rotation ? random(index) * 6 - 3 : 0
 
         return (
           <Sequence key={index} from={startFrame} durationInFrames={duration}>
             <div
               className="absolute top-1/2 -translate-y-1/2 left-0 right-0 text-center text-white"
               style={{
-                fontSize: `${width / 12}px`,
-                fontWeight: '900',
-                lineHeight: 1.1,
-                maxWidth: '95%',
+                ...styles,
+                transform: `scale(${scale}) rotate(${randomRotation}deg)`,
+                textShadow:
+                  styles?.textShadow ||
+                  `
+                  -3px -3px 0 #000,  
+                   3px -3px 0 #000,
+                  -3px  3px 0 #000,
+                   3px  3px 0 #000,
+                  -3px  0   0 #000,
+                   3px  0   0 #000,
+                   0   -3px 0 #000,
+                   0    3px 0 #000,
+                   4px 4px 0px #555,
+                   5px 5px 0px #444,
+                   6px 6px 0px #333,
+                   7px 7px 8px rgba(0,0,0,0.4)
+                `,
+                maxWidth: '90%',
                 margin: '0 auto',
                 wordWrap: 'break-word',
-                transform: `scale(${scale}) rotate(${randomRotation}deg)`,
-                transformOrigin: 'center center',
-                textShadow: `
-                  -1px -1px 0 #212121,
-                   1px -1px 0 #212121,
-                  -1px  1px 0 #212121,
-                   1px  1px 0 #212121,
-                   2px 2px 0 #212121,
-                   3px 3px 0 #212121,
-                   4px 4px 0 #212121,
-                   5px 5px 0 #212121,
-                   6px 6px 0 #212121,
-                   7px 7px 0 #212121,
-                   8px 8px 0 #212121,
-                   9px 9px 0 #212121,
-                  10px 10px 0 #212121`,
-                letterSpacing: '1px',
-                ...styles
+                whiteSpace: 'pre-wrap',
+                fontSize: '3.5em'
               }}
             >
               {page.tokens.map((token, tokenIndex) => {
@@ -97,12 +105,10 @@ export const CaptionComponent: React.FC<CaptionComponentProps> = ({
                 const tokenEndFrame = Math.round(
                   ((token.toMs / 1000) * fps) / playbackRate
                 )
-
                 const adjustedEndFrame = Math.max(
                   tokenEndFrame,
                   tokenStartFrame + 2
                 )
-
                 const isHighlighted =
                   currentFrame >= tokenStartFrame &&
                   currentFrame < adjustedEndFrame
@@ -134,24 +140,27 @@ export const CaptionComponent: React.FC<CaptionComponentProps> = ({
                     style={{
                       position: 'relative',
                       display: 'inline-block',
-                      color: isHighlighted ? '#FFD700' : 'white',
-                      transition: 'color 0.1s ease-in-out',
-                      marginRight: '0.2em'
+                      color:
+                        isHighlighted && options?.highlighted.word
+                          ? options.highlighted.wordColor
+                          : options?.textColor || 'white',
+                      marginRight: '-0.3em'
                     }}
                   >
-                    {isHighlighted && (
+                    {isHighlighted && options?.highlighted.boxed && (
                       <span
                         style={{
                           position: 'absolute',
-                          top: '57%',
-                          left: '53%',
-                          transform: `translate(-50%, -50%) scale(${backgroundScale})`,
-                          backgroundColor: '#32CD32',
-                          borderRadius: '10px',
+                          inset: '8px',
+                          backgroundColor:
+                            options.highlighted.boxColor || '#32CD32',
+                          borderRadius:
+                            options.highlighted.boxBorderRadius || '10px',
                           zIndex: -1,
-                          width: '100%',
-                          height: '100%',
-                          transformOrigin: 'center center'
+                          display: 'block',
+                          padding: 0,
+                          transformOrigin: 'center center',
+                          transform: `scale(${backgroundScale})`
                         }}
                       />
                     )}

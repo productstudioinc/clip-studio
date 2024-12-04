@@ -123,11 +123,7 @@ export const SplitScreenComposition = ({
             durationInFrames={subtitle.endFrame - subtitle.startFrame}
             key={index}
           >
-            <Subtitle
-              text={subtitle.text}
-              captionStyle={captionStyle}
-              style={{ top: '50%' }}
-            />
+            <Subtitle text={subtitle.text} captionStyle={captionStyle} />
           </Sequence>
         ) : null
       )}

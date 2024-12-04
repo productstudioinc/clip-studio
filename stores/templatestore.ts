@@ -96,7 +96,6 @@ export enum CaptionStyle {
 const defaultCaptionStyle = {
   id: CaptionStyle.Default,
   name: 'Default',
-  className: 'font-montserrat text-white',
   style: {
     color: 'white',
     textShadow:
@@ -106,6 +105,18 @@ const defaultCaptionStyle = {
     textTransform: 'uppercase',
     textAlign: 'center',
     lineHeight: '1.2'
+  },
+  options: {
+    highlighted: {
+      word: true,
+      boxed: true,
+      wordColor: '#FFD700',
+      boxColor: '#32CD32',
+      boxBorderRadius: '10px'
+    },
+    textColor: 'white',
+    rotation: true,
+    scale: true
   }
 } satisfies z.infer<typeof captionStyleSchema>
 
@@ -196,8 +207,19 @@ export const DEFAULT_DURATION_IN_FRAMES = 900
 export const captionStyleSchema = z.object({
   id: z.nativeEnum(CaptionStyle),
   name: z.string(),
-  className: z.string(),
-  style: z.custom<React.CSSProperties>()
+  style: z.custom<React.CSSProperties>(),
+  options: z.object({
+    highlighted: z.object({
+      word: z.boolean(),
+      boxed: z.boolean(),
+      wordColor: z.string(),
+      boxColor: z.string(),
+      boxBorderRadius: z.string()
+    }),
+    textColor: z.string(),
+    rotation: z.boolean(),
+    scale: z.boolean()
+  })
 })
 
 // Zod Schemas
