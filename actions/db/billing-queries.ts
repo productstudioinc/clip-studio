@@ -307,6 +307,13 @@ const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
 
     const newPeriodStart = new Date(subscription.current_period_start * 1000)
     const existingPeriodStart = subscriptionDetails[0].currentPeriodStart
+    const existingUsage = await db
+      .select()
+      .from(userUsage)
+      .where(eq(userUsage.userId, subscriptionDetails[0].userId))
+      .limit(1)
+
+    const isNewSubscription = !existingUsage[0]
     const isRenewal =
       existingPeriodStart && newPeriodStart > existingPeriodStart
 
@@ -314,20 +321,24 @@ const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
       .insert(userUsage)
       .values({
         userId: subscriptionDetails[0].userId,
-        creditsLeft: isRenewal
-          ? subscriptionDetails[0].creditsLeft
-          : sql`LEAST(${userUsage.creditsLeft}, ${subscriptionDetails[0].creditsLeft})`,
+        creditsLeft:
+          isRenewal || isNewSubscription
+            ? subscriptionDetails[0].creditsLeft
+            : sql`LEAST(${userUsage.creditsLeft}, ${subscriptionDetails[0].creditsLeft})`,
         connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
-        lastResetDate: isRenewal ? newPeriodStart : undefined
+        lastResetDate:
+          isRenewal || isNewSubscription ? newPeriodStart : undefined
       })
       .onConflictDoUpdate({
         target: userUsage.userId,
         set: {
-          creditsLeft: isRenewal
-            ? subscriptionDetails[0].creditsLeft
-            : sql`LEAST(COALESCE(${userUsage.creditsLeft}, 0), ${subscriptionDetails[0].creditsLeft})`,
+          creditsLeft:
+            isRenewal || isNewSubscription
+              ? subscriptionDetails[0].creditsLeft
+              : sql`LEAST(COALESCE(${userUsage.creditsLeft}, 0), ${subscriptionDetails[0].creditsLeft})`,
           connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
-          lastResetDate: isRenewal ? newPeriodStart : undefined
+          lastResetDate:
+            isRenewal || isNewSubscription ? newPeriodStart : undefined
         }
       })
     console.log(
