@@ -10,7 +10,7 @@ import {
 } from '@/db/schema'
 import { toDateTime } from '@/utils/helpers/helpers'
 import { stripe } from '@/utils/stripe/config'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 import Stripe from 'stripe'
 
 const TRIAL_PERIOD_DAYS = 7
@@ -287,7 +287,8 @@ const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
         userId: subscriptions.userId,
         subscriptionId: subscriptions.id,
         creditsLeft: planLimits.totalCredits,
-        connectedAccounts: planLimits.totalConnectedAccounts
+        connectedAccounts: planLimits.totalConnectedAccounts,
+        currentPeriodStart: subscriptions.currentPeriodStart
       })
       .from(subscriptions)
       .innerJoin(prices, eq(subscriptions.priceId, prices.id))
@@ -304,24 +305,33 @@ const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
       throw new Error('No active subscription found')
     }
 
+    const newPeriodStart = new Date(subscription.current_period_start * 1000)
+    const existingPeriodStart = subscriptionDetails[0].currentPeriodStart
+    const isRenewal =
+      existingPeriodStart && newPeriodStart > existingPeriodStart
+
     await db
       .insert(userUsage)
       .values({
         userId: subscriptionDetails[0].userId,
-        creditsLeft: subscriptionDetails[0].creditsLeft,
+        creditsLeft: isRenewal
+          ? subscriptionDetails[0].creditsLeft
+          : sql`LEAST(${userUsage.creditsLeft}, ${subscriptionDetails[0].creditsLeft})`,
         connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
-        lastResetDate: new Date()
+        lastResetDate: isRenewal ? newPeriodStart : undefined
       })
       .onConflictDoUpdate({
         target: userUsage.userId,
         set: {
-          creditsLeft: subscriptionDetails[0].creditsLeft,
+          creditsLeft: isRenewal
+            ? subscriptionDetails[0].creditsLeft
+            : sql`LEAST(COALESCE(${userUsage.creditsLeft}, 0), ${subscriptionDetails[0].creditsLeft})`,
           connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
-          lastResetDate: new Date()
+          lastResetDate: isRenewal ? newPeriodStart : undefined
         }
       })
     console.log(
-      `Updated usage limits for user ${subscriptionDetails[0].userId}`
+      `Updated usage limits for user ${subscriptionDetails[0].userId}${isRenewal ? ' (renewal reset)' : ''}`
     )
   } catch (error) {
     if (error instanceof Error) {
