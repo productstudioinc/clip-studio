@@ -98,6 +98,11 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
   const [tweetsJson, setTweetsJson] = useState('')
   const [isJsonValid, setIsJsonValid] = useState(true)
 
+  const formatTweetForExport = (tweet: any) => {
+    const { id, duration, from, ...exportableTweet } = tweet
+    return exportableTweet
+  }
+
   const handleJsonChange = (value: string) => {
     setTweetsJson(value)
     try {
@@ -110,12 +115,24 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
 
   const handleImportJson = () => {
     try {
-      const tweets = JSON.parse(tweetsJson)
+      const importedTweets = JSON.parse(tweetsJson)
       remove()
-      tweets.forEach((tweet: any) => append(tweet))
+
+      importedTweets.forEach((tweet: any, index: number) => {
+        append({
+          ...tweet,
+          id: Date.now().toString() + index,
+          duration: 3,
+          from:
+            index > 0
+              ? (fields[index - 1]?.from ?? 0) +
+                (fields[index - 1]?.duration ?? 0)
+              : 0
+        })
+      })
 
       const currentVoiceSettings = form.getValues('voiceSettings') || []
-      tweets.forEach((tweet: any) => {
+      importedTweets.forEach((tweet: any) => {
         if (!currentVoiceSettings.some((s) => s.username === tweet.username)) {
           currentVoiceSettings.push({ username: tweet.username, voiceId: '' })
         }
@@ -481,7 +498,11 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                   <Textarea
                                     value={
                                       tweetsJson ||
-                                      JSON.stringify(tweets, null, 2)
+                                      JSON.stringify(
+                                        tweets.map(formatTweetForExport),
+                                        null,
+                                        2
+                                      )
                                     }
                                     onChange={(e) =>
                                       handleJsonChange(e.target.value)
