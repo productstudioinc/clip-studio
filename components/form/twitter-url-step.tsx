@@ -7,6 +7,7 @@ import { fetchTweet } from '@/actions/twitter'
 import { defaultTwitterProps, VideoProps } from '@/stores/templatestore'
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import {
+  Download,
   GripVertical,
   Loader2,
   PlusCircle,
@@ -40,6 +41,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -86,6 +94,40 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
     control: form.control,
     name: 'mode'
   })
+
+  const [tweetsJson, setTweetsJson] = useState('')
+  const [isJsonValid, setIsJsonValid] = useState(true)
+
+  const handleJsonChange = (value: string) => {
+    setTweetsJson(value)
+    try {
+      JSON.parse(value)
+      setIsJsonValid(true)
+    } catch {
+      setIsJsonValid(false)
+    }
+  }
+
+  const handleImportJson = () => {
+    try {
+      const tweets = JSON.parse(tweetsJson)
+      remove()
+      tweets.forEach((tweet: any) => append(tweet))
+
+      const currentVoiceSettings = form.getValues('voiceSettings') || []
+      tweets.forEach((tweet: any) => {
+        if (!currentVoiceSettings.some((s) => s.username === tweet.username)) {
+          currentVoiceSettings.push({ username: tweet.username, voiceId: '' })
+        }
+      })
+      form.setValue('voiceSettings', currentVoiceSettings)
+      form.setValue('isVoiceoverGenerated', false)
+
+      toast.success('Tweets imported successfully')
+    } catch (error) {
+      toast.error('Error importing tweets')
+    }
+  }
 
   const handleFetchTweet = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -363,7 +405,7 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <Label className="text-base">Tweets</Label>
-                    <div className="flex space-x-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button
                         type="button"
                         variant="outline"
@@ -409,42 +451,102 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Add Tweet
                       </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={generateFakeTweets}
-                      >
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Sample
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button type="button" variant="outline" size="sm">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Clear
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              Clear all tweets?
-                            </AlertDialogTitle>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => {
-                                remove()
-                                form.setValue('voiceSettings', [])
-                                form.setValue('isVoiceoverGenerated', false)
-                              }}
-                            >
-                              Continue
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={generateFakeTweets}
+                        >
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Sample
+                        </Button>
+
+                        <div className="flex gap-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button type="button" variant="outline" size="sm">
+                                <Download className="mr-2 h-4 w-4" />
+                                Export/Import
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>Export/Import Tweets</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                <div className="space-y-2">
+                                  <Label>Tweet JSON</Label>
+                                  <Textarea
+                                    value={
+                                      tweetsJson ||
+                                      JSON.stringify(tweets, null, 2)
+                                    }
+                                    onChange={(e) =>
+                                      handleJsonChange(e.target.value)
+                                    }
+                                    className="h-[300px] font-mono"
+                                    placeholder="Paste tweet JSON here..."
+                                  />
+                                  {!isJsonValid && (
+                                    <p className="text-sm text-red-500">
+                                      Invalid JSON format
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="flex justify-end gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                      setTweetsJson(
+                                        JSON.stringify(tweets, null, 2)
+                                      )
+                                      setIsJsonValid(true)
+                                    }}
+                                  >
+                                    Reset
+                                  </Button>
+                                  <Button
+                                    onClick={handleImportJson}
+                                    disabled={!isJsonValid}
+                                  >
+                                    Import
+                                  </Button>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button type="button" variant="outline" size="sm">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Clear all tweets?
+                                </AlertDialogTitle>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => {
+                                    remove()
+                                    form.setValue('voiceSettings', [])
+                                    form.setValue('isVoiceoverGenerated', false)
+                                  }}
+                                >
+                                  Continue
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
