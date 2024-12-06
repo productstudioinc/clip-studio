@@ -1,13 +1,9 @@
-import { ChevronRight, List } from 'lucide-react'
-import Link from 'next/link'
 import { HTMLAttributes } from 'react'
+import Link from 'next/link'
+import { ChevronRight, List } from 'lucide-react'
 
-import { Icons } from '@/components/icons'
-import { AuroraText } from '@/components/magicui/aurora-text'
-import { Marquee } from '@/components/magicui/marquee'
-import NumberTicker from '@/components/magicui/number-ticker'
-import Section from '@/components/section'
-import StripePopup from '@/components/stripe-popup'
+import { siteConfig } from '@/lib/config'
+import { cn } from '@/lib/utils'
 import {
   Accordion,
   AccordionContent,
@@ -15,8 +11,12 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion'
 import { buttonVariants } from '@/components/ui/button'
-import { siteConfig } from '@/lib/config'
-import { cn } from '@/lib/utils'
+import { Icons } from '@/components/icons'
+import { AuroraText } from '@/components/magicui/aurora-text'
+import { Marquee } from '@/components/magicui/marquee'
+import NumberTicker from '@/components/magicui/number-ticker'
+import Section from '@/components/section'
+import StripePopup from '@/components/stripe-popup'
 
 function CTA() {
   return (
@@ -217,6 +217,7 @@ function HowItWorks() {
                 autoPlay
                 loop
                 muted
+                playsInline
                 className="rounded-xl border border-border m-auto lg:col-span-2 shadow-2xl bg-card"
               />
             </div>
