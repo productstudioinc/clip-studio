@@ -9,9 +9,11 @@ export default async function Page() {
   const pricingData = await getPricingData()
   return (
     <PricingProvider initialData={pricingData}>
-      <Pricing />
-      <CreditCalculator />
-      <Faq />
+      <div className="flex flex-col gap-8 p-4 max-w-full mx-auto">
+        <Pricing />
+        <CreditCalculator />
+        <Faq />
+      </div>
     </PricingProvider>
   )
 }
