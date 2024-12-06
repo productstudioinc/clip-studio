@@ -111,7 +111,13 @@ export const RedditOnboardingStep: React.FC<RedditOnboardingStepProps> = ({
     }
   }, [isComplete, isGenerating, updateOnboarding])
 
-  const generateVideo = async () => {
+  const generateVideo = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    if (hasGeneratedVideo) {
+      return toast.info(
+        'You have already generated a video in this step. Please continue to the next step.'
+      )
+    }
     try {
       setIsGenerating(true)
       await generatePost()
@@ -166,6 +172,7 @@ export const RedditOnboardingStep: React.FC<RedditOnboardingStepProps> = ({
           <Button
             onClick={generateVideo}
             size="lg"
+            type="button"
             className="w-full text-lg h-14"
             variant="rainbow"
             disabled={
