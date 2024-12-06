@@ -77,7 +77,7 @@ export const Demo: React.FC = () => {
               {/* <FormSubmit form={form} /> */}
             </div>
 
-            <div className="col-span-12 lg:col-span-5 p-4">
+            <div className="col-span-12 lg:col-span-5 p-4 pb-16">
               <div className="sticky top-8 flex items-center justify-center">
                 <VideoPreview form={form} />
               </div>
