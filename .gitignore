@@ -44,3 +44,4 @@ next-env.d.ts
 
 codebase.md
 pnpm-lock.yaml
+.trigger
