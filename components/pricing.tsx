@@ -270,25 +270,39 @@ export default function Pricing({
                     }}
                     className="flex flex-col gap-1 mb-4"
                   >
-                    <span className="text-4xl font-bold text-black dark:text-white">
-                      $
-                      {currentPrice
-                        ? toHumanPrice(
-                            interval === 'year'
-                              ? (currentPrice.unitAmount || 0) / 12
-                              : currentPrice.unitAmount,
-                            0
-                          )
-                        : 'N/A'}
-                      <span className="ml-2 text-sm font-normal text-gray-500">
-                        / month
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm line-through text-gray-500">
+                        $
+                        {currentPrice
+                          ? toHumanPrice(
+                              interval === 'year'
+                                ? (currentPrice.unitAmount || 0) / 12 / 0.4
+                                : (currentPrice?.unitAmount || 0) / 0.4,
+                              0
+                            )
+                          : 'N/A'}
                       </span>
-                    </span>
+                      <span className="text-4xl font-bold text-black dark:text-white flex items-baseline">
+                        $
+                        {currentPrice
+                          ? toHumanPrice(
+                              interval === 'year'
+                                ? (currentPrice.unitAmount || 0) / 12
+                                : currentPrice.unitAmount,
+                              0
+                            )
+                          : 'N/A'}
+                        <span className="ml-2 text-sm font-normal text-gray-500">
+                          / month
+                        </span>
+                      </span>
+                    </div>
+
                     <span className="block h-5 text-sm font-normal text-gray-500">
                       {interval === 'year' && currentPrice && (
                         <>
-                          ${toHumanPrice(currentPrice.unitAmount, 0)} billed
-                          annually
+                          ${toHumanPrice(currentPrice?.unitAmount || 0, 0)}{' '}
+                          billed annually
                         </>
                       )}
                     </span>
@@ -325,6 +339,10 @@ export default function Pricing({
                       </>
                     )}
                   </Button>
+
+                  <span className="inline-block whitespace-nowrap rounded-full bg-amber-400 px-2.5 py-1 my-2 text-[11px] font-semibold uppercase leading-5 tracking-wide text-black">
+                    CYBER WEEK 60% OFF 🔥
+                  </span>
 
                   <hr className="m-0 h-px w-full border-none bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0 mb-4" />
 

@@ -1,6 +1,6 @@
 import { HTMLAttributes } from 'react'
 import Link from 'next/link'
-import { ChevronRight, List } from 'lucide-react'
+import { List } from 'lucide-react'
 
 import { siteConfig } from '@/lib/config'
 import { cn } from '@/lib/utils'
@@ -11,8 +11,8 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion'
 import { buttonVariants } from '@/components/ui/button'
+import { Headline } from '@/components/headline'
 import { Icons } from '@/components/icons'
-import { AuroraText } from '@/components/magicui/aurora-text'
 import { Marquee } from '@/components/magicui/marquee'
 import NumberTicker from '@/components/magicui/number-ticker'
 import Section from '@/components/section'
@@ -280,92 +280,6 @@ function Showcase() {
   )
 }
 
-function SiteHeader() {
-  return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
-        <div className="flex items-center gap-2">
-          <Icons.logo className="w-6 h-6" />
-          <span className="text-lg font-bold">clip.studio</span>
-        </div>
-        <div className="flex flex-1 items-center justify-end space-x-4">
-          <nav className="flex items-center space-x-6">
-            <Link
-              href="/pricing"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground hidden md:block"
-            >
-              Pricing
-            </Link>
-          </nav>
-          <Link href="/home" className={buttonVariants({ variant: 'rainbow' })}>
-            Get Started
-          </Link>
-        </div>
-      </div>
-    </header>
-  )
-}
-
-function Footer() {
-  return (
-    <footer>
-      <div className="max-w-6xl mx-auto py-16 sm:px-10 px-5 pb-0">
-        <Link
-          href="/"
-          title={siteConfig.name}
-          className="relative mr-6 flex items-center space-x-2"
-        >
-          <Icons.logo className="w-auto h-[40px]" />
-          <span className="font-bold text-xl">{siteConfig.name}</span>
-        </Link>
-
-        <div className="grid md:grid-cols-3 lg:grid-cols-4 sm:grid-cols-2 mt-8">
-          {siteConfig.footer.map((section, index) => (
-            <div key={index} className="mb-5">
-              <h2 className="font-semibold">{section.title}</h2>
-              <ul>
-                {section.links.map((link, linkIndex) => (
-                  <li key={linkIndex} className="my-2">
-                    <Link
-                      href={link.href}
-                      className="group inline-flex cursor-pointer items-center justify-start gap-1 text-muted-foreground duration-200 hover:text-foreground hover:opacity-90"
-                    >
-                      {link.icon && link.icon}
-                      {link.text}
-                      <ChevronRight className="h-4 w-4 translate-x-0 transform opacity-0 transition-all duration-300 ease-out group-hover:translate-x-1 group-hover:opacity-100" />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div className="max-w-6xl mx-auto border-t py-2 grid md:grid-cols-2 h-full justify-between w-full grid-cols-1 gap-1">
-          <span className="text-sm tracking-tight text-foreground">
-            Copyright © {new Date().getFullYear()}{' '}
-            <Link href="/" className="cursor-pointer">
-              {siteConfig.name}
-            </Link>{' '}
-            - {siteConfig.shortDescription}
-          </span>
-          <ul className="flex justify-start md:justify-end text-sm tracking-tight text-foreground">
-            <li className="mr-3 md:mx-4">
-              <Link href="/privacy" target="_blank" rel="noopener noreferrer">
-                Privacy Policy
-              </Link>
-            </li>
-            <li className="mr-3 md:mx-4">
-              <Link href="/terms" target="_blank" rel="noopener noreferrer">
-                Terms of Service
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </footer>
-  )
-}
-
 interface StatProps {
   value: string
   label: string
@@ -435,9 +349,10 @@ function Hero() {
         <div className="container flex flex-col justify-center space-y-8 max-w-[720px] mx-auto text-center mb-16">
           <div className="space-y-6">
             <HeroPill />
-            <h1 className="text-[clamp(3rem,5vw,4.5rem)] font-bold leading-[1.1] tracking-tight">
-              Create <AuroraText>faceless videos</AuroraText> in seconds
+            <h1 className="text-[clamp(3rem,5vw,4.5rem)] font-bold leading-[1.1] tracking-tight text-balance">
+              <Headline />
             </h1>
+
             <p className="text-muted-foreground text-[clamp(0.9rem,2vw,1.25rem)] leading-relaxed max-w-[90%] mx-auto">
               Turn your ideas into attention-grabbing videos with just a few
               clicks. Just enter your text and let clip.studio AI handle the
@@ -550,21 +465,17 @@ function Rainbow() {
 export default function Home() {
   return (
     <>
-      <SiteHeader />
-      <main>
-        <Hero />
-        <StatsSection />
-        <SuccessStories />
-        <HowItWorks />
-        <Showcase />
-        <FAQ />
-        <CTA />
-        <>
-          <Rainbow />
-          <StripePopup />
-        </>
-      </main>
-      <Footer />
+      <Hero />
+      <StatsSection />
+      <SuccessStories />
+      <HowItWorks />
+      <Showcase />
+      <FAQ />
+      <CTA />
+
+      {/* Rainbow and Stripe Popup are only shown on the home page */}
+      <Rainbow />
+      <StripePopup />
     </>
   )
 }
