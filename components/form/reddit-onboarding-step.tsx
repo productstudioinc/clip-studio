@@ -22,8 +22,7 @@ import {
 } from '@/components/ui/hover-card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
-import { ExportComponent, RenderProgress } from '@/components/form/form-submit'
+import { RenderProgress } from '@/components/form/form-submit'
 
 type RedditOnboardingStepProps = {
   form: UseFormReturn<VideoProps>
@@ -122,7 +121,7 @@ export const RedditOnboardingStep: React.FC<RedditOnboardingStepProps> = ({
       setIsGenerating(true)
       await generatePost()
       await generateVoiceover()
-      await renderMedia()
+      // await renderMedia()
     } catch (error) {
       setIsGenerating(false)
       console.error('Error in video generation process:', error)
@@ -204,8 +203,8 @@ export const RedditOnboardingStep: React.FC<RedditOnboardingStepProps> = ({
             This may take up to 30 seconds. Please be patient.
           </small>
           <RenderProgress id={renderId} />
-          <Separator />
-          <ExportComponent id={renderId} />
+          {/* <Separator /> */}
+          {/* <ExportComponent id={renderId} /> */}
         </div>
 
         {/* <Accordion type="single" collapsible className="mt-4">
