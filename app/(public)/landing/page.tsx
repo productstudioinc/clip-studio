@@ -1,18 +1,239 @@
 import { HTMLAttributes } from 'react'
 import Link from 'next/link'
+import { ChevronRight, List } from 'lucide-react'
 
+import { siteConfig } from '@/lib/config'
 import { cn } from '@/lib/utils'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from '@/components/ui/accordion'
 import { buttonVariants } from '@/components/ui/button'
 import { Icons } from '@/components/icons'
+import { AuroraText } from '@/components/magicui/aurora-text'
 import { Marquee } from '@/components/magicui/marquee'
+import NumberTicker from '@/components/magicui/number-ticker'
+import Section from '@/components/section'
+import StripePopup from '@/components/stripe-popup'
+
+function CTA() {
+  return (
+    <Section
+      id="cta"
+      title="Ready to get started?"
+      subtitle="Start getting views today."
+      className="container"
+    >
+      <Rainbow />
+      <div className="flex flex-col w-full sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
+        <Link
+          href="/login"
+          className={cn(
+            buttonVariants({ variant: 'rainbow' }),
+            'w-full sm:w-auto text-background flex gap-2'
+          )}
+        >
+          <Icons.logo className="h-6 w-6" />
+          Get started for free
+        </Link>
+      </div>
+    </Section>
+  )
+}
+
+function FAQ() {
+  return (
+    <Section title="FAQ" subtitle="Frequently asked questions">
+      <div className="mx-auto my-12 md:max-w-screen-sm text-left">
+        <Accordion
+          type="single"
+          collapsible
+          className="flex w-full flex-col items-center justify-center space-y-2"
+        >
+          {siteConfig.faqs.map((faq, idx) => (
+            <AccordionItem
+              key={idx}
+              value={faq.question}
+              className="w-full border rounded-lg overflow-hidden"
+            >
+              <AccordionTrigger className="px-4 text-left">
+                {faq.question}
+              </AccordionTrigger>
+              <AccordionContent className="px-4 text-left">
+                {faq.answer}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </div>
+      <h4 className="mb-12 text-center text-sm font-medium tracking-tight text-foreground/80">
+        Still have questions? Email us at{' '}
+        <a href={`mailto:${siteConfig.links.email}`} className="underline">
+          {siteConfig.links.email}
+        </a>
+      </h4>
+    </Section>
+  )
+}
+
+function HeroPill() {
+  return (
+    <Link
+      href="/changelog/2024-11-03-twitter-thread-template-launch"
+      className="flex w-fit mx-auto items-center space-x-2 rounded-full bg-primary/20 px-2 py-1 ring-1 ring-accent whitespace-pre"
+    >
+      <div className="w-fit rounded-full bg-accent px-2 py-0.5 text-center text-xs font-medium text-primary sm:text-sm hidden md:block">
+        📣 Announcement
+      </div>
+      <p className="text-xs font-medium text-primary sm:text-sm">
+        Introducing our Twitter template
+      </p>
+      <svg
+        width="12"
+        height="12"
+        className="ml-1"
+        viewBox="0 0 12 12"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M8.78141 5.33312L5.20541 1.75712L6.14808 0.814453L11.3334 5.99979L6.14808 11.1851L5.20541 10.2425L8.78141 6.66645H0.666748V5.33312H8.78141Z"
+          fill="hsl(var(--primary))"
+        />
+      </svg>
+    </Link>
+  )
+}
+
+const features = [
+  {
+    id: 'feature-template',
+    header: 'Step 1',
+    name: 'Choose Your Template',
+    description:
+      'Pick from our library of proven video templates - from viral TikTok styles to professional LinkedIn formats. Each template is designed to maximize engagement on your target platform.',
+    // icon: Icons.template,
+    video: 'https://assets.clip.studio/reddit_preview.webm',
+    cta: 'Get Started',
+    href: '/login',
+    reverse: false
+  },
+  {
+    id: 'feature-customize',
+    header: 'Step 2',
+    name: 'Customize Your Video',
+    description:
+      'Add your content, tweak the style, and make it yours. Our AI helps you generate engaging captions, pick the perfect music, and optimize every element for maximum impact.',
+    icon: List,
+    video: 'https://assets.clip.studio/textmessage_preview.webm',
+    cta: 'Get Started',
+    href: '/login',
+    reverse: true
+  },
+  {
+    id: 'feature-schedule',
+    header: 'Step 3',
+    name: 'Schedule & Share',
+    description:
+      'Schedule your video to post at the perfect time or publish instantly to multiple platforms. Track performance and optimize your content strategy with our analytics.',
+    // icon: Icons.calendar,
+    video: 'https://assets.clip.studio/splitscreen_preview.webm',
+    cta: 'Get Started',
+    href: '/login',
+    reverse: false,
+    icons: (
+      <div className="flex gap-4 items-center mt-4">
+        <img
+          src="/instagram.png"
+          alt="Instagram"
+          width={32}
+          height={32}
+          className="transform -rotate-15"
+        />
+        <img
+          src="/tiktok.png"
+          alt="TikTok"
+          width={40}
+          height={40}
+          className="transform rotate-10"
+        />
+        <img
+          src="/youtube.png"
+          alt="YouTube"
+          width={32}
+          height={32}
+          className="transform -rotate-5"
+        />
+      </div>
+    )
+  }
+]
+
+function HowItWorks() {
+  return (
+    <Section
+      id="how-it-works"
+      // title="How It Works"
+      className="container max-w-screen-lg"
+      subtitle="How It Works"
+      description="Turn your ideas into viral videos with just a few clicks. Just enter your text and let clip.studio handle the rest."
+    >
+      {features.map((feature) => (
+        <div id={feature.id} key={feature.id}>
+          <div className="mx-auto py-6 sm:py-12">
+            <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-16 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-5">
+              <div
+                className={cn('m-auto lg:col-span-3', {
+                  'lg:order-last': feature.reverse
+                })}
+              >
+                <h2 className="text-lg font-semibold leading-7 text-primary">
+                  {feature.header}
+                </h2>
+                <p className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+                  {feature.name}
+                </p>
+                <p className="mt-6 text-lg leading-8 text-muted-foreground">
+                  {feature.description}
+                </p>
+                {feature.icons}
+                <Link
+                  className={cn(
+                    buttonVariants({
+                      variant: 'rainbow',
+                      size: 'lg'
+                    }),
+                    'mt-8'
+                  )}
+                  href={feature.href}
+                >
+                  {feature.cta}
+                </Link>
+              </div>
+              <video
+                src={feature.video}
+                autoPlay
+                loop
+                muted
+                className="rounded-xl border border-border m-auto lg:col-span-2 shadow-2xl bg-card"
+              />
+            </div>
+          </div>
+        </div>
+      ))}
+    </Section>
+  )
+}
 
 const showcases = [
   {
-    title: 'Splitscreen',
+    title: 'Reddit Story',
     videoSrc: 'https://assets.clip.studio/reddit_preview.webm'
   },
   {
-    title: 'Reddit Story',
+    title: 'Text Message Story',
     videoSrc: 'https://assets.clip.studio/textmessage_preview.webm'
   },
   {
@@ -20,41 +241,41 @@ const showcases = [
     videoSrc: 'https://assets.clip.studio/twitter_preview.webm'
   },
   {
-    title: 'AI Generated Video',
+    title: 'Splitscreen',
     videoSrc: 'https://assets.clip.studio/splitscreen_preview.webm'
   }
 ]
 
 function Showcase() {
   return (
-    <section className="py-20 bg-background">
-      <div className="container">
-        <h2 className="text-3xl font-bold text-center mb-10 text-foreground">
-          Featured Creations
-        </h2>
-        <div className="relative">
-          <Marquee className="py-4" pauseOnHover>
-            {showcases.map((showcase, idx) => (
-              <div
-                key={idx}
-                className={`h-[280px] sm:h-[380px] lg:h-[480px] w-[160px] sm:w-[200px] lg:w-[250px] rounded-3xl border-4 border-border bg-card shadow-xl`}
-              >
-                <video
-                  src={showcase.videoSrc}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="h-full w-full rounded-2xl object-cover"
-                />
-              </div>
-            ))}
-          </Marquee>
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-1/12 bg-gradient-to-r from-background"></div>
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/12 bg-gradient-to-l from-background"></div>
-        </div>
+    <Section
+      id="showcase"
+      className="container"
+      subtitle="Showcase"
+      description="Check out some of our featured creations."
+    >
+      <div className="relative flex flex-col">
+        <Marquee className="py-4" pauseOnHover>
+          {showcases.map((showcase, idx) => (
+            <div
+              key={idx}
+              className={`h-[280px] sm:h-[380px] lg:h-[480px] w-[160px] sm:w-[200px] lg:w-[250px] rounded-xl border-2 border-border bg-card shadow-xl`}
+            >
+              <video
+                src={showcase.videoSrc}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="h-full w-full rounded-xl object-cover"
+              />
+            </div>
+          ))}
+        </Marquee>
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-1/12 bg-gradient-to-r from-background"></div>
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-1/12 bg-gradient-to-l from-background"></div>
       </div>
-    </section>
+    </Section>
   )
 }
 
@@ -87,6 +308,66 @@ function SiteHeader() {
   )
 }
 
+function Footer() {
+  return (
+    <footer>
+      <div className="max-w-6xl mx-auto py-16 sm:px-10 px-5 pb-0">
+        <Link
+          href="/"
+          title={siteConfig.name}
+          className="relative mr-6 flex items-center space-x-2"
+        >
+          <Icons.logo className="w-auto h-[40px]" />
+          <span className="font-bold text-xl">{siteConfig.name}</span>
+        </Link>
+
+        <div className="grid md:grid-cols-3 lg:grid-cols-4 sm:grid-cols-2 mt-8">
+          {siteConfig.footer.map((section, index) => (
+            <div key={index} className="mb-5">
+              <h2 className="font-semibold">{section.title}</h2>
+              <ul>
+                {section.links.map((link, linkIndex) => (
+                  <li key={linkIndex} className="my-2">
+                    <Link
+                      href={link.href}
+                      className="group inline-flex cursor-pointer items-center justify-start gap-1 text-muted-foreground duration-200 hover:text-foreground hover:opacity-90"
+                    >
+                      {link.icon && link.icon}
+                      {link.text}
+                      <ChevronRight className="h-4 w-4 translate-x-0 transform opacity-0 transition-all duration-300 ease-out group-hover:translate-x-1 group-hover:opacity-100" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div className="max-w-6xl mx-auto border-t py-2 grid md:grid-cols-2 h-full justify-between w-full grid-cols-1 gap-1">
+          <span className="text-sm tracking-tight text-foreground">
+            Copyright © {new Date().getFullYear()}{' '}
+            <Link href="/" className="cursor-pointer">
+              {siteConfig.name}
+            </Link>{' '}
+            - {siteConfig.shortDescription}
+          </span>
+          <ul className="flex justify-start md:justify-end text-sm tracking-tight text-foreground">
+            <li className="mr-3 md:mx-4">
+              <Link href="/privacy" target="_blank" rel="noopener noreferrer">
+                Privacy Policy
+              </Link>
+            </li>
+            <li className="mr-3 md:mx-4">
+              <Link href="/terms" target="_blank" rel="noopener noreferrer">
+                Terms of Service
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
 interface StatProps {
   value: string
   label: string
@@ -94,28 +375,29 @@ interface StatProps {
 
 function Stat({ value, label }: StatProps) {
   return (
-    <div className="flex flex-col items-center justify-center">
-      <div className="text-3xl font-bold text-foreground md:text-4xl">
-        {value}
+    <div className="flex flex-col items-center justify-center text-center">
+      <div className="text-2xl font-bold text-foreground md:text-4xl whitespace-nowrap">
+        <NumberTicker value={Number(value)} />+
       </div>
-      <div className="text-center text-sm text-muted-foreground">{label}</div>
+      <div className="text-xs md:text-sm text-muted-foreground">{label}</div>
     </div>
   )
 }
 
 function StatsSection() {
   return (
-    <div className="border-t border-border bg-muted/50">
-      <div className="container grid grid-cols-2 gap-8 py-12 md:grid-cols-4 md:py-16">
-        <Stat value="240,909+" label="videos created with revid.ai" />
-        <Stat
-          value="68"
-          label="Used in 68 countries for content in 32 languages"
-        />
-        <Stat value="1458" label="creators using revid.ai" />
-        <Stat value="400+" label="creators reached 100k+ views" />
+    <Section
+      id="stats"
+      // subtitle="Stats"
+      description="We've helped generate over 1.3 million views and supported 1,400+ creators."
+    >
+      <div className="container max-w-screen-lg grid grid-cols-2 gap-4 md:gap-8 py-8 md:py-16 md:grid-cols-4">
+        <Stat value="1305129" label="total views generated" />
+        <Stat value="1404" label="active creators" />
+        <Stat value="1204" label="videos generated" />
+        <Stat value="68" label="countries creating content" />
       </div>
-    </div>
+    </Section>
   )
 }
 
@@ -134,14 +416,14 @@ function AvatarCircles({
       {avatarUrls.map((url, index) => (
         <img
           key={index}
-          className="h-10 w-10 rounded-full border-2 border-white dark:border-gray-800"
+          className="h-10 w-10 rounded-full border-2 border-background bg-background"
           src={url}
           width={40}
           height={40}
           alt={`Avatar ${index + 1}`}
         />
       ))}
-      <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-black text-center text-xs font-medium text-white dark:border-gray-800 dark:bg-white dark:text-black">
+      <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-background bg-primary text-center text-xs font-medium text-primary-foreground">
         +{numPeople}
       </div>
     </div>
@@ -154,12 +436,14 @@ function Hero() {
       <div className="flex flex-col items-center max-w-7xl mx-auto">
         <div className="container flex flex-col justify-center space-y-8 max-w-[720px] mx-auto text-center mb-16">
           <div className="space-y-6">
-            <h1 className="text-[clamp(2.5rem,5vw,4.5rem)] font-bold leading-[1.1] tracking-tight">
-              Create Viral Videos with 1 click
+            <HeroPill />
+            <h1 className="text-[clamp(3rem,5vw,4.5rem)] font-bold leading-[1.1] tracking-tight">
+              Create <AuroraText>faceless videos</AuroraText> in seconds
             </h1>
-            <p className="text-muted-foreground text-[clamp(1rem,2vw,1.25rem)] leading-relaxed max-w-[90%] mx-auto">
+            <p className="text-muted-foreground text-[clamp(0.9rem,2vw,1.25rem)] leading-relaxed max-w-[90%] mx-auto">
               Turn your ideas into attention-grabbing videos with just a few
-              clicks. Just enter your text and let clip.studio handle the rest.
+              clicks. Just enter your text and let clip.studio AI handle the
+              rest.
             </p>
           </div>
           <div className="flex flex-col gap-4 justify-center items-center">
@@ -170,7 +454,7 @@ function Hero() {
                 'max-w-lg w-full text-lg'
               )}
             >
-              Try for Free
+              Get Started
             </Link>
             <p className="text-sm text-muted-foreground mt-2 sm:mt-auto">
               No credit card required
@@ -235,15 +519,55 @@ function Hero() {
   )
 }
 
+function SuccessStories() {
+  return (
+    <Section
+      id="success-stories"
+      subtitle="Success Stories"
+      description="Join thousands of creators who've grown their audience with clip.studio"
+    >
+      <div className="mx-auto max-w-3xl">
+        <div className="relative aspect-video w-full rounded-xl border shadow-lg overflow-hidden">
+          <iframe
+            width="100%"
+            height="100%"
+            src="https://www.youtube.com/embed/1Yc7Mx2vWDc?start=18"
+            title="Creator Testimonial"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="absolute inset-0"
+          />
+        </div>
+      </div>
+    </Section>
+  )
+}
+
+function Rainbow() {
+  return (
+    <div className="absolute pointer-events-none inset-0 top-0 h-20 w-full before:absolute before:bottom-[-20%] before:left-1/2 before:z-[0] before:h-[80%] before:w-[60%] before:-translate-x-1/2 before:animate-rainbow before:bg-[linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)))] before:bg-[length:200%] before:[filter:blur(calc(4*1rem))] before:opacity-20" />
+  )
+}
+
 export default function Home() {
   return (
-    <div>
+    <>
       <SiteHeader />
       <main>
         <Hero />
+        <StatsSection />
+        <SuccessStories />
+        <HowItWorks />
         <Showcase />
-        {/* <StatsSection /> */}
+        <FAQ />
+        <CTA />
+        <>
+          <Rainbow />
+          <StripePopup />
+        </>
       </main>
-    </div>
+
+      <Footer />
+    </>
   )
 }

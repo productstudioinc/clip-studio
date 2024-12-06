@@ -1,11 +1,11 @@
 'use server'
 
+import { redirect } from 'next/navigation'
 import { getUser } from '@/actions/auth/user'
 import { createOrRetrieveCustomer } from '@/actions/db/billing-queries'
 import { Price } from '@/db/schema'
 import { getURL } from '@/utils/helpers/helpers'
 import { stripe } from '@/utils/stripe/config'
-import { redirect } from 'next/navigation'
 import type Stripe from 'stripe'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'
@@ -232,3 +232,82 @@ export const getStripeSubscriptionData = createServerAction()
       currentPeriodEnd: subscription.current_period_end
     }
   })
+
+function getCountryName(countryCode: string | undefined): string {
+  if (!countryCode) return 'Unknown'
+  const regionNames = new Intl.DisplayNames(['en'], { type: 'region' })
+  return regionNames.of(countryCode) || countryCode
+}
+
+export async function getRecentStripeData() {
+  try {
+    const [subscriptions, charges] = await Promise.all([
+      stripe.subscriptions.list({
+        limit: 5,
+        status: 'active',
+        expand: ['data.customer']
+      }),
+      stripe.charges.list({
+        limit: 5,
+        expand: ['data.customer']
+      })
+    ])
+
+    const subscriptionData = subscriptions.data
+      .map((sub) => ({
+        type: 'subscription',
+        id: sub.id,
+        country: getCountryName(
+          (sub.customer as Stripe.Customer).address?.country || undefined
+        ),
+        date: new Date(sub.created * 1000).toISOString(),
+        verified: (sub.customer as Stripe.Customer).delinquent === false,
+        amount: sub.items.data[0]?.price.unit_amount
+          ? (sub.items.data[0].price.unit_amount / 100).toFixed(2)
+          : 'N/A',
+        currency: sub.items.data[0]?.price.currency?.toUpperCase() ?? 'USD',
+        name: (() => {
+          const fullName = (sub.customer as Stripe.Customer).name
+          if (!fullName) return null
+          const nameParts = fullName.split(' ')
+          return (
+            nameParts[0] + (nameParts.length > 1 ? ` ${nameParts[1][0]}.` : '')
+          )
+        })(),
+        state: (sub.customer as Stripe.Customer).address?.state || null
+      }))
+      .filter((item) => item.country && item.name && item.state)
+
+    const chargeData = charges.data
+      .map((charge) => ({
+        type: 'payment',
+        id: charge.id,
+        country: getCountryName(
+          charge.billing_details.address?.country || undefined
+        ),
+        date: new Date(charge.created * 1000).toISOString(),
+        verified: charge.paid,
+        amount: (charge.amount / 100).toFixed(2),
+        currency: charge.currency.toUpperCase(),
+        name: (() => {
+          const fullName =
+            (charge.customer as Stripe.Customer)?.name ||
+            charge.billing_details.name
+          if (!fullName) return null
+          const nameParts = fullName.split(' ')
+          return (
+            nameParts[0] + (nameParts.length > 1 ? ` ${nameParts[1][0]}.` : '')
+          )
+        })(),
+        state: charge.billing_details.address?.state || null
+      }))
+      .filter((item) => item.country && item.name && item.state)
+
+    return [...subscriptionData, ...chargeData].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    )
+  } catch (error) {
+    console.error('Error fetching Stripe data:', error)
+    return []
+  }
+}

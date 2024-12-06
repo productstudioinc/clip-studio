@@ -8,6 +8,7 @@ export const siteConfig = {
   name: 'Clip Studio',
   description:
     'Create viral short-form videos with AI. Instantly upload your video to TikTok, YouTube, and Instagram. Grow your audience effortlessly.',
+  shortDescription: 'Create viral short-form videos with AI',
   url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://clip.studio',
   keywords: [
     'AI Video Creation',
@@ -87,6 +88,30 @@ export const siteConfig = {
     }
   ],
   footer: [
+    {
+      title: 'Product',
+      links: [
+        { href: '/#how-it-works', text: 'How It Works', icon: null },
+        { href: '/#features', text: 'Features', icon: null },
+        { href: '/pricing', text: 'Pricing', icon: null },
+        { href: '/affiliate', text: 'Affiliate Program', icon: null }
+      ]
+    },
+    {
+      title: 'Company',
+      links: [
+        { href: '/', text: 'Home', icon: null },
+        { href: '/changelog', text: 'Changelog', icon: null },
+        { href: 'mailto:press@clip.studio', text: 'Press', icon: null }
+      ]
+    },
+    {
+      title: 'Resources',
+      links: [
+        { href: 'discord', text: 'Community', icon: null },
+        { href: 'mailto:support@clip.studio', text: 'Contact', icon: null }
+      ]
+    },
     {
       title: 'Social',
       links: [
