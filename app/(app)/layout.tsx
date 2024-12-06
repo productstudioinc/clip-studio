@@ -10,7 +10,6 @@ import { Breadcrumbs } from '@/components/breadcrumbs'
 import { LoginDrawer } from '@/components/login-drawer'
 import { MobileSidebar } from '@/components/mobile-sidebar'
 import { NavigationItems } from '@/components/navigation-items'
-import { SiteBanner } from '@/components/site-banner'
 
 export default async function Layout({
   children
@@ -39,7 +38,6 @@ export default async function Layout({
           />
         </div>
         <div className="flex flex-col flex-1">
-          <SiteBanner />
           <header className="md:hidden flex items-center justify-between p-2 border-b sticky top-0 z-50 bg-background">
             <MobileSidebar
               user={user}

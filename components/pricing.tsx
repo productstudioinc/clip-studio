@@ -88,7 +88,7 @@ function PricingCard({
           )}
           variant="outline"
           onClick={() => {
-            router.push('/login')
+            router.push('/home')
           }}
         >
           <span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 transform-gpu bg-white opacity-10 transition-all duration-1000 ease-out group-hover:-translate-x-96 dark:bg-black" />
@@ -273,7 +273,6 @@ export default function Pricing() {
     setIsLoading(true)
     setId(price.id!)
 
-    console.log('user', user)
     // Redirect to login if user is not logged in
     if (!user) {
       setIsLoading(false)
