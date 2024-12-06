@@ -1,7 +1,9 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { generateTextMessages } from '@/actions/aiActions'
+import { useAppContext } from '@/contexts/app-context'
 import { TextMessageVideoProps, VideoProps } from '@/stores/templatestore'
 import {
   DragDropContext,
@@ -57,6 +59,8 @@ type TextMessageStepProps = {
 }
 
 export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
+  const { user } = useAppContext()
+  const router = useRouter()
   const [prompt, setPrompt] = useState('')
   const { execute: generate, isPending: isGeneratingTextMessages } =
     useServerAction(generateTextMessages)
@@ -86,6 +90,10 @@ export const TextMessageStep: React.FC<TextMessageStepProps> = ({ form }) => {
   }
 
   const generateFakeTexts = async () => {
+    if (!user) {
+      return router.push('/login')
+    }
+
     try {
       const id = toast.loading('Generating text messages...')
       remove()

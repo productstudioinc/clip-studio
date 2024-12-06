@@ -1,9 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { generateTweets } from '@/actions/aiActions'
 import { generatePresignedUrl } from '@/actions/generate-presigned-urls'
 import { fetchTweet } from '@/actions/twitter'
+import { useAppContext } from '@/contexts/app-context'
 import { defaultTwitterProps, VideoProps } from '@/stores/templatestore'
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import {
@@ -72,6 +74,8 @@ const twitterUrlSchema = z
   )
 
 export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
+  const { user } = useAppContext()
+  const router = useRouter()
   const [tweetUrl, setTweetUrl] = useState('')
   const [prompt, setPrompt] = useState('')
   const [urlError, setUrlError] = useState<string | null>(null)
@@ -148,6 +152,9 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
 
   const handleFetchTweet = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
+    if (!user) {
+      return router.push('/login')
+    }
 
     try {
       setIsPending(true)
@@ -210,7 +217,12 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
     }
   }
 
-  const generateTweet = async () => {
+  const generateTweet = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    if (!user) {
+      return router.push('/login')
+    }
+
     const id = toast.loading('Generating tweets...')
     try {
       const [data, error] = await generateTweetsAction(prompt)
@@ -347,6 +359,7 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
               />
               <Button
                 onClick={generateTweet}
+                type="button"
                 className="w-full"
                 variant="rainbow"
                 disabled={isGeneratingTweets}

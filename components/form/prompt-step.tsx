@@ -1,7 +1,9 @@
 'use client'
 
 import React from 'react'
+import { useRouter } from 'next/navigation'
 import { generateStoryScript } from '@/actions/aiActions'
+import { useAppContext } from '@/contexts/app-context'
 import { AIVideoProps, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { Loader2, Wand2 } from 'lucide-react'
@@ -37,9 +39,16 @@ const storyLengthOptions: {
 ]
 
 export const PromptStep: React.FC<PromptStepProps> = ({ form }) => {
+  const { user } = useAppContext()
+  const router = useRouter()
   const { isPending, execute } = useServerAction(generateStoryScript)
 
-  const handleGenerate = async () => {
+  const handleGenerate = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    if (!user) {
+      return router.push('/login')
+    }
+
     const prompt = form.getValues('prompt')
     const range = form.getValues('range')
     const segments = form.getValues('segments')

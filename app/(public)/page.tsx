@@ -1,9 +1,13 @@
-import { HTMLAttributes } from 'react'
-import Link from 'next/link'
 import { ChevronRight, List } from 'lucide-react'
+import Link from 'next/link'
+import { HTMLAttributes } from 'react'
 
-import { siteConfig } from '@/lib/config'
-import { cn } from '@/lib/utils'
+import { Icons } from '@/components/icons'
+import { AuroraText } from '@/components/magicui/aurora-text'
+import { Marquee } from '@/components/magicui/marquee'
+import NumberTicker from '@/components/magicui/number-ticker'
+import Section from '@/components/section'
+import StripePopup from '@/components/stripe-popup'
 import {
   Accordion,
   AccordionContent,
@@ -11,12 +15,8 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion'
 import { buttonVariants } from '@/components/ui/button'
-import { Icons } from '@/components/icons'
-import { AuroraText } from '@/components/magicui/aurora-text'
-import { Marquee } from '@/components/magicui/marquee'
-import NumberTicker from '@/components/magicui/number-ticker'
-import Section from '@/components/section'
-import StripePopup from '@/components/stripe-popup'
+import { siteConfig } from '@/lib/config'
+import { cn } from '@/lib/utils'
 
 function CTA() {
   return (
@@ -29,7 +29,7 @@ function CTA() {
       <Rainbow />
       <div className="flex flex-col w-full sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
         <Link
-          href="/login"
+          href="/home"
           className={cn(
             buttonVariants({ variant: 'rainbow' }),
             'w-full sm:w-auto text-background flex gap-2'
@@ -117,7 +117,7 @@ const features = [
     // icon: Icons.template,
     video: 'https://assets.clip.studio/reddit_preview.webm',
     cta: 'Get Started',
-    href: '/login',
+    href: '/home',
     reverse: false
   },
   {
@@ -129,7 +129,7 @@ const features = [
     icon: List,
     video: 'https://assets.clip.studio/textmessage_preview.webm',
     cta: 'Get Started',
-    href: '/login',
+    href: '/home',
     reverse: true
   },
   {
@@ -141,7 +141,7 @@ const features = [
     // icon: Icons.calendar,
     video: 'https://assets.clip.studio/splitscreen_preview.webm',
     cta: 'Get Started',
-    href: '/login',
+    href: '/home',
     reverse: false,
     icons: (
       <div className="flex gap-4 items-center mt-4">
@@ -296,10 +296,7 @@ function SiteHeader() {
               Pricing
             </Link>
           </nav>
-          <Link
-            href="/login"
-            className={buttonVariants({ variant: 'rainbow' })}
-          >
+          <Link href="/home" className={buttonVariants({ variant: 'rainbow' })}>
             Get Started
           </Link>
         </div>
@@ -448,7 +445,7 @@ function Hero() {
           </div>
           <div className="flex flex-col gap-4 justify-center items-center">
             <Link
-              href="/login"
+              href="/home"
               className={cn(
                 buttonVariants({ variant: 'rainbow', size: 'lg' }),
                 'max-w-lg w-full text-lg'
@@ -526,12 +523,12 @@ function SuccessStories() {
       subtitle="Success Stories"
       description="Join thousands of creators who've grown their audience with clip.studio"
     >
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-3xl flex flex-col gap-4">
         <div className="relative aspect-video w-full rounded-xl border shadow-lg overflow-hidden">
           <iframe
             width="100%"
             height="100%"
-            src="https://www.youtube.com/embed/1Yc7Mx2vWDc?start=18"
+            src="https://www.youtube.com/embed/1Yc7Mx2vWDc"
             title="Creator Testimonial"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
@@ -566,7 +563,6 @@ export default function Home() {
           <StripePopup />
         </>
       </main>
-
       <Footer />
     </>
   )

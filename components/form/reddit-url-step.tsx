@@ -1,8 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { generateRedditPost } from '@/actions/aiActions'
 import { getRedditInfo } from '@/actions/reddit'
+import { useAppContext } from '@/contexts/app-context'
 import { VideoProps } from '@/stores/templatestore'
 import { Loader2 } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
@@ -28,6 +30,8 @@ type RedditUrlStepProps = {
 }
 
 export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
+  const { user } = useAppContext()
+  const router = useRouter()
   const [postUrl, setPostUrl] = useState('')
   const [prompt, setPrompt] = useState('')
   const [urlError, setUrlError] = useState<string | null>(null)
@@ -45,7 +49,11 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
       }
     )
 
-  const generatePost = async () => {
+  const generatePost = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    if (!user) {
+      return router.push('/login')
+    }
     const id = toast.loading('Generating Reddit post...')
     try {
       const [data, error] = await generate(prompt)
@@ -122,6 +130,7 @@ export const RedditUrlStep: React.FC<RedditUrlStepProps> = ({ form }) => {
               />
               <Button
                 onClick={generatePost}
+                type="button"
                 className="w-full"
                 variant="rainbow"
                 disabled={isGeneratingRedditPost}

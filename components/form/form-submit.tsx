@@ -6,7 +6,7 @@ import { useAppContext } from '@/contexts/app-context'
 import { useTemplateStore, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { useRendering } from '@/utils/helpers/use-rendering'
-import { Loader2, RefreshCw, RotateCcw, Undo } from 'lucide-react'
+import { Loader2, RotateCcw } from 'lucide-react'
 import { UseFormReturn, useFormState } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -106,6 +106,10 @@ export function FormSubmit({ form }: FormSubmitProps) {
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault()
+
+    if (!user) {
+      return router.push('/login')
+    }
 
     if (selectedTemplate !== 'Clips') {
       const isVoiceoverGenerated = form.getValues('isVoiceoverGenerated')
