@@ -61,7 +61,7 @@ type RedditVoiceStepProps = {
 
 export const RedditVoiceStep: React.FC<RedditVoiceStepProps> = ({ form }) => {
   const { voices } = useAppContext()
-  const { generateVoiceover, isGeneratingVoiceover } =
+  const { generateVoiceover, isGeneratingVoiceover: isPending } =
     useRedditVoiceoverGeneration(form)
 
   const languages = Object.entries(Language).map(([key, value]) => ({
@@ -423,10 +423,10 @@ export const RedditVoiceStep: React.FC<RedditVoiceStepProps> = ({ form }) => {
               <TooltipTrigger asChild>
                 <Button
                   onClick={generateVoiceover}
-                  disabled={isGeneratingVoiceover || !form.getValues('voice')}
+                  disabled={isPending || !form.getValues('voice')}
                   className="flex-grow"
                 >
-                  {isGeneratingVoiceover && (
+                  {isPending && (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   )}
                   Generate Voiceover{' '}

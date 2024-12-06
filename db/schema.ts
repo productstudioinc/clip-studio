@@ -46,6 +46,35 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 })
 
+export const userOnboarding = pgTable('user_onboarding', {
+  id: uuid('id').primaryKey().defaultRandom().unique(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id)
+    .unique(),
+  hasGeneratedVideo: boolean('has_generated_video').default(false).notNull(),
+  videoGeneratedAt: timestamp('video_generated_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+})
+
+export const userOnboardingResponses = pgTable('user_onboarding_responses', {
+  id: uuid('id').primaryKey().defaultRandom().unique(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id)
+    .unique(),
+  referralSource: text('referral_source'),
+  occupation: text('occupation'),
+  role: text('role'),
+  primaryGoal: text('primary_goal'),
+  useCase: text('use_case'),
+  teamSize: integer('team_size'),
+  additionalContext: text('additional_context'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+})
+
 export const feedback = pgTable('feedback', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id')
@@ -57,9 +86,17 @@ export const feedback = pgTable('feedback', {
   createdAt: timestamp('created_at').notNull().defaultNow()
 })
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
   feedbacks: many(feedback),
-  pastRenders: many(pastRenders)
+  pastRenders: many(pastRenders),
+  onboarding: one(userOnboarding, {
+    fields: [users.id],
+    references: [userOnboarding.userId]
+  }),
+  onboardingResponses: one(userOnboardingResponses, {
+    fields: [users.id],
+    references: [userOnboardingResponses.userId]
+  })
 }))
 
 export const customers = pgTable('customers', {
@@ -340,3 +377,27 @@ export type SelectPastRenders = typeof pastRenders.$inferSelect
 
 export const Price = createSelectSchema(prices)
 export type SelectPrice = typeof prices.$inferSelect
+
+// Define relations for userOnboarding
+export const userOnboardingRelations = relations(userOnboarding, ({ one }) => ({
+  user: one(users, {
+    fields: [userOnboarding.userId],
+    references: [users.id]
+  })
+}))
+
+// Define relations for userOnboardingResponses
+export const userOnboardingResponsesRelations = relations(
+  userOnboardingResponses,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [userOnboardingResponses.userId],
+      references: [users.id]
+    })
+  })
+)
+
+// Add types for the onboarding tables
+export type SelectUserOnboarding = typeof userOnboarding.$inferSelect
+export type SelectUserOnboardingResponses =
+  typeof userOnboardingResponses.$inferSelect

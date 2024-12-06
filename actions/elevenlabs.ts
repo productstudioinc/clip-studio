@@ -87,7 +87,13 @@ export const getLibraryVoices = createServerAction()
 
     try {
       const voices = await elevenLabsClient.voices.getShared(input)
-      return voices
+      return voices.voices.map((voice) => ({
+        voice_id: voice.voice_id,
+        name: voice.name,
+        description: voice.description,
+        preview_url: voice.preview_url,
+        category: voice.category
+      }))
     } catch (error) {
       logger.error('Error fetching voices from ElevenLabs', {
         error: error instanceof Error ? error.message : String(error)

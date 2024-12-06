@@ -1,26 +1,17 @@
-import { getUser, getUserSubscription } from '@/actions/auth/user'
-import { getProducts } from '@/actions/db/user-queries'
+import { getPricingData } from '@/actions/get-pricing-data'
+import { PricingProvider } from '@/contexts/pricing-context'
 
 import { CreditCalculator } from '@/components/credit-calculator-simple'
 import Faq from '@/components/faq'
 import Pricing from '@/components/pricing'
 
 export default async function Page() {
-  const [products, { user }, subscription] = await Promise.all([
-    getProducts(),
-    getUser(),
-    getUserSubscription()
-  ])
-
+  const pricingData = await getPricingData()
   return (
-    <>
-      <Pricing
-        products={products}
-        user={user}
-        subscription={subscription ?? null}
-      />
+    <PricingProvider initialData={pricingData}>
+      <Pricing />
       <CreditCalculator />
       <Faq />
-    </>
+    </PricingProvider>
   )
 }

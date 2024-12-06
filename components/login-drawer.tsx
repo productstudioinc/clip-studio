@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { usePathname } from 'next/navigation'
 import { useAppContext } from '@/contexts/app-context'
 
 import { useMediaQuery } from '@/lib/hooks/use-media-query'
@@ -36,7 +35,6 @@ export function LoginDrawer({
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const [isOpen, setIsOpen] = useState(open || false)
   const [isPulsing, setIsPulsing] = useState(false)
-  const pathname = usePathname()
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -57,11 +55,7 @@ export function LoginDrawer({
     setTimeout(() => setIsPulsing(false), 100)
   }
 
-  // Don't show the login drawer if the user is already logged in
   if (user) return null
-
-  // Don't show the login drawer on the login page
-  if (pathname !== '/') return null
 
   if (isDesktop) {
     return (

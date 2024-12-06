@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { GetProductsResult } from '@/actions/db/user-queries'
 import { trackMetaEvent } from '@/actions/meta'
 import { checkoutWithStripe } from '@/actions/stripe/server'
+import { usePricing } from '@/contexts/pricing-context'
 import { Price } from '@/db/schema'
 import { getStripe } from '@/utils/stripe/client'
 import { CheckIcon } from '@radix-ui/react-icons'
-import { User } from '@supabase/supabase-js'
 import { motion } from 'framer-motion'
 import { Loader, XIcon } from 'lucide-react'
 import posthog from 'posthog-js'
@@ -252,15 +251,8 @@ function PricingCard({
   )
 }
 
-export default function Pricing({
-  products,
-  user,
-  subscription
-}: {
-  products: GetProductsResult
-  user: User | null
-  subscription: string | null
-}) {
+export default function Pricing() {
+  const { products, user, subscription } = usePricing()
   const pixel = useFacebookPixel()
   const router = useRouter()
   const [interval, setInterval] = useState<Interval>('year')
@@ -281,6 +273,7 @@ export default function Pricing({
     setIsLoading(true)
     setId(price.id!)
 
+    console.log('user', user)
     // Redirect to login if user is not logged in
     if (!user) {
       setIsLoading(false)
@@ -338,18 +331,16 @@ export default function Pricing({
 
   return (
     <section id="pricing" aria-labelledby="pricing-heading">
-      <div className="mx-auto flex max-w-screen-lg flex-col gap-8 px-4 py-14 md:px-8">
+      <div className="mx-auto flex max-w-screen-lg flex-col gap-8 py-14">
         <div className="mx-auto max-w-5xl text-center">
           <h4 className="text-xl font-bold tracking-tight text-black dark:text-white">
             Pricing
           </h4>
           <h2 className="text-5xl font-bold tracking-tight text-black dark:text-white sm:text-6xl">
-            Simple pricing for everyone.
+            Simple Pricing for Everyone.
           </h2>
           <p className="mt-6 text-xl leading-8 text-black/80 dark:text-white">
-            Choose an <strong>affordable plan</strong> that&apos;s packed with
-            the best features for engaging your audience, creating customer
-            loyalty, and driving sales.
+            Choose a <strong>flexible credit plan</strong> that renews monthly.
           </p>
         </div>
 
