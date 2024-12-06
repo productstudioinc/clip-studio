@@ -12,6 +12,7 @@ import dynamic from 'next/dynamic'
 import { Montserrat } from 'next/font/google'
 import localFont from 'next/font/local'
 import Script from 'next/script'
+import { getBootstrapData } from '@/actions/get-bootstrap-data'
 import { GeistSans } from 'geist/font/sans'
 import { AxiomWebVitals } from 'next-axiom'
 
@@ -70,6 +71,8 @@ export default async function RootLayout({
   children: React.ReactNode
   modal: React.ReactNode
 }>) {
+  const bootstrapData = await getBootstrapData()
+
   return (
     <html lang="en" suppressHydrationWarning>
       <Script
@@ -78,7 +81,7 @@ export default async function RootLayout({
       />
       <AxiomWebVitals />
       <FacebookTrackingProvider client={facebook}>
-        <PHProvider>
+        <PHProvider bootstrapData={bootstrapData}>
           <body
             className={`${GeistSans.className} ${monserrat.variable} ${komika.variable} ${chirp.variable}`}
           >

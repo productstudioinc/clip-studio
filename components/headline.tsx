@@ -1,6 +1,4 @@
-'use client'
-
-import { usePostHog } from 'posthog-js/react'
+import { getBootstrapData } from '@/actions/get-bootstrap-data'
 
 import { AuroraText } from '@/components/magicui/aurora-text'
 
@@ -32,15 +30,9 @@ const headlines = {
   )
 }
 
-export function Headline() {
-  const posthog = usePostHog()
-  const variant = posthog.getFeatureFlag('landing-page-headline') || 'control'
-  const headline = headlines[variant as keyof typeof headlines]
-
-  // Uncomment to override the headline
-  // posthog.featureFlags.override({
-  //   'landing-page-headline': 'days_of_videos'
-  // })
-
+export async function Headline() {
+  const bootstrapData = await getBootstrapData()
+  const flag = bootstrapData.featureFlags['landing-page-headline']
+  const headline = headlines[flag as keyof typeof headlines]
   return headline
 }
