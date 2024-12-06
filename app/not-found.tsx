@@ -22,7 +22,7 @@ export default function NotFound() {
             The page you are looking for doesn&apos;t exist.
           </p>
 
-          <div className="group mt-6 flex w-full shrink-0 items-center gap-x-3 sm:w-auto">
+          <div className="group mt-6 flex w-full shrink-0 items-center justify-center gap-x-3 sm:w-auto">
             <Button
               onClick={() => router.back()}
               className={buttonVariants({ variant: 'secondary' })}

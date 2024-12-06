@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { getUserOnboardingStatus } from '@/actions/db/onboarding-queries'
 import { createClient } from '@/supabase/server'
 import { AxiomRequest, withAxiom } from 'next-axiom'
 
@@ -10,7 +11,7 @@ export const GET = withAxiom(async (request: AxiomRequest) => {
 
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/'
+  const next = searchParams.get('next') ?? 'home'
 
   logger.info('Auth callback initiated', { next })
 
@@ -19,7 +20,12 @@ export const GET = withAxiom(async (request: AxiomRequest) => {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
       logger.info('Successfully exchanged code for session')
-      return NextResponse.redirect(getSupabaseAuthRedirectURL(next))
+      const onboardingStatus = await getUserOnboardingStatus()
+      if (onboardingStatus) {
+        return NextResponse.redirect(getSupabaseAuthRedirectURL(next))
+      } else {
+        return NextResponse.redirect(getSupabaseAuthRedirectURL('onboarding'))
+      }
     } else {
       logger.error('Failed to exchange code for session', {
         error: error.message

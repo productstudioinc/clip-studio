@@ -160,6 +160,33 @@ CREATE TABLE IF NOT EXISTS "tiktok_posts" (
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "user_onboarding" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"has_generated_video" boolean DEFAULT false NOT NULL,
+	"video_generated_at" timestamp,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "user_onboarding_id_unique" UNIQUE("id"),
+	CONSTRAINT "user_onboarding_user_id_unique" UNIQUE("user_id")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "user_onboarding_responses" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"referral_source" text,
+	"occupation" text,
+	"role" text,
+	"primary_goal" text,
+	"use_case" text,
+	"team_size" integer,
+	"additional_context" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "user_onboarding_responses_id_unique" UNIQUE("id"),
+	CONSTRAINT "user_onboarding_responses_user_id_unique" UNIQUE("user_id")
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user_usage" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
@@ -273,6 +300,18 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "tiktok_posts" ADD CONSTRAINT "tiktok_posts_parent_social_media_post_id_social_media_posts_id_fk" FOREIGN KEY ("parent_social_media_post_id") REFERENCES "public"."social_media_posts"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "user_onboarding" ADD CONSTRAINT "user_onboarding_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "user_onboarding_responses" ADD CONSTRAINT "user_onboarding_responses_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

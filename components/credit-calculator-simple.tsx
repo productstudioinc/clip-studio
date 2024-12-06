@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
 
 export function CreditCalculator() {
-  const [credits, setCredits] = useState<number>(500)
+  const [credits, setCredits] = useState<number>(1000)
   const maxCredits = 2000
   const creditStep = 50
   const videoSeconds = credits * 5

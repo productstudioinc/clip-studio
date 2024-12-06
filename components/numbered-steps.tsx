@@ -15,8 +15,7 @@ export function NumberedSteps({
         <div
           key={index}
           className={cn(
-            'relative before:-ml-16 before:text-muted-foreground before:text-sm before:content-[var(--step-number)] before:sticky before:top-4 before:-mt-4 before:hidden before:2xl:block',
-            className
+            'relative before:text-muted-foreground before:text-sm before:content-[var(--step-number)] before:block before:mb-2'
           )}
           style={
             {
