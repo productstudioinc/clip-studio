@@ -301,6 +301,7 @@ const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
         )
       )
       .limit(1)
+
     if (!subscriptionDetails[0]) {
       throw new Error('No active subscription found')
     }
@@ -317,32 +318,31 @@ const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
     const isRenewal =
       existingPeriodStart && newPeriodStart > existingPeriodStart
 
+    const shouldSetFullCredits = isNewSubscription || isRenewal
+
     await db
       .insert(userUsage)
       .values({
         userId: subscriptionDetails[0].userId,
-        creditsLeft:
-          isRenewal || isNewSubscription
-            ? subscriptionDetails[0].creditsLeft
-            : sql`LEAST(${userUsage.creditsLeft}, ${subscriptionDetails[0].creditsLeft})`,
+        creditsLeft: subscriptionDetails[0].creditsLeft,
         connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
-        lastResetDate:
-          isRenewal || isNewSubscription ? newPeriodStart : undefined
+        lastResetDate: newPeriodStart
       })
       .onConflictDoUpdate({
         target: userUsage.userId,
         set: {
-          creditsLeft:
-            isRenewal || isNewSubscription
-              ? subscriptionDetails[0].creditsLeft
-              : sql`LEAST(COALESCE(${userUsage.creditsLeft}, 0), ${subscriptionDetails[0].creditsLeft})`,
+          creditsLeft: shouldSetFullCredits
+            ? subscriptionDetails[0].creditsLeft
+            : sql`GREATEST(COALESCE(${userUsage.creditsLeft}, 0), ${subscriptionDetails[0].creditsLeft})`,
           connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
-          lastResetDate:
-            isRenewal || isNewSubscription ? newPeriodStart : undefined
+          lastResetDate: shouldSetFullCredits ? newPeriodStart : undefined
         }
       })
+
     console.log(
-      `Updated usage limits for user ${subscriptionDetails[0].userId}${isRenewal ? ' (renewal reset)' : ''}`
+      `Updated usage limits for user ${subscriptionDetails[0].userId}${
+        shouldSetFullCredits ? ' (full credits reset)' : ''
+      }`
     )
   } catch (error) {
     if (error instanceof Error) {
