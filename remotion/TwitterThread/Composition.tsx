@@ -1,9 +1,10 @@
-import { useMemo } from 'react'
-import { loadFont } from '@remotion/fonts'
-import { Audio, Sequence, Series, staticFile, Video } from 'remotion'
+import { useEffect, useMemo, useState } from 'react'
+import { getVideoMetadata } from '@remotion/media-utils'
+import { Audio, continueRender, delayRender, Sequence, Series } from 'remotion'
 
 import { MyTweet } from '../../components/tweet/my-tweet'
 import { TwitterVideoProps } from '../../stores/templatestore'
+import { LoopedOffthreadVideo } from '../Shared/LoopedOffthreadVideo'
 
 const FPS = 30
 
@@ -17,6 +18,22 @@ export const TwitterComposition = ({
   voiceSpeed,
   mode
 }: TwitterVideoProps) => {
+  const [handle] = useState(() => delayRender('Loading video metadata'))
+
+  useEffect(() => {
+    const loadMetadata = async () => {
+      try {
+        await Promise.all(backgroundUrls.map((url) => getVideoMetadata(url)))
+        continueRender(handle)
+      } catch (err) {
+        console.error('Error loading video metadata:', err)
+        continueRender(handle)
+      }
+    }
+
+    loadMetadata()
+  }, [backgroundUrls, handle])
+
   const requiredSegments = useMemo(() => {
     if (backgroundUrls.length === 1) {
       return backgroundUrls
@@ -41,23 +58,19 @@ export const TwitterComposition = ({
         playbackRate={voiceSpeed}
       />
       {backgroundUrls.length === 1 ? (
-        <Video
+        <LoopedOffthreadVideo
           src={backgroundUrls[0]}
           className="absolute w-full h-full object-cover"
-          muted
-          loop
         />
       ) : (
         <Series>
           {requiredSegments.map((url, index) => (
             <Series.Sequence durationInFrames={60 * FPS} key={index}>
-              <Video
+              <LoopedOffthreadVideo
                 src={url}
                 className="absolute w-full h-full object-cover"
                 startFrom={0}
                 endAt={60 * FPS}
-                muted
-                loop
               />
             </Series.Sequence>
           ))}

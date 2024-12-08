@@ -1,8 +1,10 @@
-import { CSSProperties, useMemo } from 'react'
-import { AbsoluteFill, Sequence, Series, Video } from 'remotion'
+import { CSSProperties, useEffect, useMemo, useState } from 'react'
+import { getVideoMetadata } from '@remotion/media-utils'
+import { AbsoluteFill, continueRender, delayRender, Series } from 'remotion'
 
 import { SplitScreenVideoProps } from '../../stores/templatestore'
 import { CaptionComponent } from '../Shared/caption'
+import { LoopedOffthreadVideo } from '../Shared/LoopedOffthreadVideo'
 
 const FPS = 30
 
@@ -15,6 +17,25 @@ export const SplitScreenComposition = ({
   captionStyle,
   transcription
 }: SplitScreenVideoProps) => {
+  const [handle] = useState(() => delayRender('Loading video metadata'))
+
+  useEffect(() => {
+    const loadMetadata = async () => {
+      try {
+        await Promise.all([
+          getVideoMetadata(videoUrl),
+          ...backgroundUrls.map((url) => getVideoMetadata(url))
+        ])
+        continueRender(handle)
+      } catch (err) {
+        console.error('Error loading video metadata:', err)
+        continueRender(handle)
+      }
+    }
+
+    loadMetadata()
+  }, [videoUrl, backgroundUrls, handle])
+
   const requiredSegments = useMemo(() => {
     if (backgroundUrls.length === 1) {
       return backgroundUrls
@@ -62,7 +83,7 @@ export const SplitScreenComposition = ({
       <div
         style={{ position: 'absolute', top: 0, width: '100%', height: '50%' }}
       >
-        <Video src={videoUrl} style={videoStyle} />
+        <LoopedOffthreadVideo src={videoUrl} style={videoStyle} />
       </div>
       <div
         style={{
@@ -73,18 +94,16 @@ export const SplitScreenComposition = ({
         }}
       >
         {backgroundUrls.length === 1 ? (
-          <Video src={backgroundUrls[0]} style={videoStyle} muted loop />
+          <LoopedOffthreadVideo src={backgroundUrls[0]} style={videoStyle} />
         ) : (
           <Series>
             {requiredSegments.map((url, index) => (
               <Series.Sequence durationInFrames={FPS * 60} key={index}>
-                <Video
+                <LoopedOffthreadVideo
                   src={url}
+                  style={videoStyle}
                   startFrom={0}
                   endAt={FPS * 60}
-                  style={videoStyle}
-                  muted
-                  loop
                 />
               </Series.Sequence>
             ))}

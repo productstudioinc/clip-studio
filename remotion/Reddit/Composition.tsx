@@ -1,9 +1,18 @@
-import { useMemo } from 'react'
-import { AbsoluteFill, Audio, Sequence, Series, Video } from 'remotion'
+import { useEffect, useMemo, useState } from 'react'
+import { getVideoMetadata } from '@remotion/media-utils'
+import {
+  AbsoluteFill,
+  Audio,
+  continueRender,
+  delayRender,
+  Sequence,
+  Series
+} from 'remotion'
 
 import { RedditCard } from '../../components/reddit-card'
 import { RedditVideoProps } from '../../stores/templatestore'
 import { CaptionComponent } from '../Shared/caption'
+import { LoopedOffthreadVideo } from '../Shared/LoopedOffthreadVideo'
 
 const FPS = 30
 const BACKGROUND_VIDEO_DURATION = 60 * FPS
@@ -24,6 +33,22 @@ export const RedditComposition = ({
   captionStyle,
   subtitles
 }: RedditVideoProps) => {
+  const [handle] = useState(() => delayRender('Loading video metadata'))
+
+  useEffect(() => {
+    const loadMetadata = async () => {
+      try {
+        await Promise.all(backgroundUrls.map((url) => getVideoMetadata(url)))
+        continueRender(handle)
+      } catch (err) {
+        console.error('Error loading video metadata:', err)
+        continueRender(handle)
+      }
+    }
+
+    loadMetadata()
+  }, [backgroundUrls, handle])
+
   const titleEndFrame = Math.floor(titleEnd * FPS)
 
   const requiredSegments = useMemo(() => {
@@ -55,11 +80,9 @@ export const RedditComposition = ({
       />
       <AbsoluteFill className="w-full h-full">
         {backgroundUrls.length === 1 ? (
-          <Video
+          <LoopedOffthreadVideo
             src={backgroundUrls[0]}
             className="absolute w-full h-full object-cover"
-            muted
-            loop
           />
         ) : (
           <Series>
@@ -68,13 +91,11 @@ export const RedditComposition = ({
                 durationInFrames={BACKGROUND_VIDEO_DURATION}
                 key={index}
               >
-                <Video
+                <LoopedOffthreadVideo
                   src={url}
                   className="absolute w-full h-full object-cover"
                   startFrom={0}
                   endAt={BACKGROUND_VIDEO_DURATION}
-                  muted
-                  loop
                 />
               </Series.Sequence>
             ))}

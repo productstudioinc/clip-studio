@@ -1,9 +1,18 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { TextMessageVideoProps } from '@/stores/templatestore'
 import { loadFont as loadRobotoFont } from '@remotion/google-fonts/Roboto'
-import { AbsoluteFill, Audio, Sequence, Series, Video } from 'remotion'
+import { getVideoMetadata } from '@remotion/media-utils'
+import {
+  AbsoluteFill,
+  Audio,
+  continueRender,
+  delayRender,
+  Sequence,
+  Series
+} from 'remotion'
 
 import { TextMessage } from '../../components/text-message'
+import { LoopedOffthreadVideo } from '../Shared/LoopedOffthreadVideo'
 
 export type SubtitleProp = {
   startFrame: number
@@ -19,6 +28,24 @@ const FPS = 30
 const BACKGROUND_VIDEO_DURATION = 60 * FPS
 
 export const TextMessageComposition = (props: TextMessageVideoProps) => {
+  const [handle] = useState(() => delayRender('Loading video metadata'))
+
+  useEffect(() => {
+    const loadMetadata = async () => {
+      try {
+        await Promise.all(
+          props.backgroundUrls.map((url) => getVideoMetadata(url))
+        )
+        continueRender(handle)
+      } catch (err) {
+        console.error('Error loading video metadata:', err)
+        continueRender(handle)
+      }
+    }
+
+    loadMetadata()
+  }, [props.backgroundUrls, handle])
+
   const requiredSegments = useMemo(() => {
     if (props.backgroundUrls.length === 1) {
       return props.backgroundUrls
@@ -45,11 +72,9 @@ export const TextMessageComposition = (props: TextMessageVideoProps) => {
       />
       <AbsoluteFill className="w-full h-full">
         {props.backgroundUrls.length === 1 ? (
-          <Video
+          <LoopedOffthreadVideo
             src={props.backgroundUrls[0]}
             className="absolute w-full h-full object-cover"
-            muted
-            loop
           />
         ) : (
           <Series>
@@ -58,13 +83,11 @@ export const TextMessageComposition = (props: TextMessageVideoProps) => {
                 durationInFrames={BACKGROUND_VIDEO_DURATION}
                 key={index}
               >
-                <Video
+                <LoopedOffthreadVideo
                   src={url}
                   className="absolute w-full h-full object-cover"
                   startFrom={0}
                   endAt={BACKGROUND_VIDEO_DURATION}
-                  muted
-                  loop
                 />
               </Series.Sequence>
             ))}
