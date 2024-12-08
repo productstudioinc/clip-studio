@@ -334,7 +334,9 @@ const updateUserUsageLimits = async (subscription: Stripe.Subscription) => {
           creditsLeft: shouldSetFullCredits
             ? subscriptionDetails[0].creditsLeft
             : sql`GREATEST(COALESCE(${userUsage.creditsLeft}, 0), ${subscriptionDetails[0].creditsLeft})`,
-          connectedAccountsLeft: subscriptionDetails[0].connectedAccounts,
+          connectedAccountsLeft: isNewSubscription
+            ? subscriptionDetails[0].connectedAccounts
+            : sql`COALESCE(${userUsage.connectedAccountsLeft}, ${subscriptionDetails[0].connectedAccounts})`,
           lastResetDate: shouldSetFullCredits ? newPeriodStart : undefined
         }
       })
