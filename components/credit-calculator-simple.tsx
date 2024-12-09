@@ -314,7 +314,7 @@ const HowManyVideos = ({ credits }: { credits: number }) => (
 )
 
 export function CreditCalculator() {
-  const [credits, setCredits] = useState<number>(500)
+  const [credits, setCredits] = useState<number>(1000)
 
   return (
     <Card className="w-full max-w-screen-md mx-auto">
