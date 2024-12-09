@@ -85,22 +85,22 @@ export const Showcase = React.memo(function Showcase({
   className?: string
   reverse?: boolean
 }) {
-  const shuffledShowcases = [...showcases].sort(() => Math.random() - 0.5) // Shuffle the showcases array
+  const shuffledShowcases = React.useMemo(
+    () => [...showcases].sort(() => Math.random() - 0.5),
+    [] // Empty dependency array as we only want to shuffle once on mount
+  )
+
   return (
     <div className={cn('overflow-hidden relative w-fit', className)}>
       <Marquee vertical reverse={reverse}>
         {shuffledShowcases.map((showcase, idx) => (
           <motion.div
             key={idx}
-            initial={{
-              opacity: 0
-            }}
-            animate={{
-              opacity: 1
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{
               opacity: {
-                delay: Math.random() * 0.7, // Adjusted delay for randomness
+                delay: Math.random() * 0.7,
                 duration: 0.8,
                 ease: 'easeOut'
               }
@@ -117,9 +117,14 @@ export const Showcase = React.memo(function Showcase({
 })
 
 export default function VideoBackground() {
+  const columns = React.useMemo(
+    () => Array.from({ length: 8 }, (_, index) => index),
+    []
+  )
+
   return (
     <div className="absolute inset-0 grid place-items-center w-full opacity-10 max-h-[80vh] grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 pointer-events-none select-none">
-      {Array.from({ length: 8 }).map((_, index) => (
+      {columns.map((index) => (
         <Showcase key={index} className="h-full" reverse={index % 2 === 1} />
       ))}
     </div>

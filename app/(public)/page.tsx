@@ -17,6 +17,7 @@ import { Icons } from '@/components/icons'
 import { Marquee } from '@/components/magicui/marquee'
 import NumberTicker from '@/components/magicui/number-ticker'
 import Section from '@/components/section'
+import { ShowcaseVideo } from '@/components/showcase-video'
 import StripePopup from '@/components/stripe-popup'
 
 const VideoBackground = dynamic(() => import('@/components/video-background'), {
@@ -224,12 +225,8 @@ function HowItWorks() {
                   {feature.cta}
                 </Link>
               </div>
-              <video
+              <ShowcaseVideo
                 src={feature.video}
-                autoPlay
-                loop
-                muted
-                playsInline
                 className="rounded-xl border border-border m-auto lg:col-span-2 shadow-2xl bg-card"
               />
             </div>
@@ -274,14 +271,7 @@ function ShowcaseSection() {
               key={idx}
               className={`h-[280px] sm:h-[380px] lg:h-[480px] w-[160px] sm:w-[200px] lg:w-[250px] rounded-xl border-2 border-border bg-card shadow-xl`}
             >
-              <video
-                src={showcase.videoSrc}
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="h-full w-full rounded-xl object-cover"
-              />
+              <ShowcaseVideo src={showcase.videoSrc} />
             </div>
           ))}
         </Marquee>
@@ -428,12 +418,8 @@ function Hero() {
                       : 'z-10 scale-110 group-hover:scale-125'
                 }`}
               >
-                <video
+                <ShowcaseVideo
                   src={showcase.videoSrc}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
                   className="h-full w-full rounded-2xl object-cover"
                 />
               </div>
