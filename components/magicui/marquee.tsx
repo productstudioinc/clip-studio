@@ -21,7 +21,6 @@ export function Marquee({
 }: MarqueeProps) {
   return (
     <div
-      {...props}
       className={cn(
         'group flex overflow-hidden p-2 [--duration:40s] [--gap:1rem] [gap:var(--gap)]',
         {
@@ -30,6 +29,7 @@ export function Marquee({
         },
         className
       )}
+      {...props}
     >
       {Array(repeat)
         .fill(0)

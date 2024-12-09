@@ -1,4 +1,5 @@
 import { HTMLAttributes } from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { List } from 'lucide-react'
 
@@ -18,26 +19,37 @@ import NumberTicker from '@/components/magicui/number-ticker'
 import Section from '@/components/section'
 import StripePopup from '@/components/stripe-popup'
 
+const VideoBackground = dynamic(() => import('@/components/video-background'), {
+  ssr: false
+})
 function CTA() {
   return (
-    <Section
-      id="cta"
-      title="Ready to get started?"
-      subtitle="Start getting views today."
-      className="container"
-    >
+    <Section id="cta">
+      <VideoBackground />
       <Rainbow />
-      <div className="flex flex-col w-full sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
-        <Link
-          href="/home"
-          className={cn(
-            buttonVariants({ variant: 'rainbow' }),
-            'w-full sm:w-auto text-background flex gap-2'
-          )}
-        >
-          <Icons.logo className="h-6 w-6" />
-          Get started for free
-        </Link>
+      <div className="relative container mx-auto px-4 py-12 max-w-7xl">
+        <div className="text-center space-y-4 pb-6 mx-auto">
+          <h2 className="text-sm text-primary font-mono font-medium tracking-wider uppercase">
+            Ready to get started?
+          </h2>
+          <h3 className="mx-auto mt-4 max-w-xs text-3xl font-semibold sm:max-w-none sm:text-4xl md:text-5xl">
+            Start getting views today.
+          </h3>
+        </div>
+        <div className="flex flex-col w-full sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
+          <div className="flex-grow flex items-center justify-center">
+            <Link
+              href="/home"
+              className={cn(
+                buttonVariants({ variant: 'rainbow' }),
+                'w-full sm:w-auto text-background flex gap-2'
+              )}
+            >
+              <Icons.logo className="h-6 w-6" />
+              Get started for free
+            </Link>
+          </div>
+        </div>
       </div>
     </Section>
   )
@@ -247,7 +259,7 @@ const showcases = [
   }
 ]
 
-function Showcase() {
+function ShowcaseSection() {
   return (
     <Section
       id="showcase"
@@ -345,8 +357,9 @@ function AvatarCircles({
 function Hero() {
   return (
     <section id="hero" className="relative py-12 lg:py-24 xl:py-32">
+      <VideoBackground />
       <div className="flex flex-col items-center max-w-7xl mx-auto">
-        <div className="container flex flex-col justify-center space-y-8 max-w-[720px] mx-auto text-center mb-16">
+        <div className="relative container flex flex-col justify-center space-y-8 max-w-[720px] mx-auto text-center mb-16">
           <div className="space-y-6">
             <HeroPill />
             <h1 className="text-[clamp(3rem,5vw,4.5rem)] font-bold leading-[1.1] tracking-tight text-balance">
@@ -469,7 +482,7 @@ export default function Home() {
       <StatsSection />
       <SuccessStories />
       <HowItWorks />
-      <Showcase />
+      <ShowcaseSection />
       <FAQ />
       <CTA />
 

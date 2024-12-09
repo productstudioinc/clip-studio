@@ -19,7 +19,7 @@ export default function Section({
   return (
     <section id={id || sectionId}>
       <div className={className}>
-        <div className="relative container mx-auto px-4 py-16 max-w-7xl">
+        <div className="relative container mx-auto px-4 py-12 max-w-7xl">
           <div className="text-center space-y-4 pb-6 mx-auto">
             {title && (
               <h2 className="text-sm text-primary font-mono font-medium tracking-wider uppercase">
