@@ -1,12 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { GetUserSubscriptionResult } from '@/actions/auth/user'
 import { GetUserUsageResult } from '@/actions/db/user-queries'
 import { User } from '@supabase/supabase-js'
-import { motion } from 'framer-motion'
 import {
   CircleUser,
   DollarSign,
@@ -21,9 +17,14 @@ import {
   YoutubeIcon,
   ZapIcon
 } from 'lucide-react'
+import { motion } from 'motion/react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import React, { useState } from 'react'
 
-import { siteConfig } from '@/lib/config'
-import { cn } from '@/lib/utils'
+import Hero from '@/components/hero'
+import { Icons } from '@/components/icons'
+import SubscriptionCard from '@/components/subscription-card'
 import { Badge } from '@/components/ui/badge'
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
@@ -42,10 +43,9 @@ import {
 } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import Hero from '@/components/hero'
-import { Icons } from '@/components/icons'
-import SubscriptionCard from '@/components/subscription-card'
 import { UserAccountMenu } from '@/components/user-account-menu'
+import { siteConfig } from '@/lib/config'
+import { cn } from '@/lib/utils'
 
 import { WhatsNew } from './whats-new'
 

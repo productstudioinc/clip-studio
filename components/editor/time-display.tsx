@@ -29,7 +29,7 @@ export const formatTime = (frame: number, fps: number): string => {
 export const TimeDisplay: React.FC<{
   durationInFrames: number
   fps: number
-  playerRef: React.RefObject<PlayerRef>
+  playerRef: React.RefObject<PlayerRef | null>
 }> = ({ durationInFrames, fps, playerRef }) => {
   const [time, setTime] = React.useState(0)
 

@@ -1,5 +1,6 @@
 'use client'
 
+import type { JSX } from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { uuidv7 } from 'uuidv7'
 
@@ -45,6 +46,7 @@ export function FacebookTrackOnClick<
     }
   ) => Promise<void>
 }): JSX.Element {
+  // Added return type here
   const pixel = useFacebookPixel()
   const { event_id = uuidv7(), ...restEvent } = event
   const e = {

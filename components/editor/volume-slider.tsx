@@ -11,7 +11,7 @@ import {
 import { Slider } from '@/components/ui/slider'
 
 export const VolumeSlider: React.FC<{
-  playerRef: React.RefObject<PlayerRef>
+  playerRef: React.RefObject<PlayerRef | null>
 }> = ({ playerRef }) => {
   const [volume, setVolume] = useState(playerRef.current?.getVolume() ?? 1)
   const [muted, setMuted] = useState(playerRef.current?.isMuted() ?? false)

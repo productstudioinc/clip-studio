@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
@@ -21,12 +21,9 @@ const links: Link[] = [
 ]
 
 const HeroPill = () => (
-  <motion.a
+  <Link
     href="/changelog/2024-11-03-twitter-thread-template-launch"
     className="flex w-auto items-center space-x-2 rounded-full bg-primary/20 px-2 py-1 ring-1 ring-accent whitespace-pre"
-    initial={{ opacity: 0, y: -20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.8, ease }}
   >
     <div className="w-fit rounded-full bg-accent px-2 py-0.5 text-center text-xs font-medium text-primary sm:text-sm">
       📣 Announcement
@@ -47,7 +44,7 @@ const HeroPill = () => (
         fill="hsl(var(--primary))"
       />
     </svg>
-  </motion.a>
+  </Link>
 )
 
 const HeroTitles = () => (

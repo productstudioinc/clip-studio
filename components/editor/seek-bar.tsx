@@ -131,7 +131,7 @@ export const SeekBar: React.FC<{
   durationInFrames: number
   inFrame?: number | null
   outFrame?: number | null
-  playerRef: React.RefObject<PlayerRef>
+  playerRef: React.RefObject<PlayerRef | null>
   onSeek: (frame: number) => void
 }> = ({ durationInFrames, inFrame, outFrame, playerRef, onSeek }) => {
   const [frame, setFrame] = useState(0)

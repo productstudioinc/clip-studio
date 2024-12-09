@@ -7,7 +7,7 @@ import { Maximize2, Minimize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export const FullscreenButton: React.FC<{
-  playerRef: React.RefObject<PlayerRef>
+  playerRef: React.RefObject<PlayerRef | null>
 }> = ({ playerRef }) => {
   const [supportsFullscreen, setSupportsFullscreen] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)

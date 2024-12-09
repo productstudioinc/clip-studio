@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { getRecentStripeData } from '@/actions/stripe/server'
-import { AnimatePresence, motion } from 'framer-motion'
 import { BadgeCheck } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
 
 interface StripeData {
   type: string
