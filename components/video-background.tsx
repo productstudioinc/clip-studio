@@ -115,7 +115,6 @@ export const Showcase = React.memo(function Showcase({
     </div>
   )
 })
-
 export default function VideoBackground() {
   const columns = React.useMemo(
     () => Array.from({ length: 8 }, (_, index) => index),
@@ -123,7 +122,7 @@ export default function VideoBackground() {
   )
 
   return (
-    <div className="absolute inset-0 grid place-items-center w-full opacity-10 max-h-[80vh] grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 pointer-events-none select-none">
+    <div className="absolute inset-0 hidden sm:grid place-items-center w-full opacity-10 max-h-[80vh] sm:grid-cols-4 lg:grid-cols-8 pointer-events-none select-none">
       {columns.map((index) => (
         <Showcase key={index} className="h-full" reverse={index % 2 === 1} />
       ))}
