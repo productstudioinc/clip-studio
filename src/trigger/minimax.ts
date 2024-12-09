@@ -1,3 +1,4 @@
+import { openai } from '@ai-sdk/openai'
 import {
   GetObjectCommand,
   PutObjectCommand,
@@ -5,6 +6,7 @@ import {
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { logger, task } from '@trigger.dev/sdk/v3'
+import { generateText } from 'ai'
 import Replicate from 'replicate'
 
 const R2 = new S3Client({
@@ -24,6 +26,28 @@ export const generateAiVideoTask = task({
       prompt: payload.prompt
     })
 
+    const { text } = await generateText({
+      model: openai('gpt-4o-mini'),
+      prompt: `You will be provided with a video concept. Create a detailed, vivid image prompt based on the following video concept. 
+      The prompt should be suitable for AI image generation and focus on the key visual elements.
+
+      Guidelines:
+      - Focus on the main subject and their actions
+      - Include details about lighting, atmosphere, and style
+      - Specify camera angle or perspective if relevant
+      - Keep the description clear and specific
+      - Avoid abstract concepts that can't be visualized
+      - Include artistic style references when appropriate
+      - Limit to 50-75 words
+      - Make it suitable for social media content
+
+      Video concept:
+      ${payload.prompt}
+
+      Format the response as a single paragraph without any prefixes or labels.`,
+      maxTokens: 100
+    })
+
     const replicate = new Replicate({
       auth: process.env.REPLICATE_API_TOKEN
     })
@@ -31,7 +55,7 @@ export const generateAiVideoTask = task({
     logger.log('Generating first frame with Flux')
     const fluxOutput = await replicate.run('black-forest-labs/flux-1.1-pro', {
       input: {
-        prompt: payload.prompt,
+        prompt: text,
         aspect_ratio: '1:1',
         output_format: 'webp',
         output_quality: 80,
