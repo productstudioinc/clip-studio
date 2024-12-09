@@ -347,9 +347,16 @@ const HowManyVideos = ({ credits }: { credits: number }) => (
       </span>
     </div>
 
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="flex gap-4 flex-row overflow-x-auto snap-x snap-mandatory">
       {Object.entries(costPerVideo).map(([type, costs]) => (
-        <VideoTypeCard key={type} type={type} costs={costs} credits={credits} />
+        <div className="snap-center" key={type}>
+          <VideoTypeCard
+            key={type}
+            type={type}
+            costs={costs}
+            credits={credits}
+          />
+        </div>
       ))}
     </div>
   </div>
@@ -359,7 +366,7 @@ export function CreditCalculator() {
   const [credits, setCredits] = useState<number>(1000)
 
   return (
-    <Card className="w-full max-w-screen-md mx-auto">
+    <Card className="w-full max-w-screen-lg mx-auto border-none">
       <CardHeader>
         <CardTitle className="text-4xl font-bold text-center">
           Credit Calculator
