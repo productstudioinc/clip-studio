@@ -155,7 +155,6 @@ const costPerVideo: Record<string, VideoCosts> = {
     imageGeneration: 0
   }
 }
-
 const CreditSlider = ({
   credits,
   setCredits
@@ -163,9 +162,30 @@ const CreditSlider = ({
   credits: number
   setCredits: (value: number) => void
 }) => {
-  const maxCredits = 2000
+  const maxCredits = 5000
   const creditStep = 50
-  const markers = [0, 500, 1000, 1500, 2000]
+  const mobileMarkers = [0, 1000, 2000, 3000, 4000, 5000]
+  const desktopMarkers = [
+    0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000
+  ]
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+
+    // Set initial value
+    handleResize()
+
+    // Add event listener
+    window.addEventListener('resize', handleResize)
+
+    // Clean up
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
 
   return (
     <div className="space-y-4">
@@ -185,7 +205,7 @@ const CreditSlider = ({
         className="w-full"
       />
       <div className="flex justify-between text-sm text-muted-foreground">
-        {markers.map((value) => (
+        {(isMobile ? mobileMarkers : desktopMarkers).map((value) => (
           <div key={value} className="flex flex-col items-center">
             <span className="mb-1">{value}</span>
             <div className="h-1 w-0.5 bg-muted-foreground" />
@@ -217,6 +237,11 @@ const VideoTypeCard = ({
         <span className="text-muted-foreground">
           {videoCount === 1 ? 'video' : 'videos'}
         </span>
+        <small className="text-sm text-muted-foreground ml-2">or</small>
+      </h3>
+      <h3 className="text-sm font-semibold whitespace-nowrap text-green-500">
+        {(videoCount / 30).toFixed(1)} months{' '}
+        <span className="text-muted-foreground">of daily videos</span>
       </h3>
       {showcase && <VideoCard title={type} videoSrc={showcase.videoSrc} />}
       <p className="text-sm text-muted-foreground">(1 minute each)</p>
