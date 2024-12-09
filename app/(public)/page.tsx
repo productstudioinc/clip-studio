@@ -23,10 +23,11 @@ import StripePopup from '@/components/stripe-popup'
 const VideoBackground = dynamic(() => import('@/components/video-background'), {
   ssr: false
 })
+
 function CTA() {
   return (
     <Section id="cta">
-      <VideoBackground />
+      {/* <VideoBackground /> */}
       <Rainbow />
       <div className="relative container mx-auto px-4 py-12 max-w-7xl">
         <div className="text-center space-y-4 pb-6 mx-auto">
@@ -265,7 +266,7 @@ function ShowcaseSection() {
       description="Check out some of our featured creations."
     >
       <div className="relative flex flex-col">
-        <Marquee className="py-4" pauseOnHover>
+        <Marquee className="py-8" pauseOnHover>
           {showcases.map((showcase, idx) => (
             <div
               key={idx}
@@ -347,7 +348,7 @@ function AvatarCircles({
 function Hero() {
   return (
     <section id="hero" className="relative py-12 lg:py-24 xl:py-32">
-      <VideoBackground />
+      {/* <VideoBackground /> */}
       <div className="flex flex-col items-center max-w-7xl mx-auto">
         <div className="relative container flex flex-col justify-center space-y-8 max-w-[720px] mx-auto text-center mb-16">
           <div className="space-y-6">
@@ -457,7 +458,7 @@ function SuccessStories() {
 
 function Rainbow() {
   return (
-    <div className="absolute pointer-events-none inset-0 top-0 h-20 w-full before:absolute before:bottom-[-20%] before:left-1/2 before:z-[0] before:h-[80%] before:w-[60%] before:-translate-x-1/2 before:animate-rainbow before:bg-[linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)))] before:bg-[length:200%] before:[filter:blur(calc(4*1rem))] before:opacity-20" />
+    <div className="absolute pointer-events-none inset-0 top-0 h-20 w-full before:absolute before:bottom-[-20%] before:left-1/2 before:z-[0] before:h-[80%] before:w-[60%] before:-translate-x-1/2 before:animate-rainbow before:bg-[linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)))] before:[filter:blur(calc(4*1rem))] before:opacity-20" />
   )
 }
 
