@@ -146,15 +146,16 @@ const UsageDisplay = ({
   }, [supabase, userId])
 
   if (!realtimeUsage) return null
-
   const { currentUsage, totalLimits } = realtimeUsage
 
   const calculateUsed = (total: number | null, left: number | null) =>
-    total !== null && left !== null ? total - left : null
-  const calculatePercentage = (used: number | null, total: number | null) =>
-    used !== null && total !== null && total !== 0
-      ? Math.floor((used / total) * 100)
-      : 0
+    total !== null && left !== null ? total - left : null // Calculate used credits
+
+  const calculatePercentage = (used: number | null, total: number | null) => {
+    if (used === null || total === null) return 0
+    const percentage = total > 0 ? Math.floor((used / total) * 100) : 0
+    return percentage
+  }
 
   const usageItems = [
     {
@@ -162,6 +163,7 @@ const UsageDisplay = ({
       icon: Coins,
       current: calculateUsed(totalLimits.credits, currentUsage.creditsLeft),
       total: totalLimits.credits,
+      remaining: currentUsage.creditsLeft,
       unit: '',
       percentage: calculatePercentage(
         calculateUsed(totalLimits.credits, currentUsage.creditsLeft),
@@ -178,6 +180,7 @@ const UsageDisplay = ({
               currentUsage.connectedAccountsLeft
             ),
             total: totalLimits.connectedAccounts,
+            remaining: currentUsage.connectedAccountsLeft,
             unit: '',
             percentage: calculatePercentage(
               calculateUsed(
@@ -190,7 +193,6 @@ const UsageDisplay = ({
         ]
       : [])
   ]
-
   return (
     <div
       className={`flex flex-col gap-3 ${showConnectedAccounts ? 'pb-0' : 'pb-2'}`}
@@ -203,9 +205,24 @@ const UsageDisplay = ({
           <item.icon className="h-4 w-4 text-muted-foreground mt-1" />
           <div className="flex-1">
             <Progress value={item.percentage} className="h-2" />
-            <div className="text-xs mt-1 text-muted-foreground font-medium flex justify-between">
-              <span>{`${item.current ?? 'N/A'}/${item.total ?? 'N/A'}`}</span>
-              <span>{`${item.percentage}% used`}</span>
+            <div className="text-xs mt-1 text-muted-foreground font-medium flex flex-wrap justify-between">
+              <span className="break-normal">
+                {item.remaining !== null && item.remaining > 0
+                  ? `${item.remaining} credits left`
+                  : `${Math.abs(item.remaining ?? 0)} credits over limit`}
+                {item.remaining !== null &&
+                  item.remaining > totalLimits.credits && (
+                    <>
+                      <br />
+                      {` (+${item.remaining - totalLimits.credits}`}
+                      {` bonus credits)`}
+                    </>
+                  )}
+              </span>
+
+              {item.percentage >= 0 && (
+                <span>{`${item.percentage}% used`}</span>
+              )}
             </div>
           </div>
         </div>
