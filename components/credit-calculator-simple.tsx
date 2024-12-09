@@ -372,7 +372,7 @@ export function CreditCalculator() {
           Credit Calculator
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 px-0">
         <CreditSlider credits={credits} setCredits={setCredits} />
         <HowManyVideos credits={credits} />
         <CostBreakdownTable />
