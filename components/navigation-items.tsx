@@ -1,5 +1,8 @@
 'use client'
 
+import React from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { GetUserSubscriptionResult } from '@/actions/auth/user'
 import { GetUserUsageResult } from '@/actions/db/user-queries'
 import { User } from '@supabase/supabase-js'
@@ -18,15 +21,10 @@ import {
   ZapIcon
 } from 'lucide-react'
 import { motion } from 'motion/react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import React, { useState } from 'react'
 
-import Hero from '@/components/hero'
-import { Icons } from '@/components/icons'
-import SubscriptionCard from '@/components/subscription-card'
+import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -34,18 +32,10 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+import { Icons } from '@/components/icons'
+import SubscriptionCard from '@/components/subscription-card'
 import { UserAccountMenu } from '@/components/user-account-menu'
-import { siteConfig } from '@/lib/config'
-import { cn } from '@/lib/utils'
 
 import { WhatsNew } from './whats-new'
 
@@ -72,43 +62,43 @@ export function UpgradeCard() {
   )
 }
 
-export function HeroWrapper() {
-  const [isOpen, setIsOpen] = useState(false)
+// export function HeroWrapper() {
+//   const [isOpen, setIsOpen] = useState(false)
 
-  // useEffect(() => {
-  //   const hasVisited = localStorage.getItem('hasVisitedBefore')
-  //   if (!hasVisited) {
-  //     setIsOpen(true)
-  //     localStorage.setItem('hasVisitedBefore', 'true')
-  //   }
-  // }, [])
+//   // useEffect(() => {
+//   //   const hasVisited = localStorage.getItem('hasVisitedBefore')
+//   //   if (!hasVisited) {
+//   //     setIsOpen(true)
+//   //     localStorage.setItem('hasVisitedBefore', 'true')
+//   //   }
+//   // }, [])
 
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <div className="flex items-center justify-between">
-          <Button
-            variant="link"
-            className="flex w-full items-center justify-start gap-2 px-2 p-0 font-semibold"
-          >
-            <Icons.logo className="w-6 h-6" />
-            <span>Clip Studio</span>
-          </Button>
-          <Badge variant="secondary" className="ml-2">
-            Beta
-          </Badge>
-        </div>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogTitle hidden>{siteConfig.name}</DialogTitle>
-        <DialogDescription hidden>{siteConfig.description}</DialogDescription>
-        <ScrollArea className="h-full w-full max-h-[70vh]">
-          <Hero />
-        </ScrollArea>
-      </DialogContent>
-    </Dialog>
-  )
-}
+//   return (
+//     <Dialog open={isOpen} onOpenChange={setIsOpen}>
+//       <DialogTrigger asChild>
+//         <div className="flex items-center justify-between">
+//           <Button
+//             variant="link"
+//             className="flex w-full items-center justify-start gap-2 px-2 p-0 font-semibold"
+//           >
+//             <Icons.logo className="w-6 h-6" />
+//             <span>Clip Studio</span>
+//           </Button>
+//           <Badge variant="secondary" className="ml-2">
+//             Beta
+//           </Badge>
+//         </div>
+//       </DialogTrigger>
+//       <DialogContent>
+//         <DialogTitle hidden>{siteConfig.name}</DialogTitle>
+//         <DialogDescription hidden>{siteConfig.description}</DialogDescription>
+//         <ScrollArea className="h-full w-full max-h-[70vh]">
+//           <Hero />
+//         </ScrollArea>
+//       </DialogContent>
+//     </Dialog>
+//   )
+// }
 
 interface NavItem {
   href: string
@@ -214,7 +204,21 @@ export const NavigationItems: React.FC<NavigationItemsProps> = ({
 
   return (
     <aside className="flex h-full max-h-screen flex-col sm:text-sm sm:font-medium px-4">
-      <HeroWrapper />
+      <div className="flex items-center justify-between">
+        <Link
+          href="/"
+          className={cn(
+            buttonVariants({ variant: 'link' }),
+            'flex w-full items-center justify-start gap-2 px-2 p-0 font-semibold'
+          )}
+        >
+          <Icons.logo className="w-6 h-6" />
+          <span>Clip Studio</span>
+        </Link>
+        <Badge variant="secondary" className="ml-2">
+          Beta
+        </Badge>
+      </div>
 
       {navItems.map((item, index) =>
         item.isHeader ? (
