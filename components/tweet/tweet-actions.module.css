@@ -9,7 +9,11 @@
 }
 
 .likeIconWrapper,
-.replyIconWrapper {
+.replyIconWrapper,
+.retweetIconWrapper,
+.viewIconWrapper,
+.bookmarkIconWrapper,
+.shareIconWrapper {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -17,7 +21,11 @@
 }
 
 .likeIcon,
-.replyIcon {
+.replyIcon,
+.retweetIcon,
+.viewIcon,
+.bookmarkIcon,
+.shareIcon {
   height: 1.5rem;
   width: 1.5rem;
   fill: currentColor;
@@ -31,9 +39,29 @@
   color: #1d9bf0; /* Twitter's reply blue */
 }
 
+.retweetIcon {
+  color: #00ba7c; /* Twitter's retweet green */
+}
+
+.viewIcon {
+  color: #1d9bf0; /* Twitter's reply blue */
+}
+
+.bookmarkIcon {
+  color: #1d9bf0; /* Twitter's reply blue */
+}
+
+.shareIcon {
+  color: #1d9bf0; /* Twitter's reply blue */
+}
+
 .likeCount,
-.replyText {
-  font-size: 1.25rem;
+.replyText,
+.retweetCount,
+.viewCount,
+.bookmarkIcon,
+.shareIcon {
+  font-size: 1rem;
   font-weight: 500;
 }
 
@@ -42,5 +70,21 @@
 }
 
 .replyText {
+  color: #1d9bf0;
+}
+
+.retweetCount {
+  color: #00ba7c;
+}
+
+.viewCount {
+  color: #1d9bf0;
+}
+
+.bookmarkIcon {
+  color: #1d9bf0;
+}
+
+.shareIcon {
   color: #1d9bf0;
 }

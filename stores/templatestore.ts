@@ -298,6 +298,8 @@ export const TwitterVideoSchema = BaseVideoSchema.extend({
       hideUsername: z.boolean(),
       likes: z.number(),
       comments: z.number(),
+      retweets: z.number(),
+      views: z.number(),
       from: z.number(),
       duration: z.number(),
       hideText: z.boolean()
@@ -541,7 +543,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       verified: false,
       hideUsername: false,
       likes: 190447,
-      comments: 791,
+      comments: 12791,
+      retweets: 51994,
+      views: 350359,
       duration: 12.214,
       from: 0,
       hideText: false
@@ -558,7 +562,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       verified: false,
       hideUsername: false,
       likes: 29458,
-      comments: 66,
+      comments: 8066,
+      retweets: 51994,
+      views: 1549130,
       duration: 12.168,
       from: 12.214,
       hideText: false
@@ -575,7 +581,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       verified: false,
       hideUsername: false,
       likes: 16838,
-      comments: 8,
+      comments: 6008,
+      retweets: 3521,
+      views: 890432,
       duration: 15.65,
       from: 24.381999999999998,
       hideText: false
@@ -592,7 +600,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       verified: false,
       hideUsername: false,
       likes: 12976,
-      comments: 6,
+      comments: 5006,
+      retweets: 2891,
+      views: 754321,
       duration: 15.046,
       from: 40.032,
       hideText: false
@@ -609,7 +619,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       verified: false,
       hideUsername: false,
       likes: 12165,
-      comments: 15,
+      comments: 4015,
+      retweets: 2654,
+      views: 698543,
       duration: 16.207,
       from: 55.077999999999996,
       hideText: false
@@ -626,7 +638,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       verified: false,
       hideUsername: false,
       likes: 12381,
-      comments: 2,
+      comments: 3002,
+      retweets: 2432,
+      views: 645789,
       duration: 18.483,
       from: 71.285,
       hideText: false
@@ -643,8 +657,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       verified: false,
       hideUsername: false,
       likes: 12674,
-      comments: 3,
-
+      comments: 4003,
+      retweets: 2567,
+      views: 623456,
       duration: 15.789,
       from: 89.768,
       hideText: false
@@ -661,7 +676,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       verified: false,
       hideUsername: false,
       likes: 14552,
-      comments: 2,
+      comments: 5002,
+      retweets: 3123,
+      views: 589765,
       duration: 14.953,
       from: 105.557,
       hideText: false
@@ -678,7 +695,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       verified: false,
       hideUsername: false,
       likes: 12634,
-      comments: 1,
+      comments: 4001,
+      retweets: 2789,
+      views: 567890,
       duration: 14.49,
       from: 120.51,
       hideText: false
@@ -695,7 +714,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       verified: false,
       hideUsername: false,
       likes: 13406,
-      comments: 1,
+      comments: 4001,
+      retweets: 2987,
+      views: 543210,
       duration: 15.696,
       from: 135,
       hideText: false
@@ -712,7 +733,9 @@ export const defaultTwitterProps: TwitterVideoProps = {
       verified: false,
       hideUsername: false,
       likes: 12369,
-      comments: 1,
+      comments: 4001,
+      retweets: 2654,
+      views: 521098,
       duration: 15.557,
       from: 150.696,
       hideText: false
@@ -730,6 +753,8 @@ export const defaultTwitterProps: TwitterVideoProps = {
       hideUsername: false,
       likes: 12338,
       comments: 4,
+      retweets: 2543,
+      views: 498765,
       duration: 16.161,
       from: 166.253,
       hideText: false
@@ -747,6 +772,8 @@ export const defaultTwitterProps: TwitterVideoProps = {
       hideUsername: false,
       likes: 12024,
       comments: 4,
+      retweets: 2432,
+      views: 476543,
       duration: 16.486,
       from: 182.414,
       hideText: false
@@ -764,6 +791,8 @@ export const defaultTwitterProps: TwitterVideoProps = {
       hideUsername: false,
       likes: 11535,
       comments: 1,
+      retweets: 2321,
+      views: 454321,
       duration: 15.65,
       from: 198.89999999999998,
       hideText: false
@@ -781,6 +810,8 @@ export const defaultTwitterProps: TwitterVideoProps = {
       hideUsername: false,
       likes: 11582,
       comments: 18,
+      retweets: 2234,
+      views: 432109,
       duration: 14.21,
       from: 214.54999999999998,
       hideText: false
@@ -798,6 +829,8 @@ export const defaultTwitterProps: TwitterVideoProps = {
       hideUsername: false,
       likes: 15767,
       comments: 19,
+      retweets: 3432,
+      views: 410987,
       duration: 15.511,
       from: 228.76,
       hideText: false
@@ -815,6 +848,8 @@ export const defaultTwitterProps: TwitterVideoProps = {
       hideUsername: false,
       likes: 17006,
       comments: 667,
+      retweets: 3876,
+      views: 389765,
       duration: 15.093,
       from: 244.271,
       hideText: false

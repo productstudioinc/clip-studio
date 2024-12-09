@@ -182,6 +182,8 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
         hideUsername: false,
         likes: tweetData.favorite_count,
         comments: tweetData.conversation_count,
+        retweets: Math.floor(Math.random() * 5000), // random retweets
+        views: Math.floor(Math.random() * 1000000), // random views
         from:
           fields.length > 0
             ? (fields[fields.length - 1]?.from ?? 0) +
@@ -240,6 +242,8 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
             verified: tweet.verified,
             likes: tweet.likes,
             comments: tweet.comments,
+            retweets: Math.floor(Math.random() * 10000), // random retweets
+            views: Math.floor(Math.random() * 1000000), // random views
             from:
               fields.length > 0
                 ? (fields[fields.length - 1]?.from ?? 0) +
@@ -454,6 +458,8 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                             hideText: false,
                             likes: 0,
                             comments: 0,
+                            retweets: 0,
+                            views: 0,
                             from: 0,
                             duration: 3
                           }
@@ -805,7 +811,7 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                           />
                                         </div>
 
-                                        <div className="grid sm:grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                           <div className="space-y-2">
                                             <Label>Likes</Label>
                                             <Input
@@ -837,6 +843,28 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
                                                 }
                                               )}
                                               placeholder="Number of comments"
+                                              type="number"
+                                            />
+                                          </div>
+                                          <div className="space-y-2">
+                                            <Label>Retweets</Label>
+                                            <Input
+                                              {...form.register(
+                                                `tweets.${index}.retweets`,
+                                                { valueAsNumber: true }
+                                              )}
+                                              placeholder="Number of retweets"
+                                              type="number"
+                                            />
+                                          </div>
+                                          <div className="space-y-2">
+                                            <Label>Views</Label>
+                                            <Input
+                                              {...form.register(
+                                                `tweets.${index}.views`,
+                                                { valueAsNumber: true }
+                                              )}
+                                              placeholder="Number of views"
                                               type="number"
                                             />
                                           </div>
