@@ -187,6 +187,12 @@ const CreditSlider = ({
     }
   }, [])
 
+  const planLabels: Record<number, string> = {
+    500: 'Hobby',
+    1000: 'Creator',
+    4000: 'Pro'
+  }
+
   return (
     <div className="space-y-4">
       <label
@@ -208,7 +214,14 @@ const CreditSlider = ({
         {(isMobile ? mobileMarkers : desktopMarkers).map((value) => (
           <div key={value} className="flex flex-col items-center">
             <span className="mb-1">{value}</span>
-            <div className="h-1 w-0.5 bg-muted-foreground" />
+            <div
+              className={`h-1 w-0.5 ${planLabels[value] ? 'bg-primary' : 'bg-muted-foreground'}`}
+            />
+            {planLabels[value] && (
+              <span className="mb-1 font-medium text-primary">
+                {planLabels[value]}
+              </span>
+            )}
           </div>
         ))}
       </div>
@@ -230,15 +243,19 @@ const VideoTypeCard = ({
   const showcase = showcases[type]
 
   return (
-    <div className="bg-card p-4 rounded-lg border shadow-sm flex flex-col items-center space-y-2">
+    <div className="bg-card w-full p-4 rounded-lg border shadow-sm flex flex-col items-center space-y-2">
       <p className="text-4xl font-bold text-green-500">{videoCount}</p>
       <h3 className="text-lg font-semibold whitespace-nowrap">
         {type}{' '}
         <span className="text-muted-foreground">
           {videoCount === 1 ? 'video' : 'videos'}
         </span>
-        <small className="text-sm text-muted-foreground ml-2">or</small>
       </h3>
+      <div className="flex items-center w-full gap-2">
+        <hr className="flex-grow border-muted-foreground/30" />
+        <span className="text-sm text-muted-foreground">or</span>
+        <hr className="flex-grow border-muted-foreground/30" />
+      </div>
       <h3 className="text-sm font-semibold whitespace-nowrap text-green-500">
         {(videoCount / 30).toFixed(1)} months{' '}
         <span className="text-muted-foreground">of daily videos</span>
