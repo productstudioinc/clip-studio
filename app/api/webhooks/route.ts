@@ -82,14 +82,40 @@ async function sendDiscordWebhook(subscription: Stripe.Subscription) {
     subscription.items.data[0].price.product as string
   )
 
+  const customer = (await stripe.customers.retrieve(
+    subscription.customer as string
+  )) as Stripe.Customer
+
+  // Get event type message based on subscription status
+  const eventTypeMessage = (() => {
+    switch (subscription.status) {
+      case 'active':
+        return subscription.created === subscription.current_period_start
+          ? '🎉 New Subscription Created!'
+          : '✅ Subscription Renewed!'
+      case 'canceled':
+        return '❌ Subscription Canceled'
+      case 'unpaid':
+        return '⚠️ Subscription Payment Failed'
+      case 'past_due':
+        return '⚠️ Subscription Payment Past Due'
+      default:
+        return `Subscription Status Changed: ${subscription.status}`
+    }
+  })()
+
   const message = {
-    content: `New subscription created!`,
+    content: eventTypeMessage,
     embeds: [
       {
         title: 'Subscription Details',
         fields: [
           { name: 'Subscription ID', value: subscription.id },
           { name: 'Customer ID', value: subscription.customer as string },
+          {
+            name: 'Customer Email',
+            value: customer.email
+          },
           { name: 'Status', value: subscription.status },
           {
             name: 'Plan',
@@ -113,7 +139,19 @@ async function sendDiscordWebhook(subscription: Stripe.Subscription) {
             })()
           }
         ],
-        color: 5814783
+        color: (() => {
+          switch (subscription.status) {
+            case 'active':
+              return 5814783 // Green
+            case 'canceled':
+              return 15158332 // Red
+            case 'unpaid':
+            case 'past_due':
+              return 16776960 // Yellow
+            default:
+              return 5814783
+          }
+        })()
       }
     ]
   }
