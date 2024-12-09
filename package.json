@@ -103,6 +103,7 @@
     "react-tweet": "^3.2.1",
     "recharts": "^2.14.1",
     "remotion": "4.0.232",
+    "replicate": "^1.0.1",
     "s3-url-parser": "^1.0.3",
     "sharp": "^0.33.5",
     "sonner": "^1.7.0",
