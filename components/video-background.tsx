@@ -77,6 +77,7 @@ export function ShowcaseCard({ title, videoSrc }: ShowcaseCardProps) {
     />
   )
 }
+
 export const Showcase = React.memo(function Showcase({
   className,
   reverse
