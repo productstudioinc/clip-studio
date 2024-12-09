@@ -1,6 +1,5 @@
 'use client'
 
-import { table } from 'console'
 import { useEffect, useRef, useState } from 'react'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 
@@ -22,7 +21,6 @@ interface VideoCosts {
   imageGeneration: number
   transcription: number
 }
-
 const VideoCard = ({ title, videoSrc }: VideoCardProps) => {
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -30,25 +28,54 @@ const VideoCard = ({ title, videoSrc }: VideoCardProps) => {
     const video = videoRef.current
     if (!video) return
 
+    // Mobile behavior - play when in view
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (window.innerWidth <= 768) {
+          // Mobile breakpoint
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              video.play()
+            } else {
+              video.pause()
+              video.currentTime = 0
+            }
+          })
+        }
+      },
+      { threshold: 0.5 }
+    )
+
+    // Desktop behavior - play on hover
     const loadFirstFrame = () => {
       video.currentTime = 0.001
     }
 
-    const handleMouseEnter = () => video.play()
+    const handleMouseEnter = () => {
+      if (window.innerWidth > 768) {
+        video.play()
+      }
+    }
+
     const handleMouseLeave = () => {
-      video.pause()
-      video.currentTime = 0.001
+      if (window.innerWidth > 768) {
+        video.pause()
+        video.currentTime = 0.001
+      }
     }
 
     video.load()
     video.addEventListener('loadedmetadata', loadFirstFrame)
     video.addEventListener('mouseenter', handleMouseEnter)
     video.addEventListener('mouseleave', handleMouseLeave)
+    observer.observe(video)
 
     return () => {
       video.removeEventListener('loadedmetadata', loadFirstFrame)
       video.removeEventListener('mouseenter', handleMouseEnter)
       video.removeEventListener('mouseleave', handleMouseLeave)
+      observer.unobserve(video)
+      observer.disconnect()
     }
   }, [])
 
@@ -63,7 +90,7 @@ const VideoCard = ({ title, videoSrc }: VideoCardProps) => {
       muted
       poster={videoSrc}
       preload="metadata"
-      className="w-[200px] h-[300px] object-cover rounded-t-md cursor-pointer"
+      className="w-[200px] h-[300px] object-cover rounded-md cursor-pointer"
       aria-description={title}
     />
   )
@@ -183,7 +210,7 @@ const VideoTypeCard = ({
   const showcase = showcases[type]
 
   return (
-    <div className="bg-card p-6 rounded-lg border shadow-sm flex flex-col items-center space-y-2">
+    <div className="bg-card p-4 rounded-lg border shadow-sm flex flex-col items-center space-y-2">
       <p className="text-4xl font-bold text-green-500">{videoCount}</p>
       <h3 className="text-lg font-semibold whitespace-nowrap">
         {type}{' '}
@@ -198,9 +225,7 @@ const VideoTypeCard = ({
 }
 const CostBreakdownTable = () => (
   <>
-    <p className="text-sm text-muted-foreground mt-6 mb-2">
-      Credit breakdown per video:
-    </p>
+    <p className="text-xl mt-6 mb-2 text-center">Credit breakdown per video</p>
     <div className="overflow-x-auto md:overflow-x-visible">
       <table className="min-w-full whitespace-nowrap text-left mb-6 text-sm">
         <thead>
