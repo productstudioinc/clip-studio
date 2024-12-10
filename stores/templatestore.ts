@@ -249,7 +249,7 @@ const BaseVideoSchema = z.object({
   fps: z.number().min(1).default(VIDEO_FPS),
   durationInFrames: z.number().min(1).default(DEFAULT_DURATION_IN_FRAMES),
   backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
-  backgroundUrls: z.array(z.string()),
+  backgroundUrls: z.array(z.string()).optional(),
   captionStyle: captionStyleSchema.default(defaultCaptionStyle),
   backgroundStartIndex: z.number().default(0)
 })
@@ -402,7 +402,7 @@ export const AIVideoSchema = z.object({
   voiceoverUrl: z.string(),
   visualStyle: z.nativeEnum(VisualStyle).default(VisualStyle.Realistic),
   backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
-  backgroundUrls: z.array(z.string()),
+  backgroundUrls: z.array(z.string()).optional(),
   subtitles: subtitleSchema,
   captionStyle: captionStyleSchema
 })
@@ -414,7 +414,8 @@ export const HopeCoreVideoSchema = BaseVideoSchema.extend({
   voice: z.string(),
   titleEnd: z.number(),
   isVoiceoverGenerated: z.boolean().default(false),
-  voiceSpeed: z.number().min(0.5).max(3).default(1)
+  voiceSpeed: z.number().min(0.5).max(3).default(1),
+  backgroundUrls: z.array(z.string())
 })
 
 export const VideoSchema = z.union([

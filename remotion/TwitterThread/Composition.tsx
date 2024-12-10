@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { getVideoMetadata } from '@remotion/media-utils'
-import { Audio, continueRender, delayRender, Sequence, Series } from 'remotion'
+import {
+  Audio,
+  cancelRender,
+  continueRender,
+  delayRender,
+  Sequence,
+  Series
+} from 'remotion'
 
 import { MyTweet } from '../../components/tweet/my-tweet'
 import { TwitterVideoProps } from '../../stores/templatestore'
