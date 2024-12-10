@@ -249,7 +249,7 @@ const BaseVideoSchema = z.object({
   fps: z.number().min(1).default(VIDEO_FPS),
   durationInFrames: z.number().min(1).default(DEFAULT_DURATION_IN_FRAMES),
   backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
-  backgroundUrls: z.array(z.string()).optional(),
+  backgroundUrls: z.array(z.string()),
   captionStyle: captionStyleSchema.default(defaultCaptionStyle),
   backgroundStartIndex: z.number().default(0)
 })
@@ -402,7 +402,7 @@ export const AIVideoSchema = z.object({
   voiceoverUrl: z.string(),
   visualStyle: z.nativeEnum(VisualStyle).default(VisualStyle.Realistic),
   backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
-  backgroundUrls: z.array(z.string()).optional(),
+  backgroundUrls: z.array(z.string()),
   subtitles: subtitleSchema,
   captionStyle: captionStyleSchema
 })
