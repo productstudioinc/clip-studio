@@ -37,7 +37,7 @@ export const RedditComposition = ({
   const [handle] = useState(() =>
     delayRender('Loading video metadata', {
       timeoutInMilliseconds: 30000,
-      retries: 2
+      retries: 3
     })
   )
 
