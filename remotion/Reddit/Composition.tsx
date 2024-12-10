@@ -3,6 +3,7 @@ import { getVideoMetadata } from '@remotion/media-utils'
 import {
   AbsoluteFill,
   Audio,
+  cancelRender,
   continueRender,
   delayRender,
   Sequence,
@@ -33,20 +34,36 @@ export const RedditComposition = ({
   captionStyle,
   subtitles
 }: RedditVideoProps) => {
-  const [handle] = useState(() => delayRender('Loading video metadata'))
+  const [handle] = useState(() =>
+    delayRender('Loading video metadata', {
+      timeoutInMilliseconds: 30000,
+      retries: 2
+    })
+  )
 
   useEffect(() => {
     const loadMetadata = async () => {
       try {
-        await Promise.all(backgroundUrls.map((url) => getVideoMetadata(url)))
+        await Promise.all(
+          backgroundUrls.map((url) =>
+            getVideoMetadata(url).catch((err) => {
+              console.warn(`Failed to load metadata for ${url}:`, err)
+              return null
+            })
+          )
+        )
         continueRender(handle)
       } catch (err) {
         console.error('Error loading video metadata:', err)
-        continueRender(handle)
+        cancelRender(err)
       }
     }
 
     loadMetadata()
+
+    return () => {
+      continueRender(handle)
+    }
   }, [backgroundUrls, handle])
 
   const titleEndFrame = Math.floor(titleEnd * FPS)

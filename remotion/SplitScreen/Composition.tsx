@@ -1,6 +1,12 @@
 import { CSSProperties, useEffect, useMemo, useState } from 'react'
 import { getVideoMetadata } from '@remotion/media-utils'
-import { AbsoluteFill, continueRender, delayRender, Series } from 'remotion'
+import {
+  AbsoluteFill,
+  cancelRender,
+  continueRender,
+  delayRender,
+  Series
+} from 'remotion'
 
 import { SplitScreenVideoProps } from '../../stores/templatestore'
 import { CaptionComponent } from '../Shared/caption'
@@ -17,23 +23,40 @@ export const SplitScreenComposition = ({
   captionStyle,
   transcription
 }: SplitScreenVideoProps) => {
-  const [handle] = useState(() => delayRender('Loading video metadata'))
+  const [handle] = useState(() =>
+    delayRender('Loading video metadata', {
+      timeoutInMilliseconds: 30000,
+      retries: 2
+    })
+  )
 
   useEffect(() => {
     const loadMetadata = async () => {
       try {
         await Promise.all([
-          getVideoMetadata(videoUrl),
-          ...backgroundUrls.map((url) => getVideoMetadata(url))
+          getVideoMetadata(videoUrl).catch((err) => {
+            console.warn(`Failed to load metadata for video: ${err}`)
+            return null
+          }),
+          ...backgroundUrls.map((url) =>
+            getVideoMetadata(url).catch((err) => {
+              console.warn(`Failed to load metadata for ${url}:`, err)
+              return null
+            })
+          )
         ])
         continueRender(handle)
       } catch (err) {
         console.error('Error loading video metadata:', err)
-        continueRender(handle)
+        cancelRender(err)
       }
     }
 
     loadMetadata()
+
+    return () => {
+      continueRender(handle)
+    }
   }, [videoUrl, backgroundUrls, handle])
 
   const requiredSegments = useMemo(() => {

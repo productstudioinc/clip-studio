@@ -1,6 +1,16 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Caption } from '@remotion/captions'
-import { AbsoluteFill, Audio, Sequence, Series, Video } from 'remotion'
+import { getVideoMetadata } from '@remotion/media-utils'
+import {
+  AbsoluteFill,
+  Audio,
+  cancelRender,
+  continueRender,
+  delayRender,
+  Sequence,
+  Series,
+  Video
+} from 'remotion'
 
 import { HopeCoreVideoProps } from '../../stores/templatestore'
 import { CaptionHopecore } from '../Shared/caption-hopecore'
@@ -90,6 +100,37 @@ export const HopeCoreComposition = ({
   backgroundStartIndex
 }: HopeCoreVideoProps) => {
   const [subtitles, setSubtitles] = useState<SubtitleProp[]>([])
+  const [handle] = useState(() =>
+    delayRender('Loading video metadata', {
+      timeoutInMilliseconds: 30000,
+      retries: 2
+    })
+  )
+
+  useEffect(() => {
+    const loadMetadata = async () => {
+      try {
+        await Promise.all(
+          backgroundUrls.map((url) =>
+            getVideoMetadata(url).catch((err) => {
+              console.warn(`Failed to load metadata for ${url}:`, err)
+              return null
+            })
+          )
+        )
+        continueRender(handle)
+      } catch (err) {
+        console.error('Error loading video metadata:', err)
+        cancelRender(err)
+      }
+    }
+
+    loadMetadata()
+
+    return () => {
+      continueRender(handle)
+    }
+  }, [backgroundUrls, handle])
 
   const requiredSegments = useMemo(() => {
     const totalMinutes = Math.ceil(durationInFrames / (FPS * 60))
