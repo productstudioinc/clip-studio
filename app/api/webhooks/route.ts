@@ -86,15 +86,26 @@ async function sendDiscordWebhook(subscription: Stripe.Subscription) {
     subscription.customer as string
   )) as Stripe.Customer
 
-  // Get event type message based on subscription status
+  // Get event type message based on subscription status and cancellation details
   const eventTypeMessage = (() => {
+    if (subscription.cancel_at_period_end) {
+      const feedback = subscription.cancellation_details?.feedback
+      const reason = subscription.cancellation_details?.reason
+      const feedbackMsg = feedback ? ` (Reason: ${feedback})` : ''
+      return `❌ Subscription Scheduled for Cancellation${feedbackMsg}`
+    }
+
     switch (subscription.status) {
       case 'active':
         return subscription.created === subscription.current_period_start
           ? '🎉 New Subscription Created!'
           : '✅ Subscription Renewed!'
       case 'canceled':
-        return '❌ Subscription Canceled'
+        const feedback = subscription.cancellation_details?.feedback
+        const comment = subscription.cancellation_details?.comment
+        const feedbackMsg = feedback ? ` (Reason: ${feedback})` : ''
+        const commentMsg = comment ? ` (Comment: ${comment})` : ''
+        return `❌ Subscription Canceled${feedbackMsg}${commentMsg}`
       case 'unpaid':
         return '⚠️ Subscription Payment Failed'
       case 'past_due':
@@ -137,9 +148,20 @@ async function sendDiscordWebhook(subscription: Stripe.Subscription) {
                 'Invalid subscription data: missing recurring interval'
               )
             })()
-          }
-        ],
+          },
+          subscription.cancel_at_period_end
+            ? {
+                name: 'Cancels At',
+                value: new Date(
+                  subscription.cancel_at! * 1000
+                ).toLocaleDateString()
+              }
+            : null
+        ].filter(Boolean),
         color: (() => {
+          if (subscription.cancel_at_period_end) {
+            return 16776960 // Yellow for scheduled cancellation
+          }
           switch (subscription.status) {
             case 'active':
               return 5814783 // Green
