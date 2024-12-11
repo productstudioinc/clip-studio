@@ -8,6 +8,50 @@ import {
 import { eq, sql } from 'drizzle-orm'
 import { withAxiom } from 'next-axiom'
 
+const sendDiscordWebhook = async (
+  payload: WebhookPayload,
+  videoUrl: string
+) => {
+  const webhookUrl = process.env.DISCORD_RENDER_WEBHOOK
+  if (!webhookUrl) {
+    throw new Error('Discord webhook URL not found')
+  }
+
+  if (payload.type === 'error' || payload.type === 'timeout') {
+    return
+  }
+
+  const message = {
+    embeds: [
+      {
+        title: 'Render Success',
+        fields: [
+          { name: 'Render ID', value: payload.renderId },
+          { name: 'Output URL', value: videoUrl },
+          { name: 'User Email', value: payload.customData?.userEmail },
+          { name: 'Time to Finish', value: `${payload.timeToFinish}ms` },
+          { name: 'Estimated Cost', value: `$${payload.costs.estimatedCost}` }
+        ],
+        video: {
+          url: videoUrl
+        }
+      }
+    ]
+  }
+
+  const response = await fetch(webhookUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(message)
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to send Discord webhook: ${response.statusText}`)
+  }
+}
+
 export const POST = withAxiom(async (req) => {
   req.log.with({
     path: '/api/render-webhook',
@@ -66,7 +110,7 @@ export const POST = withAxiom(async (req) => {
       const modifiedOutputUrl = payload.outputUrl?.replace(
         'https://s3.us-east-1.amazonaws.com/videogen-renders',
         'https://renders.clip.studio'
-      )
+      )!
       req.log.info('Render success', {
         renderId: payload.renderId,
         userEmail: payload.customData?.userEmail as string,
@@ -80,6 +124,8 @@ export const POST = withAxiom(async (req) => {
         videoUrl: modifiedOutputUrl,
         createdAt: new Date()
       })
+
+      await sendDiscordWebhook(payload, modifiedOutputUrl)
       break
     case 'timeout':
       req.log.error('Render timeout', {
