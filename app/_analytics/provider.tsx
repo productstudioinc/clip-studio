@@ -40,7 +40,7 @@ function PostHogAuthWrapper({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!posthog) return
     if (user) {
-      posthog.identify(user.id, {
+      posthog.identify(user.email, {
         email: user.email,
         name: user.user_metadata?.full_name
       })
