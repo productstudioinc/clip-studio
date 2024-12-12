@@ -263,7 +263,7 @@ export const generateRedditVoiceover = createServerAction()
 
     await R2.send(putObjectCommand)
 
-    const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
+    const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${s3Key}`
 
     await saveVoiceoverUpload(user.id, publicUrl, ['Voiceover', 'Reddit'])
 
@@ -396,7 +396,7 @@ export const generateTextVoiceover = createServerAction()
 
         await R2.send(putObjectCommand)
 
-        const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
+        const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${s3Key}`
 
         await saveVoiceoverUpload(user.id, publicUrl, [
           'Voiceover',
@@ -577,7 +577,7 @@ export const generateStructuredVoiceover = createServerAction()
 
         await R2.send(putObjectCommand)
 
-        const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
+        const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${s3Key}`
 
         await saveVoiceoverUpload(user.id, publicUrl, [
           'Voiceover',
@@ -756,7 +756,7 @@ export const generateTwitterVoiceover = createServerAction()
 
         await R2.send(putObjectCommand)
 
-        const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
+        const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${s3Key}`
 
         await saveVoiceoverUpload(user.id, publicUrl, ['Voiceover', 'Twitter'])
 

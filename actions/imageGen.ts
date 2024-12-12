@@ -109,7 +109,7 @@ export const generateImages = createServerAction()
 
       await R2.send(putObjectCommand)
 
-      const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
+      const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${s3Key}`
 
       await saveImageUpload(user.id, publicUrl, ['AI', 'Image'])
 

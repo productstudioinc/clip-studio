@@ -66,7 +66,7 @@ export const generatePresignedUrl = createServerAction()
         expiresIn: 60 * 60
       })
 
-      const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${key}`
+      const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${key}`
 
       await saveUpload(user.id, publicUrl, input.tags)
 

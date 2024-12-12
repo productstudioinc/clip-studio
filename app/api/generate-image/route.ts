@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
 
     await R2.send(putObjectCommand)
 
-    const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
+    const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${s3Key}`
 
     // Save to userUploads
     await saveImageUpload(user.id, publicUrl, ['AI', 'Image'])
