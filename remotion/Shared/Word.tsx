@@ -1,13 +1,18 @@
 import React from 'react'
 import { makeTransform, scale, translateY } from '@remotion/animation-utils'
-import * as Montserrat from '@remotion/google-fonts/Montserrat'
+import { loadFont as loadMontserratFont } from '@remotion/google-fonts/Montserrat'
+// import { loadFont as loadPermanentMarkerFont } from '@remotion/google-fonts/PermanentMarker'
+// import { loadFont as loadRobotoFont } from '@remotion/google-fonts/Roboto'
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion'
 
 import { CaptionStyle } from '../../stores/templatestore'
 
 import './font.css'
 
-const { fontFamily } = Montserrat.loadFont()
+const montserratFont = loadMontserratFont('normal', {
+  weights: ['800'],
+  subsets: ['latin']
+})
 
 const komikaFontFamily = 'Komika Axis'
 
@@ -42,13 +47,13 @@ export const Word: React.FC<{
         }
       case CaptionStyle.Default:
         return {
-          fontFamily,
+          fontFamily: montserratFont.fontFamily,
           color: 'white',
           textTransform: 'uppercase' as const
         }
       default:
         return {
-          fontFamily,
+          fontFamily: montserratFont.fontFamily,
           color: 'white',
           textTransform: 'uppercase' as const
         }
