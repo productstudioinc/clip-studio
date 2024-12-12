@@ -1,7 +1,9 @@
 'use server'
 
 import { getUser } from '@/actions/auth/user'
-import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
+import { db } from '@/db'
+import { userUploads } from '@/db/schema'
+import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { Logger } from 'next-axiom'
 import { z } from 'zod'
@@ -13,11 +15,21 @@ const logger = new Logger({
   source: 'actions/generatePresignedUrl'
 })
 
+async function saveUpload(userId: string, url: string, tags?: string[]) {
+  return db.insert(userUploads).values({
+    userId,
+    tags: tags || [],
+    url
+  })
+}
+
 export const generatePresignedUrl = createServerAction()
   .input(
     z.object({
       contentType: z.string(),
-      contentLength: z.number()
+      contentLength: z.number(),
+      filename: z.string(),
+      tags: z.array(z.string()).optional()
     })
   )
   .handler(async ({ input }) => {
@@ -40,7 +52,7 @@ export const generatePresignedUrl = createServerAction()
       )
     }
 
-    const key = crypto.randomUUID()
+    const key = `uploads/${user.id}/${crypto.randomUUID()}-${input.filename}`
 
     try {
       const putCommand = new PutObjectCommand({
@@ -51,19 +63,23 @@ export const generatePresignedUrl = createServerAction()
       })
 
       const presignedPutUrl = await getSignedUrl(R2, putCommand, {
-        expiresIn: 60 * 60 * 24
+        expiresIn: 60 * 60
       })
 
-      const getCommand = new GetObjectCommand({
-        Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-        Key: key
-      })
+      const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${key}`
 
-      const presignedGetUrl = await getSignedUrl(R2, getCommand, {
-        expiresIn: 1800
-      })
+      await saveUpload(user.id, publicUrl, input.tags)
 
-      return { presignedUrl: presignedPutUrl, readUrl: presignedGetUrl }
+      logger.info('Generated presigned URL and saved upload record', {
+        email: user.email,
+        key
+      })
+      await logger.flush()
+
+      return {
+        uploadUrl: presignedPutUrl,
+        publicUrl
+      }
     } catch (error) {
       logger.error('Error generating presigned URL', {
         email: user.email,

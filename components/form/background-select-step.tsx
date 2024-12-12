@@ -92,18 +92,20 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
 
       const [data, err] = await generatePresignedUrl({
         contentType,
-        contentLength
+        contentLength,
+        filename: file.name,
+        tags: ['Background', 'Video']
       })
 
       if (err) throw new Error(err.message)
 
-      await fetch(data.presignedUrl, {
+      await fetch(data.uploadUrl, {
         method: 'PUT',
         body: arrayBuffer,
         headers: { 'Content-Type': contentType }
       })
 
-      form.setValue('backgroundUrls', [data.readUrl])
+      form.setValue('backgroundUrls', [data.publicUrl])
       toast.success('Background uploaded successfully')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Upload failed')

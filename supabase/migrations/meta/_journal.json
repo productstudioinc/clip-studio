@@ -8,6 +8,41 @@
       "when": 1732514936014,
       "tag": "0000_broken_talon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1734036323598,
+      "tag": "0001_deep_edwin_jarvis",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1734037195028,
+      "tag": "0002_adorable_northstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1734037249028,
+      "tag": "0003_closed_champions",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1734037395411,
+      "tag": "0004_furry_jack_flag",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1734037558136,
+      "tag": "0005_nappy_william_stryker",
+      "breakpoints": true
     }
   ]
 }
