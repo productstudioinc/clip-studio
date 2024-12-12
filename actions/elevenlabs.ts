@@ -252,18 +252,10 @@ export const generateRedditVoiceover = createServerAction()
 
     await R2.send(putObjectCommand)
 
-    const getObjectCommand = new GetObjectCommand({
-      Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-      Key: s3Key
-    })
+    const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
 
-    const signedUrl = await getSignedUrl(R2, getObjectCommand, {
-      expiresIn: 3600
-    })
-    console.log(signedUrl)
-    console.log(totalDuration)
     return {
-      signedUrl,
+      signedUrl: publicUrl,
       voiceoverObject,
       endTimestamp: totalDuration
     }
@@ -381,7 +373,7 @@ export const generateTextVoiceover = createServerAction()
 
         const combinedAudioBuffer = Buffer.concat(audioBuffers)
 
-        const s3Key = `voiceovers/combined/${crypto.randomUUID()}.mp3`
+        const s3Key = `${user.id}/voiceovers/combined/${crypto.randomUUID()}.mp3`
         const putObjectCommand = new PutObjectCommand({
           Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
           Key: s3Key,
@@ -391,17 +383,10 @@ export const generateTextVoiceover = createServerAction()
 
         await R2.send(putObjectCommand)
 
-        const getObjectCommand = new GetObjectCommand({
-          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-          Key: s3Key
-        })
-
-        const signedUrl = await getSignedUrl(R2, getObjectCommand, {
-          expiresIn: 3600
-        })
+        const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
 
         return {
-          signedUrl,
+          signedUrl: publicUrl,
           sections,
           durationInFrames
         }
@@ -563,7 +548,7 @@ export const generateStructuredVoiceover = createServerAction()
         }
 
         const audioBuffer = Buffer.from(audio.audio_base64, 'base64')
-        const s3Key = `voiceovers/${voiceId}/${crypto.randomUUID()}.mp3`
+        const s3Key = `${user.id}/voiceovers/${Date.now()}.mp3`
 
         const putObjectCommand = new PutObjectCommand({
           Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
@@ -574,17 +559,10 @@ export const generateStructuredVoiceover = createServerAction()
 
         await R2.send(putObjectCommand)
 
-        const getObjectCommand = new GetObjectCommand({
-          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-          Key: s3Key
-        })
-
-        const signedUrl = await getSignedUrl(R2, getObjectCommand, {
-          expiresIn: 3600
-        })
+        const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
 
         return {
-          signedUrl,
+          signedUrl: publicUrl,
           endTimestamp: totalDuration,
           voiceoverObject,
           segmentDurations
@@ -755,17 +733,10 @@ export const generateTwitterVoiceover = createServerAction()
 
         await R2.send(putObjectCommand)
 
-        const getObjectCommand = new GetObjectCommand({
-          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-          Key: s3Key
-        })
-
-        const signedUrl = await getSignedUrl(R2, getObjectCommand, {
-          expiresIn: 3600
-        })
+        const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
 
         return {
-          signedUrl,
+          signedUrl: publicUrl,
           sections,
           durationInFrames
         }

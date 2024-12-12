@@ -17,7 +17,8 @@ export const generatePresignedUrl = createServerAction()
   .input(
     z.object({
       contentType: z.string(),
-      contentLength: z.number()
+      contentLength: z.number(),
+      filename: z.string()
     })
   )
   .handler(async ({ input }) => {
@@ -40,7 +41,7 @@ export const generatePresignedUrl = createServerAction()
       )
     }
 
-    const key = crypto.randomUUID()
+    const key = `${user.id}/${input.filename}`
 
     try {
       const putCommand = new PutObjectCommand({

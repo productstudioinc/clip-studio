@@ -96,7 +96,8 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   onboardingResponses: one(userOnboardingResponses, {
     fields: [users.id],
     references: [userOnboardingResponses.userId]
-  })
+  }),
+  uploads: many(userUploads)
 }))
 
 export const customers = pgTable('customers', {
@@ -401,3 +402,28 @@ export const userOnboardingResponsesRelations = relations(
 export type SelectUserOnboarding = typeof userOnboarding.$inferSelect
 export type SelectUserOnboardingResponses =
   typeof userOnboardingResponses.$inferSelect
+
+export const userUploads = pgTable('user_uploads', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
+  templateId: integer('template_id').references(() => templates.id),
+  identifier: text('identifier').notNull(),
+  url: text('url').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+})
+
+export const userUploadsRelations = relations(userUploads, ({ one }) => ({
+  user: one(users, {
+    fields: [userUploads.userId],
+    references: [users.id]
+  }),
+  template: one(templates, {
+    fields: [userUploads.templateId],
+    references: [templates.id]
+  })
+}))
+
+export type SelectUserUploads = typeof userUploads.$inferSelect
