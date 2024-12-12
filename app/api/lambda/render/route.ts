@@ -105,6 +105,7 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
         timeoutInSeconds: TIMEOUT
       }),
       timeoutInMilliseconds: 180000, // 3 minutes
+      maxRetries: 3,
       region: REGION as AwsRegion,
       serveUrl: SITE_NAME,
       composition: body.id,
