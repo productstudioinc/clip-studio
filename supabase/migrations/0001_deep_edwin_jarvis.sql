@@ -1,8 +1,14 @@
+DO $$ BEGIN
+ CREATE TYPE "public"."upload_type" AS ENUM('voiceover', 'upload', 'background');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user_uploads" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"template_id" integer,
-	"identifier" text NOT NULL,
+	"type" "upload_type" NOT NULL,
 	"url" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL

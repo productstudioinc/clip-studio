@@ -1,5 +1,5 @@
 {
-  "id": "def13455-5537-4b2b-9087-83f001f41bc1",
+  "id": "3ded6ec8-6bde-4ed2-bf1f-2c9da49d3d73",
   "prevId": "0e16ae23-fd88-42d2-b9c2-99ed1644841a",
   "version": "7",
   "dialect": "postgresql",
@@ -1099,9 +1099,10 @@
           "primaryKey": false,
           "notNull": false
         },
-        "identifier": {
-          "name": "identifier",
-          "type": "text",
+        "type": {
+          "name": "type",
+          "type": "upload_type",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -1480,6 +1481,15 @@
         "canceled",
         "unpaid",
         "paused"
+      ]
+    },
+    "public.upload_type": {
+      "name": "upload_type",
+      "schema": "public",
+      "values": [
+        "voiceover",
+        "upload",
+        "background"
       ]
     },
     "public.user_role": {

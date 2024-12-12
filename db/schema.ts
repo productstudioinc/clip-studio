@@ -32,6 +32,11 @@ export const subscriptionStatusEnum = pgEnum('subscription_status', [
 ])
 export const planTierEnum = pgEnum('plan_tier', ['hobby', 'creator', 'pro'])
 export const userRoleEnum = pgEnum('user_role', ['user', 'admin'])
+export const uploadTypeEnum = pgEnum('upload_type', [
+  'voiceover',
+  'upload',
+  'background'
+])
 
 // User-related tables and relations
 export const users = pgTable('users', {
@@ -409,7 +414,7 @@ export const userUploads = pgTable('user_uploads', {
     .notNull()
     .references(() => users.id),
   templateId: integer('template_id').references(() => templates.id),
-  identifier: text('identifier').notNull(),
+  type: uploadTypeEnum('type').notNull(),
   url: text('url').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
