@@ -302,14 +302,16 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
 
         const [data, err] = await generatePresignedUrl({
           contentType,
-          contentLength
+          contentLength,
+          filename: file.name,
+          tags: ['Avatar', 'Twitter', 'Image']
         })
 
         if (err) {
           throw new Error(err.message)
         }
 
-        await fetch(data.presignedUrl, {
+        await fetch(data.uploadUrl, {
           method: 'PUT',
           body: arrayBuffer,
           headers: {
@@ -317,7 +319,7 @@ export const TwitterUrlStep = ({ form }: TwitterUrlStepProps) => {
           }
         })
 
-        form.setValue(`tweets.${index}.${type}`, data.readUrl)
+        form.setValue(`tweets.${index}.${type}`, data.publicUrl)
         toast.success('Image uploaded successfully')
       } catch (error) {
         toast.error(

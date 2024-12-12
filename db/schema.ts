@@ -35,7 +35,10 @@ export const userRoleEnum = pgEnum('user_role', ['user', 'admin'])
 export const uploadTypeEnum = pgEnum('upload_type', [
   'voiceover',
   'upload',
-  'background'
+  'background',
+  'image',
+  'ai_image',
+  'ai_video'
 ])
 
 // User-related tables and relations
@@ -413,8 +416,7 @@ export const userUploads = pgTable('user_uploads', {
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id),
-  templateId: integer('template_id').references(() => templates.id),
-  type: uploadTypeEnum('type').notNull(),
+  tags: text('tags').array(),
   url: text('url').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
@@ -424,10 +426,6 @@ export const userUploadsRelations = relations(userUploads, ({ one }) => ({
   user: one(users, {
     fields: [userUploads.userId],
     references: [users.id]
-  }),
-  template: one(templates, {
-    fields: [userUploads.templateId],
-    references: [templates.id]
   })
 }))
 

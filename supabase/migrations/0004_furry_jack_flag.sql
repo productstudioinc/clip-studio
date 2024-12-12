@@ -1,0 +1,1 @@
+ALTER TABLE "user_uploads" DROP COLUMN IF EXISTS "type";

@@ -1,13 +1,16 @@
 'use server'
 
+import { db } from '@/db'
+import { templates, userUploads } from '@/db/schema'
 import { VisualStyle } from '@/stores/templatestore'
-import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { PutObjectCommand } from '@aws-sdk/client-s3'
+import { eq } from 'drizzle-orm'
 import { Logger } from 'next-axiom'
 import { z } from 'zod'
 import { createServerAction, ZSAError } from 'zsa'
 
 import { R2 } from '../utils/r2'
+import { getUser } from './auth/user'
 
 const promptMap: Record<VisualStyle, string> = {
   [VisualStyle.Realistic]:
@@ -32,6 +35,22 @@ const logger = new Logger({
   source: 'actions/image-gen'
 })
 
+async function saveImageUpload(userId: string, url: string, tags?: string[]) {
+  const template = await db.query.templates.findFirst({
+    where: eq(templates.value, 'AIVideo')
+  })
+
+  if (!template) {
+    throw new Error('AIVideo template not found')
+  }
+
+  return db.insert(userUploads).values({
+    userId,
+    tags: tags || [],
+    url
+  })
+}
+
 export const generateImages = createServerAction()
   .input(
     z.object({
@@ -40,6 +59,13 @@ export const generateImages = createServerAction()
     })
   )
   .handler(async ({ input }) => {
+    const { user } = await getUser()
+    if (!user) {
+      logger.error('User not authorized')
+      await logger.flush()
+      throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
+    }
+
     const { prompt, visualStyle } = input
 
     const stylePrompt = promptMap[visualStyle].replace('{prompt}', prompt)
@@ -83,22 +109,17 @@ export const generateImages = createServerAction()
 
       await R2.send(putObjectCommand)
 
-      const getObjectCommand = new GetObjectCommand({
-        Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-        Key: s3Key
-      })
+      const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
 
-      const signedUrl = await getSignedUrl(R2, getObjectCommand, {
-        expiresIn: 3600
-      })
+      await saveImageUpload(user.id, publicUrl, ['AI', 'Image'])
 
-      logger.info('Image generated and uploaded successfully', { signedUrl })
+      logger.info('Image generated and uploaded successfully', { publicUrl })
       await logger.flush()
 
-      return { signedUrl }
+      return { signedUrl: publicUrl }
     } catch (error) {
       if (error instanceof ZSAError) {
-        throw error // Re-throw ZSAError instances
+        throw error
       }
       logger.error('Error generating or uploading image', {
         error: error instanceof Error ? error.message : String(error)

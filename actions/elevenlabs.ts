@@ -31,22 +31,13 @@ const elevenLabsClient = new ElevenLabsClient({
 
 async function saveVoiceoverUpload(
   userId: string,
-  templateValue: string,
-  url: string
+  url: string,
+  tags?: string[]
 ) {
-  const template = await db.query.templates.findFirst({
-    where: eq(templates.value, templateValue)
-  })
-
-  if (!template) {
-    throw new Error(`Template ${templateValue} not found`)
-  }
-
   return db.insert(userUploads).values({
     userId,
-    templateId: template.id,
-    type: 'voiceover',
-    url
+    url,
+    tags: tags || []
   })
 }
 
@@ -274,7 +265,7 @@ export const generateRedditVoiceover = createServerAction()
 
     const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
 
-    await saveVoiceoverUpload(user.id, 'Reddit', publicUrl)
+    await saveVoiceoverUpload(user.id, publicUrl, ['Voiceover', 'Reddit'])
 
     return {
       signedUrl: publicUrl,
@@ -407,7 +398,10 @@ export const generateTextVoiceover = createServerAction()
 
         const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
 
-        await saveVoiceoverUpload(user.id, 'TextMessage', publicUrl)
+        await saveVoiceoverUpload(user.id, publicUrl, [
+          'Voiceover',
+          'Text Messages'
+        ])
 
         return {
           signedUrl: publicUrl,
@@ -585,7 +579,10 @@ export const generateStructuredVoiceover = createServerAction()
 
         const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
 
-        await saveVoiceoverUpload(user.id, 'AIVideo', publicUrl)
+        await saveVoiceoverUpload(user.id, publicUrl, [
+          'Voiceover',
+          'AI Images'
+        ])
 
         return {
           signedUrl: publicUrl,
@@ -761,7 +758,7 @@ export const generateTwitterVoiceover = createServerAction()
 
         const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
 
-        await saveVoiceoverUpload(user.id, 'Twitter', publicUrl)
+        await saveVoiceoverUpload(user.id, publicUrl, ['Voiceover', 'Twitter'])
 
         return {
           signedUrl: publicUrl,

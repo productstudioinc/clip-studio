@@ -63,14 +63,16 @@ export const UploadStep: React.FC<UploadStepProps> = ({ form }) => {
 
       const [data, err] = await generatePresignedUrl({
         contentType: contentType,
-        contentLength: contentLength
+        contentLength: contentLength,
+        filename: file.name,
+        tags: ['Video']
       })
 
       if (err) {
         throw new Error(err.message)
       }
 
-      await fetch(data.presignedUrl, {
+      await fetch(data.uploadUrl, {
         method: 'PUT',
         body: arrayBuffer,
         headers: {
@@ -78,10 +80,10 @@ export const UploadStep: React.FC<UploadStepProps> = ({ form }) => {
         }
       })
 
-      const { durationInSeconds } = await getVideoMetadata(data.readUrl)
+      const { durationInSeconds } = await getVideoMetadata(data.publicUrl)
 
       setValue('type', 'cloud')
-      setValue('videoUrl', data.readUrl)
+      setValue('videoUrl', data.publicUrl)
       setValue('durationInFrames', Math.floor(durationInSeconds * 30))
       setValue('transcriptionId', '')
       setValue('transcription', [])

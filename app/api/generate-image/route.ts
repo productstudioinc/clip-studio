@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getUser } from '@/actions/auth/user'
 import { db } from '@/db'
-import { userUsage } from '@/db/schema'
+import { templates, userUploads, userUsage } from '@/db/schema'
 import { VisualStyle } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { R2 } from '@/utils/r2'
-import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { eq, sql } from 'drizzle-orm'
 import { Logger } from 'next-axiom'
 
@@ -34,6 +33,22 @@ const promptMap: Record<VisualStyle, string> = {
 const logger = new Logger({
   source: 'api/generate-image'
 })
+
+async function saveImageUpload(userId: string, url: string, tags?: string[]) {
+  const template = await db.query.templates.findFirst({
+    where: eq(templates.value, 'AIVideo')
+  })
+
+  if (!template) {
+    throw new Error('AIVideo template not found')
+  }
+
+  return db.insert(userUploads).values({
+    userId,
+    url,
+    tags: tags || []
+  })
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -145,22 +160,18 @@ export async function POST(request: NextRequest) {
 
     await R2.send(putObjectCommand)
 
-    const getObjectCommand = new GetObjectCommand({
-      Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-      Key: s3Key
-    })
+    const publicUrl = `${process.env.CLOUDFLARE_PUBLIC_URL}/${s3Key}`
 
-    const signedUrl = await getSignedUrl(R2, getObjectCommand, {
-      expiresIn: 3600
-    })
+    // Save to userUploads
+    await saveImageUpload(user.id, publicUrl, ['AI', 'Image'])
 
     logger.info('Image generated and uploaded successfully', {
-      signedUrl,
+      publicUrl,
       userId: user.id
     })
     await logger.flush()
 
-    return NextResponse.json({ signedUrl })
+    return NextResponse.json({ signedUrl: publicUrl })
   } catch (error) {
     logger.error('Error generating or uploading image', {
       error: error instanceof Error ? error.message : String(error)
