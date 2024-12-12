@@ -28,7 +28,7 @@ export const generatePresignedUrl = createServerAction()
     z.object({
       contentType: z.string(),
       contentLength: z.number(),
-      filename: z.string(),
+      filename: z.string().optional(),
       tags: z.array(z.string()).optional()
     })
   )
