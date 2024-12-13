@@ -1,7 +1,6 @@
 import { makeTransform, scale, translateY } from '@remotion/animation-utils'
-import { loadFont as loadMontserratFont } from '@remotion/google-fonts/Montserrat'
-import { loadFont as loadPermanentMarkerFont } from '@remotion/google-fonts/PermanentMarker'
-import { loadFont as loadRobotoFont } from '@remotion/google-fonts/Roboto'
+// import { loadFont as loadPermanentMarkerFont } from '@remotion/google-fonts/PermanentMarker'
+// import { loadFont as loadRobotoFont } from '@remotion/google-fonts/Roboto'
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion'
 
 import { CaptionStyle } from '../../stores/templatestore'

@@ -32,6 +32,14 @@ export const subscriptionStatusEnum = pgEnum('subscription_status', [
 ])
 export const planTierEnum = pgEnum('plan_tier', ['hobby', 'creator', 'pro'])
 export const userRoleEnum = pgEnum('user_role', ['user', 'admin'])
+export const uploadTypeEnum = pgEnum('upload_type', [
+  'voiceover',
+  'upload',
+  'background',
+  'image',
+  'ai_image',
+  'ai_video'
+])
 
 // User-related tables and relations
 export const users = pgTable('users', {
@@ -96,7 +104,8 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   onboardingResponses: one(userOnboardingResponses, {
     fields: [users.id],
     references: [userOnboardingResponses.userId]
-  })
+  }),
+  uploads: many(userUploads)
 }))
 
 export const customers = pgTable('customers', {
@@ -401,3 +410,23 @@ export const userOnboardingResponsesRelations = relations(
 export type SelectUserOnboarding = typeof userOnboarding.$inferSelect
 export type SelectUserOnboardingResponses =
   typeof userOnboardingResponses.$inferSelect
+
+export const userUploads = pgTable('user_uploads', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
+  tags: text('tags').array(),
+  url: text('url').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+})
+
+export const userUploadsRelations = relations(userUploads, ({ one }) => ({
+  user: one(users, {
+    fields: [userUploads.userId],
+    references: [users.id]
+  })
+}))
+
+export type SelectUserUploads = typeof userUploads.$inferSelect

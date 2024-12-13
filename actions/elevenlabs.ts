@@ -2,7 +2,7 @@
 
 import { unstable_cache } from 'next/cache'
 import { db } from '@/db'
-import { userUsage } from '@/db/schema'
+import { templates, userUploads, userUsage } from '@/db/schema'
 import {
   AIVideoSchema,
   Language,
@@ -11,8 +11,7 @@ import {
 } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { errorString, startingFunctionString } from '@/utils/logging'
-import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { eq, sql } from 'drizzle-orm'
 import { ElevenLabsClient } from 'elevenlabs'
 import { Logger } from 'next-axiom'
@@ -29,6 +28,18 @@ const logger = new Logger({
 const elevenLabsClient = new ElevenLabsClient({
   apiKey: process.env.ELEVEN_LABS_API_KEY!
 })
+
+async function saveVoiceoverUpload(
+  userId: string,
+  url: string,
+  tags?: string[]
+) {
+  return db.insert(userUploads).values({
+    userId,
+    url,
+    tags: tags || []
+  })
+}
 
 export const getVoices = unstable_cache(async () => {
   try {
@@ -128,7 +139,7 @@ export const generateHopecoreVoiceover = createServerAction()
       throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
     }
 
-    const { text, voiceId, language } = input
+    const { text } = input
 
     const fullText = `${text} <break time="0.7s" />`
 
@@ -252,18 +263,12 @@ export const generateRedditVoiceover = createServerAction()
 
     await R2.send(putObjectCommand)
 
-    const getObjectCommand = new GetObjectCommand({
-      Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-      Key: s3Key
-    })
+    const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${s3Key}`
 
-    const signedUrl = await getSignedUrl(R2, getObjectCommand, {
-      expiresIn: 3600
-    })
-    console.log(signedUrl)
-    console.log(totalDuration)
+    await saveVoiceoverUpload(user.id, publicUrl, ['Voiceover', 'Reddit'])
+
     return {
-      signedUrl,
+      signedUrl: publicUrl,
       voiceoverObject,
       endTimestamp: totalDuration
     }
@@ -292,7 +297,7 @@ export const generateTextVoiceover = createServerAction()
       throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
     }
 
-    const { senderVoiceId, receiverVoiceId, messages, language } = input
+    const { senderVoiceId, receiverVoiceId, messages } = input
 
     const fullText = messages
       .filter((message) => message.content.type === 'text')
@@ -381,7 +386,7 @@ export const generateTextVoiceover = createServerAction()
 
         const combinedAudioBuffer = Buffer.concat(audioBuffers)
 
-        const s3Key = `voiceovers/combined/${crypto.randomUUID()}.mp3`
+        const s3Key = `${user.id}/voiceovers/combined/${crypto.randomUUID()}.mp3`
         const putObjectCommand = new PutObjectCommand({
           Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
           Key: s3Key,
@@ -391,17 +396,15 @@ export const generateTextVoiceover = createServerAction()
 
         await R2.send(putObjectCommand)
 
-        const getObjectCommand = new GetObjectCommand({
-          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-          Key: s3Key
-        })
+        const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${s3Key}`
 
-        const signedUrl = await getSignedUrl(R2, getObjectCommand, {
-          expiresIn: 3600
-        })
+        await saveVoiceoverUpload(user.id, publicUrl, [
+          'Voiceover',
+          'Text Messages'
+        ])
 
         return {
-          signedUrl,
+          signedUrl: publicUrl,
           sections,
           durationInFrames
         }
@@ -489,7 +492,7 @@ export const generateStructuredVoiceover = createServerAction()
       throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
     }
 
-    const { voiceId, videoStructure, language } = input
+    const { voiceId, videoStructure } = input
 
     const fullText = videoStructure
       .map((section) => section.text)
@@ -563,7 +566,7 @@ export const generateStructuredVoiceover = createServerAction()
         }
 
         const audioBuffer = Buffer.from(audio.audio_base64, 'base64')
-        const s3Key = `voiceovers/${voiceId}/${crypto.randomUUID()}.mp3`
+        const s3Key = `${user.id}/voiceovers/${Date.now()}.mp3`
 
         const putObjectCommand = new PutObjectCommand({
           Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
@@ -574,17 +577,15 @@ export const generateStructuredVoiceover = createServerAction()
 
         await R2.send(putObjectCommand)
 
-        const getObjectCommand = new GetObjectCommand({
-          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-          Key: s3Key
-        })
+        const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${s3Key}`
 
-        const signedUrl = await getSignedUrl(R2, getObjectCommand, {
-          expiresIn: 3600
-        })
+        await saveVoiceoverUpload(user.id, publicUrl, [
+          'Voiceover',
+          'AI Images'
+        ])
 
         return {
-          signedUrl,
+          signedUrl: publicUrl,
           endTimestamp: totalDuration,
           voiceoverObject,
           segmentDurations
@@ -755,17 +756,12 @@ export const generateTwitterVoiceover = createServerAction()
 
         await R2.send(putObjectCommand)
 
-        const getObjectCommand = new GetObjectCommand({
-          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
-          Key: s3Key
-        })
+        const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${s3Key}`
 
-        const signedUrl = await getSignedUrl(R2, getObjectCommand, {
-          expiresIn: 3600
-        })
+        await saveVoiceoverUpload(user.id, publicUrl, ['Voiceover', 'Twitter'])
 
         return {
-          signedUrl,
+          signedUrl: publicUrl,
           sections,
           durationInFrames
         }

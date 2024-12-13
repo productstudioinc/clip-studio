@@ -1,0 +1,1 @@
+ALTER TABLE "user_uploads" ADD COLUMN "tags" text[];
