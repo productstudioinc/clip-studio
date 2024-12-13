@@ -1,4 +1,3 @@
-import React from 'react'
 import { makeTransform, scale, translateY } from '@remotion/animation-utils'
 import { loadFont as loadMontserratFont } from '@remotion/google-fonts/Montserrat'
 import { loadFont as loadPermanentMarkerFont } from '@remotion/google-fonts/PermanentMarker'
@@ -9,17 +8,8 @@ import { CaptionStyle } from '../../stores/templatestore'
 
 import './font.css'
 
-const robotoFont = loadRobotoFont('normal', {
-  weights: ['700']
-})
-
-const permanentMarkerFont = loadPermanentMarkerFont()
-
-const montserratFont = loadMontserratFont('normal', {
-  weights: ['800']
-})
-
 const komikaFontFamily = 'Komika Axis'
+const montserratFontFamily = 'Montserrat'
 
 export const Word: React.FC<{
   enterProgress: number
@@ -52,13 +42,13 @@ export const Word: React.FC<{
         }
       case CaptionStyle.Default:
         return {
-          fontFamily: montserratFont.fontFamily,
+          fontFamily: montserratFontFamily,
           color: 'white',
           textTransform: 'uppercase' as const
         }
       default:
         return {
-          fontFamily: montserratFont.fontFamily,
+          fontFamily: montserratFontFamily,
           color: 'white',
           textTransform: 'uppercase' as const
         }
