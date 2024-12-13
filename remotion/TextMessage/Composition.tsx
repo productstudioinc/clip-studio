@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { TextMessageVideoProps } from '@/stores/templatestore'
-import { loadFont as loadRobotoFont } from '@remotion/google-fonts/Roboto'
 import { getVideoMetadata } from '@remotion/media-utils'
 import {
   AbsoluteFill,
@@ -11,6 +10,8 @@ import {
   Series
 } from 'remotion'
 
+import '../Shared/font.css'
+
 import { TextMessage } from '../../components/text-message'
 import { LoopedOffthreadVideo } from '../Shared/LoopedOffthreadVideo'
 
@@ -20,9 +21,7 @@ export type SubtitleProp = {
   text: string
 }
 
-const robotoFont = loadRobotoFont('normal', {
-  weights: ['500']
-})
+const robotoFont = 'Roboto'
 
 const FPS = 30
 const BACKGROUND_VIDEO_DURATION = 60 * FPS
@@ -103,7 +102,7 @@ export const TextMessageComposition = (props: TextMessageVideoProps) => {
                 from={message.from * FPS}
                 durationInFrames={message.duration * FPS}
                 key={index}
-                style={{ fontFamily: robotoFont.fontFamily }}
+                style={{ fontFamily: robotoFont }}
               >
                 <AbsoluteFill className="flex justify-center items-center">
                   <TextMessage
