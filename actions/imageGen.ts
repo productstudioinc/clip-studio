@@ -1,10 +1,9 @@
 'use server'
 
 import { db } from '@/db'
-import { templates, userUploads } from '@/db/schema'
+import { userUploads } from '@/db/schema'
 import { VisualStyle } from '@/stores/templatestore'
 import { PutObjectCommand } from '@aws-sdk/client-s3'
-import { eq } from 'drizzle-orm'
 import { Logger } from 'next-axiom'
 import { z } from 'zod'
 import { createServerAction, ZSAError } from 'zsa'
@@ -36,14 +35,6 @@ const logger = new Logger({
 })
 
 async function saveImageUpload(userId: string, url: string, tags?: string[]) {
-  const template = await db.query.templates.findFirst({
-    where: eq(templates.value, 'AIVideo')
-  })
-
-  if (!template) {
-    throw new Error('AIVideo template not found')
-  }
-
   return db.insert(userUploads).values({
     userId,
     tags: tags || [],
