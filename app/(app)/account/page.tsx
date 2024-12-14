@@ -31,7 +31,7 @@ export default async function Account() {
   }
 
   const { youtubeChannels, tiktokAccounts } =
-    await fetchUserConnectSocialMediaAccounts(user.id)
+    await fetchUserConnectSocialMediaAccounts()
 
   return (
     <>

@@ -37,7 +37,6 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
     useState<SelectBackgroundWithParts | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadPreviewUrl, setUploadPreviewUrl] = useState<string | null>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
   const [previousBackground, setPreviousBackground] = useState({
     theme: form.getValues('backgroundTheme'),
     urls: form.getValues('backgroundUrls')
@@ -115,18 +114,6 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
     }
   }
 
-  const togglePlay = () => {
-    const video = document.getElementById('preview-video') as HTMLVideoElement
-    if (video) {
-      if (isPlaying) {
-        video.pause()
-      } else {
-        video.play()
-      }
-      setIsPlaying(!isPlaying)
-    }
-  }
-
   const handleClearPreview = () => {
     setUploadPreviewUrl(null)
     form.setValue('backgroundTheme', previousBackground.theme)
@@ -160,21 +147,15 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
           value={background.name || `user-upload-${background.id}`}
           className="sr-only"
         />
-        <div className="w-[200px] h-[150px] relative group">
+        <div className="w-[200px] h-[150px] relative">
           <video
-            src={
-              background.url ||
-              (background as SelectBackgroundWithParts).previewUrl
-            }
+            src={'url' in background ? background.url : background.previewUrl}
             className="w-full h-full object-cover rounded-md"
             autoPlay
             loop
             muted
             playsInline
           />
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-            <Play className="w-12 h-12 text-white" />
-          </div>
         </div>
         {background.name && (
           <div className="w-full p-2 text-center text-sm truncate">
@@ -256,8 +237,10 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
                                     id="preview-video"
                                     src={uploadPreviewUrl}
                                     className="absolute inset-0 w-full h-full object-cover"
-                                    onPlay={() => setIsPlaying(true)}
-                                    onPause={() => setIsPlaying(false)}
+                                    autoPlay
+                                    loop
+                                    muted
+                                    playsInline
                                   />
                                   {isUploading && (
                                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -267,20 +250,7 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
                                     </div>
                                   )}
                                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 opacity-0 hover:opacity-100 transition-opacity duration-300">
-                                    <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="text-white hover:bg-white/20"
-                                        onClick={togglePlay}
-                                        type="button"
-                                      >
-                                        {isPlaying ? (
-                                          <Pause className="h-6 w-6" />
-                                        ) : (
-                                          <Play className="h-6 w-6" />
-                                        )}
-                                      </Button>
+                                    <div className="absolute bottom-4 left-4 right-4 flex justify-end items-center">
                                       <Button
                                         variant="ghost"
                                         size="icon"
