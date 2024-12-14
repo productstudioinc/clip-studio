@@ -253,7 +253,7 @@ export const generateRedditVoiceover = createServerAction()
       textAudioResponse.normalized_alignment
     )
 
-    const s3Key = `voiceovers/${input.voiceId}/${crypto.randomUUID()}.mp3`
+    const s3Key = `${user.id}/voiceovers/${crypto.randomUUID()}.mp3`
     const putObjectCommand = new PutObjectCommand({
       Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
       Key: s3Key,
@@ -386,7 +386,7 @@ export const generateTextVoiceover = createServerAction()
 
         const combinedAudioBuffer = Buffer.concat(audioBuffers)
 
-        const s3Key = `${user.id}/voiceovers/combined/${crypto.randomUUID()}.mp3`
+        const s3Key = `${user.id}/voiceovers/${crypto.randomUUID()}.mp3`
         const putObjectCommand = new PutObjectCommand({
           Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
           Key: s3Key,
@@ -566,7 +566,7 @@ export const generateStructuredVoiceover = createServerAction()
         }
 
         const audioBuffer = Buffer.from(audio.audio_base64, 'base64')
-        const s3Key = `${user.id}/voiceovers/${Date.now()}.mp3`
+        const s3Key = `${user.id}/voiceovers/${crypto.randomUUID()}.mp3`
 
         const putObjectCommand = new PutObjectCommand({
           Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
@@ -745,7 +745,7 @@ export const generateTwitterVoiceover = createServerAction()
         const durationInFrames = Math.floor(totalDuration * VIDEO_FPS)
 
         const combinedAudioBuffer = Buffer.concat(audioBuffers)
-        const s3Key = `voiceovers/twitter/${crypto.randomUUID()}.mp3`
+        const s3Key = `${user.id}/voiceovers/${crypto.randomUUID()}.mp3`
 
         const putObjectCommand = new PutObjectCommand({
           Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
