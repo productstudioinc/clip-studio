@@ -9,7 +9,8 @@ import type {
 import type {
   SelectBackgroundWithParts,
   SelectMusic,
-  SelectTemplates
+  SelectTemplates,
+  SelectUserUploads
 } from '@/db/schema'
 import { User } from '@supabase/supabase-js'
 
@@ -25,4 +26,5 @@ export type AppData = {
   backgrounds: SelectBackgroundWithParts[]
   music: SelectMusic[]
   templates: SelectTemplates[]
+  userUploads: SelectUserUploads[]
 } & SocialMediaAccounts

@@ -52,7 +52,7 @@ export const generatePresignedUrl = createServerAction()
       )
     }
 
-    const key = `uploads/${user.id}/${crypto.randomUUID()}-${input.filename}`
+    const key = `${user.id}/${crypto.randomUUID()}-${input.filename}`
 
     try {
       const putCommand = new PutObjectCommand({
@@ -75,6 +75,9 @@ export const generatePresignedUrl = createServerAction()
         key
       })
       await logger.flush()
+
+      console.log('presignedPutUrl', presignedPutUrl)
+      console.log('publicUrl', publicUrl)
 
       return {
         uploadUrl: presignedPutUrl,

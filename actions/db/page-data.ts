@@ -1,8 +1,10 @@
 'use server'
 
+import { cache } from 'react'
 import { revalidateTag, unstable_cache } from 'next/cache'
+import { getUser } from '@/actions/auth/user'
 import { db } from '@/db'
-import { music, templates } from '@/db/schema'
+import { music, templates, userUploads } from '@/db/schema'
 import { asc, eq } from 'drizzle-orm'
 import { Logger } from 'next-axiom'
 
@@ -80,3 +82,25 @@ export const getBackgrounds = getCachedBackgrounds
 export const getMusic = getCachedMusic
 
 export const revalidateCache = (tag: string) => revalidateTag(tag)
+
+export const getUserUploads = cache(async () => {
+  try {
+    const { user } = await getUser()
+    if (!user) {
+      return []
+    }
+
+    const response = await db.query.userUploads.findMany({
+      where: eq(userUploads.userId, user.id),
+      orderBy: (userUploads, { desc }) => [desc(userUploads.createdAt)]
+    })
+
+    return response
+  } catch (error) {
+    logger.error('Error fetching user uploads', {
+      error: error instanceof Error ? error.message : String(error)
+    })
+    await logger.flush()
+    return []
+  }
+})

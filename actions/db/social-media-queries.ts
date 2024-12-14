@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm'
 import { Credentials } from 'google-auth-library'
 import { Logger } from 'next-axiom'
 
+import { getUser } from '../auth/user'
 import { fetchCreatorInfo } from '../tiktok'
 import { getYoutubeChannelInfo } from '../youtube'
 
@@ -41,60 +42,58 @@ export type TikTokAccount = {
   refreshToken: string
 }
 
-export const fetchUserConnectSocialMediaAccounts = cache(
-  async (userId: string) => {
-    const logger = new Logger().with({
-      userId,
-      function: 'fetchUserConnectSocialMediaAccounts'
-    })
-    try {
-      const [youtubeChannelsResponse, tiktokAccountsResponse] =
-        await Promise.all([
-          db
-            .select()
-            .from(youtubeChannels)
-            .where(eq(youtubeChannels.userId, userId)),
-          db
-            .select()
-            .from(tiktokAccounts)
-            .where(eq(tiktokAccounts.userId, userId))
-        ])
+export const fetchUserConnectSocialMediaAccounts = cache(async () => {
+  const logger = new Logger().with({
+    function: 'fetchUserConnectSocialMediaAccounts'
+  })
 
-      logger.info('Fetched social media accounts', {
-        userId,
-        youtubeChannelCount: youtubeChannelsResponse.length,
-        tiktokAccountCount: tiktokAccountsResponse.length
-      })
-
-      const [youtubeChannelsWithSignedUrl, tiktokAccountsWithSignedUrl] =
-        await Promise.all([
-          Promise.all(youtubeChannelsResponse.map(processYoutubeChannel)),
-          Promise.all(tiktokAccountsResponse.map(processTikTokAccount))
-        ])
-
-      logger.info('Processed social media accounts', {
-        userId,
-        processedYouTubeChannelCount: youtubeChannelsWithSignedUrl.length,
-        processedTikTokAccountCount: tiktokAccountsWithSignedUrl.length
-      })
-
-      await logger.flush()
+  try {
+    const { user } = await getUser()
+    if (!user) {
       return {
-        youtubeChannels: youtubeChannelsWithSignedUrl,
-        tiktokAccounts: tiktokAccountsWithSignedUrl
+        youtubeChannels: [],
+        tiktokAccounts: []
       }
-    } catch (error) {
-      logger.error('Error fetching user connected social media accounts', {
-        userId,
-        error: error instanceof Error ? error.message : String(error)
-      })
-      await logger.flush()
-      throw error
+    }
+
+    const [youtubeChannelsResponse, tiktokAccountsResponse] = await Promise.all(
+      [
+        db
+          .select()
+          .from(youtubeChannels)
+          .where(eq(youtubeChannels.userId, user.id)),
+        db
+          .select()
+          .from(tiktokAccounts)
+          .where(eq(tiktokAccounts.userId, user.id))
+      ]
+    )
+
+    const [youtubeChannelsWithSignedUrl, tiktokAccountsWithSignedUrl] =
+      await Promise.all([
+        Promise.all(youtubeChannelsResponse.map(processYoutubeChannel)),
+        Promise.all(tiktokAccountsResponse.map(processTikTokAccount))
+      ])
+
+    return {
+      youtubeChannels: youtubeChannelsWithSignedUrl,
+      tiktokAccounts: tiktokAccountsWithSignedUrl
+    }
+  } catch (error) {
+    logger.error('Error fetching user connected social media accounts', {
+      error: error instanceof Error ? error.message : String(error)
+    })
+    await logger.flush()
+    return {
+      youtubeChannels: [],
+      tiktokAccounts: []
     }
   }
-)
+})
 
-async function processYoutubeChannel(channel: any): Promise<YoutubeChannel> {
+async function processYoutubeChannel(
+  channel: typeof youtubeChannels.$inferSelect
+): Promise<YoutubeChannel> {
   try {
     const channelInfo = await getYoutubeChannelInfo(
       channel.credentials as Credentials
@@ -123,7 +122,9 @@ async function processYoutubeChannel(channel: any): Promise<YoutubeChannel> {
   }
 }
 
-async function processTikTokAccount(account: any): Promise<TikTokAccount> {
+async function processTikTokAccount(
+  account: typeof tiktokAccounts.$inferSelect
+): Promise<TikTokAccount> {
   try {
     const { data, errorMessage } = await fetchCreatorInfo(account.accessToken)
     return {

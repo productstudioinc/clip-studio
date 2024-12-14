@@ -11,7 +11,7 @@ import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   FormControl,
   FormField,
@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 type BackgroundSelectStepProps = {
   form: UseFormReturn<VideoProps>
@@ -30,7 +31,7 @@ type BackgroundSelectStepProps = {
 export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
   form
 }) => {
-  const { backgrounds } = useAppContext()
+  const { backgrounds, userUploads } = useAppContext()
 
   const [selectedBackground, setSelectedBackground] =
     useState<SelectBackgroundWithParts | null>(null)
@@ -148,139 +149,184 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
     form.setValue('backgroundStartIndex', newStartIndex)
   }, [form])
 
-  const uploadContent = uploadPreviewUrl ? (
-    <div className="relative w-full h-full bg-black rounded-lg overflow-hidden">
-      <video
-        id="preview-video"
-        src={uploadPreviewUrl}
-        className="absolute inset-0 w-full h-full object-cover blur-[2px] scale-[1.1]"
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
-      />
-      {isUploading && (
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-          <div className="text-white text-lg font-semibold">
-            Uploading video...
+  const renderBackgroundOption = (
+    background:
+      | SelectBackgroundWithParts
+      | { id: string; url: string; name?: string }
+  ) => (
+    <div key={background.id} className="flex-shrink-0">
+      <Label className="relative flex-shrink-0 hover:cursor-pointer flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-1 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary">
+        <RadioGroupItem
+          value={background.name || `user-upload-${background.id}`}
+          className="sr-only"
+        />
+        <div className="w-[200px] h-[150px] relative group">
+          <video
+            src={
+              background.url ||
+              (background as SelectBackgroundWithParts).previewUrl
+            }
+            className="w-full h-full object-cover rounded-md"
+            autoPlay
+            loop
+            muted
+            playsInline
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+            <Play className="w-12 h-12 text-white" />
           </div>
         </div>
-      )}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 opacity-0 hover:opacity-100 transition-opacity duration-300">
-        <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-white hover:bg-white/20"
-            onClick={togglePlay}
-            type="button"
-          >
-            {isPlaying ? (
-              <Pause className="h-6 w-6" />
-            ) : (
-              <Play className="h-6 w-6" />
-            )}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-white hover:bg-white/20"
-            onClick={handleClearPreview}
-            type="button"
-          >
-            <X className="h-6 w-6" />
-          </Button>
-        </div>
-      </div>
-    </div>
-  ) : (
-    <div className="flex flex-col items-center justify-center h-full">
-      <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-      <p className="text-sm text-muted-foreground">
-        <span className="font-semibold">Upload</span>
-      </p>
-      <p className="text-xs text-muted-foreground">Custom Background</p>
-      <Input
-        id="background-upload"
-        type="file"
-        accept="video/*"
-        className="hidden"
-        onChange={handleFileChange}
-        disabled={isUploading}
-      />
+        {background.name && (
+          <div className="w-full p-2 text-center text-sm truncate">
+            {background.name}
+          </div>
+        )}
+      </Label>
     </div>
   )
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <CardTitle>Choose a Background</CardTitle>
+    <Card className="w-full">
+      <CardContent className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">Background</h2>
           <Button
             variant="outline"
             size="sm"
             onClick={handleNewSection}
             type="button"
           >
-            Choose New Section
+            Randomize Section
           </Button>
         </div>
-      </CardHeader>
-      <CardContent>
-        <ScrollArea className="w-full whitespace-nowrap pb-4">
-          <FormField
-            control={form.control}
-            name="backgroundTheme"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <RadioGroup
-                    onValueChange={(value) => {
-                      field.onChange(value)
+
+        <FormField
+          control={form.control}
+          name="backgroundTheme"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={(value) => {
+                    field.onChange(value)
+                    if (value.startsWith('user-upload-')) {
+                      const uploadId = value.replace('user-upload-', '')
+                      const selectedUpload = userUploads.find(
+                        (upload) => upload.id === uploadId
+                      )
+                      if (selectedUpload) {
+                        form.setValue('backgroundTheme', BackgroundTheme.Custom)
+                        form.setValue('backgroundUrls', [selectedUpload.url])
+                      }
+                    } else {
                       const selectedBackground = backgrounds.find(
                         (bg) => bg.name === value
                       )
                       if (selectedBackground) {
                         handleSelect(selectedBackground)
                       }
-                    }}
-                    value={field.value}
-                    className="flex space-x-4"
-                  >
-                    <div className="flex-shrink-0">
-                      <Label className="relative flex-shrink-0 hover:cursor-pointer flex flex-col items-center justify-between rounded-md border-2 border-dashed bg-background hover:bg-accent/40 p-1 [&:has([data-state=checked])]:border-primary w-[230px] h-[200px]">
-                        {uploadContent}
-                      </Label>
-                    </div>
-                    {backgrounds.map((background) => (
-                      <div key={background.id} className="flex-shrink-0">
-                        <Label className="relative flex-shrink-0 hover:cursor-pointer flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-1 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary">
-                          <RadioGroupItem
-                            value={background.name}
-                            className="sr-only"
-                          />
-                          <div className="w-[200px]">
-                            <video
-                              src={background.previewUrl}
-                              className="w-full h-[150px] object-cover rounded-md"
-                              autoPlay
-                              loop
-                              muted
-                              playsInline
-                            />
-                            <div className="w-full p-2 text-center">
-                              {background.name}
-                            </div>
+                    }
+                  }}
+                  value={field.value}
+                  className="space-y-6"
+                >
+                  <Tabs defaultValue="library" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 mb-6">
+                      <TabsTrigger value="library">Library</TabsTrigger>
+                      <TabsTrigger value="my-uploads">My Uploads</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="library">
+                      <ScrollArea className="w-full whitespace-nowrap">
+                        <div className="flex space-x-4">
+                          {backgrounds.map((background) =>
+                            renderBackgroundOption(background)
+                          )}
+                        </div>
+                        <ScrollBar orientation="horizontal" />
+                      </ScrollArea>
+                    </TabsContent>
+                    <TabsContent value="my-uploads">
+                      <ScrollArea className="w-full whitespace-nowrap">
+                        <div className="flex space-x-4">
+                          <div className="flex-shrink-0">
+                            <Label className="relative flex-shrink-0 hover:cursor-pointer flex flex-col items-center justify-between rounded-md border-2 border-dashed bg-background hover:bg-accent/40 p-1 [&:has([data-state=checked])]:border-primary">
+                              {uploadPreviewUrl ? (
+                                <div className="w-[200px] h-[150px] relative bg-black rounded-lg overflow-hidden">
+                                  <video
+                                    id="preview-video"
+                                    src={uploadPreviewUrl}
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                    onPlay={() => setIsPlaying(true)}
+                                    onPause={() => setIsPlaying(false)}
+                                  />
+                                  {isUploading && (
+                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                      <div className="text-white text-lg font-semibold">
+                                        Uploading...
+                                      </div>
+                                    </div>
+                                  )}
+                                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                    <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="text-white hover:bg-white/20"
+                                        onClick={togglePlay}
+                                        type="button"
+                                      >
+                                        {isPlaying ? (
+                                          <Pause className="h-6 w-6" />
+                                        ) : (
+                                          <Play className="h-6 w-6" />
+                                        )}
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="text-white hover:bg-white/20"
+                                        onClick={handleClearPreview}
+                                        type="button"
+                                      >
+                                        <X className="h-6 w-6" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="w-[200px] h-[150px] flex flex-col items-center justify-center">
+                                  <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                                  <p className="text-sm text-muted-foreground">
+                                    Upload
+                                  </p>
+                                  <Input
+                                    id="background-upload"
+                                    type="file"
+                                    accept="video/*"
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                    disabled={isUploading}
+                                  />
+                                </div>
+                              )}
+                            </Label>
                           </div>
-                        </Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+                          {userUploads
+                            .filter((upload) =>
+                              upload.tags?.includes('Background')
+                            )
+                            .map((upload) => renderBackgroundOption(upload))}
+                        </div>
+                        <ScrollBar orientation="horizontal" />
+                      </ScrollArea>
+                    </TabsContent>
+                  </Tabs>
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </CardContent>
     </Card>
   )
