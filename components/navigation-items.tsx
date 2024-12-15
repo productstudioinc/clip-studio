@@ -147,8 +147,8 @@ const NavLink: React.FC<NavItem & { currentRoute: string }> = ({
 }
 
 const getNavItems = (admin: boolean, mobile: boolean): NavItem[] => [
-  { href: '/', icon: Icons.logo, label: 'Home', isHeader: true },
-  { href: '/', icon: Palette, label: 'Home' },
+  { href: '/home', icon: Icons.logo, label: 'Home', isHeader: true },
+  { href: '/home', icon: Palette, label: 'Home' },
   { href: '/projects', icon: FilmIcon, label: 'Projects' },
   { href: '/account', icon: UserIcon, label: 'Account' },
   { href: '/feedback', icon: MessageSquareIcon, label: 'Submit Feedback' },
