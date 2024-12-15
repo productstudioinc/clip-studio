@@ -4,7 +4,7 @@ import { getVideoMetadata } from '@remotion/media-utils'
 import { Composition } from 'remotion'
 
 import {
-  AIVideoSchema,
+  AIImagesSchema,
   ClipsVideoSchema,
   HopeCoreVideoSchema,
   RedditVideoSchema,
@@ -16,7 +16,7 @@ import {
   VIDEO_HEIGHT,
   VIDEO_WIDTH
 } from '../stores/templatestore'
-import { AIVideoComposition } from './AIVideo/Composition'
+import { AIImagesComposition } from './AIImages/Composition'
 import { ClipsComposition } from './Clips/Composition'
 import { EditorComposition } from './Editor/Composition'
 import { HopeCoreComposition } from './HopeCore/Composition'
@@ -32,7 +32,7 @@ export const RemotionRoot: React.FC = () => {
     twitterState,
     clipsState,
     textMessageState,
-    aiVideoState,
+    aiImagesState,
     hopeCoreState
   } = useTemplateStore((state) => ({
     selectedTemplate: state.selectedTemplate,
@@ -41,7 +41,7 @@ export const RemotionRoot: React.FC = () => {
     twitterState: state.twitterState,
     clipsState: state.clipsState,
     textMessageState: state.textMessageState,
-    aiVideoState: state.aiVideoState,
+    aiImagesState: state.aiImagesState,
     hopeCoreState: state.hopeCoreState
   }))
 
@@ -76,14 +76,14 @@ export const RemotionRoot: React.FC = () => {
       />
 
       <Composition
-        id="AIVideo"
-        component={AIVideoComposition}
-        durationInFrames={aiVideoState.durationInFrames}
+        id="AIImages"
+        component={AIImagesComposition}
+        durationInFrames={aiImagesState.durationInFrames}
         fps={VIDEO_FPS}
         width={VIDEO_WIDTH}
         height={VIDEO_HEIGHT}
-        schema={AIVideoSchema}
-        defaultProps={aiVideoState as any}
+        schema={AIImagesSchema}
+        defaultProps={aiImagesState as any}
         calculateMetadata={async ({ props }) => {
           return {
             durationInFrames: props.durationInFrames

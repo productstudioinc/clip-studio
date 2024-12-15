@@ -1,4 +1,4 @@
-import { AIVideoComposition } from '../remotion/AIVideo/Composition'
+import { AIImagesComposition } from '../remotion/AIImages/Composition'
 import { ClipsComposition } from '../remotion/Clips/Composition'
 import { HopeCoreComposition } from '../remotion/HopeCore/Composition'
 import { RedditComposition } from '../remotion/Reddit/Composition'
@@ -15,7 +15,7 @@ const useTemplateConfig = () => {
     twitterState,
     clipsState,
     textMessageState,
-    aiVideoState,
+    aiImagesState,
     hopeCoreState
   } = useTemplateStore((state) => ({
     selectedTemplate: state.selectedTemplate,
@@ -24,7 +24,7 @@ const useTemplateConfig = () => {
     twitterState: state.twitterState,
     clipsState: state.clipsState,
     textMessageState: state.textMessageState,
-    aiVideoState: state.aiVideoState,
+    aiImagesState: state.aiImagesState,
     hopeCoreState: state.hopeCoreState
   }))
 
@@ -54,10 +54,10 @@ const useTemplateConfig = () => {
       state: textMessageState,
       durationInFrames: textMessageState.durationInFrames
     },
-    AIVideo: {
-      component: AIVideoComposition,
-      state: aiVideoState,
-      durationInFrames: aiVideoState.durationInFrames
+    AIImages: {
+      component: AIImagesComposition,
+      state: aiImagesState,
+      durationInFrames: aiImagesState.durationInFrames
     },
     HopeCore: {
       component: HopeCoreComposition,

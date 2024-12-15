@@ -3,7 +3,7 @@
 import { TemplateSchema, useTemplateStore } from '@/stores/templatestore'
 
 import { TemplateSelect } from '@/components/form/template-select'
-import { AIVideoForm } from '@/components/forms/ai-video-form'
+import { AIImagesForm } from '@/components/forms/ai-images-form'
 import { ClipsForm } from '@/components/forms/clips-form'
 import { HopeCoreForm } from '@/components/forms/hopecore-form'
 import { RedditForm } from '@/components/forms/reddit-form'
@@ -24,8 +24,8 @@ export const RootForm: React.FC = () => {
         return <TextMessageForm />
       case TemplateSchema.Enum.Clips:
         return <ClipsForm />
-      case TemplateSchema.Enum.AIVideo:
-        return <AIVideoForm />
+      case TemplateSchema.Enum.AIImages:
+        return <AIImagesForm />
       case TemplateSchema.Enum.Twitter:
         return <TwitterForm />
       case TemplateSchema.Enum.HopeCore:

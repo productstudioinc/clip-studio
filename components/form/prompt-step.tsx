@@ -4,7 +4,7 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { generateStoryScript } from '@/actions/aiActions'
 import { useAppContext } from '@/contexts/app-context'
-import { AIVideoProps, VideoProps } from '@/stores/templatestore'
+import { AIImagesProps, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { Loader2, Wand2 } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
@@ -28,10 +28,10 @@ type PromptStepProps = {
 }
 
 const storyLengthOptions: {
-  value: AIVideoProps['storyLength']
+  value: AIImagesProps['storyLength']
   label: string
-  range: AIVideoProps['range']
-  segments: AIVideoProps['segments']
+  range: AIImagesProps['range']
+  segments: AIImagesProps['segments']
 }[] = [
   { value: 'short', label: 'Short', range: '1-2', segments: '6-7' },
   { value: 'medium', label: 'Medium', range: '3-4', segments: '12-14' },
@@ -65,7 +65,7 @@ export const PromptStep: React.FC<PromptStepProps> = ({ form }) => {
     }
   }
 
-  const handleStoryLengthChange = (value: AIVideoProps['storyLength']) => {
+  const handleStoryLengthChange = (value: AIImagesProps['storyLength']) => {
     const option = storyLengthOptions.find((opt) => opt.value === value)
     if (option) {
       form.setValue('range', option.range)
@@ -104,7 +104,7 @@ export const PromptStep: React.FC<PromptStepProps> = ({ form }) => {
               <FormLabel>Story Length</FormLabel>
               <FormControl>
                 <RadioGroup
-                  onValueChange={(value: AIVideoProps['storyLength']) => {
+                  onValueChange={(value: AIImagesProps['storyLength']) => {
                     field.onChange(value)
                     handleStoryLengthChange(value)
                   }}

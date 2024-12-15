@@ -27,7 +27,7 @@ export const TemplateSelect: FC<TemplateSelectProps> = ({ templates }) => {
         | 'Twitter'
         | 'Clips'
         | 'TextMessage'
-        | 'AIVideo'
+        | 'AIImages'
     )
   }
 

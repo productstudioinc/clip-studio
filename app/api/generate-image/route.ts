@@ -36,11 +36,11 @@ const logger = new Logger({
 
 async function saveImageUpload(userId: string, url: string, tags?: string[]) {
   const template = await db.query.templates.findFirst({
-    where: eq(templates.value, 'AIVideo')
+    where: eq(templates.value, 'AIImages')
   })
 
   if (!template) {
-    throw new Error('AIVideo template not found')
+    throw new Error('AIImages template not found')
   }
 
   return db.insert(userUploads).values({

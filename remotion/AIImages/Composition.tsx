@@ -8,7 +8,7 @@ import {
   useCurrentFrame
 } from 'remotion'
 
-import { AIVideoProps } from '../../stores/templatestore'
+import { AIImagesProps } from '../../stores/templatestore'
 import { CaptionComponent } from '../Shared/caption'
 
 const FPS = 30
@@ -35,13 +35,13 @@ const ImageAnimation: React.FC<{ src: string; durationInFrames: number }> = ({
   )
 }
 
-export const AIVideoComposition = ({
+export const AIImagesComposition = ({
   captionStyle,
   voiceoverUrl,
   voiceVolume,
   videoStructure,
   subtitles
-}: AIVideoProps) => {
+}: AIImagesProps) => {
   const imageDurations = useMemo(() => {
     return videoStructure.reduce(
       (acc, item) => {

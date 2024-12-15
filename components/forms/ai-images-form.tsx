@@ -2,9 +2,9 @@
 
 import { useEffect } from 'react'
 import {
-  AIVideoProps,
-  AIVideoSchema,
-  defaultAIVideoProps,
+  AIImagesProps,
+  AIImagesSchema,
+  defaultAIImagesProps,
   useTemplateStore,
   VideoProps
 } from '@/stores/templatestore'
@@ -21,23 +21,23 @@ import { PromptStep } from '@/components/form/prompt-step'
 import { VideoPreview } from '@/components/form/video-preview'
 import { NumberedSteps } from '@/components/numbered-steps'
 
-interface AIVideoFormProps {}
+interface AIImagesFormProps {}
 
-export const AIVideoForm: React.FC<AIVideoFormProps> = () => {
+export const AIImagesForm: React.FC<AIImagesFormProps> = () => {
   const form = useForm<VideoProps>({
-    resolver: zodResolver(AIVideoSchema),
-    defaultValues: defaultAIVideoProps
+    resolver: zodResolver(AIImagesSchema),
+    defaultValues: defaultAIImagesProps
   })
 
-  const setAIVideoState = useTemplateStore((state) => state.setAIVideoState)
+  const setAIImagesState = useTemplateStore((state) => state.setAIImagesState)
 
   const formValues = useWatch({
     control: form.control
   })
 
   useEffect(() => {
-    setAIVideoState(formValues as Partial<AIVideoProps>)
-  }, [formValues, setAIVideoState])
+    setAIImagesState(formValues as Partial<AIImagesProps>)
+  }, [formValues, setAIImagesState])
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()

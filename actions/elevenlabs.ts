@@ -4,7 +4,7 @@ import { unstable_cache } from 'next/cache'
 import { db } from '@/db'
 import { templates, userUploads, userUsage } from '@/db/schema'
 import {
-  AIVideoSchema,
+  AIImagesSchema,
   Language,
   TextMessageVideoSchema,
   VIDEO_FPS
@@ -473,9 +473,9 @@ function calculateWordTimestamps(
 export const generateStructuredVoiceover = createServerAction()
   .input(
     z.object({
-      voiceId: AIVideoSchema.shape.voiceId,
-      videoStructure: AIVideoSchema.shape.videoStructure,
-      language: AIVideoSchema.shape.language
+      voiceId: AIImagesSchema.shape.voiceId,
+      videoStructure: AIImagesSchema.shape.videoStructure,
+      language: AIImagesSchema.shape.language
     })
   )
   .handler(async ({ input }) => {

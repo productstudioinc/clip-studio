@@ -26,7 +26,7 @@ export const useRendering = (providedId?: string) => {
     twitterState,
     textMessageState,
     clipsState,
-    aivideoState
+    aiimagesState
   } = useTemplateStore((state) => ({
     selectedTemplate: state.selectedTemplate,
     splitScreenState: state.splitScreenState,
@@ -34,7 +34,7 @@ export const useRendering = (providedId?: string) => {
     twitterState: state.twitterState,
     textMessageState: state.textMessageState,
     clipsState: state.clipsState,
-    aivideoState: state.aiVideoState
+    aiimagesState: state.aiImagesState
   }))
 
   const id = selectedTemplate
@@ -51,8 +51,8 @@ export const useRendering = (providedId?: string) => {
         return textMessageState
       case 'Clips':
         return clipsState
-      case 'AIVideo':
-        return aivideoState
+      case 'AIImages':
+        return aiimagesState
       default:
         return twitterState
     }

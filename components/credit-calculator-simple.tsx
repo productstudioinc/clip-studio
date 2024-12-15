@@ -107,7 +107,7 @@ const showcases: Record<string, VideoShowcase> = {
     videoSrc: 'https://assets.clip.studio/twitter_preview.webm'
   },
   AI: {
-    videoSrc: 'https://assets.clip.studio/aivideo_preview.webm'
+    videoSrc: 'https://assets.clip.studio/aiimages_preview.webm'
   },
   'Split Screen': {
     videoSrc: 'https://assets.clip.studio/splitscreen_preview.webm'

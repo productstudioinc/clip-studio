@@ -25,7 +25,7 @@ const showcases = [
   },
   {
     title: 'AI Video',
-    videoSrc: 'https://assets.clip.studio/aivideo_preview.webm'
+    videoSrc: 'https://assets.clip.studio/aiimages_preview.webm'
   }
 ]
 

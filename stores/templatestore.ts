@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
-import { aiVoiceoverFrames } from './aivideo_voiceover'
+import { aiVoiceoverFrames } from './aiimages_voiceover'
 import { alignmentDefault } from './alignmenttext'
 import { defaultRedditVoiceover } from './reddit_default_voiceover'
 import { splitScreenTranscriptionDefault } from './splitscreentranscription'
@@ -377,7 +377,7 @@ export const TextMessageVideoSchema = BaseVideoSchema.extend({
   isVoiceoverGenerated: z.boolean().default(false) // a flag to generate a voiceover
 })
 
-export const AIVideoSchema = z.object({
+export const AIImagesSchema = z.object({
   language: z.nativeEnum(Language).default(Language.English),
   voiceVolume: z.number().min(0).max(100).default(70),
   musicVolume: z.number().min(0).max(100).default(30),
@@ -424,7 +424,7 @@ export const VideoSchema = z.union([
   TwitterVideoSchema,
   ClipsVideoSchema,
   TextMessageVideoSchema,
-  AIVideoSchema,
+  AIImagesSchema,
   HopeCoreVideoSchema
 ])
 
@@ -434,7 +434,7 @@ export const TemplateSchema = z.enum([
   'Twitter',
   'Clips',
   'TextMessage',
-  'AIVideo',
+  'AIImages',
   'HopeCore'
 ])
 export type TemplateProps = z.infer<typeof TemplateSchema>
@@ -447,7 +447,7 @@ export type TwitterVideoProps = z.infer<typeof TwitterVideoSchema>
 export type SplitScreenVideoProps = z.infer<typeof SplitScreenVideoSchema>
 export type TextMessageVideoProps = z.infer<typeof TextMessageVideoSchema>
 export type ClipsVideoProps = z.infer<typeof ClipsVideoSchema>
-export type AIVideoProps = z.infer<typeof AIVideoSchema>
+export type AIImagesProps = z.infer<typeof AIImagesSchema>
 export type HopeCoreVideoProps = z.infer<typeof HopeCoreVideoSchema>
 
 // Default Props
@@ -952,7 +952,7 @@ export const defaultClipsProps: ClipsVideoProps = {
   backgroundStartIndex: 0
 }
 
-export const defaultAIVideoProps: AIVideoProps = {
+export const defaultAIImagesProps: AIImagesProps = {
   language: Language.English,
   voiceVolume: 70,
   musicVolume: 30,
@@ -963,7 +963,7 @@ export const defaultAIVideoProps: AIVideoProps = {
   durationInFrames: DEFAULT_DURATION_IN_FRAMES,
   prompt: 'A story about Julius Caesar',
   captionStyle: defaultCaptionStyle,
-  voiceoverUrl: 'https://assets.clip.studio/aivideo_voiceover.mp3',
+  voiceoverUrl: 'https://assets.clip.studio/aiimages_voiceover.mp3',
   subtitles: aiVoiceoverFrames,
   voiceId: 'EXAVITQu4vr4xnSDxMaL',
   storyLength: 'short',
@@ -976,91 +976,91 @@ export const defaultAIVideoProps: AIVideoProps = {
       imageDescription:
         'A young Julius Caesar stands in the Roman Forum, surrounded by citizens and merchants, his eyes filled with determination and ambition, set against the backdrop of ancient Roman architecture.',
       duration: 13.113052631578947,
-      imageUrl: 'https://assets.clip.studio/aivideo_default_image_1.png'
+      imageUrl: 'https://assets.clip.studio/aiimages_default_image_1.png'
     },
     {
       text: 'As he rises through the ranks, Julius Caesar forms a powerful alliance with Pompey and Crassus, known as the First Triumvirate. Together, they reshape the political landscape of Rome.',
       imageDescription:
         'Julius Caesar, Pompey, and Crassus stand together in a dimly lit room, discussing strategies, their expressions serious, symbolizing the power dynamics of the First Triumvirate.',
       duration: 13.442526315789474,
-      imageUrl: 'https://assets.clip.studio/aivideo_default_image_2.png'
+      imageUrl: 'https://assets.clip.studio/aiimages_default_image_2.png'
     },
     {
       text: "With military genius, Caesar conquers Gaul, expanding Rome's territory and earning the loyalty of his soldiers. His fame grows, but so does the envy of his rivals.",
       imageDescription:
         'Julius Caesar leads his troops into battle against the Gauls, a fierce expression on his face, as Roman soldiers rally behind him, banners waving in the wind.',
       duration: 12.124631578947362,
-      imageUrl: 'https://assets.clip.studio/aivideo_default_image_3.png'
+      imageUrl: 'https://assets.clip.studio/aiimages_default_image_3.png'
     },
     {
       text: 'Returning to Rome, Caesar is greeted as a hero, but whispers of betrayal echo in the Senate. His popularity threatens the power of the Senate, igniting fear among the elite.',
       imageDescription:
         'A jubilant crowd welcomes Julius Caesar back to Rome, while shadowy figures in the Senate plot against him, their faces twisted with jealousy and fear.',
       duration: 12.783578947368426,
-      imageUrl: 'https://assets.clip.studio/aivideo_default_image_4.png'
+      imageUrl: 'https://assets.clip.studio/aiimages_default_image_4.png'
     },
     {
       text: "Despite warnings, Caesar crosses the Rubicon River, declaring, 'The die is cast!' This bold move ignites a civil war, pitting him against Pompey and the Senate.",
       imageDescription:
         'Julius Caesar stands at the banks of the Rubicon River, resolute and defiant, as he prepares to lead his army into a civil war, the river symbolizing a point of no return.',
       duration: 11.926947368421054,
-      imageUrl: 'https://assets.clip.studio/aivideo_default_image_5.png'
+      imageUrl: 'https://assets.clip.studio/aiimages_default_image_5.png'
     },
     {
       text: 'The war rages on, and Caesar emerges victorious, becoming dictator for life. His reforms bring hope to the people, but his power grows increasingly absolute.',
       imageDescription:
         'Julius Caesar addresses a crowd in the Roman Forum, gesturing passionately as citizens cheer, while senators watch with concern, foreshadowing his growing tyranny.',
       duration: 11.729263157894742,
-      imageUrl: 'https://assets.clip.studio/aivideo_default_image_6.png'
+      imageUrl: 'https://assets.clip.studio/aiimages_default_image_6.png'
     },
     {
       text: "Yet, with great power comes great danger. A conspiracy brews among the Senate, led by Brutus and Cassius, who fear for the Republic's future.",
       imageDescription:
         'Brutus and Cassius huddle in a dark corner of the Senate, plotting against Julius Caesar, their faces tense with determination and fear for the Republic.',
       duration: 10.674947368421044,
-      imageUrl: 'https://assets.clip.studio/aivideo_default_image_7.png'
+      imageUrl: 'https://assets.clip.studio/aiimages_default_image_7.png'
     },
     {
       text: 'On the Ides of March, Caesar arrives at the Senate, unaware of the impending betrayal. His friend Brutus stands among the conspirators, torn between loyalty and duty.',
       imageDescription:
         'Julius Caesar enters the Senate, a confident smile on his face, while Brutus watches from the shadows, his expression conflicted, symbolizing the tension of betrayal.',
       duration: 12.322315789473691,
-      imageUrl: 'https://assets.clip.studio/aivideo_default_image_8.png'
+      imageUrl: 'https://assets.clip.studio/aiimages_default_image_8.png'
     },
     {
       text: "As the conspirators strike, Caesar utters his famous last words, 'Et tu, Brute?' His shock reverberates through history, marking the end of an era.",
       imageDescription:
         'Julius Caesar, surrounded by senators, falls to the ground, a look of betrayal on his face, as Brutus stands over him, a dagger in hand, capturing the moment of treachery.',
       duration: 11.070315789473668,
-      imageUrl: 'https://assets.clip.studio/aivideo_default_image_9.png'
+      imageUrl: 'https://assets.clip.studio/aiimages_default_image_9.png'
     },
     {
       text: "Caesar's assassination plunges Rome into chaos. The Republic crumbles, and civil war erupts once more, as his legacy looms large over the empire.",
       imageDescription:
         "A chaotic scene unfolds in Rome as citizens riot and soldiers clash, the aftermath of Julius Caesar's assassination, symbolizing the turmoil of a fallen Republic.",
       duration: 10.938526315789474,
-      imageUrl: 'https://assets.clip.studio/aivideo_default_image_10.png'
+      imageUrl: 'https://assets.clip.studio/aiimages_default_image_10.png'
     },
     {
       text: "In the wake of his death, Caesar's adopted heir, Octavian, rises to power, vowing to restore order and avenge his fallen mentor, setting the stage for a new empire.",
       imageDescription:
         'Octavian stands resolute in front of a statue of Julius Caesar, determination in his eyes, as he prepares to lead Rome into a new era, symbolizing hope and vengeance.',
       duration: 12.190526315789498,
-      imageUrl: 'https://assets.clip.studio/aivideo_default_image_11.png'
+      imageUrl: 'https://assets.clip.studio/aiimages_default_image_11.png'
     },
     {
       text: "The rise of the Roman Empire begins, but the shadow of Julius Caesar's ambition and tragedy remains, a reminder of the fine line between power and downfall.",
       imageDescription:
         "A panoramic view of the Roman Empire at its height, with a statue of Julius Caesar in the foreground, symbolizing his lasting impact on history and the empire's legacy.",
       duration: 11.66336842105261,
-      imageUrl: 'https://assets.clip.studio/aivideo_default_image_12.png'
+      imageUrl: 'https://assets.clip.studio/aiimages_default_image_12.png'
     },
     {
       text: "Julius Caesar's story teaches us that ambition can lead to greatness, but unchecked power can also lead to ruin. His legacy continues to inspire and caution leaders today.",
       imageDescription:
         'A modern-day leader stands before a statue of Julius Caesar, reflecting on the lessons of ambition and power, symbolizing the timeless relevance of his story.',
       duration: 11.268,
-      imageUrl: 'https://assets.clip.studio/aivideo_default_image_13.png'
+      imageUrl: 'https://assets.clip.studio/aiimages_default_image_13.png'
     }
   ]
 }
@@ -1099,7 +1099,7 @@ const initialState = {
   backgroundUrls: selectRandomBackgroundWindow(allMinecraftBackgrounds),
   captionStyle: defaultCaptionStyle,
   clipsState: defaultClipsProps,
-  aiVideoState: defaultAIVideoProps,
+  aiImagesState: defaultAIImagesProps,
   hopeCoreState: defaultHopeCoreProps,
   backgroundStartIndex: 0
 }
@@ -1125,8 +1125,8 @@ type State = {
   setCaptionStyle: (style: z.infer<typeof captionStyleSchema>) => void
   clipsState: ClipsVideoProps
   setClipsState: (state: Partial<ClipsVideoProps>) => void
-  aiVideoState: AIVideoProps
-  setAIVideoState: (state: Partial<AIVideoProps>) => void
+  aiImagesState: AIImagesProps
+  setAIImagesState: (state: Partial<AIImagesProps>) => void
   hopeCoreState: HopeCoreVideoProps
   setHopeCoreState: (state: Partial<HopeCoreVideoProps>) => void
   reset: () => void
@@ -1172,7 +1172,7 @@ export const useTemplateStore = create<State>()(
           ...state.textMessageState,
           durationInFrames: length
         },
-        aiVideoState: { ...state.aiVideoState, durationInFrames: length },
+        aiImagesState: { ...state.aiImagesState, durationInFrames: length },
         hopeCoreState: { ...state.hopeCoreState, durationInFrames: length }
       })),
     setBackgroundTheme: (theme) =>
@@ -1189,7 +1189,7 @@ export const useTemplateStore = create<State>()(
           ...state.textMessageState,
           backgroundTheme: theme
         },
-        aiVideoState: { ...state.aiVideoState, backgroundTheme: theme },
+        aiImagesState: { ...state.aiImagesState, backgroundTheme: theme },
         hopeCoreState: { ...state.hopeCoreState, backgroundTheme: theme }
       })),
     setBackgroundUrls: (urls) =>
@@ -1206,7 +1206,7 @@ export const useTemplateStore = create<State>()(
           ...state.textMessageState,
           backgroundUrls: urls
         },
-        aiVideoState: { ...state.aiVideoState, backgroundUrls: urls },
+        aiImagesState: { ...state.aiImagesState, backgroundUrls: urls },
         hopeCoreState: { ...state.hopeCoreState, backgroundUrls: urls }
       })),
     setCaptionStyle: (style) =>
@@ -1232,8 +1232,8 @@ export const useTemplateStore = create<State>()(
           ...state.textMessageState,
           captionStyle: style
         },
-        aiVideoState: {
-          ...state.aiVideoState,
+        aiImagesState: {
+          ...state.aiImagesState,
           captionStyle: style
         },
         hopeCoreState: {
@@ -1245,9 +1245,9 @@ export const useTemplateStore = create<State>()(
       set((prevState) => ({
         clipsState: { ...prevState.clipsState, ...state }
       })),
-    setAIVideoState: (state) =>
+    setAIImagesState: (state) =>
       set((prevState) => ({
-        aiVideoState: { ...prevState.aiVideoState, ...state }
+        aiImagesState: { ...prevState.aiImagesState, ...state }
       })),
     reset: () => set(initialState),
     setBackgroundStartIndex: (index) =>
@@ -1263,7 +1263,7 @@ export const useTemplateStore = create<State>()(
           ...state.textMessageState,
           backgroundStartIndex: index
         },
-        aiVideoState: { ...state.aiVideoState, backgroundStartIndex: index },
+        aiImagesState: { ...state.aiImagesState, backgroundStartIndex: index },
         hopeCoreState: { ...state.hopeCoreState, backgroundStartIndex: index }
       }))
   }))
