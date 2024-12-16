@@ -418,6 +418,123 @@ export const HopeCoreVideoSchema = BaseVideoSchema.extend({
   backgroundUrls: z.array(z.string())
 })
 
+// First, add the VideoStyle enum and videoStyles array
+export enum VideoStyle {
+  Cinematic = 'Cinematic',
+  Documentary = 'Documentary',
+  Vlog = 'Vlog',
+  Tutorial = 'Tutorial',
+  Commercial = 'Commercial',
+  Music = 'Music Video',
+  Sports = 'Sports',
+  News = 'News'
+}
+
+export const videoStyles = [
+  {
+    id: VideoStyle.Cinematic,
+    name: 'Cinematic',
+    image: 'https://assets.clip.studio/video_style_cinematic.jpg'
+  },
+  {
+    id: VideoStyle.Documentary,
+    name: 'Documentary',
+    image: 'https://assets.clip.studio/video_style_documentary.jpg'
+  },
+  {
+    id: VideoStyle.Vlog,
+    name: 'Vlog',
+    image: 'https://assets.clip.studio/video_style_vlog.jpg'
+  },
+  {
+    id: VideoStyle.Tutorial,
+    name: 'Tutorial',
+    image: 'https://assets.clip.studio/video_style_tutorial.jpg'
+  },
+  {
+    id: VideoStyle.Commercial,
+    name: 'Commercial',
+    image: 'https://assets.clip.studio/video_style_commercial.jpg'
+  },
+  {
+    id: VideoStyle.Music,
+    name: 'Music Video',
+    image: 'https://assets.clip.studio/video_style_music.jpg'
+  },
+  {
+    id: VideoStyle.Sports,
+    name: 'Sports',
+    image: 'https://assets.clip.studio/video_style_sports.jpg'
+  },
+  {
+    id: VideoStyle.News,
+    name: 'News',
+    image: 'https://assets.clip.studio/video_style_news.jpg'
+  }
+]
+
+// Then define AIVideoSchema before it's used
+export const AIVideoSchema = z.object({
+  language: z.nativeEnum(Language).default(Language.English),
+  voiceVolume: z.number().min(0).max(100).default(70),
+  musicVolume: z.number().min(0).max(100).default(30),
+  aspectRatio: z.nativeEnum(AspectRatio).default(AspectRatio.Vertical),
+  width: z.number().min(1).default(VIDEO_WIDTH),
+  height: z.number().min(1).default(VIDEO_HEIGHT),
+  fps: z.number().min(1).default(VIDEO_FPS),
+  durationInFrames: z.number().min(1).default(DEFAULT_DURATION_IN_FRAMES),
+  prompt: z.string(),
+  captionStyle: captionStyleSchema,
+  voiceoverUrl: z.string(),
+  subtitles: subtitleSchema,
+  voiceId: z.string(),
+  storyLength: z.enum(['short', 'medium', 'long']),
+  range: z.union([z.literal('1-2'), z.literal('3-4'), z.literal('5-7')]),
+  segments: z.union([z.literal('6-7'), z.literal('12-14'), z.literal('18-21')]),
+  videoStyle: z.nativeEnum(VideoStyle).default(VideoStyle.Cinematic),
+  backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
+  backgroundUrls: z.array(z.string()).optional(),
+  videoStructure: z.array(
+    z.object({
+      text: z.string(),
+      videoDescription: z.string(),
+      videoUrl: z.string().nullable(),
+      duration: z.number().default(5)
+    })
+  )
+})
+
+// After AIVideoSchema definition and before VideoSchema
+export const defaultAIVideoProps: AIVideoProps = {
+  language: Language.English,
+  voiceVolume: 70,
+  musicVolume: 30,
+  aspectRatio: AspectRatio.Vertical,
+  width: VIDEO_WIDTH,
+  height: VIDEO_HEIGHT,
+  fps: VIDEO_FPS,
+  durationInFrames: DEFAULT_DURATION_IN_FRAMES,
+  prompt: 'A story about space exploration',
+  captionStyle: defaultCaptionStyle,
+  voiceoverUrl: 'https://assets.clip.studio/aivideos_voiceover.mp3',
+  subtitles: aiVoiceoverFrames,
+  voiceId: 'EXAVITQu4vr4xnSDxMaL',
+  storyLength: 'short',
+  range: '1-2',
+  segments: '6-7',
+  videoStyle: VideoStyle.Cinematic,
+  videoStructure: [
+    {
+      text: 'As humanity reaches for the stars, brave astronauts prepare for their journey into the unknown.',
+      videoDescription:
+        'Astronauts suiting up and boarding a spacecraft, with dramatic lighting and anticipation.',
+      duration: 10,
+      videoUrl: 'https://assets.clip.studio/aivideos_default_video_1.mp4'
+    }
+  ]
+}
+
+// Now the VideoSchema union can reference AIVideoSchema
 export const VideoSchema = z.union([
   SplitScreenVideoSchema,
   RedditVideoSchema,
@@ -425,7 +542,8 @@ export const VideoSchema = z.union([
   ClipsVideoSchema,
   TextMessageVideoSchema,
   AIImagesSchema,
-  HopeCoreVideoSchema
+  HopeCoreVideoSchema,
+  AIVideoSchema
 ])
 
 export const TemplateSchema = z.enum([
@@ -435,7 +553,8 @@ export const TemplateSchema = z.enum([
   'Clips',
   'TextMessage',
   'AIImages',
-  'HopeCore'
+  'HopeCore',
+  'AIVideo'
 ])
 export type TemplateProps = z.infer<typeof TemplateSchema>
 
@@ -449,7 +568,7 @@ export type TextMessageVideoProps = z.infer<typeof TextMessageVideoSchema>
 export type ClipsVideoProps = z.infer<typeof ClipsVideoSchema>
 export type AIImagesProps = z.infer<typeof AIImagesSchema>
 export type HopeCoreVideoProps = z.infer<typeof HopeCoreVideoSchema>
-
+export type AIVideoProps = z.infer<typeof AIVideoSchema>
 // Default Props
 const generateMinecraftBackgrounds = (count: number) => {
   return Array.from(
@@ -1101,7 +1220,8 @@ const initialState = {
   clipsState: defaultClipsProps,
   aiImagesState: defaultAIImagesProps,
   hopeCoreState: defaultHopeCoreProps,
-  backgroundStartIndex: 0
+  backgroundStartIndex: 0,
+  aiVideoState: defaultAIVideoProps
 }
 
 type State = {
@@ -1132,6 +1252,8 @@ type State = {
   reset: () => void
   backgroundStartIndex: number
   setBackgroundStartIndex: (index: number) => void
+  aiVideoState: AIVideoProps
+  setAIVideoState: (state: Partial<AIVideoProps>) => void
 }
 
 export const useTemplateStore = create<State>()(
@@ -1153,10 +1275,6 @@ export const useTemplateStore = create<State>()(
     setTextMessageState: (state) =>
       set((prevState) => ({
         textMessageState: { ...prevState.textMessageState, ...state }
-      })),
-    setHopeCoreState: (state) =>
-      set((prevState) => ({
-        hopeCoreState: { ...prevState.hopeCoreState, ...state }
       })),
     setDurationInFrames: (length) =>
       set((state) => ({
@@ -1248,6 +1366,14 @@ export const useTemplateStore = create<State>()(
     setAIImagesState: (state) =>
       set((prevState) => ({
         aiImagesState: { ...prevState.aiImagesState, ...state }
+      })),
+    setHopeCoreState: (state) =>
+      set((prevState) => ({
+        hopeCoreState: { ...prevState.hopeCoreState, ...state }
+      })),
+    setAIVideoState: (state) =>
+      set((prevState) => ({
+        aiVideoState: { ...prevState.aiVideoState, ...state }
       })),
     reset: () => set(initialState),
     setBackgroundStartIndex: (index) =>

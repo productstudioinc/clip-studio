@@ -11,6 +11,8 @@ import { SplitScreenForm } from '@/components/forms/split-screen-form'
 import { TextMessageForm } from '@/components/forms/text-message-form'
 import { TwitterForm } from '@/components/forms/twitter-form'
 
+import { AIVideoForm } from './ai-video-form'
+
 export const RootForm: React.FC = () => {
   const { selectedTemplate } = useTemplateStore()
 
@@ -26,6 +28,8 @@ export const RootForm: React.FC = () => {
         return <ClipsForm />
       case TemplateSchema.Enum.AIImages:
         return <AIImagesForm />
+      case TemplateSchema.Enum.AIVideo:
+        return <AIVideoForm />
       case TemplateSchema.Enum.Twitter:
         return <TwitterForm />
       case TemplateSchema.Enum.HopeCore:

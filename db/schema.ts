@@ -40,6 +40,10 @@ export const uploadTypeEnum = pgEnum('upload_type', [
   'ai_image',
   'ai_video'
 ])
+export const uploadStatusEnum = pgEnum('upload_status', [
+  'pending',
+  'completed'
+])
 
 // User-related tables and relations
 export const users = pgTable('users', {
@@ -418,6 +422,7 @@ export const userUploads = pgTable('user_uploads', {
     .references(() => users.id),
   tags: text('tags').array(),
   url: text('url').notNull(),
+  status: uploadStatusEnum('status').default('completed').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 })

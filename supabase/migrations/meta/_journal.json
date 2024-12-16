@@ -43,6 +43,13 @@
       "when": 1734037558136,
       "tag": "0005_nappy_william_stryker",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1734301098679,
+      "tag": "0006_tidy_the_hand",
+      "breakpoints": true
     }
   ]
 }
