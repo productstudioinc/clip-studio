@@ -6,7 +6,7 @@ import { generatePresignedUrl } from '@/actions/generate-presigned-urls'
 import { useAppContext } from '@/contexts/app-context'
 import { SelectBackgroundWithParts } from '@/db/schema'
 import { BackgroundTheme, VideoProps } from '@/stores/templatestore'
-import { Pause, Play, Upload, X } from 'lucide-react'
+import { Upload, X } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -211,7 +211,10 @@ export const BackgroundSelectStep: FC<BackgroundSelectStepProps> = ({
                   value={field.value}
                   className="space-y-6"
                 >
-                  <Tabs defaultValue="library" className="w-full">
+                  <Tabs
+                    defaultValue="library"
+                    className="w-full overflow-hidden"
+                  >
                     <TabsList className="grid w-full grid-cols-2 mb-6">
                       <TabsTrigger value="library">Library</TabsTrigger>
                       <TabsTrigger value="my-uploads">My Uploads</TabsTrigger>
