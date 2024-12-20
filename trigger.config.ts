@@ -1,5 +1,6 @@
 import { defineConfig } from "@trigger.dev/sdk/v3";
 import { syncVercelEnvVars } from "@trigger.dev/build/extensions/core";
+import { ffmpeg } from "@trigger.dev/build/extensions/core";
 
 export default defineConfig({
   project: "proj_idgqfcanuajlylxekrgh",
@@ -19,7 +20,7 @@ export default defineConfig({
   },
   build: {
     external: ["pg"],
-    extensions: [syncVercelEnvVars()]
+    extensions: [syncVercelEnvVars(), ffmpeg()]
   },
   dirs: ["trigger"],
 });

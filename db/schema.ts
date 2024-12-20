@@ -422,6 +422,7 @@ export const userUploads = pgTable('user_uploads', {
     .references(() => users.id),
   tags: text('tags').array(),
   url: text('url').notNull(),
+  previewUrl: text('preview_url'),
   status: uploadStatusEnum('status').default('completed').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()

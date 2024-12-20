@@ -16,7 +16,7 @@ import { FormSubmit } from '@/components/form/form-submit'
 import { PromptStep } from '@/components/form/prompt-step'
 import { VideoPreview } from '@/components/form/video-preview'
 import { NumberedSteps } from '@/components/numbered-steps'
-
+import { VideoGenStep } from '@/components/form/video-gen-step'
 interface AIVideoFormProps {}
 
 export const AIVideoForm: React.FC<AIVideoFormProps> = () => {
@@ -45,6 +45,7 @@ export const AIVideoForm: React.FC<AIVideoFormProps> = () => {
         <div className="grid grid-cols-12 gap-8">
           <NumberedSteps className="col-span-12 lg:col-span-7 space-y-6">
             <PromptStep form={form} />
+            {/* <VideoGenStep form={form} /> */}
             {/* <TranscribeStep form={form} /> */}
             {/* <BackgroundSelectStep form={form} backgrounds={backgrounds} /> */}
             <FormSubmit form={form} />

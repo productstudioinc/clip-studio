@@ -3,7 +3,8 @@ export const CREDIT_CONVERSIONS = {
   VOICEOVER_CHARACTERS: 100, // 1 credit per 100 characters
   TRANSCRIBE_SECONDS: 10,
   IMAGE_GENERATION: 10, // Now this correctly represents 10 credits per image
-  SCRIPT_GENERATION: 1
+  SCRIPT_GENERATION: 1,
+  VIDEO_GENERATION: 50
 }
 
 export const UTM_COOKIE_NAME = '_utm'

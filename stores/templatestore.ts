@@ -491,7 +491,7 @@ export const AIVideoSchema = z.object({
   storyLength: z.enum(['short', 'medium', 'long']),
   range: z.union([z.literal('1-2'), z.literal('3-4'), z.literal('5-7')]),
   segments: z.union([z.literal('6-7'), z.literal('12-14'), z.literal('18-21')]),
-  videoStyle: z.nativeEnum(VideoStyle).default(VideoStyle.Cinematic),
+  // videoStyle: z.nativeEnum(VideoStyle).default(VideoStyle.Cinematic),
   backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
   backgroundUrls: z.array(z.string()).optional(),
   videoStructure: z.array(
@@ -522,7 +522,7 @@ export const defaultAIVideoProps: AIVideoProps = {
   storyLength: 'short',
   range: '1-2',
   segments: '6-7',
-  videoStyle: VideoStyle.Cinematic,
+  // videoStyle: VideoStyle.Cinematic,
   videoStructure: [
     {
       text: 'As humanity reaches for the stars, brave astronauts prepare for their journey into the unknown.',
