@@ -534,7 +534,6 @@ export const defaultAIVideoProps: AIVideoProps = {
   ]
 }
 
-// Now the VideoSchema union can reference AIVideoSchema
 export const VideoSchema = z.union([
   SplitScreenVideoSchema,
   RedditVideoSchema,
@@ -1291,7 +1290,8 @@ export const useTemplateStore = create<State>()(
           durationInFrames: length
         },
         aiImagesState: { ...state.aiImagesState, durationInFrames: length },
-        hopeCoreState: { ...state.hopeCoreState, durationInFrames: length }
+        hopeCoreState: { ...state.hopeCoreState, durationInFrames: length },
+        aiVideoState: { ...state.aiVideoState, durationInFrames: length }
       })),
     setBackgroundTheme: (theme) =>
       set((state) => ({
@@ -1308,7 +1308,8 @@ export const useTemplateStore = create<State>()(
           backgroundTheme: theme
         },
         aiImagesState: { ...state.aiImagesState, backgroundTheme: theme },
-        hopeCoreState: { ...state.hopeCoreState, backgroundTheme: theme }
+        hopeCoreState: { ...state.hopeCoreState, backgroundTheme: theme },
+        aiVideoState: { ...state.aiVideoState, backgroundTheme: theme }
       })),
     setBackgroundUrls: (urls) =>
       set((state) => ({
@@ -1325,7 +1326,8 @@ export const useTemplateStore = create<State>()(
           backgroundUrls: urls
         },
         aiImagesState: { ...state.aiImagesState, backgroundUrls: urls },
-        hopeCoreState: { ...state.hopeCoreState, backgroundUrls: urls }
+        hopeCoreState: { ...state.hopeCoreState, backgroundUrls: urls },
+        aiVideoState: { ...state.aiVideoState, backgroundUrls: urls }
       })),
     setCaptionStyle: (style) =>
       set((state) => ({
@@ -1352,6 +1354,10 @@ export const useTemplateStore = create<State>()(
         },
         aiImagesState: {
           ...state.aiImagesState,
+          captionStyle: style
+        },
+        aiVideoState: {
+          ...state.aiVideoState,
           captionStyle: style
         },
         hopeCoreState: {
@@ -1390,7 +1396,8 @@ export const useTemplateStore = create<State>()(
           backgroundStartIndex: index
         },
         aiImagesState: { ...state.aiImagesState, backgroundStartIndex: index },
-        hopeCoreState: { ...state.hopeCoreState, backgroundStartIndex: index }
+        hopeCoreState: { ...state.hopeCoreState, backgroundStartIndex: index },
+        aiVideoState: { ...state.aiVideoState, backgroundStartIndex: index }
       }))
   }))
 )

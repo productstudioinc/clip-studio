@@ -1,3 +1,4 @@
+import { AIVideoComposition } from '@/remotion/AIVideo/Composition'
 import { AIImagesComposition } from '../remotion/AIImages/Composition'
 import { ClipsComposition } from '../remotion/Clips/Composition'
 import { HopeCoreComposition } from '../remotion/HopeCore/Composition'
@@ -16,6 +17,7 @@ const useTemplateConfig = () => {
     clipsState,
     textMessageState,
     aiImagesState,
+    aiVideoState,
     hopeCoreState
   } = useTemplateStore((state) => ({
     selectedTemplate: state.selectedTemplate,
@@ -25,6 +27,7 @@ const useTemplateConfig = () => {
     clipsState: state.clipsState,
     textMessageState: state.textMessageState,
     aiImagesState: state.aiImagesState,
+    aiVideoState: state.aiVideoState,
     hopeCoreState: state.hopeCoreState
   }))
 
@@ -58,6 +61,11 @@ const useTemplateConfig = () => {
       component: AIImagesComposition,
       state: aiImagesState,
       durationInFrames: aiImagesState.durationInFrames
+    },
+    AIVideo: {
+      component: AIVideoComposition,
+      state: aiVideoState,
+      durationInFrames: aiVideoState.durationInFrames
     },
     HopeCore: {
       component: HopeCoreComposition,

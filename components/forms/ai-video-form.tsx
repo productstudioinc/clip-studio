@@ -5,7 +5,8 @@ import {
   AIVideoProps,
   AIVideoSchema,
   defaultAIVideoProps,
-  useTemplateStore
+  useTemplateStore,
+  VideoProps
 } from '@/stores/templatestore'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useWatch } from 'react-hook-form'
@@ -19,7 +20,7 @@ import { NumberedSteps } from '@/components/numbered-steps'
 interface AIVideoFormProps {}
 
 export const AIVideoForm: React.FC<AIVideoFormProps> = () => {
-  const form = useForm<AIVideoProps>({
+  const form = useForm<VideoProps>({
     resolver: zodResolver(AIVideoSchema),
     defaultValues: defaultAIVideoProps
   })
