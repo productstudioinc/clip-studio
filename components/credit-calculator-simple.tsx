@@ -376,7 +376,7 @@ export function CreditCalculator() {
         <CreditSlider credits={credits} setCredits={setCredits} />
         <HowManyVideos credits={credits} />
         <CostBreakdownTable />
-        <HowItWorksSection />
+        {/* <HowItWorksSection /> */}
       </CardContent>
     </Card>
   )

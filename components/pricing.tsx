@@ -144,10 +144,6 @@ function PricingCard({
         </p>
       </div>
 
-      <span className="inline-block whitespace-nowrap rounded-full bg-amber-400 px-2.5 py-0.5 my-2 text-[10px] font-semibold uppercase leading-5 tracking-wide text-black mx-auto">
-        CYBER WEEK 60% OFF 🔥
-      </span>
-
       <motion.div
         key={`${product.id}-${interval}`}
         initial="initial"
@@ -170,17 +166,6 @@ function PricingCard({
         className="flex flex-col gap-1 mb-4"
       >
         <div className="flex items-center gap-2">
-          <span className="text-sm line-through text-gray-500">
-            $
-            {currentPrice
-              ? toHumanPrice(
-                  interval === 'year'
-                    ? (currentPrice.unitAmount || 0) / 12 / 0.4
-                    : (currentPrice?.unitAmount || 0) / 0.4,
-                  0
-                )
-              : 'N/A'}
-          </span>
           <span className="text-4xl font-bold text-black dark:text-white flex items-baseline">
             $
             {currentPrice
