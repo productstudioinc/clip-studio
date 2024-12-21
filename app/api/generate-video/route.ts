@@ -19,9 +19,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const { prompt } = await request.json()
+
     const handle = await generateVideo.trigger({
       user_id: user.id,
-      prompt: 'A video of a cat playing with a ball'
+      prompt: prompt
     })
 
     return NextResponse.json(handle)

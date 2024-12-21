@@ -499,6 +499,7 @@ export const AIVideoSchema = z.object({
       text: z.string(),
       videoDescription: z.string(),
       videoUrl: z.string().nullable(),
+      thumbnailUrl: z.string().nullable(),
       duration: z.number().default(5)
     })
   )
@@ -529,7 +530,8 @@ export const defaultAIVideoProps: AIVideoProps = {
       videoDescription:
         'Astronauts suiting up and boarding a spacecraft, with dramatic lighting and anticipation.',
       duration: 10,
-      videoUrl: 'https://assets.clip.studio/aivideos_default_video_1.mp4'
+      videoUrl: 'https://assets.clip.studio/aivideos_default_video_1.mp4',
+      thumbnailUrl: 'https://assets.clip.studio/aivideos_default_thumbnail_1.jpg'
     }
   ]
 }

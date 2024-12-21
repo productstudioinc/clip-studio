@@ -80,18 +80,12 @@ const VideoGenerationSchema = z.object({
   user_id: z.string()
 })
 
-async function generateThumbnail(videoUrl: string): Promise<Buffer> {
+async function generateThumbnail(videoBuffer: Buffer): Promise<Buffer> {
   const tempDirectory = os.tmpdir()
   const outputPath = path.join(tempDirectory, `thumbnail_${Date.now()}.jpg`)
   const inputPath = path.join(tempDirectory, `input_${Date.now()}.mp4`)
 
-  const response = await fetch(videoUrl)
-  if (!response.ok) {
-    throw new Error(`Failed to fetch video for thumbnail: ${response.statusText}`)
-  }
-
-  const buffer = Buffer.from(await response.arrayBuffer())
-  await fs.writeFile(inputPath, buffer)
+  await fs.writeFile(inputPath, videoBuffer)
 
   await new Promise((resolve, reject) => {
     ffmpeg(inputPath)
@@ -129,12 +123,9 @@ export const generateVideo = schemaTask({
       const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${s3Key}`
       
       await saveVideoUpload(payload.user_id, publicUrl, ['Video', 'AI Generated'], 'pending')
-
-      let output: { video_url?: string }
-      let videoBuffer: Buffer
       
       try {
-        const replicateOutput = await replicate.run(
+        const videoData = await replicate.run(
           "minimax/video-01",
           {
             input: {
@@ -144,33 +135,14 @@ export const generateVideo = schemaTask({
           }
         )
 
-        if (typeof replicateOutput === 'string') {
-          output = { video_url: replicateOutput }
-        } else if (typeof replicateOutput === 'object' && replicateOutput !== null) {
-          output = replicateOutput as { video_url?: string }
-        } else {
-          logger.error('Failed to generate video from Replicate API', {
-            userId: payload.user_id,
-            prompt: payload.prompt,
-            output: 'Invalid output format'
-          })
-          await refundCredits(payload.user_id, VIDEO_GENERATION_CREDITS)
-          throw new Error('Video generation failed: Invalid output format from Replicate API')
+        if (!videoData) {
+          throw new Error('No video data received from Replicate API')
         }
 
-        if (!output.video_url) {
-          logger.error('Failed to generate video from Replicate API', {
-            userId: payload.user_id,
-            prompt: payload.prompt,
-            output: 'No video URL in output'
-          })
-          await refundCredits(payload.user_id, VIDEO_GENERATION_CREDITS)
-          throw new Error('Video generation failed: No video URL in Replicate API output')
-        }
-
-        videoBuffer = Buffer.from(await (await fetch(output.video_url)).arrayBuffer())
+        const response = await fetch(videoData as any)
+        const videoBuffer = Buffer.from(await response.arrayBuffer())
         
-        const thumbnailBuffer = await generateThumbnail(output.video_url)
+        const thumbnailBuffer = await generateThumbnail(videoBuffer)
         const thumbnailKey = `${payload.user_id}/thumbnails/${crypto.randomUUID()}.jpg`
         const thumbnailUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${thumbnailKey}`
         

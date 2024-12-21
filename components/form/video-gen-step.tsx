@@ -6,7 +6,6 @@ import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { Loader2, RefreshCcw, Wand2 } from 'lucide-react'
 import { UseFormReturn, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
-
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -19,6 +18,7 @@ import HeroVideoDialog from '@/components/ui/hero-video-dialog'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import { VideoGenerationMonitor } from './video-generation-monitor'
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -26,8 +26,13 @@ type VideoGenStepProps = {
   form: UseFormReturn<VideoProps>
 }
 
+type RunInfo = {
+  id: string
+  publicAccessToken: string
+}
+
 export function VideoGenStep({ form }: VideoGenStepProps) {
-  const [generatingVideos, setGeneratingVideos] = React.useState<number[]>([])
+  const [pendingRuns, setPendingRuns] = React.useState<Record<number, RunInfo>>({})
   const [isGeneratingAll, setIsGeneratingAll] = React.useState(false)
 
   const videoStructure = useWatch({
@@ -35,30 +40,43 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
     name: 'videoStructure'
   })
 
+  const handleRunComplete = (index: number) => {
+    setPendingRuns(prev => {
+      const next = { ...prev }
+      delete next[index]
+      return next
+    })
+  }
+
   const generateSingleVideo = async (index: number) => {
     const item = form.getValues(`videoStructure.${index}`)
     const description = 'videoDescription' in item ? item.videoDescription : null
+    
     if (description) {
-      const response = await fetch('/api/generate-video', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          prompt: description
+      try {
+        const response = await fetch('/api/generate-video', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: description })
         })
-      })
 
-      if (!response.ok) {
+        if (!response.ok) {
+          const data = await response.json()
+          throw new Error(data.error || 'Failed to generate video')
+        }
+
         const data = await response.json()
-        throw new Error(data.error || 'Failed to generate video')
+        setPendingRuns(prev => ({
+          ...prev,
+          [index]: { 
+            id: data.id, 
+            publicAccessToken: data.publicAccessToken 
+          } 
+        }))
+      } catch (error) {
+        toast.error((error as Error).message)
       }
-
-      const data = await response.json()
-      console.log('data', data)
-      return { index, url: data.signedUrl }
     }
-    return null
   }
 
   const handleGenerateAllVideos = async () => {
@@ -66,34 +84,13 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
     const videoStructure = form.getValues('videoStructure')
     const indicesToGenerate = videoStructure
       .map((item, index) =>
-        'videoDescription' in item && item.videoDescription && !generatingVideos.includes(index) ? index : -1
+        'videoDescription' in item && item.videoDescription && !Object.keys(pendingRuns).includes(index.toString()) ? index : -1
       )
       .filter((index) => index !== -1)
 
-    setGeneratingVideos((prev) => [...prev, ...indicesToGenerate])
-
-    const generateWithDelay = async (index: number) => {
-      const startTime = Date.now()
-      try {
-        const result = await generateSingleVideo(index)
-        if (result) {
-          form.setValue(`videoStructure.${result.index}.videoUrl`, result.url)
-        }
-      } catch (error) {
-        toast.error(
-          `Failed to generate video ${index + 1}: ${(error as Error).message}`
-        )
-      } finally {
-        setGeneratingVideos((prev) => prev.filter((i) => i !== index))
-      }
-      const elapsedTime = Date.now() - startTime
-      const remainingDelay = Math.max(0, 750 - elapsedTime)
-      await sleep(remainingDelay)
-    }
-
     await Promise.all(
       indicesToGenerate.map((index, i) =>
-        sleep(i * 750).then(() => generateWithDelay(index))
+        sleep(i * 750).then(() => generateSingleVideo(index))
       )
     )
 
@@ -101,23 +98,17 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
   }
 
   const handleGenerateVideo = async (index: number) => {
-    setGeneratingVideos((prev) => [...prev, index])
     try {
-      const result = await generateSingleVideo(index)
-      if (result) {
-        form.setValue(`videoStructure.${result.index}.videoUrl`, result.url)
-      }
+      await generateSingleVideo(index)
     } catch (error) {
       toast.error((error as Error).message)
-    } finally {
-      setGeneratingVideos((prev) => prev.filter((i) => i !== index))
     }
   }
 
   const canGenerateMore = videoStructure?.some(
     (item, index) => 'videoDescription' in item && 
       item.videoDescription && 
-      !generatingVideos.includes(index)
+      !Object.keys(pendingRuns).includes(index.toString())
   )
 
   return (
@@ -155,12 +146,12 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
               {videoStructure?.map((item, index) => (
                 <div key={index} className="flex space-x-4">
                   <div className="flex-shrink-0">
-                    {generatingVideos.includes(index) ? (
+                    {index in pendingRuns ? (
                       <Skeleton className="h-[150px] w-[150px] rounded-md" />
                     ) : 'videoUrl' in item && item.videoUrl ? (
                       <HeroVideoDialog
                         videoSrc={item.videoUrl}
-                        thumbnailSrc={item.videoUrl}
+                        thumbnailSrc={item.thumbnailUrl || ''}
                         thumbnailAlt={`Video ${index + 1}`}
                         className="h-[150px] w-[150px]"
                         animationStyle="from-center"
@@ -192,11 +183,11 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
                       className="mt-2 w-full"
                       onClick={() => handleGenerateVideo(index)}
                       disabled={
-                        generatingVideos.includes(index) ||
+                        (index in pendingRuns) ||
                         !('videoDescription' in item && item.videoDescription)
                       }
                     >
-                      {generatingVideos.includes(index) ? (
+                      {index in pendingRuns ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Generating...
@@ -224,6 +215,22 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
           </ScrollArea>
         </div>
       </CardContent>
+      {Object.entries(pendingRuns).map(([index, runInfo]) => (
+        <div key={runInfo.id}>
+          {process.env.NODE_ENV === 'development' && (
+            <p className="px-6 text-sm text-muted-foreground">
+              Monitoring generation: {runInfo.id}
+            </p>
+          )}
+          <VideoGenerationMonitor
+            runId={runInfo.id}
+            publicAccessToken={runInfo.publicAccessToken}
+            index={Number(index)}
+            form={form}
+            onComplete={handleRunComplete}
+          />
+        </div>
+      ))}
     </Card>
   )
 }

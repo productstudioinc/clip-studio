@@ -68,6 +68,7 @@
     "@supabase/ssr": "^0.4.1",
     "@supabase/supabase-js": "^2.46.2",
     "@tanstack/react-table": "^8.20.5",
+    "@trigger.dev/react-hooks": "^3.3.7",
     "@trigger.dev/sdk": "^3.3.7",
     "@types/fluent-ffmpeg": "^2.1.27",
     "@types/uuid": "^10.0.0",
