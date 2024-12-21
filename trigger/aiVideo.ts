@@ -116,8 +116,10 @@ export const generateVideo = schemaTask({
   id: 'generate-video',
   schema: VideoGenerationSchema,
   run: async (payload) => {
+    let creditsDeducted = false;
     try {
       await checkAndDeductCredits(payload.user_id, VIDEO_GENERATION_CREDITS)
+      creditsDeducted = true;
 
       const s3Key = `${payload.user_id}/videos/${crypto.randomUUID()}.mp4`
       const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${s3Key}`
@@ -189,7 +191,6 @@ export const generateVideo = schemaTask({
             stack: replicateError.stack,
           } : replicateError
         })
-        await refundCredits(payload.user_id, VIDEO_GENERATION_CREDITS)
         throw replicateError
       }
     } catch (error) {
@@ -198,7 +199,9 @@ export const generateVideo = schemaTask({
         userId: payload.user_id
       })
 
-      await refundCredits(payload.user_id, VIDEO_GENERATION_CREDITS)
+      if (creditsDeducted) {
+        await refundCredits(payload.user_id, VIDEO_GENERATION_CREDITS)
+      }
       throw error
     }
   }

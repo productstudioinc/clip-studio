@@ -4,7 +4,7 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { generateStoryScript } from '@/actions/aiActions'
 import { useAppContext } from '@/contexts/app-context'
-import { AIImagesProps, VideoProps } from '@/stores/templatestore'
+import { AIImagesProps, AIVideoProps, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { Loader2, Wand2 } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
@@ -25,20 +25,21 @@ import { Textarea } from '@/components/ui/textarea'
 
 type PromptStepProps = {
   form: UseFormReturn<VideoProps>
+  type: 'AIImages' | 'AIVideo'
 }
 
 const storyLengthOptions: {
-  value: AIImagesProps['storyLength']
+  value: AIImagesProps['storyLength'] | AIVideoProps['storyLength']
   label: string
-  range: AIImagesProps['range']
-  segments: AIImagesProps['segments']
+  range: AIImagesProps['range'] | AIVideoProps['range']
+  segments: AIImagesProps['segments'] | AIVideoProps['segments']
 }[] = [
   { value: 'short', label: 'Short', range: '1-2', segments: '6-7' },
   { value: 'medium', label: 'Medium', range: '3-4', segments: '12-14' },
   { value: 'long', label: 'Long', range: '5-7', segments: '18-21' }
 ]
 
-export const PromptStep: React.FC<PromptStepProps> = ({ form }) => {
+export const PromptStep: React.FC<PromptStepProps> = ({ form, type }) => {
   const { user } = useAppContext()
   const router = useRouter()
   const { isPending, execute } = useServerAction(generateStoryScript)
@@ -56,16 +57,28 @@ export const PromptStep: React.FC<PromptStepProps> = ({ form }) => {
     if (error) {
       toast.error(`Error generating script: ${error.message}`)
     } else {
-      const updatedData = data.map((item) => ({
-        ...item,
-        imageUrl: null,
-        duration: 5
-      }))
-      form.setValue('videoStructure', updatedData)
+      if (type === 'AIImages') {
+        const imageData = data.map((item) => ({
+          text: item.text,
+          imageDescription: item.imageDescription,
+          imageUrl: null as string | null,
+          duration: 5
+        })) as AIImagesProps['videoStructure']
+        form.setValue('videoStructure', imageData)
+      } else {
+        const videoData = data.map((item) => ({
+          text: item.text,
+          videoDescription: item.imageDescription,
+          videoUrl: null as string | null,
+          thumbnailUrl: null as string | null,
+          duration: 5
+        })) as AIVideoProps['videoStructure']
+        form.setValue('videoStructure', videoData)
+      }
     }
   }
 
-  const handleStoryLengthChange = (value: AIImagesProps['storyLength']) => {
+  const handleStoryLengthChange = (value: AIImagesProps['storyLength'] | AIVideoProps['storyLength']) => {
     const option = storyLengthOptions.find((opt) => opt.value === value)
     if (option) {
       form.setValue('range', option.range)
@@ -86,7 +99,7 @@ export const PromptStep: React.FC<PromptStepProps> = ({ form }) => {
             <FormItem>
               <FormControl>
                 <Textarea
-                  placeholder="Enter your video prompt here..."
+                  placeholder={`Enter your ${type === 'AIImages' ? 'image' : 'video'} prompt here...`}
                   {...field}
                   rows={3}
                   className="w-full"
@@ -104,7 +117,7 @@ export const PromptStep: React.FC<PromptStepProps> = ({ form }) => {
               <FormLabel>Story Length</FormLabel>
               <FormControl>
                 <RadioGroup
-                  onValueChange={(value: AIImagesProps['storyLength']) => {
+                  onValueChange={(value: AIImagesProps['storyLength'] | AIVideoProps['storyLength']) => {
                     field.onChange(value)
                     handleStoryLengthChange(value)
                   }}
