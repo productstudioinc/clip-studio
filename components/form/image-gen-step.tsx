@@ -43,9 +43,8 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
   })
 
   const generateSingleImage = async (index: number) => {
-    const description = form.getValues(
-      `videoStructure.${index}.imageDescription`
-    )
+    const item = form.getValues(`videoStructure.${index}`)
+    const description = 'imageDescription' in item ? item.imageDescription : null
     if (description) {
       const response = await fetch('/api/generate-image', {
         method: 'POST',
@@ -74,7 +73,7 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
     const videoStructure = form.getValues('videoStructure')
     const indicesToGenerate = videoStructure
       .map((item, index) =>
-        item.imageDescription && !generatingImages.includes(index) ? index : -1
+        'imageDescription' in item && !generatingImages.includes(index) ? index : -1
       )
       .filter((index) => index !== -1)
 
@@ -123,7 +122,9 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
   }
 
   const canGenerateMore = videoStructure?.some(
-    (item, index) => item.imageDescription && !generatingImages.includes(index)
+    (item, index) => 'imageDescription' in item && 
+      item.imageDescription && 
+      !generatingImages.includes(index)
   )
 
   return (
@@ -206,7 +207,7 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
                       <Skeleton className="h-[150px] w-[150px] rounded-md" />
                     ) : (
                       <ZoomableImage
-                        src={item.imageUrl || '/placeholder.svg'}
+                        src={'imageUrl' in item ? item.imageUrl || '/placeholder.svg' : '/placeholder.svg'}
                         alt={`Preview ${index + 1}`}
                         className="rounded-md object-cover h-[150px] w-[150px]"
                       />
@@ -234,7 +235,7 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
                       onClick={() => handleGenerateImage(index)}
                       disabled={
                         generatingImages.includes(index) ||
-                        !item.imageDescription
+                        !('imageDescription' in item && item.imageDescription)
                       }
                     >
                       {generatingImages.includes(index) ? (
@@ -242,7 +243,7 @@ export function ImageGenStep({ form }: ImageGenStepProps) {
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Generating...
                         </>
-                      ) : item.imageUrl ? (
+                      ) : 'imageUrl' in item && item.imageUrl ? (
                         <>
                           <RefreshCcw className="mr-2 h-4 w-4" />
                           Regenerate Image

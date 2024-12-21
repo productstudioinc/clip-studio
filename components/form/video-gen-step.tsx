@@ -1,8 +1,7 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
-import { VideoProps, visualStyles } from '@/stores/templatestore'
+import { VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
 import { Loader2, RefreshCcw, Wand2 } from 'lucide-react'
 import { UseFormReturn, useWatch } from 'react-hook-form'
@@ -16,12 +15,10 @@ import {
   FormItem,
   FormMessage
 } from '@/components/ui/form'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import HeroVideoDialog from '@/components/ui/hero-video-dialog'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
-import ZoomableImage from '@/components/zoomable-image'
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -39,9 +36,8 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
   })
 
   const generateSingleVideo = async (index: number) => {
-    const description = form.getValues(
-      `videoStructure.${index}.videoDescription`
-    )
+    const item = form.getValues(`videoStructure.${index}`)
+    const description = 'videoDescription' in item ? item.videoDescription : null
     if (description) {
       const response = await fetch('/api/generate-video', {
         method: 'POST',
@@ -59,6 +55,7 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
       }
 
       const data = await response.json()
+      console.log('data', data)
       return { index, url: data.signedUrl }
     }
     return null
@@ -69,7 +66,7 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
     const videoStructure = form.getValues('videoStructure')
     const indicesToGenerate = videoStructure
       .map((item, index) =>
-        item.videoDescription && !generatingVideos.includes(index) ? index : -1
+        'videoDescription' in item && item.videoDescription && !generatingVideos.includes(index) ? index : -1
       )
       .filter((index) => index !== -1)
 
@@ -118,7 +115,9 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
   }
 
   const canGenerateMore = videoStructure?.some(
-    (item, index) => item.videoDescription && !generatingVideos.includes(index)
+    (item, index) => 'videoDescription' in item && 
+      item.videoDescription && 
+      !generatingVideos.includes(index)
   )
 
   return (
@@ -158,11 +157,13 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
                   <div className="flex-shrink-0">
                     {generatingVideos.includes(index) ? (
                       <Skeleton className="h-[150px] w-[150px] rounded-md" />
-                    ) : item.videoUrl ? (
-                      <video
-                        src={item.videoUrl}
-                        className="rounded-md object-cover h-[150px] w-[150px]"
-                        controls
+                    ) : 'videoUrl' in item && item.videoUrl ? (
+                      <HeroVideoDialog
+                        videoSrc={item.videoUrl}
+                        thumbnailSrc={item.videoUrl}
+                        thumbnailAlt={`Video ${index + 1}`}
+                        className="h-[150px] w-[150px]"
+                        animationStyle="from-center"
                       />
                     ) : (
                       <div className="h-[150px] w-[150px] rounded-md bg-muted flex items-center justify-center">
@@ -192,7 +193,7 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
                       onClick={() => handleGenerateVideo(index)}
                       disabled={
                         generatingVideos.includes(index) ||
-                        !item.videoDescription
+                        !('videoDescription' in item && item.videoDescription)
                       }
                     >
                       {generatingVideos.includes(index) ? (
@@ -200,7 +201,7 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Generating...
                         </>
-                      ) : item.videoUrl ? (
+                      ) : 'videoUrl' in item && item.videoUrl ? (
                         <>
                           <RefreshCcw className="mr-2 h-4 w-4" />
                           Regenerate Video

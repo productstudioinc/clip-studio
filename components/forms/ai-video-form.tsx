@@ -45,7 +45,7 @@ export const AIVideoForm: React.FC<AIVideoFormProps> = () => {
         <div className="grid grid-cols-12 gap-8">
           <NumberedSteps className="col-span-12 lg:col-span-7 space-y-6">
             <PromptStep form={form} />
-            {/* <VideoGenStep form={form} /> */}
+            <VideoGenStep form={form} />
             {/* <TranscribeStep form={form} /> */}
             {/* <BackgroundSelectStep form={form} backgrounds={backgrounds} /> */}
             <FormSubmit form={form} />
