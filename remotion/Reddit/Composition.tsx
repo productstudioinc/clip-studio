@@ -119,7 +119,7 @@ export const RedditComposition = ({
           </Series>
         )}
         <AbsoluteFill className="flex justify-center items-center">
-          <Sequence durationInFrames={Math.floor(titleEndFrame / voiceSpeed)}>
+          <Sequence durationInFrames={Math.floor((adjustedSubtitles[0]?.startMs ?? titleEndFrame) / (1000 / FPS))}>
             <AbsoluteFill className="flex justify-center items-center">
               <RedditCard
                 title={title}
