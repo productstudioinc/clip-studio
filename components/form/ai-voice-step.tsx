@@ -124,7 +124,7 @@ export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form }) => {
   const handleGenerateVoiceover = async () => {
     const [data, err] = await execute({
       voiceId: form.getValues('voiceId'),
-      videoStructure: form.getValues('videoStructure'),
+      videoStructure: form.getValues('videoStructure') as any,
       language: Language.English
     })
 
@@ -146,7 +146,7 @@ export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form }) => {
           ...segment,
           duration: data.segmentDurations[index]
         }))
-      form.setValue('videoStructure', updatedVideoStructure)
+      form.setValue('videoStructure', updatedVideoStructure as any)
       form.setValue('isVoiceoverGenerated', true)
       form.clearErrors('isVoiceoverGenerated')
 
