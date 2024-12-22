@@ -77,8 +77,48 @@ async function refundCredits(userId: string, credits: number) {
 const VideoGenerationSchema = z.object({
   prompt: z.string(),
   prompt_optimizer: z.boolean().default(true),
-  user_id: z.string()
+  user_id: z.string(),
+  aspect_ratio: z.string().default("9:16")
 })
+
+async function generateInitialImage(prompt: string, aspect_ratio: string, userId: string): Promise<string> {
+  const imageOutput = await replicate.run(
+    "black-forest-labs/flux-1.1-pro",
+    {
+      input: {
+        prompt,
+        aspect_ratio,
+        output_format: "webp",
+        output_quality: 80,
+        safety_tolerance: 2,
+        prompt_upsampling: true
+      }
+    }
+  )
+
+  if (!imageOutput) {
+    throw new Error('No output received from image generation API')
+  }
+
+  const response = await fetch(imageOutput as any);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image data: ${response.statusText}`);
+  }
+  
+  const imageBuffer = Buffer.from(await response.arrayBuffer());
+
+  const imageKey = `${userId}/first-frames/${crypto.randomUUID()}.webp`;
+  const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${imageKey}`;
+
+  await R2.send(new PutObjectCommand({
+    Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+    Key: imageKey,
+    Body: imageBuffer,
+    ContentType: 'image/webp'
+  }));
+
+  return publicUrl;
+}
 
 async function generateThumbnail(videoBuffer: Buffer): Promise<Buffer> {
   const tempDirectory = os.tmpdir()
@@ -127,12 +167,15 @@ export const generateVideo = schemaTask({
       await saveVideoUpload(payload.user_id, publicUrl, ['Video', 'AI Generated'], 'pending')
       
       try {
+        const firstFrameImage = await generateInitialImage(payload.prompt, payload.aspect_ratio, payload.user_id)
+        
         const videoData = await replicate.run(
           "minimax/video-01",
           {
             input: {
               prompt: payload.prompt,
-              prompt_optimizer: payload.prompt_optimizer
+              prompt_optimizer: payload.prompt_optimizer,
+              first_frame_image: firstFrameImage
             }
           }
         )
