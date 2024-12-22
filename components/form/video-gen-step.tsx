@@ -113,34 +113,31 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Generate Videos</CardTitle>
+        <Button
+          onClick={handleGenerateAllVideos}
+          disabled={isGeneratingAll || !canGenerateMore}
+        >
+          {isGeneratingAll ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Generating All...
+            </>
+          ) : (
+            <>
+              <Wand2 className="mr-2 h-4 w-4" />
+              Generate All Videos
+            </>
+          )}
+          <span className="text-muted-foreground ml-1">
+            ~ {CREDIT_CONVERSIONS.VIDEO_GENERATION *
+              (videoStructure?.length || 0)} credits
+          </span>
+        </Button>
       </CardHeader>
       <CardContent>
         <div className="mt-8">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">Video Generation</h3>
-            <Button
-              onClick={handleGenerateAllVideos}
-              disabled={isGeneratingAll || !canGenerateMore}
-            >
-              {isGeneratingAll ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating All...
-                </>
-              ) : (
-                <>
-                  <Wand2 className="mr-2 h-4 w-4" />
-                  Generate All Videos
-                </>
-              )}
-              <span className="text-muted-foreground ml-1">
-                ~ {CREDIT_CONVERSIONS.VIDEO_GENERATION *
-                  (videoStructure?.length || 0)} credits
-              </span>
-            </Button>
-          </div>
           <ScrollArea className="h-[400px] w-full border rounded-md">
             <div className="p-4 space-y-4">
               {videoStructure?.map((item, index) => (
@@ -179,34 +176,36 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
                         </FormItem>
                       )}
                     />
-                    <Button
-                      className="mt-2 w-full"
-                      onClick={() => handleGenerateVideo(index)}
-                      disabled={
-                        (index in pendingRuns) ||
-                        !('videoDescription' in item && item.videoDescription)
-                      }
-                    >
-                      {index in pendingRuns ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Generating...
-                        </>
-                      ) : 'videoUrl' in item && item.videoUrl ? (
-                        <>
-                          <RefreshCcw className="mr-2 h-4 w-4" />
-                          Regenerate Video
-                        </>
-                      ) : (
-                        <>
-                          <Wand2 className="mr-2 h-4 w-4" />
-                          Generate Video
-                        </>
-                      )}
-                      <span className="text-muted-foreground ml-1">
-                        ~ {CREDIT_CONVERSIONS.VIDEO_GENERATION} credits
-                      </span>
-                    </Button>
+                    <div className="flex gap-2 mt-2">
+                      <Button
+                        className="flex-1"
+                        onClick={() => handleGenerateVideo(index)}
+                        disabled={
+                          (index in pendingRuns) ||
+                          !('videoDescription' in item && item.videoDescription)
+                        }
+                      >
+                        {index in pendingRuns ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Generating...
+                          </>
+                        ) : 'videoUrl' in item && item.videoUrl ? (
+                          <>
+                            <RefreshCcw className="mr-2 h-4 w-4" />
+                            Regenerate Video
+                          </>
+                        ) : (
+                          <>
+                            <Wand2 className="mr-2 h-4 w-4" />
+                            Generate Video
+                          </>
+                        )}
+                        <span className="text-muted-foreground ml-1">
+                          ~ {CREDIT_CONVERSIONS.VIDEO_GENERATION} credits
+                        </span>
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}

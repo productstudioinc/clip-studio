@@ -13,6 +13,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'assets.clip.studio',
         pathname: '/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'uploads.clip.studio',
+        pathname: '/**'
       }
     ]
   },

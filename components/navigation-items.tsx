@@ -10,6 +10,7 @@ import {
   CircleUser,
   DollarSign,
   FilmIcon,
+  ImageIcon,
   LogInIcon,
   LucideIcon,
   MessageSquareIcon,
@@ -149,7 +150,8 @@ const NavLink: React.FC<NavItem & { currentRoute: string }> = ({
 const getNavItems = (admin: boolean, mobile: boolean): NavItem[] => [
   { href: '/home', icon: Icons.logo, label: 'Home', isHeader: true },
   { href: '/home', icon: Palette, label: 'Home' },
-  { href: '/projects', icon: FilmIcon, label: 'Projects' },
+  { href: '/renders', icon: FilmIcon, label: 'Renders' },
+  { href: '/assets', icon: ImageIcon, label: 'Assets' },  
   { href: '/account', icon: UserIcon, label: 'Account' },
   { href: '/feedback', icon: MessageSquareIcon, label: 'Submit Feedback' },
   {
