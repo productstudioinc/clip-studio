@@ -90,7 +90,20 @@ export function AssetPicker({
         }}
       >
         {selectedAsset ? (
-          <img src={selectedAsset.previewUrl || selectedAsset.url} alt="Selected asset" className="w-full h-full object-cover" />
+          <div className="w-full h-full flex items-center justify-center">
+            {selectedAsset.tags?.includes('Video') ? (
+              <video 
+                src={selectedAsset.url} 
+                className="w-full h-full object-cover"
+              />
+            ) : selectedAsset.tags?.includes('Audio') ? (
+              <Music className="w-12 h-12 text-purple-500" />
+            ) : selectedAsset.previewUrl || selectedAsset.tags?.includes('Image') ? (
+              <img src={selectedAsset.previewUrl || selectedAsset.url} alt="Selected asset" className="w-full h-full object-cover" />
+            ) : (
+              renderAssetIcon(selectedAsset)
+            )}
+          </div>
         ) : (
           <span className="text-muted-foreground">Select Asset</span>
         )}
