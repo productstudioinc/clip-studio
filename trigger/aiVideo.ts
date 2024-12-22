@@ -23,7 +23,7 @@ async function saveVideoUpload(userId: string, url: string, tags?: string[], sta
   return db.insert(userUploads).values({
     userId,
     url,
-    tags: tags || ['Video', 'AI Generated'],
+    tags: tags || ['Video', 'AI'],
     status,
     previewUrl
   })

@@ -14,11 +14,12 @@ import {
   FormItem,
   FormMessage
 } from '@/components/ui/form'
-import HeroVideoDialog from '@/components/ui/hero-video-dialog'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { VideoGenerationMonitor } from './video-generation-monitor'
+import { SelectUserUploads } from '@/db/schema'
+import { AssetPicker } from '@/components/asset-picker'
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -30,6 +31,17 @@ type RunInfo = {
   id: string
   publicAccessToken: string
 }
+
+const createMockAsset = (url: string, index: number): SelectUserUploads => ({
+  id: index.toString(),
+  url,
+  tags: ['Video', 'AI'],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  userId: '',
+  previewUrl: null,
+  status: 'completed' as const
+})
 
 export function VideoGenStep({ form }: VideoGenStepProps) {
   const [pendingRuns, setPendingRuns] = React.useState<Record<number, RunInfo>>({})
@@ -111,6 +123,11 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
       !Object.keys(pendingRuns).includes(index.toString())
   )
 
+  const handleAssetSelect = (index: number) => (asset: SelectUserUploads) => {
+    form.setValue(`videoStructure.${index}.thumbnailUrl`, asset.url)
+    form.setValue(`videoStructure.${index}.videoUrl`, asset.url)
+  }
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -145,19 +162,18 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
                   <div className="flex-shrink-0">
                     {index in pendingRuns ? (
                       <Skeleton className="h-[150px] w-[150px] rounded-md" />
-                    ) : 'videoUrl' in item && item.videoUrl ? (
-                      <HeroVideoDialog
-                        videoSrc={item.videoUrl}
-                        thumbnailSrc={item.thumbnailUrl || ''}
-                        thumbnailAlt={`Video ${index + 1}`}
-                        className="h-[150px] w-[150px]"
-                        animationStyle="from-center"
-                      />
                     ) : (
-                      <div className="h-[150px] w-[150px] rounded-md bg-muted flex items-center justify-center">
-                        <span className="text-muted-foreground">No video</span>
-                      </div>
+                      <AssetPicker
+                        tags={['Video', 'AI']}
+                        onSelect={handleAssetSelect(index)}
+                        selectedAsset={
+                          'videoUrl' in item && item.videoUrl
+                            ? createMockAsset(item.videoUrl, index)
+                            : null
+                        }
+                      />
                     )}
+                    
                   </div>
                   <div className="flex-grow flex flex-col">
                     <FormField
@@ -233,3 +249,4 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
     </Card>
   )
 }
+
