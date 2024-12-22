@@ -48,7 +48,7 @@ export const AIImagesForm: React.FC<AIImagesFormProps> = () => {
       <form className="w-full space-y-6" onSubmit={handleSubmit}>
         <div className="grid grid-cols-12 gap-8">
           <NumberedSteps className="col-span-12 lg:col-span-7 space-y-6">
-            <PromptStep form={form} />
+            <PromptStep form={form} type="AIImages" />
             {/* <TranscribeStep form={form} /> */}
             {/* <BackgroundSelectStep form={form} backgrounds={backgrounds} /> */}
             <ImageGenStep form={form} />
