@@ -1,6 +1,7 @@
 import { getPricingData } from '@/actions/get-pricing-data'
 import { PricingProvider } from '@/contexts/pricing-context'
 
+import { BenefitsCard } from '@/components/benefits-card'
 import { CreditCalculator } from '@/components/credit-calculator-simple'
 import Faq from '@/components/faq'
 import Pricing from '@/components/pricing'
@@ -12,6 +13,7 @@ export default async function Page() {
       <div className="flex flex-col gap-8 p-4 max-w-full mx-auto">
         <Pricing />
         <CreditCalculator />
+        <BenefitsCard />
         <Faq />
       </div>
     </PricingProvider>

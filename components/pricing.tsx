@@ -325,6 +325,7 @@ export default function Pricing() {
           </h2>
           <p className="mt-6 text-xl leading-8 text-black/80 dark:text-white">
             Choose a <strong>flexible credit plan</strong> that renews monthly.
+            30 day money back guarantee.
           </p>
         </div>
 
@@ -344,8 +345,8 @@ export default function Pricing() {
         </div>
         <div className="mx-auto w-full max-w-full">
           {/* Desktop view */}
-          <div className="hidden lg:grid grid-cols-4 gap-4">
-            <PricingCard
+          <div className="hidden lg:grid grid-cols-3 gap-4">
+            {/* <PricingCard
               isFree
               interval={interval}
               isLoading={isLoading}
@@ -353,7 +354,7 @@ export default function Pricing() {
               subscription={subscription}
               onSubscribeClick={onSubscribeClick}
               router={router}
-            />
+            /> */}
             {products
               .sort((a, b) => {
                 // Sort by product.metadata.order if it exists
@@ -386,7 +387,7 @@ export default function Pricing() {
               ref={(el) => {
                 if (el) {
                   // Scroll to second item on load
-                  const secondItem = el.children[2]
+                  const secondItem = el.children[1]
                   if (secondItem) {
                     secondItem.scrollIntoView({
                       behavior: 'auto',
@@ -399,11 +400,10 @@ export default function Pricing() {
               onScroll={(e) => {
                 const container = e.currentTarget
                 const scrollLeft = container.scrollLeft
-                const containerWidth = container.clientWidth
                 const scrollWidth = container.scrollWidth
 
                 // Calculate the snap points based on total items
-                const totalItems = products.length + 1 // +1 for free plan
+                const totalItems = products.length
                 const itemWidth = scrollWidth / totalItems
 
                 // Get current snap point index
@@ -422,7 +422,7 @@ export default function Pricing() {
                 })
               }}
             >
-              <div className="pl-4 snap-center shrink-0 first:pl-8">
+              {/* <div className="pl-4 snap-center shrink-0 first:pl-8">
                 <PricingCard
                   isFree
                   interval={interval}
@@ -432,7 +432,7 @@ export default function Pricing() {
                   onSubscribeClick={onSubscribeClick}
                   router={router}
                 />
-              </div>
+              </div> */}
               {products
                 .sort((a, b) => {
                   const orderA = (a.metadata as any)?.order
@@ -461,7 +461,7 @@ export default function Pricing() {
                 ))}
             </div>
             <div className="flex justify-center gap-3 mt-6">
-              <div className="w-8 h-1.5 rounded-full bg-primary scroll-indicator transition-colors" />
+              {/* <div className="w-8 h-1.5 rounded-full bg-primary scroll-indicator transition-colors" /> */}
               {products.map((_, index) => (
                 <div
                   key={index}
