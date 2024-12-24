@@ -100,6 +100,16 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
       )
       .filter((index) => index !== -1)
 
+    indicesToGenerate.forEach(index => {
+      setPendingRuns(prev => ({
+        ...prev,
+        [index]: { 
+          id: 'pending',
+          publicAccessToken: '' 
+        }
+      }))
+    })
+
     await Promise.all(
       indicesToGenerate.map((index, i) =>
         sleep(i * 750).then(() => generateSingleVideo(index))
@@ -110,9 +120,17 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
   }
 
   const handleGenerateVideo = async (index: number) => {
+    const button = document.querySelector(`button[data-index="${index}"]`)
+    if (button) {
+      button.setAttribute('disabled', 'true')
+    }
+    
     try {
       await generateSingleVideo(index)
     } catch (error) {
+      if (button) {
+        button.removeAttribute('disabled')
+      }
       toast.error((error as Error).message)
     }
   }
@@ -194,6 +212,7 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
                     <Button
                       className="flex-1"
                       onClick={() => handleGenerateVideo(index)}
+                      data-index={index}
                       disabled={
                         (index in pendingRuns) ||
                         !('videoDescription' in item && item.videoDescription)

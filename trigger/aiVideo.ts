@@ -75,7 +75,7 @@ async function refundCredits(userId: string, credits: number) {
 }
 
 const VideoGenerationSchema = z.object({
-  imagePrompt: z.string(),
+  imagePrompt: z.string().optional(),
   videoPrompt: z.string(),
   prompt_optimizer: z.boolean().default(true),
   user_id: z.string(),
@@ -157,7 +157,7 @@ export const generateVideo = task({
   id: "generate-video",
   run: async (payload: { 
     user_id: string,
-    imagePrompt: string,
+    imagePrompt?: string,
     videoPrompt: string 
   }) => {
     let creditsDeducted = false;
@@ -171,7 +171,11 @@ export const generateVideo = task({
       await saveVideoUpload(payload.user_id, publicUrl, ['Video', 'AI Generated'], 'pending')
       
       try {
-        const firstFrameImage = await generateInitialImage(payload.imagePrompt, '9:16', payload.user_id)
+        let firstFrameImage: string | undefined = undefined;
+        
+        if (payload.imagePrompt) {
+          firstFrameImage = await generateInitialImage(payload.imagePrompt, '9:16', payload.user_id)
+        }
         
         const videoData = await replicate.run(
           "minimax/video-01",
@@ -179,7 +183,7 @@ export const generateVideo = task({
             input: {
               prompt: payload.videoPrompt,
               prompt_optimizer: true,
-              first_frame_image: firstFrameImage
+              ...(firstFrameImage && { first_frame_image: firstFrameImage })
             }
           }
         )
