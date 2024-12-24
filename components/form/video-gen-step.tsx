@@ -154,81 +154,78 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="mt-8">
-          <ScrollArea className="h-[400px] w-full border rounded-md">
-            <div className="p-4 space-y-4">
-              {videoStructure?.map((item, index) => (
-                <div key={index} className="flex space-x-4">
-                  <div className="flex-shrink-0">
-                    {index in pendingRuns ? (
-                      <Skeleton className="h-[150px] w-[150px] rounded-md" />
-                    ) : (
-                      <AssetPicker
-                        tags={['Video', 'AI']}
-                        onSelect={handleAssetSelect(index)}
-                        selectedAsset={
-                          'videoUrl' in item && item.videoUrl
-                            ? createMockAsset(item.videoUrl, index)
-                            : null
-                        }
-                      />
-                    )}
-                    
-                  </div>
-                  <div className="flex-grow flex flex-col">
-                    <FormField
-                      control={form.control}
-                      name={`videoStructure.${index}.videoDescription`}
-                      render={({ field }) => (
-                        <FormItem className="flex-grow h-full">
-                          <FormControl>
-                            <Textarea
-                              {...field}
-                              placeholder={`Enter description for video ${index + 1}`}
-                              className="flex-grow resize-none h-full"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+        <ScrollArea className="h-[400px] w-full border rounded-md">
+          <div className="p-4 space-y-4">
+            {videoStructure?.map((item, index) => (
+              <div key={index} className="flex space-x-4">
+                <div className="flex-shrink-0">
+                  {index in pendingRuns ? (
+                    <Skeleton className="h-[150px] w-[150px] rounded-md" />
+                  ) : (
+                    <AssetPicker
+                      tags={['Video', 'AI']}
+                      onSelect={handleAssetSelect(index)}
+                      selectedAsset={
+                        'videoUrl' in item && item.videoUrl
+                          ? createMockAsset(item.videoUrl, index)
+                          : null
+                      }
                     />
-                    <div className="flex gap-2 mt-2">
-                      <Button
-                        className="flex-1"
-                        onClick={() => handleGenerateVideo(index)}
-                        disabled={
-                          (index in pendingRuns) ||
-                          !('videoDescription' in item && item.videoDescription)
-                        }
-                      >
-                        {index in pendingRuns ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Generating...
-                          </>
-                        ) : 'videoUrl' in item && item.videoUrl ? (
-                          <>
-                            <RefreshCcw className="mr-2 h-4 w-4" />
-                            Regenerate Video
-                          </>
-                        ) : (
-                          <>
-                            <Wand2 className="mr-2 h-4 w-4" />
-                            Generate Video
-                          </>
-                        )}
-                        <span className="text-muted-foreground ml-1">
-                          ~ {CREDIT_CONVERSIONS.VIDEO_GENERATION} credits
-                        </span>
-                      </Button>
-                    </div>
+                  )}
+                </div>
+                <div className="flex-grow flex flex-col">
+                  <FormField
+                    control={form.control}
+                    name={`videoStructure.${index}.videoDescription`}
+                    render={({ field }) => (
+                      <FormItem className="flex-grow h-full">
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            placeholder={`Enter description for video ${index + 1}`}
+                            className="flex-grow resize-none h-full"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex gap-2 mt-2">
+                    <Button
+                      className="flex-1"
+                      onClick={() => handleGenerateVideo(index)}
+                      disabled={
+                        (index in pendingRuns) ||
+                        !('videoDescription' in item && item.videoDescription)
+                      }
+                    >
+                      {index in pendingRuns ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Generating...
+                        </>
+                      ) : 'videoUrl' in item && item.videoUrl ? (
+                        <>
+                          <RefreshCcw className="mr-2 h-4 w-4" />
+                          Regenerate Video
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="mr-2 h-4 w-4" />
+                          Generate Video
+                        </>
+                      )}
+                      <span className="text-muted-foreground ml-1">
+                        ~ {CREDIT_CONVERSIONS.VIDEO_GENERATION} credits
+                      </span>
+                    </Button>
                   </div>
                 </div>
-              ))}
-            </div>
-            <ScrollBar orientation="vertical" />
-          </ScrollArea>
-        </div>
+              </div>
+            ))}
+          </div>
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
       </CardContent>
       {Object.entries(pendingRuns).map(([index, runInfo]) => (
         <div key={runInfo.id}>

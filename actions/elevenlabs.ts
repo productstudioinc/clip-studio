@@ -2,7 +2,7 @@
 
 import { unstable_cache } from 'next/cache'
 import { db } from '@/db'
-import { templates, userUploads, userUsage } from '@/db/schema'
+import { userUploads, userUsage } from '@/db/schema'
 import {
   AIImagesSchema,
   Language,
@@ -470,7 +470,7 @@ function calculateWordTimestamps(
   }))
 }
 
-export const generateStructuredVoiceover = createServerAction()
+export const generateAIImagesVoiceover = createServerAction()
   .input(
     z.object({
       voiceId: AIImagesSchema.shape.voiceId,
@@ -480,7 +480,7 @@ export const generateStructuredVoiceover = createServerAction()
   )
   .handler(async ({ input }) => {
     const logger = new Logger().with({
-      function: 'generateStructuredVoiceover',
+      function: 'generateAIImagesVoiceover',
       ...input
     })
     logger.info(startingFunctionString)

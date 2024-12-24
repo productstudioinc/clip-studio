@@ -135,6 +135,7 @@ const defaultCaptionStyle = {
 
 export enum VisualStyle {
   Realistic = 'Realistic',
+  Cartoon = 'Cartoon',
   Anime = 'Anime',
   Neopunk = 'Neopunk',
   JapaneseInk = 'Japanese Ink',
@@ -148,7 +149,14 @@ export const visualStyles = [
   {
     id: VisualStyle.Realistic,
     name: 'Realistic',
-    image: 'https://assets.clip.studio/visual_style_realistic.jpg'
+    image: 'https://assets.clip.studio/visual_style_realistic.jpg',
+    description: 'Photorealistic style with natural lighting and textures'
+  },
+  {
+    id: VisualStyle.Cartoon,
+    name: 'Cartoon',
+    image: 'https://assets.clip.studio/visual_style_cartoon.jpg',
+    description: 'Vibrant, stylized animation with bold colors and simple shapes'
   },
   {
     id: VisualStyle.Anime,
@@ -491,7 +499,7 @@ export const AIVideoSchema = z.object({
   storyLength: z.enum(['short', 'medium', 'long']),
   range: z.union([z.literal('1-2'), z.literal('3-4'), z.literal('5-7')]),
   segments: z.union([z.literal('6-7'), z.literal('12-14'), z.literal('18-21')]),
-  // videoStyle: z.nativeEnum(VideoStyle).default(VideoStyle.Cinematic),
+  visualStyle: z.nativeEnum(VisualStyle).default(VisualStyle.Realistic),
   backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
   backgroundUrls: z.array(z.string()).optional(),
   videoStructure: z.array(
@@ -523,7 +531,7 @@ export const defaultAIVideoProps: AIVideoProps = {
   storyLength: 'short',
   range: '1-2',
   segments: '6-7',
-  // videoStyle: VideoStyle.Cinematic,
+  visualStyle: VisualStyle.Realistic,
   videoStructure: [
     {
       text: 'As humanity reaches for the stars, brave astronauts prepare for their journey into the unknown.',

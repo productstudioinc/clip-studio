@@ -53,7 +53,7 @@ export const PromptStep: React.FC<PromptStepProps> = ({ form, type }) => {
     const prompt = form.getValues('prompt')
     const range = form.getValues('range')
     const segments = form.getValues('segments')
-    const [data, error] = await execute({ prompt, range, segments })
+    const [data, error] = await execute({ type, prompt, range, segments })
     if (error) {
       toast.error(`Error generating script: ${error.message}`)
     } else {

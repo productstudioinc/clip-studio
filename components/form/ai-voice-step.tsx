@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { generateStructuredVoiceover } from '@/actions/elevenlabs'
 import { useAppContext } from '@/contexts/app-context'
 import { Language, VIDEO_FPS, VideoProps } from '@/stores/templatestore'
 import { CREDIT_CONVERSIONS } from '@/utils/constants'
@@ -22,6 +21,7 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
+import { generateAIImagesVoiceover } from '@/actions/elevenlabs'
 
 type AIVoiceStepProps = {
   form: UseFormReturn<VideoProps>
@@ -37,7 +37,7 @@ export const AIVoiceStep: React.FC<AIVoiceStepProps> = ({ form }) => {
   const [audioDurations, setAudioDurations] = useState<Record<string, number>>(
     {}
   )
-  const { isPending, execute } = useServerAction(generateStructuredVoiceover)
+  const { isPending, execute } = useServerAction(generateAIImagesVoiceover)
 
   useEffect(() => {
     const fetchDurations = async () => {

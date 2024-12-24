@@ -1,7 +1,7 @@
 import { db } from '@/db'
 import { userUploads, userUsage } from '@/db/schema'
 import { PutObjectCommand } from '@aws-sdk/client-s3'
-import { schemaTask } from "@trigger.dev/sdk/v3"
+import { task } from "@trigger.dev/sdk/v3"
 import { R2 } from '../utils/r2'
 import { z } from 'zod'
 import { eq, sql } from 'drizzle-orm/sql'
@@ -75,7 +75,8 @@ async function refundCredits(userId: string, credits: number) {
 }
 
 const VideoGenerationSchema = z.object({
-  prompt: z.string(),
+  imagePrompt: z.string(),
+  videoPrompt: z.string(),
   prompt_optimizer: z.boolean().default(true),
   user_id: z.string(),
   aspect_ratio: z.string().default("9:16")
@@ -152,10 +153,13 @@ async function generateThumbnail(videoBuffer: Buffer): Promise<Buffer> {
   return thumbnail
 }
 
-export const generateVideo = schemaTask({
-  id: 'generate-video',
-  schema: VideoGenerationSchema,
-  run: async (payload) => {
+export const generateVideo = task({
+  id: "generate-video",
+  run: async (payload: { 
+    user_id: string,
+    imagePrompt: string,
+    videoPrompt: string 
+  }) => {
     let creditsDeducted = false;
     try {
       await checkAndDeductCredits(payload.user_id, VIDEO_GENERATION_CREDITS)
@@ -167,14 +171,14 @@ export const generateVideo = schemaTask({
       await saveVideoUpload(payload.user_id, publicUrl, ['Video', 'AI Generated'], 'pending')
       
       try {
-        const firstFrameImage = await generateInitialImage(payload.prompt, payload.aspect_ratio, payload.user_id)
+        const firstFrameImage = await generateInitialImage(payload.imagePrompt, '9:16', payload.user_id)
         
         const videoData = await replicate.run(
           "minimax/video-01",
           {
             input: {
-              prompt: payload.prompt,
-              prompt_optimizer: payload.prompt_optimizer,
+              prompt: payload.videoPrompt,
+              prompt_optimizer: true,
               first_frame_image: firstFrameImage
             }
           }
@@ -227,7 +231,7 @@ export const generateVideo = schemaTask({
       } catch (replicateError) {
         logger.error('Replicate API Error', {
           userId: payload.user_id,
-          prompt: payload.prompt,
+          prompt: payload.videoPrompt,
           error: replicateError instanceof Error ? {
             message: replicateError.message,
             name: replicateError.name,
