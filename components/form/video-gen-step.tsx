@@ -66,6 +66,14 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
     
     if (description) {
       try {
+        setPendingRuns(prev => ({
+          ...prev,
+          [index]: { 
+            id: 'pending',
+            publicAccessToken: '' 
+          }
+        }))
+
         const response = await fetch('/api/generate-video', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -78,6 +86,7 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
         }
 
         const data = await response.json()
+        
         setPendingRuns(prev => ({
           ...prev,
           [index]: { 
@@ -86,6 +95,11 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
           } 
         }))
       } catch (error) {
+        setPendingRuns(prev => {
+          const next = { ...prev }
+          delete next[index]
+          return next
+        })
         toast.error((error as Error).message)
       }
     }
@@ -100,23 +114,17 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
       )
       .filter((index) => index !== -1)
 
-    indicesToGenerate.forEach(index => {
-      setPendingRuns(prev => ({
-        ...prev,
-        [index]: { 
-          id: 'pending',
-          publicAccessToken: '' 
-        }
-      }))
-    })
-
-    await Promise.all(
-      indicesToGenerate.map((index, i) =>
-        sleep(i * 750).then(() => generateSingleVideo(index))
-      )
-    )
-
-    setIsGeneratingAll(false)
+    try {
+      for (let i = 0; i < indicesToGenerate.length; i++) {
+        const index = indicesToGenerate[i]
+        await sleep(750)
+        await generateSingleVideo(index)
+      }
+    } catch (error) {
+      toast.error('Failed to generate all videos')
+    } finally {
+      setIsGeneratingAll(false)
+    }
   }
 
   const handleGenerateVideo = async (index: number) => {
@@ -247,19 +255,21 @@ export function VideoGenStep({ form }: VideoGenStepProps) {
         </ScrollArea>
       </CardContent>
       {Object.entries(pendingRuns).map(([index, runInfo]) => (
-        <div key={runInfo.id}>
-          {process.env.NODE_ENV === 'development' && (
+        <div key={`${index}-${runInfo.id}`}>
+          {process.env.NODE_ENV === 'development' && runInfo.id !== 'pending' && (
             <p className="px-6 text-sm text-muted-foreground">
               Monitoring generation: {runInfo.id}
             </p>
           )}
-          <VideoGenerationMonitor
-            runId={runInfo.id}
-            publicAccessToken={runInfo.publicAccessToken}
-            index={Number(index)}
-            form={form}
-            onComplete={handleRunComplete}
-          />
+          {runInfo.id !== 'pending' && (
+            <VideoGenerationMonitor
+              runId={runInfo.id}
+              publicAccessToken={runInfo.publicAccessToken}
+              index={Number(index)}
+              form={form}
+              onComplete={handleRunComplete}
+            />
+          )}
         </div>
       ))}
     </Card>

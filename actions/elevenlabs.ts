@@ -791,6 +791,152 @@ export const generateTwitterVoiceover = createServerAction()
     }
   })
 
+export const generateAIVideoVoiceover = createServerAction()
+  .input(
+    z.object({
+      voiceId: z.string(),
+      videoStructure: z.array(
+        z.object({
+          text: z.string(),
+          videoDescription: z.string(),
+          videoUrl: z.string().nullable(),
+          thumbnailUrl: z.string().nullable(),
+          duration: z.number().optional()
+        })
+      ),
+      language: z.nativeEnum(Language)
+    })
+  )
+  .handler(async ({ input }) => {
+    const logger = new Logger().with({
+      function: 'generateAIVideoVoiceover',
+      ...input
+    })
+    logger.info(startingFunctionString)
+
+    const { user } = await getUser()
+    if (!user) {
+      logger.error(errorString, { error: 'User not authorized' })
+      await logger.flush()
+      throw new ZSAError('NOT_AUTHORIZED', 'You must be logged in to use this.')
+    }
+
+    const fullText = input.videoStructure
+      .map((section) => section.text)
+      .join(' <break time="1s" /> ')
+    const characterCount = fullText.length
+    const requiredCredits = Math.ceil(
+      characterCount / CREDIT_CONVERSIONS.VOICEOVER_CHARACTERS
+    )
+
+    try {
+      const result = await db.transaction(async (tx) => {
+        const userUsageRecord = await tx
+          .select({ creditsLeft: userUsage.creditsLeft })
+          .from(userUsage)
+          .where(eq(userUsage.userId, user.id))
+          .for('update')
+
+        if (userUsageRecord.length === 0 || !userUsageRecord[0].creditsLeft) {
+          throw new ZSAError(
+            'INTERNAL_SERVER_ERROR',
+            'You need an active subscription to use this feature.'
+          )
+        }
+
+        if (userUsageRecord[0].creditsLeft < requiredCredits) {
+          throw new ZSAError(
+            'INSUFFICIENT_CREDITS',
+            `You don't have enough credits to generate this voiceover.`
+          )
+        }
+
+        await tx
+          .update(userUsage)
+          .set({
+            creditsLeft: sql`${userUsage.creditsLeft} - ${requiredCredits}`
+          })
+          .where(eq(userUsage.userId, user.id))
+
+        const audio = 
+          (await elevenLabsClient.textToSpeech.convertWithTimestamps(input.voiceId, {
+            model_id: 'eleven_multilingual_v2',
+            text: fullText
+          })) as AudioResponse
+
+        const alignment = audio.normalized_alignment
+        const totalDuration =
+          alignment.character_end_times_seconds[
+            alignment.character_end_times_seconds.length - 1
+          ]
+
+        const voiceoverObject = calculateWordTimestamps(alignment)
+
+        const segmentDurations = []
+        let currentPosition = 0
+        const breakMarker = ' <break time="1s" /> '
+
+        for (let i = 0; i < input.videoStructure.length; i++) {
+          const segment = input.videoStructure[i]
+          const segmentText = segment.text
+
+          const segmentStart = currentPosition / fullText.length
+          currentPosition +=
+            segmentText.length +
+            (i < input.videoStructure.length - 1 ? breakMarker.length : 0)
+          const segmentEnd = currentPosition / fullText.length
+
+          const startTime = segmentStart * totalDuration
+          const endTime = segmentEnd * totalDuration
+
+          segmentDurations.push(endTime - startTime)
+        }
+
+        const audioBuffer = Buffer.from(audio.audio_base64, 'base64')
+        const s3Key = `${user.id}/voiceovers/${crypto.randomUUID()}.mp3`
+
+        const putObjectCommand = new PutObjectCommand({
+          Bucket: process.env.CLOUDFLARE_USER_BUCKET_NAME,
+          Key: s3Key,
+          Body: audioBuffer,
+          ContentType: 'audio/mpeg'
+        })
+
+        await R2.send(putObjectCommand)
+
+        const publicUrl = `${process.env.CLOUDFLARE_UPLOADS_PUBLIC_URL}/${s3Key}`
+
+        await saveVoiceoverUpload(user.id, publicUrl, ['Voiceover', 'AI Video'])
+
+        return {
+          signedUrl: publicUrl,
+          endTimestamp: totalDuration,
+          voiceoverObject,
+          segmentDurations
+        }
+      })
+
+      logger.info('AI video voiceover generated successfully', {
+        signedUrl: result.signedUrl
+      })
+      await logger.flush()
+
+      return result
+    } catch (error) {
+      logger.error(errorString, { error })
+      await logger.flush()
+
+      if (error instanceof ZSAError) {
+        throw error
+      }
+
+      throw new ZSAError(
+        'INTERNAL_SERVER_ERROR',
+        'An error occurred while generating the voiceover.'
+      )
+    }
+  })
+
 export type ElevenlabsVoice = Awaited<ReturnType<typeof getVoices>>[number]
 
 export type ElevenlabsLibraryVoice = Awaited<

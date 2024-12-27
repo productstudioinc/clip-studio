@@ -501,6 +501,7 @@ export const AIVideoSchema = z.object({
   segments: z.union([z.literal('6-7'), z.literal('12-14'), z.literal('18-21')]),
   visualStyle: z.nativeEnum(VisualStyle).default(VisualStyle.Realistic),
   backgroundTheme: z.nativeEnum(BackgroundTheme).optional(),
+  isVoiceoverGenerated: z.boolean().default(false),
   backgroundUrls: z.array(z.string()).optional(),
   videoStructure: z.array(
     z.object({
@@ -519,6 +520,7 @@ export const defaultAIVideoProps: AIVideoProps = {
   voiceVolume: 70,
   musicVolume: 30,
   aspectRatio: AspectRatio.Vertical,
+  isVoiceoverGenerated: true,
   width: VIDEO_WIDTH,
   height: VIDEO_HEIGHT,
   fps: VIDEO_FPS,

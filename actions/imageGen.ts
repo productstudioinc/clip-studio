@@ -14,6 +14,8 @@ import { getUser } from './auth/user'
 const promptMap: Record<VisualStyle, string> = {
   [VisualStyle.Realistic]:
     'professional 3d model {prompt}. octane render, highly detailed, volumetric, dramatic lighting',
+  [VisualStyle.Cartoon]:
+    'cartoon style {prompt} . anime style, key visual, vibrant, studio anime, highly detailed',
   [VisualStyle.Anime]:
     'anime artwork {prompt} . anime style, key visual, vibrant, studio anime, highly detailed',
   [VisualStyle.Neopunk]:

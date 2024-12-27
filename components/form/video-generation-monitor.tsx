@@ -27,15 +27,20 @@ export function VideoGenerationMonitor({
   form, 
   onComplete 
 }: VideoGenerationMonitorProps) {
+  // Don't start monitoring until we have a valid runId and publicAccessToken
+  const shouldMonitor = runId !== 'pending' && publicAccessToken !== ''
+
   const { error, run } = useRealtimeRunWithStreams<typeof generateVideo>(
     runId,
     {
-      enabled: true,
+      enabled: shouldMonitor,
       accessToken: publicAccessToken
     }
   )
 
   React.useEffect(() => {
+    if (!shouldMonitor) return
+
     if (error) {
       toast.error(`Error monitoring video generation: ${error.message}`)
       onComplete(index)
@@ -54,7 +59,8 @@ export function VideoGenerationMonitor({
       toast.error(`Failed to generate video: ${run.error?.message || 'Unknown error'}`)
       onComplete(index)
     }
-  }, [run?.status, run?.output, error, form, index, onComplete])
+  }, [run?.status, run?.output, error, form, index, onComplete, shouldMonitor])
 
+  if (!shouldMonitor) return null
   return null
 } 
