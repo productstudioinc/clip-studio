@@ -1,61 +1,30 @@
-import { NextResponse } from 'next/server'
-import { getUserOnboardingStatus } from '@/actions/db/onboarding-queries'
 import { createClient } from '@/supabase/server'
-import { AxiomRequest, withAxiom } from 'next-axiom'
+import { NextResponse } from 'next/server'
+// The client you created from the Server-Side Auth instructions
 
-export const GET = withAxiom(async (request: AxiomRequest) => {
-  const logger = request.log.with({
-    path: '/auth/callback',
-    method: 'GET'
-  })
-
-  const { searchParams } = new URL(request.url)
+export async function GET(request: Request) {
+  const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? 'home'
-
-  logger.info('Auth callback initiated', { next })
+  // if "next" is in param, use it as the redirect URL
+  const next = searchParams.get('next') ?? '/'
 
   if (code) {
     const supabase = createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      logger.info('Successfully exchanged code for session')
-      const onboardingStatus = await getUserOnboardingStatus()
-      if (onboardingStatus) {
-        return NextResponse.redirect(getSupabaseAuthRedirectURL(next))
+      const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
+      const isLocalEnv = process.env.NODE_ENV === 'development'
+      if (isLocalEnv) {
+        // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
+        return NextResponse.redirect(`${origin}${next}`)
+      } else if (forwardedHost) {
+        return NextResponse.redirect(`https://${forwardedHost}${next}`)
       } else {
-        return NextResponse.redirect(getSupabaseAuthRedirectURL('onboarding'))
+        return NextResponse.redirect(`${origin}${next}`)
       }
-    } else {
-      logger.error('Failed to exchange code for session', {
-        error: error.message
-      })
     }
-  } else {
-    logger.warn('No code provided in auth callback')
   }
 
-  logger.info('Redirecting to auth error page')
-  return NextResponse.redirect(
-    getSupabaseAuthRedirectURL('auth/auth-code-error')
-  )
-})
-
-const getSupabaseAuthRedirectURL = (queryParam?: string) => {
-  let url =
-    process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your site URL in production env.
-    process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel.
-    'http://localhost:3000'
-  // Make sure to include `https://` when not localhost.
-  url = url.includes('http') ? url : `https://${url}`
-  // Make sure to including trailing `/`.
-  url = url.charAt(url.length - 1) === '/' ? url : `${url}/`
-  if (!queryParam) {
-    return url
-  }
-
-  // add potential query params
-  url = `${url}${queryParam}`
-
-  return url
+  // return the user to an error page with instructions
+  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
 }
