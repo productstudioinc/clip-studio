@@ -82,13 +82,16 @@ export default function LoginComponent({ className }: { className?: string }) {
             <Button
               variant="secondary"
               className="w-full"
-              onClick={() => {
-                supabase.auth.signInWithOAuth({
+              onClick={async () => {
+                const { error } = await supabase.auth.signInWithOAuth({
                   provider: 'google',
                   options: {
                     redirectTo: `${location.origin}/auth/callback`
                   }
                 })
+                if (error) {
+                  toast.error(error.message)
+                }
               }}
             >
               <Icons.google className="mr-2 h-4 w-4 dark:invert" />
