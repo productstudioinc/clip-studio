@@ -23,7 +23,7 @@ import { VideoPreview } from '@/components/form/video-preview'
 export const Demo: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { hasGeneratedVideo } = useOnboardingState()
+  const { hasGeneratedVideo, isLoading } = useOnboardingState()
   const form = useForm<VideoProps>({
     resolver: zodResolver(RedditVideoSchema),
     defaultValues: defaultRedditProps

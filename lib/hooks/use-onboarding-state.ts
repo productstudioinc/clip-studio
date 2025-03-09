@@ -17,30 +17,39 @@ export function useOnboardingState() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
-  useEffect(() => {
-    const fetchOnboardingStatus = async () => {
-      try {
-        const data = await getUserOnboardingStatus()
-        if (data) {
-          setStatus({
-            hasGeneratedVideo: data.hasGeneratedVideo,
-            videoGeneratedAt: data.videoGeneratedAt,
-            responses: data.responses || null
-          })
-        }
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err
-            : new Error('Failed to fetch onboarding status')
-        )
-      } finally {
-        setIsLoading(false)
-      }
-    }
+  const refresh = async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const data = await getUserOnboardingStatus()
+      if (!data) throw new Error('No data received')
 
-    fetchOnboardingStatus()
+      setStatus({
+        hasGeneratedVideo: data.hasGeneratedVideo,
+        videoGeneratedAt: data.videoGeneratedAt,
+        responses: data.responses || null
+      })
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err
+          : new Error('Failed to fetch onboarding status')
+      )
+      // Keep the previous status on error
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Initial fetch
+  useEffect(() => {
+    refresh()
   }, [])
 
-  return { ...status, isLoading, error }
+  return {
+    ...status,
+    isLoading,
+    error,
+    refresh
+  }
 }

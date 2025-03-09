@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { generateRedditPost } from '@/actions/aiActions'
 import { updateOnboardingStatus } from '@/actions/db/onboarding-queries'
 import { VideoProps } from '@/stores/templatestore'
@@ -44,8 +44,12 @@ const redditStoryPrompts = [
 export const RedditOnboardingStep: React.FC<RedditOnboardingStepProps> = ({
   form
 }) => {
-  const { renderMedia, isLoading, renderId, isComplete } = useRendering()
-
+  const {
+    renderMedia,
+    isLoading: isRendering,
+    renderId,
+    isComplete
+  } = useRendering()
   const [promptIndex, setPromptIndex] = useState(0)
   const [prompt, setPrompt] = useState(redditStoryPrompts[0])
   const { execute: generate, isPending: isGeneratingRedditPost } =
@@ -54,7 +58,9 @@ export const RedditOnboardingStep: React.FC<RedditOnboardingStepProps> = ({
     useServerAction(updateOnboardingStatus)
   const { generateVoiceover, isGeneratingVoiceover } =
     useRedditVoiceoverGeneration(form)
-  const { hasGeneratedVideo } = useOnboardingState()
+  const { hasGeneratedVideo, refresh } = useOnboardingState()
+
+  const [isGenerating, setIsGenerating] = useState(false)
 
   const cyclePrompt = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -64,51 +70,28 @@ export const RedditOnboardingStep: React.FC<RedditOnboardingStepProps> = ({
   }
 
   const generatePost = async () => {
+    const id = toast.loading('Generating Reddit post...')
     try {
-      const id = toast.loading('Generating Reddit post...')
       const [data, error] = await generate(prompt)
-      if (error) {
-        toast.error(error.message, { id })
-      } else if (data) {
-        form.setValue('title', data.title)
-        form.setValue('subreddit', data.subreddit)
-        form.setValue('accountName', data.accountName)
-        form.setValue('text', data.text)
-        form.setValue('likes', data.likes)
-        form.setValue('comments', data.comments)
-        toast.success('Reddit post generated successfully', { id })
-      }
+      if (error) throw error
+      if (!data) throw new Error('No data received')
+
+      form.setValue('title', data.title)
+      form.setValue('subreddit', data.subreddit)
+      form.setValue('accountName', data.accountName)
+      form.setValue('text', data.text)
+      form.setValue('likes', data.likes)
+      form.setValue('comments', data.comments)
+      toast.success('Reddit post generated successfully', { id })
     } catch (error) {
       console.error('Error generating Reddit post:', error)
-      toast.error('Error generating Reddit post')
+      toast.error(
+        error instanceof Error ? error.message : 'Error generating Reddit post',
+        { id }
+      )
+      throw error // Re-throw to handle in the parent
     }
   }
-
-  const [isGenerating, setIsGenerating] = useState(false)
-
-  // Update onboarding status when video is generated
-  useEffect(() => {
-    if (isGenerating && isComplete) {
-      const completeGeneration = async () => {
-        const [, error] = await updateOnboarding({
-          hasGeneratedVideo: true,
-          videoGeneratedAt: new Date()
-        })
-        if (error) {
-          toast.error('Failed to update onboarding status')
-          console.error('Failed to update onboarding status', error)
-        } else {
-          confetti({
-            particleCount: 100,
-            spread: 100,
-            origin: { x: 0.5, y: 0.5 }
-          })
-          setIsGenerating(false)
-        }
-      }
-      completeGeneration()
-    }
-  }, [isComplete, isGenerating, updateOnboarding])
 
   const generateVideo = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -117,16 +100,55 @@ export const RedditOnboardingStep: React.FC<RedditOnboardingStepProps> = ({
         'You have already generated a video in this step. Please continue to the next step.'
       )
     }
+
+    const toastId = toast.loading('Starting video generation...')
+    setIsGenerating(true)
+
     try {
-      setIsGenerating(true)
+      // Step 1: Generate Reddit post
       await generatePost()
+      toast.loading('Generating voiceover...', { id: toastId })
+
+      // Step 2: Generate voiceover
       await generateVoiceover()
-      // await renderMedia()
+      toast.loading('Updating progress...', { id: toastId })
+
+      // Step 3: Update onboarding status
+      const [, error] = await updateOnboarding({
+        hasGeneratedVideo: true,
+        videoGeneratedAt: new Date()
+      })
+      if (error) throw error
+
+      // Step 4: Refresh onboarding state
+      await refresh()
+
+      // Success!
+      toast.success('Video generated successfully!', { id: toastId })
+      confetti({
+        particleCount: 100,
+        spread: 100,
+        origin: { x: 0.5, y: 0.5 }
+      })
     } catch (error) {
-      setIsGenerating(false)
       console.error('Error in video generation process:', error)
+      toast.error(
+        error instanceof Error
+          ? `Error: ${error.message}`
+          : 'Error in video generation process',
+        { id: toastId }
+      )
+    } finally {
+      setIsGenerating(false)
     }
   }
+
+  const isProcessing =
+    isGenerating ||
+    isGeneratingRedditPost ||
+    isGeneratingVoiceover ||
+    isRendering ||
+    isUpdatingOnboarding
 
   return (
     <Card>
@@ -158,11 +180,13 @@ export const RedditOnboardingStep: React.FC<RedditOnboardingStepProps> = ({
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="e.g. A story about a man cheating on his wife"
               className="text-lg w-full"
+              disabled={isProcessing}
             />
             <Button
               onClick={cyclePrompt}
               variant="outline"
               className="w-full sm:w-auto"
+              disabled={isProcessing}
             >
               <Shuffle className="mr-2 h-4 w-4" />
               Random Story
@@ -174,82 +198,28 @@ export const RedditOnboardingStep: React.FC<RedditOnboardingStepProps> = ({
             type="button"
             className="w-full text-lg h-14"
             variant="rainbow"
-            disabled={
-              isGeneratingRedditPost ||
-              isGeneratingVoiceover ||
-              isLoading ||
-              isUpdatingOnboarding
-            }
+            disabled={isProcessing || hasGeneratedVideo}
           >
-            {isGeneratingRedditPost ||
-            isGeneratingVoiceover ||
-            isLoading ||
-            isUpdatingOnboarding ? (
+            {isProcessing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {isGeneratingRedditPost
                   ? 'Generating Post...'
                   : isGeneratingVoiceover
                     ? 'Generating Voiceover...'
-                    : isLoading
+                    : isRendering
                       ? 'Generating Video...'
-                      : 'Updating Progress...'}
+                      : 'Processing...'}
               </>
             ) : (
-              <>Generate Video</>
+              'Generate Video'
             )}
           </Button>
           <small className="text-muted-foreground">
             This may take up to 30 seconds. Please be patient.
           </small>
           <RenderProgress id={renderId} />
-          {/* <Separator /> */}
-          {/* <ExportComponent id={renderId} /> */}
         </div>
-
-        {/* <Accordion type="single" collapsible className="mt-4">
-          <AccordionItem value="reddit-details" className="border-none">
-            <AccordionTrigger className="text-center">
-              Reddit Post Details
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="grid grid-cols-[auto,1fr] gap-4 items-center">
-                <Label htmlFor="redditSubreddit">Subreddit</Label>
-                <Input
-                  id="redditSubreddit"
-                  type="text"
-                  {...form.register('subreddit')}
-                />
-                <Label htmlFor="redditAccountName">Account Name</Label>
-                <Input
-                  id="redditAccountName"
-                  type="text"
-                  {...form.register('accountName')}
-                />
-                <Label htmlFor="redditTitle">Title</Label>
-                <Input id="redditTitle" {...form.register('title')} />
-                <Label htmlFor="redditText">Text</Label>
-                <Textarea
-                  id="redditText"
-                  className="min-h-[140px]"
-                  {...form.register('text')}
-                />
-                <Label htmlFor="redditLikes">Likes</Label>
-                <Input
-                  id="redditLikes"
-                  type="number"
-                  {...form.register('likes', { valueAsNumber: true })}
-                />
-                <Label htmlFor="redditComments">Comments</Label>
-                <Input
-                  id="redditComments"
-                  type="number"
-                  {...form.register('comments', { valueAsNumber: true })}
-                />
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion> */}
       </CardContent>
     </Card>
   )

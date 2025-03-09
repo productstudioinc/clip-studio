@@ -2,7 +2,7 @@
 
 import { unstable_cache } from 'next/cache'
 import { db } from '@/db'
-import { templates, userUploads, userUsage } from '@/db/schema'
+import { userUploads, userUsage } from '@/db/schema'
 import {
   AIImagesSchema,
   Language,
